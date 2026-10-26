@@ -1,0 +1,9 @@
+apiVersion: v2
+name: ares
+description: >-
+  Mesta-Ares — agentic SIEM+SOAR control plane (Rust services, console, and
+  in-cluster datastores). SIEM/SOAR platforms (Wazuh, TheHive, MISP, Shuffle)
+  are external endpoints wired via ares-secrets/env, not deployed here.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

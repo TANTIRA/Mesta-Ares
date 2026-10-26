@@ -1,0 +1,270 @@
+# Tool allowlist for the agentic SOAR layer.
+# Deny-by-default: a tool absent from this file cannot be invoked.
+# `impact`: read | write | high   `autonomy`: auto | approval | deny
+# autonomy=approval returns `approval_required` without executing: a human
+# must clear the call. Only the MISP write tools require approval; everything
+# else enabled here runs `auto`.
+version: 1
+
+tools:
+  # ---- read-only / enrichment ----
+  opensearch.query:
+    impact: read
+    autonomy: auto
+  thehive.case.create:
+    impact: write
+    autonomy: auto
+  thehive.case.update:
+    impact: write
+    autonomy: auto
+  thehive.observable.add:
+    impact: write
+    autonomy: auto
+  cortex.analyzer.run:
+    impact: read
+    autonomy: auto
+  misp.search:
+    impact: read
+    autonomy: auto
+  misp.attribute.search:
+    impact: read
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        value: { type: string, minLength: 1, maxLength: 2048 }
+        limit: { type: integer, minimum: 1, maximum: 500 }
+      required: [value]
+      additionalProperties: false
+  misp.event.view:
+    impact: read
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        event_id: { type: string, pattern: '^[0-9]+$' }
+      required: [event_id]
+      additionalProperties: false
+  misp.warninglist.check:
+    impact: read
+    autonomy: auto
+  misp.sighting.add:
+    impact: write
+    autonomy: approval
+  misp.attribute.add:
+    impact: write
+    autonomy: approval
+  virustotal.lookup:
+    impact: read
+    autonomy: auto
+  abuseipdb.check:
+    impact: read
+    autonomy: auto
+  shodan.host:
+    impact: read
+    autonomy: auto
+  greynoise.ip:
+    impact: read
+    autonomy: auto
+  urlscan.submit:
+    impact: read
+    autonomy: auto
+  osquery.fleet_query:
+    impact: read
+    autonomy: auto
+  wazuh.agent.list:
+    impact: read
+    autonomy: auto
+  nvd.lookup_cve:
+    impact: read
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        cve_id: { type: string, pattern: '^CVE-[0-9]{4}-[0-9]{4,7}$' }
+      required: [cve_id]
+      additionalProperties: false
+  nvd.cve_history:
+    impact: read
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        cve_id: { type: string, pattern: '^CVE-[0-9]{4}-[0-9]{4,7}$' }
+      required: [cve_id]
+      additionalProperties: false
+  nvd.recent_cves:
+    impact: read
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        days: { type: integer, minimum: 1, maximum: 120 }
+        keyword: { type: string, maxLength: 200 }
+        cvss_v3_severity: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+        cvss_v4_severity: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+        has_kev: { type: boolean }
+      additionalProperties: false
+  cvss.score:
+    impact: read
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        vector: { type: string, pattern: '^CVSS:(3\.[01]|4\.0)/' }
+      required: [vector]
+      additionalProperties: false
+
+  # ---- response actions (reversible) ----
+  blocklist.ip.add:
+    impact: write
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        ip: { type: string, format: ipv4 }
+        duration_minutes: { type: integer, minimum: 5, maximum: 10080 }
+      required: [ip]
+      additionalProperties: false
+    forbidden_args:
+      ip: [RFC1918, loopback, multicast] # evaluated in code
+  blocklist.domain.add:
+    impact: write
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        domain: { type: string, maxLength: 253 }
+        duration_minutes: { type: integer, minimum: 5, maximum: 10080 }
+      required: [domain]
+      additionalProperties: false
+  misp.ioc.block:
+    impact: write
+    autonomy: approval
+
+  # ---- response actions (high impact, still autonomous but radius-capped) ----
+  wazuh.active_response.isolate_host:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 5, cooldown_minutes: 10 }
+    args_schema:
+      type: object
+      properties:
+        agent_id: { type: string, pattern: '^[0-9]{3,}$' }
+        duration_minutes: { type: integer, minimum: 5, maximum: 1440 }
+      required: [agent_id]
+      additionalProperties: false
+  wazuh.active_response.kill_process:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 20 }
+    args_schema:
+      type: object
+      properties:
+        agent_id: { type: string }
+        pid: { type: integer, minimum: 1 }
+      required: [agent_id, pid]
+      additionalProperties: false
+  entra.user.revoke_sessions:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 10 }
+    args_schema:
+      type: object
+      properties:
+        user_id: { type: string, format: uuid }
+      required: [user_id]
+      additionalProperties: false
+  entra.user.disable:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 5 }
+    args_schema:
+      type: object
+      properties:
+        user_id: { type: string, format: uuid }
+      required: [user_id]
+      additionalProperties: false
+  ad.user.disable:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 5 }
+    args_schema:
+      type: object
+      properties:
+        sam_account_name: { type: string, maxLength: 20 }
+      required: [sam_account_name]
+      additionalProperties: false
+  o365.email.quarantine:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 50 }
+    args_schema:
+      type: object
+      properties:
+        message_id: { type: string }
+      required: [message_id]
+      additionalProperties: false
+  firewall.rule.add:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 20 }
+    args_schema:
+      type: object
+      properties:
+        direction: { type: string, enum: [inbound, outbound] }
+        remote: { type: string }
+        action: { type: string, enum: [deny] }
+        duration_minutes: { type: integer, minimum: 5, maximum: 1440 }
+      required: [direction, remote, action]
+      additionalProperties: false
+
+  # ---- detection-as-code ----
+  detection.sigma.deploy:
+    impact: write
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        rule_path: { type: string, pattern: '^detection-content/' }
+        backtest_fp_max: { type: integer, minimum: 0 }
+      required: [rule_path]
+      additionalProperties: false
+
+  # ---- notifications ----
+  notify.slack.post:
+    impact: write
+    autonomy: auto
+
+  # ---- dynamic command execution ----
+  # Runs inside an NVIDIA OpenShell sandbox (see executors/openshell.rs) —
+  # the sandbox is defense-in-depth; this schema is the gate. `command` is
+  # enum-allowlisted to the BAS/exec surface; args are plain argv entries
+  # (no shell metacharacters — the executor rejects ; && | ` $() anyway).
+  # Needs a reachable openshell gateway; fails closed ("sandbox unavailable")
+  # when absent. Non-exec tools are unaffected.
+  exec.sandbox:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 20, cooldown_minutes: 1 }
+    args_schema:
+      type: object
+      properties:
+        command: { type: string, enum: [bash, sshpass, python3, echo] }
+        args:
+          type: array
+          items: { type: string, maxLength: 1024 }
+          maxItems: 8
+      required: [command]
+      additionalProperties: false
+
+  # ---- explicitly denied (kept for documentation) ----
+  host.shutdown:
+    impact: high
+    autonomy: deny
+  user.delete:
+    impact: high
+    autonomy: deny
+  siem.index.delete:
+    impact: high
+    autonomy: deny

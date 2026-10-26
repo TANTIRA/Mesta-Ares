@@ -1,0 +1,43 @@
+# Content ConfigMaps generated from the repo. Kustomize flattens each
+# generator to basenames, so one generator per source directory; each is
+# mounted at the exact path the binary reads.
+#
+# Keys must be unique within a ConfigMap — file names collide across
+# directories (bas-001-*.yml exists in both detection-content/pending and
+# bas/scenarios), which is why they are separate generators.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ares
+
+configMapGenerator:
+  # tool-server (POLICIES_DIR=/policies) and vuln-agent (VULN_WATCHLIST).
+  - name: ares-policies
+    files:
+      - ../../policies/tools.yml
+      - ../../policies/protected-assets.yml
+      - ../../policies/rate-limits.yml
+      - ../../policies/vuln-watchlist.yml
+
+  # detection-agent promotes pending → active; api-server scans active.
+  - name: ares-detection-active
+    files:
+      - ../../detection-content/active/lsass-access.yml
+      - ../../detection-content/active/runkey-persistence.yml
+      - ../../detection-content/active/suspicious-powershell.yml
+  - name: ares-detection-pending
+    files:
+      - ../../detection-content/pending/bas-001-lsass-dump.yml
+      - ../../detection-content/pending/bas-002-powershell-download.yml
+      - ../../detection-content/pending/bas-003-runkey-persistence.yml
+      - ../../detection-content/pending/bas-004-web-beacon.yml
+      - ../../detection-content/pending/bas-005-obfuscation.yml
+
+  # bas-runner reads `bas/scenarios/*.yml`.
+  - name: ares-bas-scenarios
+    files:
+      - ../../bas/scenarios/bas-001-lsass-dump.yml
+      - ../../bas/scenarios/bas-002-powershell-download.yml
+      - ../../bas/scenarios/bas-003-runkey-persistence.yml
+      - ../../bas/scenarios/bas-004-web-beacon.yml
+      - ../../bas/scenarios/bas-005-obfuscation.yml

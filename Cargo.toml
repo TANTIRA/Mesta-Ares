@@ -1,0 +1,63 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/agent-protocol",
+    "crates/llm-client",
+    "crates/agent-core",
+    "crates/tool-server",
+    "crates/policy-engine",
+    "crates/connectors",
+    "crates/cvss",
+    "crates/enrichment-lib",
+    "crates/orchestrator",
+    "crates/triage-agent",
+    "crates/response-agent",
+    "crates/detection-agent",
+    "crates/hunt-agent",
+    "crates/ingestion-gateway",
+    "crates/api-server",
+    "crates/http-limits",
+    "crates/a2a",
+    "crates/acp",
+    "crates/audit",
+    "crates/bas-runner",
+    "crates/vuln-agent",
+]
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+rust-version = "1.80"
+
+[workspace.dependencies]
+# async runtime + http
+tokio = { version = "1", features = ["full"] }
+axum = "0.8"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+# data
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+schemars = { version = "0.8", features = ["chrono", "uuid1"] }
+uuid = { version = "1", features = ["v4", "v5", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+# storage / queue
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json"] }
+pgvector = { version = "0.4", features = ["sqlx"] }
+async-nats = "0.50"
+redis = { version = "0.27", features = ["tokio-comp"] }
+# observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+# misc
+anyhow = "1"
+thiserror = "2"
+clap = { version = "4", features = ["derive", "env"] }
+sha2 = "0.10"
+dashmap = "6"
+futures = "0.3"
+tower-http = { version = "0.6", features = ["cors"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

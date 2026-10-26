@@ -1,0 +1,11 @@
+# Atomic Red Team T1027 — "Base64 shebang" / encoded-script obfuscation
+id: bas-005
+name: Base64-obfuscated command execution
+techniques: [T1027]
+target: linux-endpoint
+executor:
+  platform: linux
+  # "cat /etc/passwd" hidden behind base64 decode + shell exec — the classic
+  # obfuscation shape detections key on. Payload is read-only.
+  command: >-
+    sh -c 'echo "Y2F0IC9ldGMvcGFzc3dk" | base64 -d | sh'

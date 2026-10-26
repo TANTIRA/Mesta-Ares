@@ -1,0 +1,19 @@
+# Dev image for the Next.js console at apps/console.
+# Build context is the repo root (see docker-compose).
+FROM node:20-alpine
+
+RUN corepack enable && corepack prepare pnpm@9 --activate
+
+WORKDIR /app
+# Only package.json is copied here so the layer survives missing lockfiles;
+# pnpm resolves fresh (frozen-lockfile=false) until a pnpm-lock.yaml lands.
+COPY apps/console/package.json ./
+RUN pnpm install --frozen-lockfile=false
+COPY apps/console ./
+
+# NEXT_PUBLIC_* is inlined at build time for the client bundle.
+ARG NEXT_PUBLIC_API_URL=http://localhost:8080
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
+EXPOSE 3000
+CMD ["pnpm", "dev"]

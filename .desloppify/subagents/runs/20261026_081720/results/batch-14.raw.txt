@@ -1,0 +1,289 @@
+{
+  "batch": "incomplete_migration",
+  "batch_index": 14,
+  "assessments": {
+    "incomplete_migration": 74.0
+  },
+  "dimension_notes": {
+    "incomplete_migration": {
+      "evidence": [
+        "Most smaller migrations are finished and the old path is gone, not aliased: every axum route uses 0.8 `{param}` syntax (crates/api-server/src/main.rs:283-325, with a guard test at main.rs:386 that builds the router to catch 0.7 `:param` strings); there is exactly one NVD client on API 2.0 (crates/connectors/src/lib.rs:802-1037, no 1.0 endpoints or dual parsers); rate limiting lives in one crate (crates/http-limits) consumed by both edge services (api-server/src/main.rs:360-365, ingestion-gateway/src/main.rs:139-146) with no leftover local limiters.",
+        "No `#[deprecated]` attribute and no deprecated-but-called symbol exists anywhere in the 21 workspace crates; a grep for deprecated/legacy/old api/remove after/migrate over all `*.rs` returns only two doc comments in crates/http-limits/src/lib.rs:13,238 describing the deliberately kept client-facing `x-ratelimit-*` header trio.",
+        "The systemic failure is a whole unadopted runtime: crates/agent-core exports AgentLoop (agent_loop.rs:64), ToolGateway/HttpToolGateway (gateway.rs:36,47), CheckpointStore/PostgresCheckpointer (checkpoint.rs:11,49) and Budgets (budget.rs), yet a grep for all six names outside crates/agent-core/src returns nothing. The only implementors are test doubles (agent_loop.rs:218 `EchoGateway`, :232 `InMemoryCheckpointer`).",
+        "Because nothing adopts that runtime, the /invoke contract is implemented three times with divergent semantics: agent-core/src/gateway.rs:101-134 (3 retries, full jitter, 15s timeout), response-agent/src/main.rs:210-231 (single POST, transport error rewritten as a `DecisionKind::Deny`), detection-agent/src/pipeline.rs:248-272 (log and ignore). `InvokeResponse` is declared twice (agent-core/src/gateway.rs:29 and response-agent/src/main.rs:190).",
+        "The `connectors` crate is too narrow to be the only outbound path, so callers keep raw reqwest: api-server/src/main.rs:141-153 posts TheHive `POST /api/v1/query` with env-read credentials, triage-agent/src/main.rs:214-236 writes `{OPENSEARCH_URL}/ares-verdicts/_doc`, detection-agent/src/pipeline.rs:203-241 posts `_plugins/_alerting/monitors`; none of these inherit connectors' retry/backoff (connectors/src/lib.rs:84-120).",
+        "Residue of the abandoned consolidation is still in the tree: `#[allow(dead_code)] os: Arc<OpensearchClient>` kept 'for parity with the connector config' (triage-agent/src/main.rs:333-336), an unused workspace `pgvector` dependency (Cargo.toml:46) with duplicated sqlx declarations and a stale rationale comment in two crates (agent-core/Cargo.toml:18-20, audit/Cargo.toml:13-15), and the pre-rename `API_BIND` still set for api-server in both manifests (infra/docker-compose.yml:343, infra/helm/ares/values.yaml:42) while the code reads `BIND_ADDR` (api-server/src/main.rs:67).",
+        "Two protocol surfaces coexist deliberately rather than by accident: ACP reuses the A2A registry and publish path (crates/api-server/src/acp.rs:16-18, 60, 244-265) instead of duplicating transport, and acp.rs:422-424 documents its resume endpoint as an intentional spec-completeness stub. That is a bounded, documented exception, not migration drift.",
+        "The thiserror/anyhow split flagged by the mechanical scan is layering, not drift: typed thiserror enums sit at library boundaries (agent-core/src/error.rs:4, llm-client/src/error.rs:4, cvss/src/lib.rs:15, audit/src/lib.rs:31) and anyhow is used by binaries and connectors, which is the conventional Rust division."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "incomplete_migration": {
+      "dimension_character": "The small migrations were finished properly and their old paths deleted — axum 0.8 routes, one NVD 2.0 client, one shared rate limiter, no deprecated symbols anywhere — so a developer never trips over half-renamed helpers or compatibility aliases. The exceptions are structural and sit exactly where new code is most likely to land: agent-core ships a complete agent runtime that no service instantiates, so every agent keeps its own loop and its own /invoke client with different failure semantics, and the connectors layer is narrow enough that three callers still reach OpenSearch and TheHive with hand-rolled reqwest. Around those two seams sit genuine leftovers (dead `os` field, unused pgvector dependency, `API_BIND` in the manifests, docs still claiming no rate limiting), which reinforce the impression that the last wave of consolidation stopped mid-way.",
+      "score_rationale": "The anchors place 80 at 'old and new patterns coexisting — unclear which to follow or extend', and that is literally the state of the agent runtime and the outbound HTTP layer, the two places a developer extends most often; the divergent retry/deny behaviour between the three /invoke clients makes the ambiguity operational, not cosmetic. What keeps this above the 70 mark is that the rest of the codebase demonstrates completed migrations with the old path removed and enforced by tests (route-syntax guard, single NVD client, shared limiter, ACP reusing A2A), plus the complete absence of deprecated-but-called symbols. The residue items are cheap and well-bounded; the two dual-path seams are what hold the score in the mid-70s."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "agent_runtime_never_adopted",
+      "summary": "agent-core's AgentLoop/ToolGateway/CheckpointStore runtime has zero production consumers; every agent hand-rolls its own loop",
+      "related_files": [
+        "crates/agent-core/src/agent_loop.rs",
+        "crates/agent-core/src/gateway.rs",
+        "crates/agent-core/src/checkpoint.rs",
+        "crates/agent-core/src/budget.rs",
+        "crates/api-server/src/a2a.rs"
+      ],
+      "evidence": [
+        "A grep for AgentLoop, ToolGateway, HttpToolGateway, CheckpointStore, PostgresCheckpointer and InMemoryCheckpointer across crates/ returns hits only inside crates/agent-core/src (agent_loop.rs:64,70; gateway.rs:36,47; checkpoint.rs:11,49) — no service crate constructs any of them.",
+        "The only implementors are test doubles: agent_loop.rs:218 `EchoGateway` implements ToolGateway and agent_loop.rs:232 uses `InMemoryCheckpointer`, so the runtime is exercised solely by its own unit tests.",
+        "crates/agent-core/src/lib.rs:3-8 documents AgentLoop as the way ARES agents run, which contradicts every agent's actual main.rs (triage-agent/src/main.rs:329-337, response-agent/src/main.rs:198-206, detection-agent/src/main.rs:62-63).",
+        "The new API's storage contract is bypassed too: api-server reads checkpoints with raw SQL (`SELECT state FROM agent_checkpoints WHERE thread_id = $1`) at a2a.rs:320 and acp.rs:159 instead of `PostgresCheckpointer`."
+      ],
+      "suggestion": "Resolve the dual path in one direction. Either delete AgentLoop/ToolGateway/CheckpointStore/Budgets plus their tests (crates/agent-core/src/{agent_loop,gateway,checkpoint,budget}.rs) and let agent-core keep only kill switch, state and error, or migrate triage-agent and response-agent onto AgentLoop + HttpToolGateway first and then retire their hand-rolled loops. Also point api-server's two checkpoint reads at `PostgresCheckpointer` so the table has one reader contract.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "root_cause_cluster": "agent-runtime-dual-path"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "three_invoke_clients",
+      "summary": "Three independent tool-server /invoke clients with different retry, timeout and failure semantics",
+      "related_files": [
+        "crates/agent-core/src/gateway.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs"
+      ],
+      "evidence": [
+        "`InvokeResponse` is declared twice for the same wire shape: agent-core/src/gateway.rs:29 and response-agent/src/main.rs:190.",
+        "agent-core/src/gateway.rs:101-134 retries connect/timeout errors and server-flagged retryable results (MAX_RETRIES=3, full jitter, REQUEST_TIMEOUT=15s); response-agent/src/main.rs:210-231 does one POST and rewrites a transport failure into `DecisionKind::Deny` with the error as `reason`, so an unreachable tool-server is persisted in response_actions as a policy denial; detection-agent/src/pipeline.rs:248-272 logs and drops the failure.",
+        "response-agent builds `reqwest::Client::new()` (main.rs:399) with no timeout while agent-core sets 15s, so the 15s contract documented in docs/services.md:49 holds only on the path nobody calls."
+      ],
+      "suggestion": "Keep one client. Move `InvokeResponse` beside `ToolCall` in crates/agent-protocol/src/tool.rs and have response-agent and detection-agent call a single helper (either `HttpToolGateway::invoke` or a `connectors::tool_server` function if agent-core is deleted), so retry/timeout/deny semantics are identical everywhere; then delete the two local `InvokeResponse` structs.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "agent-runtime-dual-path"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "connector_bypass_raw_http",
+      "summary": "OpenSearch/TheHive calls bypass `connectors` with hand-rolled reqwest and re-derived env auth",
+      "related_files": [
+        "crates/api-server/src/main.rs",
+        "crates/triage-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "api-server/src/main.rs:141-153 posts to `{THEHIVE_URL}/api/v1/query` reading `THEHIVE_URL`/`THEHIVE_API_KEY` itself, duplicating `ConnectorConfig::thehive_client()`; the module NOTE at main.rs:23-24 says it exists because ThehiveClient exposes only create/update.",
+        "triage-agent/src/main.rs:214-236 writes `{OPENSEARCH_URL}/ares-verdicts/_doc` with its own OPENSEARCH_USER/OPENSEARCH_PASS block, and detection-agent/src/pipeline.rs:203-241 posts `_plugins/_alerting/monitors` the same way, both because `OpensearchClient::query` covers searches only (docstrings at triage-agent/src/main.rs:16-17 and pipeline.rs:201-202).",
+        "These raw paths skip connectors' retry/backoff (`send_with_retry`, connectors/src/lib.rs:84-120) and its 15s call budget, so reliability and auth handling depend on which call site is used.",
+        "Shim left behind by the same split: triage-agent/src/main.rs:333-336 keeps `#[allow(dead_code)] os: Arc<OpensearchClient>` with the comment 'Kept for parity with the connector config'."
+      ],
+      "suggestion": "Close the connector API gap and delete the bypasses: add `OpensearchClient::index_doc(index, doc)` and `ThehiveClient::query(json)` in crates/connectors/src/lib.rs, route api-server/triage-agent/detection-agent through them, then remove the dead `os` field (triage-agent/src/main.rs:333-336) and the module NOTE at api-server/src/main.rs:23-24.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "provider_integrations_duplicated",
+      "summary": "VirusTotal/AbuseIPDB/Shodan/GreyNoise are integrated twice: enrichment-lib and tool-server executors",
+      "related_files": [
+        "crates/enrichment-lib/src/lib.rs",
+        "crates/tool-server/src/executors/mod.rs"
+      ],
+      "evidence": [
+        "enrichment-lib/src/lib.rs:199-246 builds one Enricher over virustotal/abuseipdb/shodan/greynoise with normalized scores plus Redis caching (cache_get/cache_set at :259-282).",
+        "tool-server/src/executors/mod.rs:394-497 reimplements the same four providers (plus urlscan) as raw `serde_json::Value` passthrough behind a shared 10s client with no cache and no normalization.",
+        "The VirusTotal URL builder is copied verbatim: `b64url` at enrichment-lib/src/lib.rs:172 and again at executors/mod.rs:54 — the mechanical dupe detector reports them as exact duplicates.",
+        "Both paths are live for the same upstream: triage-agent uses Enricher (triage-agent/src/main.rs:33,241) while response-agent's planner reaches the same providers through `tool-server /invoke`, so scores, caching and rate behaviour differ by caller."
+      ],
+      "suggestion": "Make the executors delegate: have `virustotal.lookup`/`abuseipdb.check`/`shodan.host`/`greynoise.ip` call `enrichment_lib::Enricher` so there is one provider registry, one cache and one normalization, then delete `ProviderLookup` (executors/mod.rs:392-497) and the duplicated `b64url` at executors/mod.rs:54.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "jetstream_publish_half_migrated",
+      "summary": "JetStream publishing adopted in two services but the orchestrator still republishes over core NATS",
+      "related_files": [
+        "crates/ingestion-gateway/src/nats_sink.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/orchestrator/src/nats_bus.rs",
+        "crates/orchestrator/src/main.rs"
+      ],
+      "evidence": [
+        "ingestion-gateway/src/nats_sink.rs:16-59 introduces a JetStream-first sink with a plain-publish fallback, and api-server/src/a2a.rs:267-272 mirrors the same `jetstream: Option<Context>` shape.",
+        "orchestrator/src/nats_bus.rs:33-40 still publishes core-NATS only, yet the orchestrator is the hop that forwards every envelope to triage/respond/detection/hunt (orchestrator/src/main.rs:106), so persistence stops at the router.",
+        "orchestrator/src/main.rs:120-127 derives the delivery count from a `Nats-Delivery-Count` header that core NATS never sets, so the MAX_DELIVERIES/DLQ escalation at main.rs:63-67 never triggers on the path it guards.",
+        "docs/services.md:48 promises 'NATS publish | 5s | 3 attempts', which only the NatsSink path attempts; NatsBus has neither a timeout nor a retry."
+      ],
+      "suggestion": "Give the orchestrator the same sink: move ingestion-gateway/src/nats_sink.rs into a shared crate (or into agent-protocol) and consume with a JetStream consumer so `Nats-Delivery-Count` is real; if core NATS is the intended design instead, delete the JetStream branches in a2a.rs/nats_sink.rs and the inert delivery-count logic so one publish contract remains.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "pgvector_dead_workspace_dep",
+      "summary": "Unused workspace `pgvector` dependency plus duplicated sqlx declarations kept as a stale workaround",
+      "related_files": [
+        "Cargo.toml",
+        "crates/agent-core/Cargo.toml",
+        "crates/audit/Cargo.toml",
+        "infra/helm/ares/values.yaml"
+      ],
+      "evidence": [
+        "Cargo.toml:46 declares `pgvector = { version = \"0.4\", features = [\"sqlx\"] }`; no crate lists `pgvector` in its dependencies and no source file references it.",
+        "agent-core/Cargo.toml:18-20 and audit/Cargo.toml:13-15 pin `sqlx` directly with the comment 'the workspace sqlx spec requests a nonexistent `pgvector` feature' — the workspace spec at Cargo.toml:38 requests no such feature, so the workaround and its stated reason are stale.",
+        "infra/helm/ares/values.yaml:77 still runs the `pgvector/pgvector:pg16` image, the last trace of the abandoned vector-search plan."
+      ],
+      "suggestion": "Delete Cargo.toml:46, change both crates to `sqlx.workspace = true`, drop the two comment blocks, and switch the helm postgres image (values.yaml:77) to `postgres:16` unless vector columns are actually planned.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "api_bind_rename_incomplete",
+      "summary": "`API_BIND`→`BIND_ADDR` rename never reached the api-server manifests",
+      "related_files": [
+        "infra/docker-compose.yml",
+        "infra/helm/ares/values.yaml",
+        "crates/api-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/main.rs:67 reads `BIND_ADDR`; tool-server (main.rs:283) and ingestion-gateway (main.rs:45) read the same variable and their manifests set it (infra/docker-compose.yml:314,356; values.yaml:34,45).",
+        "api-server's manifests still carry the pre-rename name: infra/docker-compose.yml:343 and infra/helm/ares/values.yaml:42 set `API_BIND: 0.0.0.0:8080`, so the value is ignored and the deployment only works because the default is also 8080.",
+        "docs/services.md:132 and :189 already record '`API_BIND` env is dead (code reads `BIND_ADDR`)' but the manifests were never updated."
+      ],
+      "suggestion": "Replace `API_BIND` with `BIND_ADDR` at infra/docker-compose.yml:343 and infra/helm/ares/values.yaml:42, then remove the two API8/API9 notes about it in docs/services.md.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "stale_rate_limit_docs",
+      "summary": "services.md still states there is no rate limiting after http-limits shipped",
+      "related_files": [
+        "docs/services.md",
+        "crates/api-server/src/main.rs",
+        "crates/ingestion-gateway/src/main.rs"
+      ],
+      "evidence": [
+        "docs/services.md:128 (API4) asserts 'No rate limiting or body limits configured anywhere' and finding 5 at docs/services.md:173-178 repeats 'No rate limit', while api-server/src/main.rs:360-365 and ingestion-gateway/src/main.rs:139-146 both mount `http_limits::middleware`.",
+        "The same document's Rate limits section (docs/services.md:86-113) documents the shipped per-key token buckets, 429 body and headers in detail, so the file contradicts itself about the same migration."
+      ],
+      "suggestion": "Rewrite API4 and finding 5 to describe the shipped limiter (per-key token buckets, 429 + Retry-After, legacy header trio) and keep only the still-true gaps: no `DefaultBodyLimit`, unbounded `/playbooks` and `/coverage` filesystem scans, and `/vulns` serialized behind the NVD mutex.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "subject_constants_half_shared",
+      "summary": "`ares.activity`/`ares.vulns`/`ares.dlq` and ActivityEvent are redefined per crate instead of in agent-protocol",
+      "related_files": [
+        "crates/agent-protocol/src/lib.rs",
+        "crates/triage-agent/src/activity.rs",
+        "crates/hunt-agent/src/activity.rs",
+        "crates/response-agent/src/activity.rs",
+        "crates/detection-agent/src/activity.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/api-server/src/stream.rs",
+        "crates/orchestrator/src/main.rs"
+      ],
+      "evidence": [
+        "agent-protocol/src/lib.rs:16-26 exports six subject constants but not `ares.activity`, which is declared six times: triage/hunt/response/detection activity.rs:8-11, api-server/src/stream.rs:22 and vuln-agent/src/main.rs:29.",
+        "`ActivityEvent` is copied into four agent crates; three use `step: String` (e.g. hunt-agent/src/activity.rs:18) while triage-agent/src/activity.rs:21 uses `step: &'static str`, so one wire field has two types across the fleet and triage cannot emit a dynamic step.",
+        "`ares.vulns` (vuln-agent/src/main.rs:27) and `ares.dlq` (orchestrator/src/main.rs:33, whose comment admits it is 'not part of the agent-protocol contract') stay local, and no crate subscribes to `ares.vulns`, so the subject exists only as a publish target."
+      ],
+      "suggestion": "Move `SUBJECT_ACTIVITY`, `SUBJECT_VULNS` and `SUBJECT_DLQ` plus one `ActivityEvent` (with `step: String`) into crates/agent-protocol and delete the four activity.rs copies and the local consts; that also settles the `&'static str` vs `String` split and gives the new `ares.vulns` subject a single definition.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "agent-core's runtime (AgentLoop/ToolGateway/CheckpointStore/Budgets) was written as a library ahead of its consumers and the agents were never moved onto it, leaving two live ways to run an agent and call a tool.",
+      "The connectors crate exposes only the operations its first callers needed (search-only OpenSearch, create/update-only TheHive), so later call sites kept raw reqwest instead of extending the connector — the consolidation stopped at the first gap.",
+      "Renames and consolidations were applied to code but not propagated to the second-order artefacts (infra manifests, docs/services.md, workspace dependency table), which is why API_BIND, pgvector and the 'no rate limiting' text survive."
+    ],
+    "likely_symptoms": [
+      "response_agent_records_deny_on_transport_error",
+      "duplicate_invoke_response_struct",
+      "dead_os_field_triage_agent",
+      "orchestrator_dlq_never_triggers",
+      "api_server_thehive_query_helper"
+    ],
+    "possible_false_positives": [
+      "thiserror→anyhow boundary drift (pattern_pairs) — this is deliberate layering, typed errors in libraries and anyhow in binaries, not an unfinished migration",
+      "ACP alongside A2A — two intentional external protocol surfaces sharing one publish path, not an old/new API pair"
+    ]
+  },
+  "context_updates": {
+    "incomplete_migration": {
+      "add": [
+        {
+          "header": "No deprecated symbols anywhere",
+          "description": "No `#[deprecated]` attribute exists in the workspace and no active code calls a deprecated alias; superseded paths were deleted rather than kept as shims, so a developer never has to check whether a symbol is the old one.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "axum 0.8 route migration complete",
+          "description": "Every route in crates/api-server/src/main.rs:283-325 uses `{param}` syntax and main.rs:386 builds the router in a test specifically to catch reintroduced 0.7 `:param` strings, so the migration cannot silently regress.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Single NVD API 2.0 client",
+          "description": "crates/connectors/src/lib.rs:802-1037 is the only NVD integration (one base URL, one rate limiter, one retry budget); no 1.0 endpoint or second parser survives, so CVE data has one shape.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Rate limiting consolidated in http-limits",
+          "description": "Both edge services consume the shared crate (api-server/src/main.rs:360-365, ingestion-gateway/src/main.rs:139-146) and their local ratelimit.rs files only map request paths to tiers, so the earlier per-service limiter story is fully replaced.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "ACP reuses the A2A publish path",
+          "description": "crates/api-server/src/acp.rs:16-18 and :244-265 build runs on a2a::AGENTS, a2a::build_payload and a2a::publish instead of copying transport, so adding a second protocol did not create a second envelope path.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "thiserror in libraries, anyhow in binaries",
+          "description": "Typed thiserror enums sit at library boundaries (agent-core/src/error.rs:4, llm-client/src/error.rs:4, cvss/src/lib.rs:15, audit/src/lib.rs:31) and binaries use anyhow; this is deliberate layering, not the drift the mechanical pattern pair suggests.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Legacy rate-limit headers kept on purpose",
+          "description": "http-limits emits the `x-ratelimit-limit/remaining/reset` trio and calls it legacy in its own docs (lib.rs:13,238) and in docs/services.md:103-109; it is a deliberate client-facing contract, not stale residue.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "ACP resume endpoint is an intentional stub",
+          "description": "api-server/src/acp.rs:422-424 always rejects resume with `invalid_input` because ARES agents never emit `awaiting`, and says so; a documented, bounded spec-completeness exception.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

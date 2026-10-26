@@ -1,0 +1,29 @@
+# Non-secret env shared by every pod. Mirrors `env` in the Helm chart's
+# values.yaml — keep the two in sync.
+#
+# Secrets are NOT here. Create the `ares-secrets` Secret once, out of band:
+#   kubectl -n ares create secret generic ares-secrets --from-env-file=.env
+# Required keys: DATABASE_URL, ANTHROPIC_API_KEY, and whichever provider keys
+# you use (VIRUSTOTAL_API_KEY, SHODAN_API_KEY, ABUSEIPDB_API_KEY,
+# GREYNOISE_API_KEY, MISP_API_KEY, THEHIVE_API_KEY, WAZUH_API_USER,
+# WAZUH_API_PASS, SHUFFLE_API_KEY), plus POSTGRES_PASSWORD for the bundled
+# Postgres.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ares-env
+  labels:
+    app.kubernetes.io/part-of: ares
+data:
+  RUST_LOG: "info"
+  NATS_URL: "nats://ares-nats:4222"
+  REDIS_URL: "redis://ares-redis:6379"
+  TOOL_SERVER_URL: "http://ares-tool-server:8090"
+  # External SIEM/TIP stack. Replace with your own endpoints, or deploy the
+  # compose stack elsewhere and point these at it.
+  OPENSEARCH_URL: "http://opensearch.example:9200"
+  THEHIVE_URL: "http://thehive.example:9000"
+  CORTEX_URL: "http://cortex.example:9001"
+  MISP_URL: "https://misp.example"
+  WAZUH_API_URL: "https://wazuh-manager.example:55000"
+  SHUFFLE_URL: "http://shuffle-backend.example:5001"

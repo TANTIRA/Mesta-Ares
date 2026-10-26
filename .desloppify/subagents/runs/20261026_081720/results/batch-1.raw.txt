@@ -1,0 +1,262 @@
+{
+  "batch": "cross_module_architecture",
+  "batch_index": 1,
+  "assessments": {"cross_module_architecture": 74.0},
+  "dimension_notes": {
+    "cross_module_architecture": {
+      "evidence": [
+        "Clean acyclic layered graph: contract crates (agent-protocol, a2a, acp, cvss, llm-client, connectors, http-limits) -> core libs (agent-core, audit, enrichment-lib, policy-engine) -> binaries; every internal edge is a path dep pointing downward, enforced by Cargo",
+        "agent-protocol is the intended contract hub: Envelope (13 file importers), tool.rs (9), handoff, audit + 6 NATS subject constants; zero internal deps, pure types",
+        "crates/orchestrator/src/main.rs:33,139 subscribes `ares.*` and republishes every unparseable payload to `ares.dlq`; `ares.*` matches ares.dlq/ares.activity/ares.vulns, so each non-Envelope message re-enters and is republished forever (delivery_count is always 1 because nothing sets Nats-Delivery-Count on core-NATS publishes; MAX_DELIVERIES=3 never trips)",
+        "ActivityEvent + SUBJECT_ACTIVITY duplicated in crates/{detection,hunt,response,triage}-agent/src/activity.rs, again as a const in api-server/src/stream.rs:22, and as an incompatible json! event in vuln-agent/src/main.rs:120-135 which omits workflow_run_id required by the documented SSE schema (docs/services.md:33); triage's copy drifts (`step: &'static str` vs String); the subject is absent from agent-protocol while its 6 sibling subjects live there",
+        "vuln-agent publishes raw non-Envelope JSON on locally-defined `ares.vulns` (main.rs:27,246-249) with no consumer anywhere; the envelope-only orchestrator DLQ-loops every advisory",
+        "response-agent/src/main.rs:189-232 re-implements POST /invoke (private InvokeResponse + invoke_tool on a no-timeout reqwest::Client, no retries) although agent_core::HttpToolGateway (15s timeout, 3 jittered retries, crates/agent-core/src/gateway.rs:47-134) is already in its dependency graph; InvokeResponse {decision,result} is defined three times: tool-server/main.rs:30, agent-core/gateway.rs:29, response-agent/main.rs:190",
+        "agent-core exports a full agent runtime (AgentLoop, CheckpointStore, PostgresCheckpointer, ToolGateway, Budgets) with zero production callers; agents hand-roll parallel equivalents, api-server creates+reads agent_checkpoints (a2a.rs:205-230,320-326) that no service writes, while docs/services.md:75-77 promises checkpoint-resume on restart",
+        "bas-runner publishes BasResult to ares.bas always and ares.detection when undetected (main.rs:234-249) while orchestrator routes ares.bas -> ares.detection (main.rs:55), so undetected scenarios double-trigger detection-agent (LLM spend) and every detected BasResult also triggers a detection cycle",
+        "JetStream-first publish policy duplicated: NatsSink::ensure_stream/publish (ingestion-gateway/src/nats_sink.rs:42-82) vs ensure_jetstream/publish (api-server/src/a2a.rs:235-276), acknowledged by comments ('same policy as ingestion-gateway's NatsSink'); orchestrator's NatsBus is a third envelope-publish wrapper",
+        "services.md:23 'No service reads another's table except audit_log' is stale: api-server reads response_actions, bas_results, vuln_advisories, agent_checkpoints; detection-agent reads bas_results for gap context (detection-agent/src/main.rs:117-128)"
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "The static crate graph is near-exemplary, but the NATS boundary layer has a live self-amplifying DLQ republish loop, a fragmented activity contract with active drift, a bypassed shared tool-gateway, and several documented contracts (delivery-count DLQ, checkpoint resume, activity schema, table ownership) that no longer match runtime."
+    }
+  },
+  "dimension_judgment": {
+    "cross_module_architecture": {
+      "dimension_character": "The compile-time architecture is genuinely strong: an acyclic, layered crate graph with a deliberate zero-dependency contract hub (agent-protocol) and services that coordinate through typed NATS envelopes rather than import edges. The weakness is concentrated at the runtime boundary those crates share: the message-contract layer is fragmented (five copies of the activity event, three copies of InvokeResponse, one off-contract publisher), the central router has an unbounded republish loop for non-Envelope traffic, and the intended shared agent runtime in agent-core sits unused while binaries hand-roll parallel machinery. A new team member learns the crate map in 30 seconds; the bus behavior holds several surprises the docs actively misdescribe.",
+      "score_rationale": "Between the 80 anchor (solid but uneven, recurring boundary friction) and 70 (mixed, patterns not fully trustworthy). The dependency direction, hub design, and facade discipline push toward 90; the DLQ self-loop on `ares.*`, the drifted activity contract, the bypassed HttpToolGateway resilience contract, and the dead checkpoint path pull toward 70. The defects are real and systemic but confined to one seam (the NATS boundary), so 74.0."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "dlq_republish_loop",
+      "summary": "Orchestrator's `ares.*` subscription DLQ-loops every non-Envelope message forever",
+      "related_files": [
+        "crates/orchestrator/src/main.rs",
+        "crates/orchestrator/src/nats_bus.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/detection-agent/src/activity.rs"
+      ],
+      "evidence": [
+        "orchestrator/main.rs:139 subscribes `ares.*`, which matches ares.dlq, ares.activity and ares.vulns; main.rs:69-75 republishes every unparseable payload to SUBJECT_DLQ unconditionally — a message received ON ares.dlq that fails Envelope parsing is republished to ares.dlq and re-received, with no exit condition",
+        "Non-Envelope traffic is routine: ActivityEvent JSON from four agents and vuln advisories both fail `serde_json::from_slice::<Envelope>` (missing id/correlation_id/source/kind/payload), so every routine activity event enters an infinite DLQ republish cycle — unbounded bus amplification at the central router",
+        "delivery_count (main.rs:120-127) reads a `Nats-Delivery-Count` header nothing ever sets on core-NATS publishes, so MAX_DELIVERIES=3 can never trip; the documented 'drop only on ares.dlq after 3 deliveries' contract (docs/services.md:48) is inert",
+        "Self-republish of routed envelopes is guarded (main.rs:90 `msg.subject.as_str() == subject`) but no equivalent guard exists for ares.dlq or for non-Envelope subjects"
+      ],
+      "suggestion": "In handle_message, return early when `msg.subject` is SUBJECT_DLQ or is not one of the routed ingress subjects (or subscribe only to `ares.alerts` plus explicit command subjects); before any DLQ republish, write an `ares-dlq-count` header and drop when it exceeds MAX_DELIVERIES — that makes the documented 3-delivery contract real and kills the loop.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "activity_contract_fragmented",
+      "summary": "ActivityEvent + SUBJECT_ACTIVITY copied into 5 sites with live drift; subject missing from agent-protocol",
+      "related_files": [
+        "crates/detection-agent/src/activity.rs",
+        "crates/hunt-agent/src/activity.rs",
+        "crates/response-agent/src/activity.rs",
+        "crates/triage-agent/src/activity.rs",
+        "crates/api-server/src/stream.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/agent-protocol/src/lib.rs"
+      ],
+      "evidence": [
+        "Four near-identical activity.rs files define ActivityEvent + `SUBJECT_ACTIVITY = \"ares.activity\"`; api-server/stream.rs:22 defines a fifth copy of the constant; vuln-agent/main.rs:29 defines a sixth",
+        "Drift already happened: triage's copy uses `step: &'static str` vs `String` elsewhere, and vuln-agent emits a hand-built json! event (main.rs:121-126) lacking `workflow_run_id` — a required field of the documented SSE schema `{workflow_run_id, agent, step, detail, ts}` (docs/services.md:33) and the correlation join api-server performs (acp.rs:201, a2a.rs)",
+        "agent-protocol/lib.rs hosts all six routed subject constants but not ares.activity, so the bus contract for the SSE feed lives only as copy-paste — the file's own comment admits it: 'The shape is defined locally here; every agent emits the same fields' (triage-agent/activity.rs:3-4)"
+      ],
+      "suggestion": "Define `SUBJECT_ACTIVITY` and `ActivityEvent` in agent-protocol (new `activity` module next to envelope.rs) and delete the per-agent copies and local consts; have vuln-agent emit the shared type so workflow_run_id is always present.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "vuln_off_contract_publish",
+      "summary": "vuln-agent publishes raw non-Envelope JSON on local `ares.vulns` with no consumer",
+      "related_files": [
+        "crates/vuln-agent/src/main.rs",
+        "crates/agent-protocol/src/lib.rs",
+        "crates/orchestrator/src/main.rs"
+      ],
+      "evidence": [
+        "main.rs:27 defines `SUBJECT_VULNS` locally and main.rs:236-249 publishes a bare json! advisory — no Envelope wrapper, breaking the platform convention that 'every service speaks the types defined' in agent-protocol (agent-protocol/lib.rs:3-4)",
+        "No subscriber to ares.vulns exists anywhere in the workspace; the payload lands on the orchestrator's ares.* subscription, fails Envelope parse, and feeds the DLQ republish loop",
+        "vuln-agent is also absent from the services.md service map and its advisory reaches consumers only through the vuln_advisories table — the NATS leg is dead boundary"
+      ],
+      "suggestion": "Either drop the publish (the table is the real delivery channel today) or make it contractual: move SUBJECT_VULNS into agent-protocol and publish an Envelope with a suitable kind so the message participates in routing instead of the DLQ.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "tool_gateway_bypass",
+      "summary": "response-agent bypasses agent-core's HttpToolGateway with a no-timeout, no-retry invoke_tool; InvokeResponse wire type x3",
+      "related_files": [
+        "crates/response-agent/src/main.rs",
+        "crates/agent-core/src/gateway.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/agent-protocol/src/tool.rs"
+      ],
+      "evidence": [
+        "response-agent already depends on agent-core (kill_switch_engaged, main.rs:22) but main.rs:210-232 POSTs {tool_url}/invoke on `reqwest::Client::new()` — no timeout, no retry, no 15s budget — while HttpToolGateway (agent-core/gateway.rs:47-134) implements exactly the documented contract (REQUEST_TIMEOUT=15s, 3 jittered retries) that docs/services.md:49 promises agent-side",
+        "InvokeResponse {decision, result} is declared three times as a private wire struct: tool-server/main.rs:30 (Serialize), agent-core/gateway.rs:29 (Deserialize), response-agent/main.rs:190 (Deserialize) — the tool-server's response contract is copy-pasted instead of living next to ToolCall/ToolResult/Decision in agent-protocol::tool",
+        "detection-agent/pipeline.rs:248-271 hand-rolls a third variant of the same POST /invoke call (fire-and-forget audit path)"
+      ],
+      "suggestion": "Switch response-agent's invoke_tool to `HttpToolGateway::new(tool_url)` (keeps its deny-stub mapping by inspecting ToolResult/Decision) and move `InvokeResponse` into agent-protocol::tool so server and both clients share one wire definition; reuse the same gateway in audit_deploy.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "agent_runtime_duplicated",
+      "summary": "Four agents copy the same subscribe->spawn->envelope->span->process runtime while agent-core's runtime abstractions have zero production callers",
+      "related_files": [
+        "crates/detection-agent/src/main.rs",
+        "crates/triage-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/agent-core/src/agent_loop.rs",
+        "crates/agent-core/src/checkpoint.rs",
+        "crates/api-server/src/a2a.rs"
+      ],
+      "evidence": [
+        "Each agent main.rs repeats the same ~50-line runtime: tracing_subscriber init, clap Config, async_nats::connect, ConnectorConfig::from_env, nats.subscribe(SUBJECT_X), `while let Some(msg)` spawn-per-message envelope parse + info_span + process (detection-agent/main.rs:209-280, triage-agent/main.rs:362-413, hunt-agent/main.rs:181-248, response-agent/main.rs:371-429) plus the identical emit() helper",
+        "agent-core exports AgentLoop + CheckpointStore + PostgresCheckpointer + ToolGateway + Budgets, yet no production code outside the crate instantiates any of them — the intended shared boundary is bypassed in favor of per-binary machinery",
+        "api-server creates agent_checkpoints (a2a.rs:221-228 'owned by agent-core') and joins it in load_task/load_run (a2a.rs:320-346, acp.rs:159-180) to detect completed runs, but nothing writes the table — a generated-but-never-fed data path; docs/services.md:75-77 promises 'agent loop checkpoints to Postgres so restart resumes, not restarts', which is unimplemented"
+      ],
+      "suggestion": "Extract the shared agent runtime where it belongs: add an `emit_activity`/subscribe-and-dispatch helper to agent-core (or the new activity contract module) and have the four agents adopt it; then either wire PostgresCheckpointer into a real agent loop or delete the checkpoint join in api-server and the resume-on-restart doc claim so the boundary reflects reality.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "architectural_change"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "bas_double_delivery",
+      "summary": "Undetected BAS results reach detection-agent twice: direct publish + orchestrator re-route of the ares.bas copy",
+      "related_files": [
+        "crates/bas-runner/src/main.rs",
+        "crates/orchestrator/src/main.rs",
+        "crates/detection-agent/src/main.rs"
+      ],
+      "evidence": [
+        "bas-runner publishes BasResult to ares.bas unconditionally and again to ares.detection when undetected (main.rs:234-249); orchestrator route_subject maps EnvelopeKind::BasResult -> SUBJECT_DETECTION (orchestrator/main.rs:55), so the ares.bas copy is also re-published to ares.detection — two deliveries of the same envelope for every undetected scenario",
+        "detection-agent runs a full LLM-backed run_cycle for every ares.detection envelope without dedupe (main.rs:258-278), so the duplicate is real LLM spend; every detected BasResult also triggers a detection cycle via the orchestrator route even though only gaps are useful"
+      ],
+      "suggestion": "Drop the direct ares.detection republish in bas-runner (the orchestrator already routes BasResult there) and gate the route on `payload.detected == false`, or dedupe by envelope id in detection-agent.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "jetstream_publish_duplicated",
+      "summary": "JetStream-first publish policy implemented twice: ingestion-gateway NatsSink vs api-server a2a.rs",
+      "related_files": [
+        "crates/ingestion-gateway/src/nats_sink.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/orchestrator/src/nats_bus.rs"
+      ],
+      "evidence": [
+        "api-server/a2a.rs:48,235-276 re-implements STREAM_NAME='ARES', the get-or-create `ares.>` stream config, and the JetStream-first/plain-fallback publish policy already in ingestion-gateway/nats_sink.rs:9-82 — comments openly acknowledge it ('mirrors ingestion-gateway', 'same policy as ingestion-gateway's NatsSink')",
+        "orchestrator/nats_bus.rs is a third envelope-publish wrapper (publish_envelope/publish_raw with flush); three crates now own pieces of 'how we put an Envelope on the bus'"
+      ],
+      "suggestion": "Give the bus-publish policy one home — e.g. a `bus` module in agent-protocol or a small ares-bus crate exposing ensure_stream + publish envelope — and have NatsSink, a2a::publish and NatsBus delegate to it.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "table_ownership_doc_drift",
+      "summary": "services.md table-ownership contract understates real cross-service reads; agent_checkpoints is written by nothing",
+      "related_files": [
+        "docs/services.md",
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/main.rs",
+        "crates/detection-agent/src/main.rs",
+        "crates/api-server/src/vulns.rs"
+      ],
+      "evidence": [
+        "services.md:20-23 claims 'No service reads another's table except audit_log (api-server read-model only)', but api-server also reads response_actions (get_plan, main.rs:255-279), bas_results (metrics, main.rs:230-241), vuln_advisories (vulns.rs), and agent_checkpoints (a2a.rs:320)",
+        "detection-agent — not a read-model service — queries bas_results, bas-runner's table, for gap context (detection-agent/main.rs:117-128)",
+        "agent_checkpoints is created and read but never written by any running service (only agent-core's unused PostgresCheckpointer writes it), so the documented checkpoint ownership has no runtime writer"
+      ],
+      "suggestion": "Update services.md to state the real contract: api-server is the read-model over all service tables, detection-agent reads bas_results; and either remove agent_checkpoints from the join path or mark it as reserved-for-agent-core until the loop is adopted.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "No shared 'bus contract' home beyond agent-protocol's routed subjects — activity/vulns/dlq subjects and their payload types were never centralized, so each producer defined its own copy and drift followed",
+      "agent-core's runtime (loop, gateway, checkpoints) was built ahead of agent adoption; the binaries grew their own loops instead, leaving a declared-but-bypassed boundary and several doc promises with no implementation"
+    ],
+    "likely_symptoms": [
+      "jetstream_publish_duplicated and the emit()/bootstrap copying are symptoms of the missing agent-runtime boundary (agent_runtime_duplicated)",
+      "vuln_off_contract_publish feeds dlq_republish_loop — fixing the loop without fixing the publisher still leaves a dead boundary leg"
+    ],
+    "possible_false_positives": []
+  },
+  "context_updates": {
+    "cross_module_architecture": {
+      "add": [
+        {
+          "header": "Acyclic layered crate graph",
+          "description": "Contract crates (agent-protocol, a2a, acp, cvss, llm-client, connectors, http-limits) sit below core libs (agent-core, audit, enrichment-lib, policy-engine) below binaries; every internal edge is a downward path dep, so dependency direction is uniform and Cargo-enforced.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "agent-protocol is the deliberate contract hub",
+          "description": "Envelope (13 importers), tool contract (9), handoff, audit and all six routed subject constants live in one zero-dependency types crate — a hub by design, the correct shape for a message-bus platform.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Bus-mediated coupling keeps the graph shallow",
+          "description": "Services coordinate through Envelope over NATS subjects rather than import edges; blast radius is explicit in subject names, not hidden in the dependency graph.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "ACP reuses A2A machinery inside api-server",
+          "description": "acp.rs builds on a2a.rs's AgentDef registry, publish path, build_payload and task_uuid instead of maintaining a parallel agent-facing stack.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Shared control primitives are centralized",
+          "description": "agent-core::kill_switch_engaged is the single source for the kill file/env check across four services; http-limits serves both HTTP edges with per-service classify wiring.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Agent bootstrap is copy-paste convention, not shared runtime",
+          "description": "tracing+clap+NATS+subscribe-spawn-envelope-span loop and emit() repeat across all agent binaries; agent-core's loop/gateway/checkpoint abstractions have no production callers, and agent_checkpoints is read but never written.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Documented bus contracts drift from runtime",
+          "description": "services.md describes a 3-delivery DLQ, checkpoint-resume shutdowns, an activity schema with workflow_run_id, and audit_log-only cross-reads — the DLQ counter is inert, nothing checkpoints, vuln omits the field, and several extra cross-table reads exist.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "connectors is a single-file leaf hub",
+          "description": "All external-stack clients (OpenSearch, TheHive, MISP, Wazuh, Cortex, Shuffle, NVD) share one 990-LOC lib.rs imported by ~7 crates — a proportionate shared boundary but the highest fan-in leaf.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

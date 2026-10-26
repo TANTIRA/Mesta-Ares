@@ -1,0 +1,257 @@
+{
+  "batch": "error_consistency",
+  "batch_index": 4,
+  "assessments": {
+    "error_consistency": 83.0
+  },
+  "dimension_notes": {
+    "error_consistency": {
+      "evidence": [
+        "Dominant strategy is Result-based: the packet's error_conventions counts 39 Result-returning sites vs 6 returns_null, and the only null-style paths are enrichment providers (crates/enrichment-lib/src/lib.rs:289-470) and `Option` lookups such as crates/agent-core/src/checkpoint.rs:44-52.",
+        "Library crates that callers must match on define typed thiserror enums with #[from] conversions: crates/agent-core/src/error.rs:4-24, crates/llm-client/src/error.rs:4-25, crates/audit/src/lib.rs:27-42, crates/cvss/src/lib.rs:17-31. Binary crates consistently use anyhow with .context() (e.g. crates/connectors/src/lib.rs:60-64, crates/response-agent/src/main.rs:235-240).",
+        "All four agent binaries use the same top-of-loop error boundary: `let result: anyhow::Result<()> = async { ... }.await; if let Err(e) = result { error!(...) }` (crates/detection-agent/src/main.rs:257-277, crates/response-agent/src/main.rs:407-425, crates/hunt-agent/src/main.rs:221-245). The identical best-effort `emit()` helper is copy-pasted with identical semantics in all four agents (crates/triage-agent/src/main.rs:79-91).",
+        "policy-engine converts every failure into a Deny decision rather than an error return (crates/policy-engine/src/lib.rs:324-423), so authorization failure modes are uniform and fail-closed by construction.",
+        "Retry/fallback behaviour is written down as a contract in docs/services.md:37-57 (timeouts, retry counts, fallbacks per dependency), and the code mostly matches it (crates/connectors/src/lib.rs:66-121, crates/agent-core/src/gateway.rs:10-133, crates/tool-server/src/main.rs:99-160 fail-closed idempotency).",
+        "Panic paths are effectively absent from production code: every `.unwrap()`/`.expect()` outside tests is an infallible LazyLock regex or `Client::builder()` (crates/agent-core/src/gateway.rs:59, crates/enrichment-lib/src/lib.rs:25-38); tests account for the rest.",
+        "Two retry implementations coexist in connectors: the shared `send_with_retry` (jitter, 15s CALL_BUDGET, 429/502/503/504) and NvdClient's private loop (crates/connectors/src/lib.rs:904-931) which retries 403, sleeps `1 << attempt` with no jitter and no wall-clock budget.",
+        "Error text frequently reaches the client verbatim via `e.to_string()` in api-server handlers (crates/api-server/src/main.rs:125,137,160,171,197,268; crates/api-server/src/vulns.rs:73,107,145), which docs/services.md:179-183 already lists as a known leak."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "error_consistency": {
+      "dimension_character": "Error handling here is designed rather than accidental: library crates expose typed thiserror enums, binaries propagate anyhow with .context(), every agent wraps its message loop in the same log-and-continue boundary, and the policy engine expresses failure as a Deny verdict instead of an error. The friction is concentrated at seams where the same job is implemented more than once — the kill switch, the /invoke client, the HTTP error envelope, and intel parsing — where sibling code paths disagree about whether a failure is an error, a null, or a log line. A developer can predict propagation inside any single crate, but not always across two crates doing the same thing.",
+      "score_rationale": "The core propagation story is strong and uniform (Result everywhere, typed errors at library boundaries, documented resilience table, fail-closed idempotency, no production panics), which places this well above the 80 'mixed strategies' anchor. It stops short of the 90 'occasional inconsistencies that don't cause real confusion' anchor because several inconsistencies do cause real confusion: a transport failure is reported as a policy Deny (crates/response-agent/src/main.rs:210-232), a missing credential is reported as success (crates/tool-server/src/executors/mod.rs:35-37), a Postgres error is reported as a detection miss (crates/bas-runner/src/main.rs:130-167), and the kill switch is documented fail-closed but implemented fail-open (docs/services.md:32 vs crates/agent-core/src/kill.rs:28-33)."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "error_consistency",
+      "identifier": "kill_switch_duplicated_fail_open",
+      "summary": "Kill switch exists twice with divergent semantics, and both treat an unreadable kill file as disengaged",
+      "related_files": [
+        "crates/agent-core/src/kill.rs",
+        "crates/policy-engine/src/lib.rs",
+        "docs/services.md"
+      ],
+      "evidence": [
+        "crates/agent-core/src/kill.rs:28-33 resolves $POLICIES_DIR/kill at call time and uses `metadata(&path).map(|m| m.is_file() && m.len() > 0).unwrap_or(false)` — any read error (EACCES, EIO) becomes 'not engaged'.",
+        "crates/policy-engine/src/lib.rs:426-439 implements the same switch again against `self.dir.join(\"kill\")` using `read_to_string(...)` and `!s.trim().is_empty()`; a whitespace-only kill file engages the switch for agents but not for tool-server.",
+        "docs/services.md:32 promises the opposite of the implementation: \"POST /controls/kill-switch — ... GET reads state. Fail-closed reads.\"",
+        "The two copies disagree on path resolution (env var re-read per call vs the policies dir captured at PolicyEngine::load) and on emptiness semantics, so an operator cannot reason about one switch state for the whole system.",
+        "Contrast with crates/http-limits/src/lib.rs:99-116, which distinguishes ErrorKind::NotFound from other read errors and warns on each — the pattern the kill switch does not follow."
+      ],
+      "suggestion": "Make policy-engine call `agent_core::kill_switch_engaged()` (policy-engine does not depend on agent-core today and agent-core does not depend on it, so no cycle) or move the single implementation into agent-protocol; inside it, treat only ErrorKind::NotFound as 'disengaged' and log+engage on other read errors.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "safety_switch_duplication"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "fire_and_forget_state_writes",
+      "summary": "Task/run/advisory state transitions discard DB errors with `let _ = sqlx::query(...)` in six places",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/vuln-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs:336-341 marks a task 'completed' during load_task with the result ignored; if the UPDATE fails the task reports 'working' forever.",
+        "crates/api-server/src/a2a.rs:441-447 and crates/api-server/src/acp.rs:266-279 mark a task/run 'failed' after a publish error, also ignoring the write error — the failure path can itself fail silently.",
+        "crates/api-server/src/a2a.rs:616-621 (SSE terminal write-back), crates/api-server/src/acp.rs:170-177 (checkpoint fold-in), crates/vuln-agent/src/main.rs:272-278 (case_id write-back) follow the same pattern.",
+        "Every neighbouring read in the same functions propagates instead (`map_err(|e| BackendError::Internal(e.to_string()))` at crates/api-server/src/a2a.rs:311, 322), so within one function errors are sometimes fatal and sometimes invisible."
+      ],
+      "suggestion": "Route these six writes through one small helper that logs at `warn!`/`error!` on failure (the idempotency store already does this: crates/tool-server/src/main.rs:118-120), and propagate where the caller can still return an error.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "bookkeeping_writes_ignored"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "invoke_client_three_contracts",
+      "summary": "Three separate tool-server /invoke clients report the same failure three different ways",
+      "related_files": [
+        "crates/agent-core/src/gateway.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs"
+      ],
+      "evidence": [
+        "crates/agent-core/src/gateway.rs:67-133 is the designed client: transport errors become `Err(AgentError::Http)`, only connect/timeout are retried, and deny verdicts are never retried.",
+        "crates/response-agent/src/main.rs:210-232 converts a transport error or unparsable response into a fabricated `Decision { kind: Deny, reason: \"invoke transport: ...\" }`, so `process()` at line 287 treats an unreachable tool server as 'denied by policy; recorded' (line 333) and records a policy verdict that was never made.",
+        "crates/detection-agent/src/pipeline.rs:248-272 (`audit_deploy`) returns `()` and only `warn!`s on a deny or an unreachable server, after which crates/detection-agent/src/main.rs:193-204 emits the activity \"deployed … active\" and returns Ok.",
+        "The three paths also differ on retry (1 retry policy in agent-core, none in the other two) although docs/services.md:49 specifies 'none (idempotent → safe to redeliver via NATS)' for the agent side."
+      ],
+      "suggestion": "Have response-agent and detection-agent use `agent_core::HttpToolGateway` instead of their local POST helpers; where a caller genuinely wants best-effort behaviour, return `Result` and let the caller decide to log-and-continue rather than minting a fake Deny verdict.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "tool_gateway_reimplemented"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "http_error_shape_drift",
+      "summary": "Documented `{error: string}` envelope is honored only by the rate limiter; siblings return plain text, bare status, or `{code, message}`",
+      "related_files": [
+        "crates/api-server/src/main.rs",
+        "crates/api-server/src/vulns.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/ingestion-gateway/src/main.rs",
+        "docs/services.md"
+      ],
+      "evidence": [
+        "docs/services.md:37-38 states the contract: \"Errors: JSON `{error: string}`; 4xx = caller fixable, 5xx = retryable.\"",
+        "15 handlers in crates/api-server/src/main.rs, vulns.rs, playbooks.rs and coverage.rs return `(StatusCode, String)` (e.g. main.rs:125, vulns.rs:73), which axum serializes as text/plain — not JSON.",
+        "crates/api-server/src/acp.rs:50-56 and its nine `(StatusCode, Json<AcpError>)` sites return `{code, message}`; crates/api-server/src/a2a.rs:508-513 returns a bare `StatusCode::NOT_FOUND` with an empty body while a2a.rs:548 returns `(StatusCode, String)`.",
+        "crates/ingestion-gateway/src/main.rs:110-121 returns `{id, status, error}` and uses 502 where docs/services.md:36 specifies 503 when NATS is down.",
+        "Internal failures are reported as gateway errors: `list_audit` (crates/api-server/src/main.rs:197) and `get_plan` (main.rs:268) map Postgres errors to BAD_GATEWAY, so a 5xx no longer tells the caller whether to retry a dependency or report a server bug."
+      ],
+      "suggestion": "Add one `ApiError` type in api-server implementing `IntoResponse` (status + `{error}` body, internals logged not echoed) and convert the 15 `(StatusCode, String)` handlers plus the ACP/a2a error returns to it; that is fewer shapes than exist today, not more.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "http_error_envelope_drift"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "executor_dry_run_reports_success",
+      "summary": "Executors with missing credentials return `ok: true` + `{dry_run: true}`, and nothing downstream inspects the marker",
+      "related_files": [
+        "crates/tool-server/src/executors/mod.rs",
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/executors/mod.rs:35-37 `dry_run()` returns `Ok(json!({\"dry_run\": true, \"args\": args}))`; it is reached from 25 call sites (e.g. lines 90, 112, 129, 147, 172, 192, 213) whenever an API key is absent — including side-effecting tools such as `entra.user.disable` (line 514).",
+        "crates/tool-server/src/main.rs:151-161 turns that into `ToolResult { ok: true, error: None }`, and a grep for `dry_run` outside executors/mod.rs and bas-runner returns no hits, so no consumer distinguishes a dry run from a real action.",
+        "crates/response-agent/src/main.rs:297-311 then records `ok: true`, derives `rollback_for(action)` (line 311) and reports \"success\" in `/plans` (crates/api-server/src/main.rs:257-274) for an action that never happened.",
+        "This contradicts docs/services.md:52 (\"TheHive/Cortex/Wazuh/Shuffle executors … fallback `ToolResult.ok=false` + audit\") and diverges from crates/tool-server/src/executors/openshell.rs:125-141, which fails closed with `sandbox unavailable: ...`."
+      ],
+      "suggestion": "Return `Err(anyhow!(\"<tool> unavailable: <ENV> unset\"))` from the missing-credential branch so `ToolResult.ok` is false, matching openshell; if dry-run must stay for local exercises, gate it behind an explicit `ARES_DRY_RUN=1` flag instead of inferring it from absent credentials.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "false_success_reporting"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "orchestrator_dlq_asymmetry",
+      "summary": "Unparseable messages go to the DLQ but unroutable ones are only logged, and DLQ publish errors are ignored",
+      "related_files": [
+        "crates/orchestrator/src/main.rs"
+      ],
+      "evidence": [
+        "crates/orchestrator/src/main.rs:70-78 sends a parse failure to `ares.dlq`, but crates/orchestrator/src/main.rs:105-109 logs `failed to route envelope` and drops the message with no DLQ copy.",
+        "Both DLQ publishes are `let _ = bus.publish_raw(SUBJECT_DLQ, ...)` (lines 65 and 73), so a DLQ publish failure loses the alert with no record beyond the preceding warn.",
+        "The two drop paths therefore have different durability guarantees for the same outcome (message not delivered downstream), which is exactly the case the docs' 'drop only on `ares.dlq` after 3 deliveries' note (docs/services.md:46) promises."
+      ],
+      "suggestion": "Route the publish failure at line 105 through the same `publish_raw(SUBJECT_DLQ, ...)` path as the parse failure, and `error!` (not `let _ =`) when the DLQ publish itself fails.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "message_loss_paths"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "bas_metrics_conflate_failure_with_negative",
+      "summary": "BAS measurement treats query/DB errors as 'not detected' and persists that as the scenario result",
+      "related_files": [
+        "crates/bas-runner/src/main.rs"
+      ],
+      "evidence": [
+        "crates/bas-runner/src/main.rs:130-145 `wait_mttd` warns on an OpenSearch error and keeps polling, then returns `None` at timeout — indistinguishable from 'the detection never fired'.",
+        "crates/bas-runner/src/main.rs:150-167 `wait_mttr` uses `fetch_one(pool).await.unwrap_or(0)`, so a Postgres error is read as 'no containment seen'.",
+        "crates/bas-runner/src/main.rs:184-200 derives `detected = mttd.is_some()` and writes the row into `bas_results`, so an outage during a run is recorded permanently as a detection failure and skews the MTTD/MTTR metrics served by crates/api-server/src/main.rs:215-250."
+      ],
+      "suggestion": "Return `Result<Option<u64>>`/`Result<(Option<i64>, bool)>` from `wait_mttd`/`wait_mttr`, propagate with `?` so `run_scenario` fails and the row is not written (the caller already logs per-scenario failures at crates/bas-runner/src/main.rs:294-299).",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "false_negative_on_io_error"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "intel_parse_failures_silent",
+      "summary": "MISP and enrichment payload parse failures are discarded without a log, count, or error",
+      "related_files": [
+        "crates/connectors/src/lib.rs",
+        "crates/enrichment-lib/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/connectors/src/lib.rs:466-473 `search_events` drops each row that fails `serde_json::from_value::<Event>` with `if let Ok(...)`; crates/connectors/src/lib.rs:505-516 `search_attributes` does the same via `filter_map(... .ok())`. A MISP schema change returns an empty `Vec` and looks like 'no matches'.",
+        "crates/enrichment-lib/src/lib.rs:305-310, 358-363, 380-385, 402-407 log transport failures with `warn!` but swallow `.error_for_status()` and `.json::<Value>().await.ok()?` with no log at all — an expired key or changed payload yields zero enrichment silently.",
+        "Only crates/enrichment-lib/src/lib.rs:283-292 and 464-467 (cache set, NVD lookup) warn on their failures, so the same function family reports some failures and hides others."
+      ],
+      "suggestion": "Log a `warn!` with the provider/source and the parse error in the two MISP loops and on the enrichment decode paths (or count them into a `skipped` field on the result), so 'no data' and 'broken parser' are distinguishable.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "silent_parse_swallow"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Safety-critical and high-traffic code paths were implemented per-service (kill switch, /invoke client, HTTP error envelope) instead of once in a shared crate, so each copy settled on different failure semantics.",
+      "Best-effort side effects (state write-backs, activity emission, audit, enrichment) were deliberately made non-fatal, but the 'non-fatal' treatment was implemented as 'unreported' rather than 'logged'.",
+      "docs/services.md documents a contract (JSON `{error}`, fail-closed reads, `ToolResult.ok=false` fallbacks) that the code was never reconciled against."
+    ],
+    "likely_symptoms": [
+      "a2a/acp tasks stuck in 'working' after a DB hiccup",
+      "console shows 'denied by policy' for tool-server outages",
+      "BAS MTTD dashboards reporting misses during OpenSearch restarts",
+      "empty enrichment results after provider API changes",
+      "kill switch appears disengaged while the file exists"
+    ],
+    "possible_false_positives": [
+      "The 3 `smells` findings in this batch are `#[allow(...)]` attributes (crates/agent-core/src/gateway.rs:10, crates/policy-engine/src/lib.rs:108,115, crates/triage-agent/src/main.rs:248) and carry no error-handling signal.",
+      "Enrichment providers returning `Option` and the four agent `emit()` helpers are deliberate best-effort designs, not mixed strategies; only the unreported subset is reported above.",
+      "NvdClient's separate retry loop (crates/connectors/src/lib.rs:904-931) is justified by NVD's documented rate limit and is not counted as a defect."
+    ]
+  },
+  "context_updates": {
+    "error_consistency": {
+      "add": [
+        {
+          "header": "Typed errors at library boundaries",
+          "description": "Crates whose callers must discriminate failures expose thiserror enums with #[from] conversions (agent-core AgentError, llm-client LlmError, audit AuditError, cvss CvssError), while binaries use anyhow with .context(). The split follows 'can a caller match on this?' rather than crate type, so the two styles do not collide inside one path.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Uniform agent message-loop error boundary",
+          "description": "All four agent binaries wrap envelope handling in the same `let result: anyhow::Result<()> = async { ... }.await; if let Err(e) = result { error!(...) }` shape and share an identical best-effort emit() helper, so a failing message is logged and the subscription survives without per-agent surprises.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Policy denial instead of error return",
+          "description": "PolicyEngine::evaluate never returns Result: every failure becomes a Deny decision with a reason string. Authorization failure modes are therefore uniform and fail-closed, and callers never have to decide what to do with a policy error.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Resilience contract documented per dependency",
+          "description": "docs/services.md:40-57 pins timeout, retry count and fallback for every dependency, and the main clients implement it (connectors send_with_retry, agent-core HttpToolGateway, tool-server fail-closed idempotency). Drift is therefore detectable by comparison instead of guesswork.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Best-effort enrichment returns Option",
+          "description": "Enrichment providers return Option and aggregate what succeeded, because partial intel is more useful than an aborted triage. This is a deliberate null-style channel confined to one crate, not a second error strategy leaking into callers.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Two retry loops in connectors",
+          "description": "NvdClient keeps a private retry loop (403 retried, exponential without jitter, no 15s budget) next to the shared send_with_retry used by every other client, justified by NVD's rate limit but not mentioned in the crate-level doc.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

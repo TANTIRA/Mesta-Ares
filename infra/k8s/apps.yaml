@@ -1,0 +1,531 @@
+# The 9 Rust binaries + console, mirroring the Helm chart's `services` map.
+# Images follow the chart convention `ares-<service>:<tag>`.
+#
+# Services with an HTTP port get a Service + probes; the agents are NATS
+# workers and expose nothing.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-tool-server
+  labels:
+    app.kubernetes.io/name: tool-server
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tool-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tool-server
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: tool-server
+          image: ghcr.io/your-org/ares-tool-server:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8090
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          env:
+            - name: BIND_ADDR
+              value: 0.0.0.0:8090
+            - name: POLICIES_DIR
+              value: /policies
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - name: policies
+              mountPath: /policies
+              readOnly: true
+      volumes:
+        - name: policies
+          configMap:
+            name: ares-policies
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ares-tool-server
+spec:
+  selector:
+    app.kubernetes.io/name: tool-server
+  ports:
+    - name: http
+      port: 8090
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-api-server
+  labels:
+    app.kubernetes.io/name: api-server
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: api-server
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: api-server
+          image: ghcr.io/your-org/ares-api-server:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          env:
+            # The code reads BIND_ADDR (the chart's API_BIND is dead).
+            - name: BIND_ADDR
+              value: 0.0.0.0:8080
+          # /coverage scans `detection-content/active` relative to CWD.
+          workingDir: /app
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - name: detection-active
+              mountPath: /app/detection-content/active
+              readOnly: true
+      volumes:
+        # Read-only copy: coverage reflects the committed rule set, not rules
+        # the detection agent promoted into its PVC at runtime.
+        - name: detection-active
+          configMap:
+            name: ares-detection-active
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ares-api-server
+spec:
+  selector:
+    app.kubernetes.io/name: api-server
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-ingestion-gateway
+  labels:
+    app.kubernetes.io/name: ingestion-gateway
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ingestion-gateway
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ingestion-gateway
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: ingestion-gateway
+          image: ghcr.io/your-org/ares-ingestion-gateway:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8091
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          env:
+            - name: BIND_ADDR
+              value: 0.0.0.0:8091
+          readinessProbe:
+            httpGet: {path: /health, port: http}
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ares-ingestion-gateway
+spec:
+  selector:
+    app.kubernetes.io/name: ingestion-gateway
+  ports:
+    - name: http
+      port: 8091
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-console
+  labels:
+    app.kubernetes.io/name: console
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: console
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: console
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: console
+          image: ghcr.io/your-org/ares-console:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            # NEXT_PUBLIC_* is baked into the client bundle at BUILD time, so
+            # the image must be built with the browser-reachable API URL. This
+            # env only affects server-side rendering.
+            - name: NEXT_PUBLIC_API_URL
+              value: http://ares-api-server:8080
+          readinessProbe:
+            httpGet: {path: /, port: http}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ares-console
+spec:
+  selector:
+    app.kubernetes.io/name: console
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+---
+# ---- NATS workers: no ports, no probes ----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-orchestrator
+  labels:
+    app.kubernetes.io/name: orchestrator
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: orchestrator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: orchestrator
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: orchestrator
+          image: ghcr.io/your-org/ares-orchestrator:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-triage-agent
+  labels:
+    app.kubernetes.io/name: triage-agent
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: triage-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: triage-agent
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: triage-agent
+          image: ghcr.io/your-org/ares-triage-agent:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-response-agent
+  labels:
+    app.kubernetes.io/name: response-agent
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: response-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: response-agent
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: response-agent
+          image: ghcr.io/your-org/ares-response-agent:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-hunt-agent
+  labels:
+    app.kubernetes.io/name: hunt-agent
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hunt-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hunt-agent
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: hunt-agent
+          image: ghcr.io/your-org/ares-hunt-agent:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-vuln-agent
+  labels:
+    app.kubernetes.io/name: vuln-agent
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vuln-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vuln-agent
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: vuln-agent
+          image: ghcr.io/your-org/ares-vuln-agent:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          env:
+            - name: VULN_WATCHLIST
+              value: /policies/vuln-watchlist.yml
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - name: policies
+              mountPath: /policies
+              readOnly: true
+      volumes:
+        - name: policies
+          configMap:
+            name: ares-policies
+---
+# detection-agent writes into detection-content/{pending,active}, so it gets a
+# writable PVC seeded once from the ConfigMap (ConfigMap mounts are read-only).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ares-detection-content
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-detection-agent
+  labels:
+    app.kubernetes.io/name: detection-agent
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: detection-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: detection-agent
+        app.kubernetes.io/part-of: ares
+    spec:
+      initContainers:
+        - name: seed
+          image: busybox:1.36
+          # -n: never overwrite rules the agent already promoted.
+          command: ["sh", "-c", "cp -rn /seed/. /data/"]
+          volumeMounts:
+            - name: seed-active
+              mountPath: /seed/active
+              readOnly: true
+            - name: seed-pending
+              mountPath: /seed/pending
+              readOnly: true
+            - name: data
+              mountPath: /data
+      containers:
+        - name: detection-agent
+          image: ghcr.io/your-org/ares-detection-agent:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          # The pipeline uses relative paths (`detection-content/pending`).
+          workingDir: /app
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - name: data
+              mountPath: /app/detection-content
+      volumes:
+        - name: seed-active
+          configMap:
+            name: ares-detection-active
+        - name: seed-pending
+          configMap:
+            name: ares-detection-pending
+        - name: data
+          persistentVolumeClaim:
+            claimName: ares-detection-content
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ares-bas-runner
+  labels:
+    app.kubernetes.io/name: bas-runner
+    app.kubernetes.io/part-of: ares
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bas-runner
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bas-runner
+        app.kubernetes.io/part-of: ares
+    spec:
+      containers:
+        - name: bas-runner
+          image: ghcr.io/your-org/ares-bas-runner:0.1.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
+          # Reads `bas/scenarios/*.yml` relative to CWD.
+          workingDir: /app
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - name: bas-scenarios
+              mountPath: /app/bas/scenarios
+              readOnly: true
+      volumes:
+        - name: bas-scenarios
+          configMap:
+            name: ares-bas-scenarios

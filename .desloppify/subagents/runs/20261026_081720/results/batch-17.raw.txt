@@ -1,0 +1,319 @@
+{
+  "batch": "design_coherence",
+  "batch_index": 17,
+  "assessments": {
+    "design_coherence": 73.0
+  },
+  "dimension_notes": {
+    "design_coherence": {
+      "evidence": [
+        "crates/agent-core/src/lib.rs:21-26 re-exports AgentLoop, ToolGateway/HttpToolGateway, CheckpointStore/PostgresCheckpointer and Budgets, but no crate outside agent-core constructs any of them; only agent_core::kill_switch_engaged is consumed (api-server/src/main.rs:39, response-agent/src/main.rs:22, triage-agent/src/main.rs:24, vuln-agent/src/main.rs:18).",
+        "crates/api-server/src/a2a.rs:319-347 and crates/api-server/src/acp.rs:158-180 fold a stored agent_checkpoints Step::Final into task/run completion, yet the only writer is PostgresCheckpointer::save (crates/agent-core/src/checkpoint.rs:60-70), which no binary instantiates.",
+        "Four agent crates carry a near-identical activity module (crates/{detection,hunt,response}-agent/src/activity.rs byte-identical; triage-agent/src/activity.rs:27 already drifted to `step: &'static str`) plus a verbatim `emit` helper and subscribe/spawn loop.",
+        "crates/vuln-agent/src/main.rs:120-133 emits activity as an ad-hoc json! with no workflow_run_id, so its events can never match the run filter at api-server/src/a2a.rs:610.",
+        "crates/api-server/src/a2a.rs:583-630 (task_events) and crates/api-server/src/acp.rs:536-577 (run_stream) are the same unfold state machine with the same three boolean flags; a2a.rs:306-364 load_task and acp.rs:144-183 load_run are the same row-load + checkpoint fold + write-back.",
+        "policy-engine/src/lib.rs:443-456 and agent-core/src/kill.rs:21-36 implement the same operator kill switch with different file semantics (trimmed content vs metadata length), and policy-engine depends only on agent-protocol so nothing forces them together.",
+        "The five threat-intel provider calls exist twice (enrichment-lib/src/lib.rs:284-425 returning Option, tool-server/src/executors/mod.rs:406-495 returning Result), and `fn b64url` is byte-identical in enrichment-lib/src/lib.rs:172-192 and tool-server/src/executors/mod.rs:54-74.",
+        "crates/connectors/src/lib.rs:136-158 OpensearchClient exposes only `query`, so triage-agent/src/main.rs:216-241 and detection-agent/src/pipeline.rs:203-243 each hand-roll the URL, env credentials and basic_auth for a raw POST; triage-agent/src/main.rs:333-336 keeps an `#[allow(dead_code)]` os field only 'for parity'.",
+        "Smaller repeated blocks: api-server/src/coverage.rs:25-58 vs playbooks.rs:26-58 (dir scan + yaml parse) and cvss/src/v31.rs:135-152 vs cvss/src/v40.rs:213-228 (metric-map validation).",
+        "Counter-examples that are strongly designed: crates/tool-server/src/idempotency.rs:110-135 defines one pure KeyState->Claim transition shared by both storage backends; crates/policy-engine/src/lib.rs:344-440 is a nine-step numbered check ladder with early returns; crates/detection-agent/src/pipeline.rs has exactly one function per pipeline stage; crates/tool-server/src/executors/mod.rs:674-797 builds the registry from one table and asserts at startup that every policies/tools.yml name resolves.",
+        "Minor: enrichment-lib/src/lib.rs:520-522 `pub async fn enrich(...) -> Result<...>` is a public wrapper around Enricher::enrich that can never return Err and has no callers."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "design_coherence": {
+      "dimension_character": "Locally the design is disciplined: policy evaluation is a documented nine-step ladder, the idempotency protocol is a single pure transition shared by two stores, and the detection pipeline is one function per stage. At the seams it drifts: an entire control-loop layer in agent-core is built and never wired while four agents each hand-roll the same scaffolding, and the two protocol surfaces (A2A and ACP) duplicate the same persistence fold and SSE state machine. A new team member would read any single file quickly but would not be able to answer 'where does the agent framework live?' in 30 seconds, and the kill switch has two implementations that can disagree about whether the platform is halted.",
+      "score_rationale": "Well above the 'significant drag' anchor because every module has a stated responsibility, deliberate shortcuts are labelled where they occur, and repeated shapes usually share a pure core rather than copy logic. Held at the 'mixed' band by three structural facts that recur across crates: an unused abstraction layer with a dead data path behind it, agent-level scaffolding copied four to five times, and duplicated protocol machinery in the crate that already owns both protocols."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "design_coherence",
+      "identifier": "unwired_agent_core_loop",
+      "summary": "agent-core's loop/gateway/checkpointer layer is exported but never constructed, and a2a/acp read a checkpoint table nothing writes",
+      "related_files": [
+        "crates/agent-core/src/lib.rs",
+        "crates/agent-core/src/agent_loop.rs",
+        "crates/agent-core/src/gateway.rs",
+        "crates/agent-core/src/checkpoint.rs",
+        "crates/agent-core/src/budget.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/agent-core/src/lib.rs:21-26 re-exports AgentLoop, ToolGateway/HttpToolGateway, CheckpointStore/PostgresCheckpointer and Budgets; a repo-wide grep finds no construction outside agent-core's own tests.",
+        "crates/api-server/src/a2a.rs:319-347 and crates/api-server/src/acp.rs:158-180 treat a stored agent_checkpoints Step::Final as task/run completion, but the only writer is PostgresCheckpointer::save (crates/agent-core/src/checkpoint.rs:60-70), which no binary instantiates — the branch is dead in production.",
+        "crates/response-agent/src/main.rs:210-232 hand-rolls POST /invoke with no retry, while HttpToolGateway (crates/agent-core/src/gateway.rs:112-145) implements the documented retry contract that nothing uses.",
+        "crates/agent-core/src/budget.rs:23 documents max_cost_usd as 'enforced by callers that price tokens'; no caller reads it."
+      ],
+      "suggestion": "Pick one design: either wire the agents onto AgentLoop + HttpToolGateway (deleting their bespoke invoke/subscribe code) or delete agent-core's agent_loop/gateway/budget/checkpoint modules together with the agent_checkpoints read path in a2a.rs and acp.rs. Keeping both the framework and four hand-rolled loops is the worst of the two.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "root_cause_cluster": "unwired_shared_framework"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "agent_scaffolding_copied_per_crate",
+      "summary": "Four agent crates copy-paste the same activity event, emit helper and envelope subscribe loop; a fifth emits an incompatible shape",
+      "related_files": [
+        "crates/detection-agent/src/activity.rs",
+        "crates/hunt-agent/src/activity.rs",
+        "crates/response-agent/src/activity.rs",
+        "crates/triage-agent/src/activity.rs",
+        "crates/detection-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/triage-agent/src/main.rs",
+        "crates/vuln-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/{detection,hunt,response}-agent/src/activity.rs are byte-identical 44-line modules (same SUBJECT_ACTIVITY, same ActivityEvent); triage-agent/src/activity.rs:27 differs only by `step: &'static str`, so the copies have already drifted.",
+        "crates/vuln-agent/src/main.rs:29 declares a fifth SUBJECT_ACTIVITY constant and crates/vuln-agent/src/main.rs:120-133 emits an ad-hoc json! without workflow_run_id, which the run filters at api-server/src/a2a.rs:610 and acp.rs:559 can never match.",
+        "`async fn emit` is duplicated verbatim at detection-agent/main.rs:72, hunt-agent/main.rs:55, response-agent/main.rs:86 and triage-agent/main.rs:79.",
+        "The subscribe -> tokio::spawn -> parse Envelope -> info_span!(workflow_run_id, envelope_id) block is duplicated at detection-agent/main.rs:258-278, hunt-agent/main.rs:213-239, response-agent/main.rs:409-427 and triage-agent/main.rs:483-504."
+      ],
+      "suggestion": "Move ActivityEvent, SUBJECT_ACTIVITY and emit into agent-protocol (already the shared protocol crate) and make all five agents — including vuln-agent — use it; then add one `spawn_envelope_consumer(nats, subject, span_name, handler)` in agent-core so each main's consume loop is ~10 lines.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "24567182857daf72"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "a2a_acp_duplicate_run_machinery",
+      "summary": "A2A and ACP modules duplicate the same task/run persistence fold and SSE relay state machine",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs"
+      ],
+      "evidence": [
+        "a2a.rs:583-630 task_events and acp.rs:536-577 run_stream are the same `futures::stream::unfold` machine: identical St fields (rx, pool, run_id/corr, agent, replay, closing, done), same workflow_run_id filter, same terminal_step check, same Lagged->continue, same 15s KeepAlive.",
+        "a2a.rs:306-364 load_task and acp.rs:144-183 load_run are the same row-load + agent_checkpoints fold + completed write-back, differing only in table name and struct.",
+        "a2a.rs:482-494 and acp.rs:447-484 repeat the same `UPDATE ... WHERE state NOT IN ('completed','failed','canceled')` and carry the same duplicated 'known gap: agents never poll a cancellation table' comment.",
+        "The two files are the crate's largest (631 and 634 LOC) and each re-implements the terminal-step -> completed write-back."
+      ],
+      "suggestion": "Extract one module in api-server (e.g. `run_relay`) holding (a) a `RelayState` enum replacing the replay/closing/done booleans, (b) a generic `sse_relay(corr_id, agent, replay, event_fn, reload_fn)` and (c) one terminal write-back helper; parameterize over (table, row type, event shape) for the two protocols.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "duplicated_protocol_surface",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "009fbfd3abee091f"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "kill_switch_two_implementations",
+      "summary": "The operator kill switch has two implementations with divergent file semantics; policy and agents can disagree on whether the platform is halted",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs",
+        "crates/agent-core/src/kill.rs",
+        "crates/api-server/src/kill.rs"
+      ],
+      "evidence": [
+        "policy-engine/src/lib.rs:443-456 (private kill_switch_engaged) engages on ARES_KILL_SWITCH truthy or a kill file whose read_to_string is non-empty after trim.",
+        "agent-core/src/kill.rs:21-36 (public kill_switch_engaged) engages on ARES_KILL_SWITCH truthy or a kill file with metadata len > 0.",
+        "A whitespace-only or non-UTF-8 kill file therefore engages agent-core's switch but not policy-engine's: agents stop while tool-server keeps allowing side effects.",
+        "policy-engine depends only on agent-protocol (crates/policy-engine/Cargo.toml) and agent-core does not depend on policy-engine, so policy-engine can call agent_core::kill_switch_engaged without creating a cycle.",
+        "api-server/src/kill.rs:28-31 re-derives the same $POLICIES_DIR/kill path a third time."
+      ],
+      "suggestion": "Keep one implementation: have policy-engine call agent_core::kill_switch_engaged (or move the function to agent-protocol if that dependency direction is preferred) and delete the private copy plus the api-server path helper.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "duplicated_protocol_surface"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "provider_clients_duplicated_across_crates",
+      "summary": "The same five threat-intel provider calls exist twice, and inside tool-server as five copy-pasted match arms",
+      "related_files": [
+        "crates/enrichment-lib/src/lib.rs",
+        "crates/tool-server/src/executors/mod.rs",
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "enrichment-lib/src/lib.rs:284-425 implements virustotal/abuseipdb/shodan/greynoise as four methods with the identical send -> warn -> error_for_status -> json body, each returning Option.",
+        "tool-server/src/executors/mod.rs:406-495 re-implements the same five endpoints (plus urlscan) as five match arms returning Result, so the same upstream is called with two different failure semantics.",
+        "`fn b64url` is byte-identical in enrichment-lib/src/lib.rs:172-192 and tool-server/src/executors/mod.rs:54-74.",
+        "`fn env(key)` is copied in connectors/src/lib.rs:42, enrichment-lib/src/lib.rs:194 and tool-server/src/executors/mod.rs:31."
+      ],
+      "suggestion": "Move the provider clients into crates/connectors beside MispClient/ShuffleClient (VirustotalClient, AbuseipdbClient, ShodanClient, GreynoiseClient, UrlscanClient), each returning Result over one shared `get_json(path, headers, query)` helper and the single b64url; then both Enricher and ProviderLookup call them and the five match arms plus both duplicate helpers disappear.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "duplicated_provider_clients",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "052d5794525f0f3b"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "llm_request_boilerplate_repeated",
+      "summary": "Three agents repeat the same CompletionRequest construction and markdown-fence stripping; llm-client offers no helper",
+      "related_files": [
+        "crates/triage-agent/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/llm-client/src/lib.rs",
+        "crates/agent-core/src/agent_loop.rs"
+      ],
+      "evidence": [
+        "triage-agent/src/main.rs:106-124, response-agent/src/main.rs:138-155 and detection-agent/src/pipeline.rs:33-52 each build CompletionRequest { system, one user message of serde_json::to_string(context), max_tokens, temperature: 0.0 }, call router.complete(tier), then run the trim/trim_start_matches(\"```json\")/trim_end_matches(\"```\") chain and parse.",
+        "agent-core/src/agent_loop.rs:121-130 is a fourth copy of the request construction.",
+        "The fence-strip chain differs only in which language tags each site lists, so any fix (e.g. an unterminated fence) has to be applied three times."
+      ],
+      "suggestion": "Add `ModelRouter::complete_json(tier, system: &str, context: &Value, max_tokens: u32) -> Result<String, LlmError>` to crates/llm-client/src/lib.rs that builds the request and strips code fences once; the three call sites collapse to a single line each.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "046d1ecded2687d7"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "opensearch_client_missing_write_method",
+      "summary": "OpensearchClient exposes only _search, so two callers hand-roll URL building, env credentials and basic auth",
+      "related_files": [
+        "crates/connectors/src/lib.rs",
+        "crates/triage-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs"
+      ],
+      "evidence": [
+        "crates/connectors/src/lib.rs:136-158 OpensearchClient has a single method, `query`.",
+        "triage-agent/src/main.rs:216-241 write_fp_verdict builds `{os_url}/ares-verdicts/_doc` by hand, re-reads OPENSEARCH_USER/OPENSEARCH_PASS and adds basic_auth; its own doc comment admits 'OpensearchClient has no document-index method'.",
+        "detection-agent/src/pipeline.rs:203-243 deploy_monitor repeats the same env lookup + basic_auth + raw POST for `_plugins/_alerting/monitors`.",
+        "triage-agent/src/main.rs:333-336 keeps an `#[allow(dead_code)] os: Arc<OpensearchClient>` field purely 'for parity', because the client cannot perform the write it would be used for."
+      ],
+      "suggestion": "Add `OpensearchClient::post_json(&self, path: &str, body: Value) -> Result<Value>` reusing the same auth and retry path as query, delete the URL/auth plumbing in write_fp_verdict and deploy_monitor, and drop the dead `os` field from triage-agent's Deps.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "yaml_dir_scan_duplicated",
+      "summary": "coverage.rs and playbooks.rs duplicate the same directory-scan-and-parse YAML block",
+      "related_files": [
+        "crates/api-server/src/coverage.rs",
+        "crates/api-server/src/playbooks.rs"
+      ],
+      "evidence": [
+        "coverage.rs:25-58 and playbooks.rs:26-58 repeat the identical read_dir -> yml/yaml extension filter -> read_to_string -> serde_yaml::from_str::<Value> -> collect-errors loop (the 11-line window the detector flagged).",
+        "The unreadable-directory case is handled two different ways: a `note` field in coverage's JSON body versus an `errors` entry in playbooks."
+      ],
+      "suggestion": "Add one helper in api-server, e.g. `fn yaml_docs(dir: &str) -> (Vec<(PathBuf, Value)>, Vec<String>)`, and have both handlers map its result; leave crates/bas-runner/src/scenario.rs alone because it deserializes into a typed Scenario.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "92e55429aaaf19c7"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "cvss_metric_validation_duplicated",
+      "summary": "v31::score and v40::score duplicate the same metric-map validation loop",
+      "related_files": [
+        "crates/cvss/src/v31.rs",
+        "crates/cvss/src/v40.rs"
+      ],
+      "evidence": [
+        "cvss/src/v31.rs:135-152 and cvss/src/v40.rs:213-228 both split the vector, look each key up in their VALID table (InvalidToken), check the value list (InvalidValue) and insert into a HashMap (Duplicate on overwrite).",
+        "The two copies differ only in the local variable name (map vs sel) and the table constant."
+      ],
+      "suggestion": "Move the loop into crates/cvss/src/lib.rs as `fn metric_map(pairs: MetricPairs, valid: &[(&str, &[&str])]) -> Result<HashMap<String, String>, CvssError>` and call it from both scorers.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "9e9770876df10fec"
+    },
+    {
+      "concern_verdict": "dismissed",
+      "concern_fingerprint": "61c1fc1c20217df4",
+      "concern_type": "duplication_design",
+      "concern_file": "crates/a2a/src/rpc.rs",
+      "reasoning": "There is no duplicated code in this file: dispatch's two method groups share only the JSON-RPC envelope and each arm is distinct. The only underlying signal is rust_future_proofing's #[non_exhaustive] advice for JsonRpcRequest, which is a wire DTO that callers deserialize and tests construct — adding the attribute would break those sites without improving the design."
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "A shared agent runtime (agent-core) was built speculatively and never adopted, so each agent binary grew its own copy of the event/emit/consume scaffolding instead of the framework.",
+      "Protocol surfaces (A2A, ACP) were added one after another on top of the same task/activity data, each re-deriving the persistence fold and SSE relay instead of parameterizing a shared one.",
+      "Transport clients (OpensearchClient, provider APIs) were introduced narrowly (search only, enrichment only) and widened by copy-paste at the call site rather than by extending the client."
+    ],
+    "likely_symptoms": [
+      "agent_activity_shape_drift",
+      "dead_checkpoint_join_in_a2a_and_acp",
+      "kill_switch_semantics_mismatch",
+      "invoke_without_retry_in_response_agent"
+    ],
+    "possible_false_positives": [
+      "rust_future_proofing #[non_exhaustive] signals on Skill (7cb56848ec4e80d9), a2a Message (3049bc692b6b6baf), HandoffPayload (61e89202eca3a5aa), ToolCall (0f11d94b0705abb4), CvssScore (64f510774b76e7d9) and llm-client Message (3b4de91f417fbe0d): these are protocol/wire DTOs constructed by api-server and the agents (e.g. api-server/src/a2a.rs:164, 331, 380; response-agent/src/main.rs:280), so non_exhaustive would break construction without any design gain.",
+      "boilerplate_duplication on crates/api-server/src/main.rs (2e6f59ea4ff59862): the 3-line tracing_subscriber + Config::parse() init is standard framework boilerplate; extracting it would add a crate for no benefit.",
+      "signature on crates/bas-runner/src/main.rs (5bd443ed0b773359): the four `execute` functions are an unrelated trait method, a registry dispatch helper and a scenario runner; the shared name is a coincidence, not duplication.",
+      "boilerplate_duplication on crates/api-server/src/playbooks.rs vs crates/bas-runner/src/scenario.rs (2ec9150e7db8c685): cross-crate and semantically different (untyped Value scan vs typed Scenario deserialization with ordering), so extraction would add ceremony.",
+      "mixed_responsibilities on crates/connectors/src/lib.rs (e42daf4e1b4d8c43): the file is large because it hosts seven thin vendor clients under consistent section banners — one coherent responsibility, not mixed concerns.",
+      "mixed_responsibilities on crates/policy-engine/src/lib.rs (600b59fe23223737): the file mixes policy loading, CIDR math and evaluation because they form one boundary; ~220 of its 723 lines are tests."
+    ]
+  },
+  "context_updates": {
+    "design_coherence": {
+      "add": [
+        {
+          "header": "Pure transition shared by both idempotency stores",
+          "description": "crates/tool-server/src/idempotency.rs:110-135 defines KeyState->Claim as a pure function that both the Postgres and DashMap stores call, so the three-state claim protocol is specified once and storage stays a detail. Copy this shape when a rule must hold across two backends.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Policy evaluation is a numbered check ladder",
+          "description": "crates/policy-engine/src/lib.rs:344-440 runs nine labelled checks in a documented, load-bearing order with early returns, so a reviewer can audit authorization by reading top to bottom. New checks get a number, not a new branch elsewhere.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One function per pipeline stage",
+          "description": "crates/detection-agent/src/pipeline.rs keeps each detection stage (draft, validate, write, convert, backtest, promote, deploy, audit) in its own function and composes them in run_cycle, which is why that pipeline reads as a checklist rather than a monolith.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Registry built from one table with a startup completeness test",
+          "description": "crates/tool-server/src/executors/mod.rs:674-797 registers executors in one place and pairs it with missing_executors plus a test asserting every policies/tools.yml name resolves, so adding a tool has one obvious edit site and a failing test if it is forgotten.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Shortcuts are labelled where they are taken",
+          "description": "Deliberate limits are documented at the point of use (detection-agent/src/pipeline.rs:108-110 naive Lucene mapping, hunt-agent/src/main.rs:71-72 hit scoring, a2a.rs:483 cancel gap, approvals.rs:11-13 in-memory queue), so a reader learns the boundary without git archaeology.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Protocol DTO crate stays transport-free",
+          "description": "crates/a2a splits spec DTOs (card, task), the JSON-RPC dispatcher and the TaskBackend trait, so dispatch is unit-tested against an in-memory stub and knows nothing about Postgres or NATS. That is the right seam; the api-server module above it is where the duplication currently lives.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One module per vendor inside the connectors crate",
+          "description": "crates/connectors/src/lib.rs groups seven HTTP clients under section banners with the same new(base_url, auth) shape. Coherent today, but it is a single 1189-line file, so a new vendor is an append rather than a new module.",
+          "settled": false,
+          "positive": false
+        },
+        {
+          "header": "Each agent binary owns its own Deps and main loop",
+          "description": "Every agent defines a private Deps struct and consume loop instead of sharing a runtime; this is why activity/emit/subscribe scaffolding is copied per crate and why agent-core's AgentLoop is unused. Treat it as a deliberate tradeoff only if the shared runtime is deleted.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

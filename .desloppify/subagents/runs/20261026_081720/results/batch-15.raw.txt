@@ -1,0 +1,289 @@
+{
+  "batch": "package_organization",
+  "batch_index": 15,
+  "assessments": {"package_organization": 78.0},
+  "dimension_notes": {
+    "package_organization": {
+      "evidence": [
+        "Crate granularity is deliberate and documented: Cargo.toml declares 21 focused members and README.md 'Repo layout' plus docs/services.md 'Contexts and ownership' name the owner of every top-level path and database table.",
+        "Small service crates are split by responsibility: crates/ingestion-gateway/src/{main,pollers,nats_sink,ratelimit}.rs, crates/orchestrator/src/{main,dedupe,nats_bus}.rs, crates/cvss/src/{lib,v31,v40,lookup_table}.rs and crates/a2a/src/{lib,card,rpc,task}.rs are all cohesive 2-5 file modules.",
+        "crates/agent-core/src/lib.rs keeps all 7 modules private and re-exports a facade (AgentLoop, Budgets, Checkpointer, ToolGateway, kill_switch_engaged), so internal placement can change without touching 5 consumer crates.",
+        "Four crates are single-module monoliths: crates/connectors/src/lib.rs (1189 LOC, 7 API clients + ConnectorConfig + retry helpers), crates/tool-server/src/executors/mod.rs (816 LOC, 20 `impl Tool` blocks), crates/policy-engine/src/lib.rs (779 LOC, CIDR parsing + protected-asset compilation + evaluation) and crates/enrichment-lib/src/lib.rs (579 LOC). Together ~27% of the 12.7k LOC sits in flat files with no submodule boundary.",
+        "crates/tool-server/src/executors/mod.rs extracts exactly one executor into openshell.rs (line 8) while the other 20 stay in mod.rs, so the directory convention answers 'where does an executor live?' differently per executor.",
+        "Cross-cutting operator controls have no owning module: kill-switch logic exists in crates/agent-core/src/kill.rs:24-30, a private copy at crates/policy-engine/src/lib.rs:443-457, and a writer at crates/api-server/src/kill.rs:26-30; the $POLICIES_DIR default is re-derived in 6 places (agent-core/kill.rs:29, api-server/kill.rs:28, api-server/ratelimit.rs:14, ingestion-gateway/ratelimit.rs:14, tool-server/main.rs:225, http-limits/src/lib.rs:11 doc).",
+        "The kill-switch copies disagree: agent-core engages on a non-empty file (`metadata.len() > 0`) while policy-engine engages on a non-blank file (`!s.trim().is_empty()`), so `echo \"\" > policies/kill` disables agents but not the policy gate.",
+        "The NATS activity contract is duplicated instead of placed: ActivityEvent is copied into 4 agent crates and the subject literal \"ares.activity\" appears in 6 files, while agent-protocol/src/lib.rs:18-26 (the designated subject registry) has no SUBJECT_ACTIVITY/SUBJECT_VULNS/SUBJECT_DLQ.",
+        "crates/api-server/src has `mod a2a` and `mod acp` that shadow the workspace crates `a2a` and `acp`; crates/api-server/src/acp.rs:244 must write `::a2a::task::Message` to escape its own sibling module, so `a2a::` in that file is ambiguous by construction.",
+        "The platform agent routing table (AgentDef, AGENTS, find_agent) lives inside crates/api-server/src/a2a.rs, forcing the sibling ACP route module to depend on it (crates/api-server/src/acp.rs:44 `use crate::a2a;`, line 302 `a2a::AGENTS`).",
+        "crates/api-server/src/main.rs (389 LOC) keeps 9 handlers (health, alerts, cases, audit, metrics, plans) plus Config/AppState/router/main inline, while 8 sibling route groups got modules (coverage, playbooks, kill, vulns, stream, a2a, acp, ratelimit) — the same kind of code is placed two different ways.",
+        "crates/api-server/src/acp.rs mixes routing, SSE, SQL DDL (ensure_schema, line 79) and row loading (load_run, line 144) in one route module, while its sibling crates/api-server/src/a2a.rs:396 introduces a TaskBackend/PgBackend seam for the same job.",
+        "Root content directories are justified and documented: policies/ has 5 crate consumers, detection-content/ is written by detection-agent and read by api-server/coverage.rs, playbooks/ is read by api-server; only bas/ has a single consumer (bas-runner) and it is listed in README's layout table.",
+        "crates/audit re-exports agent_protocol::audit::AuditEvent (audit/src/lib.rs:22) rather than redefining it, so the wire type and the writer live in the crates that own them.",
+        "Crate names drift: domain-noun names (connectors, cvss, audit, policy-engine) sit beside suffix names (enrichment-lib, http-limits); every member is a library, so the -lib suffix carries no information about the crate's responsibility (IoC extraction + provider fan-out + Redis cache)."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "package_organization": {
+      "dimension_character": "The crate-level map is genuinely navigable: 21 focused members with documented ownership in README and docs/services.md, a private-module/facade pattern in agent-core, and several small service crates split cleanly by responsibility. The weakness is one level down and at the seams: four flat modules absorb a quarter of the codebase (connectors, executors/mod, policy-engine, enrichment-lib), and concerns that cross crate boundaries — the activity wire contract, the kill switch, the policies directory — have no owning module, so they were copied and have already diverged. A developer can predict which crate to open, but inside several crates and along the operator-control seam they must read the implementation to know where the truth lives.",
+      "score_rationale": "Against the anchors this is 'solid but uneven': the strengths are systemic (documented ownership, consistent per-service layout, shared http-limits/agent-protocol crates with 13 and 9 importers) and the defects are concentrated in a handful of files and seams, which is why the score sits in the high 70s rather than lower. What pulls it down is measurable: 27% of LOC in single modules with no submodule boundary, a duplicated activity contract that already emits a non-conforming event from vuln-agent, a kill switch whose two implementations disagree on a whitespace-only kill file, and module names that shadow the crates they call. Fixing the four monoliths and giving operator-control plumbing one home would move this dimension into the 90s without touching the crate graph."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "package_organization",
+      "identifier": "activity-contract-duplicated",
+      "summary": "ActivityEvent and the ares.activity subject are copied into 6 crates and the copies have already diverged",
+      "related_files": [
+        "crates/triage-agent/src/activity.rs",
+        "crates/response-agent/src/activity.rs",
+        "crates/detection-agent/src/activity.rs",
+        "crates/hunt-agent/src/activity.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/api-server/src/stream.rs",
+        "crates/agent-protocol/src/lib.rs"
+      ],
+      "evidence": [
+        "The same struct is re-declared in four agent crates: crates/triage-agent/src/activity.rs:11, crates/response-agent/src/activity.rs:8, crates/detection-agent/src/activity.rs:8, crates/hunt-agent/src/activity.rs:8, each with its own `pub const SUBJECT_ACTIVITY: &str = \"ares.activity\"`.",
+        "The copies have diverged: triage-agent types `step` as `&'static str` while response/detection/hunt use `String`, so the same wire concept has two Rust signatures.",
+        "crates/vuln-agent/src/main.rs:122-135 builds the event by hand with `serde_json::json!` and omits `workflow_run_id`, so its console events cannot be joined to a run (apps/console/lib/api.ts:166 defaults the field to \"\").",
+        "The subject literal is declared in 6 files (the 4 activity.rs files, crates/api-server/src/stream.rs:22, crates/vuln-agent/src/main.rs:29) even though crates/agent-protocol/src/lib.rs:18-26 is the documented NATS subject registry — that registry lacks SUBJECT_ACTIVITY, and ares.vulns (vuln-agent/main.rs:27) and ares.dlq (orchestrator/main.rs:33) are also declared locally."
+      ],
+      "suggestion": "Add crates/agent-protocol/src/activity.rs holding ActivityEvent plus SUBJECT_ACTIVITY, and add SUBJECT_VULNS/SUBJECT_DLQ beside the existing subjects in lib.rs. Staged: (1) add the module and constants; (2) switch vuln-agent's emit_activity to ActivityEvent (this also restores workflow_run_id); (3) replace the four per-crate activity.rs files and api-server/stream.rs with imports and delete them; (4) validate with `cargo test --workspace` and `cargo clippy --workspace --all-targets -- -D warnings`.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "no-home-for-cross-cutting-contracts"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "connectors-single-module",
+      "summary": "crates/connectors/src/lib.rs is 1189 LOC holding 7 external API clients, config and HTTP helpers with no submodule boundary",
+      "related_files": ["crates/connectors/src/lib.rs", "docs/services.md"],
+      "evidence": [
+        "One module defines OpensearchClient (line 130), ThehiveClient (214), CortexClient (277), MispClient (429), WazuhClient (562), ShuffleClient (649) and NvdClient (885), plus ConnectorConfig (683) and the shared retry/send helpers (79-128).",
+        "Because there are no module names to point at, docs/services.md:128 has to cite raw line numbers for it (`connectors/lib.rs:695-740`, `lib.rs:773`), which is the navigation cost of the monolith in practice.",
+        "The scan evidence flags it as the top complexity hotspot (928 LOC at scan time, complexity score 85) and it is the crate with the most consumers (api-server, tool-server, bas-runner, detection-agent, hunt-agent, response-agent, triage-agent, enrichment-lib)."
+      ],
+      "suggestion": "Turn lib.rs into a facade and split by upstream system: http.rs (Auth, env, join, json_ok, retry_sleep, send_with_retry), opensearch.rs, thehive.rs, cortex.rs, misp.rs, wazuh.rs, shuffle.rs, nvd.rs (incl. parse_cve/parse_cve_page) and config.rs (ConnectorConfig), with `pub use` re-exports so no caller changes. Move in that order (helpers first, then one client per commit), validating with `cargo test -p connectors` after each step and `cargo build --workspace` at the end.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "single-file-module-growth"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "executors-flat-in-mod",
+      "summary": "executors/mod.rs keeps 20 of 21 tool executors inline while only openshell.rs is extracted",
+      "related_files": ["crates/tool-server/src/executors/mod.rs", "crates/tool-server/src/executors/openshell.rs"],
+      "evidence": [
+        "crates/tool-server/src/executors/mod.rs is 816 LOC and contains 20 `impl Tool for ...` blocks (OpensearchQuery, ThehiveCase, ThehiveCaseUpdate, ThehiveObservable, CortexAnalyzer, MispSearch, MispAttribute, MispAttributeSearch, MispEventView, MispWarninglist, MispSighting, WazuhAgents, WazuhActiveResponse, ShuffleWorkflow, ProviderLookup, EntraUser, SlackNotify, NvdTool, CvssScoreTool, DryRun) plus the Tool trait, arg helpers, build_registry (674) and missing_executors (788).",
+        "Only `mod openshell;` (line 8) follows the one-file-per-executor pattern, so a developer adding an executor has two competing precedents and no rule for which to follow.",
+        "The module docstring states the invariant 'Every entry in policies/tools.yml maps to one Tool implementation', but the file gives no per-executor boundary to verify that mapping against."
+      ],
+      "suggestion": "Keep mod.rs as trait + helpers + registry and move each executor family into its own file next to openshell.rs: opensearch.rs, thehive.rs, cortex.rs, misp.rs, wazuh.rs, shuffle.rs, providers.rs (ProviderLookup/EntraUser), notify.rs (SlackNotify), nvd.rs, cvss.rs, dry_run.rs. Move one family per commit; validate with `cargo test -p tool-server` (the registry_tests module at line 800 already asserts the name-to-executor mapping).",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "single-file-module-growth"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "kill-switch-three-homes",
+      "summary": "Kill-switch logic has three homes with no owning module, and two of them disagree on a whitespace-only kill file",
+      "related_files": [
+        "crates/agent-core/src/kill.rs",
+        "crates/policy-engine/src/lib.rs",
+        "crates/api-server/src/kill.rs"
+      ],
+      "evidence": [
+        "crates/agent-core/src/kill.rs:24-30 engages on `metadata.len() > 0`; crates/policy-engine/src/lib.rs:443-457 engages on `!s.trim().is_empty()`; crates/api-server/src/kill.rs:26-30 re-derives the same `$POLICIES_DIR/kill` path to write it. So `echo \"\" > policies/kill` stops agents (agent-core) while the policy gate keeps allowing calls (policy-engine) — a fail-open split on a security control.",
+        "The copy exists because the concern has no neutral home: agent-core depends on agent-protocol only, policy-engine depends on agent-protocol only, and tool-server depends on policy-engine — there is no crate both can share for operator controls.",
+        "The $POLICIES_DIR default is re-derived in 6 places (agent-core/kill.rs:29, api-server/kill.rs:28, api-server/ratelimit.rs:14, ingestion-gateway/ratelimit.rs:14, tool-server/main.rs:225, and the http-limits/src/lib.rs:11 doc), so the directory convention is a de-facto contract with no owner."
+      ],
+      "suggestion": "Create one small home for operator controls — crates/operator-controls/src/lib.rs (~60 LOC, no dependencies) exposing `policies_dir()` and `kill_switch_engaged()` with the agent-core semantics — and have agent-core, policy-engine, api-server, tool-server and vuln-agent depend on it; delete the two copies and api-server's local path helper. If a new crate is unwanted, the fallback is to move the canonical pair into policy-engine and make agent_core::kill delegate. Validate with `cargo test --workspace` plus a new unit test asserting the whitespace-only file is treated identically by both call sites.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "no-home-for-cross-cutting-contracts"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "policies-dir-no-owner",
+      "summary": "The policies/ directory contract is re-derived in 5 crates instead of being resolved in one place",
+      "related_files": [
+        "crates/agent-core/src/kill.rs",
+        "crates/api-server/src/kill.rs",
+        "crates/api-server/src/ratelimit.rs",
+        "crates/ingestion-gateway/src/ratelimit.rs",
+        "crates/tool-server/src/main.rs"
+      ],
+      "evidence": [
+        "`std::env::var(\"POLICIES_DIR\").unwrap_or_else(|_| \"policies\".to_string())` is duplicated at crates/agent-core/src/kill.rs:29, crates/api-server/src/kill.rs:28, crates/api-server/src/ratelimit.rs:14, crates/ingestion-gateway/src/ratelimit.rs:14 and crates/tool-server/src/main.rs:225.",
+        "Each copy joins a different file (kill, rate-limits.yml, tools.yml), so the directory convention is what keeps them consistent — there is no code that enforces it.",
+        "crates/http-limits/src/lib.rs:11 documents `$POLICIES_DIR/rate-limits.yml` as the input, but the resolution happens in the two callers, not in the crate that consumes the file."
+      ],
+      "suggestion": "Resolve the directory once (same operator-controls module as the kill switch, or `policy_engine::policies_dir()` if that crate is already a dependency) and pass the resolved path/file to http_limits::RateLimits::load. Keep the env override behavior; validate with `cargo test --workspace` and a grep that `POLICIES_DIR` appears in exactly one source file.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "no-home-for-cross-cutting-contracts"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "api-server-module-shadows-crate",
+      "summary": "api-server's `mod a2a` and `mod acp` shadow the a2a and acp crates, forcing `::a2a::` escapes",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/api-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/main.rs:29-30 declares `mod a2a; mod acp;` while crates/api-server/Cargo.toml depends on the crates `a2a = { path = \"../a2a\" }` and `acp = { path = \"../acp\" }`.",
+        "crates/api-server/src/acp.rs:44 imports the sibling module (`use crate::a2a;`) and line 244 must write `::a2a::task::Message` to reach the external crate, so the same identifier means two different things one line apart.",
+        "crates/api-server/src/a2a.rs:22-24 imports `a2a::card`, `a2a::rpc` and `a2a::task`, which only resolve because the module itself does not shadow at that scope — a reader cannot tell which `a2a` any given `a2a::` refers to."
+      ],
+      "suggestion": "Rename the two route modules to a2a_routes.rs / acp_routes.rs (module names `a2a_routes`, `acp_routes`) and update main.rs:29-30, the router references and the doc links. That removes the `::a2a::` escape and makes `a2a::` unambiguously the protocol crate. Validate with `cargo clippy -p api-server --all-targets -- -D warnings` and a grep that `::a2a` no longer appears.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "agent-registry-inside-a2a-routes",
+      "summary": "The platform agent routing table lives in the A2A route module, so ACP routes depend on a sibling route module",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs"
+      ],
+      "evidence": [
+        "AgentDef, the AGENTS table, find_agent and the activity_name mapping are defined in crates/api-server/src/a2a.rs (around lines 50-145) as `pub(crate)`, not in a neutral module.",
+        "crates/api-server/src/acp.rs:44 `use crate::a2a;` and line 302 `a2a::AGENTS` make the ACP surface depend on the A2A route module for the registry, so the two protocol surfaces are coupled through one of them rather than through a shared owner.",
+        "The table encodes platform-level facts (agent name, NATS subject, EnvelopeKind, activity name) that both protocols and the SSE relay need, i.e. ownership is broader than the file it sits in."
+      ],
+      "suggestion": "Extract crates/api-server/src/agents.rs holding AgentDef, AGENTS, find_agent and the activity-name mapping; have a2a.rs, acp.rs and stream.rs import it. Keep a2a-specific helpers (build_payload, publish, task_uuid) where they are. Validate with `cargo test -p api-server` and `cargo clippy -p api-server --all-targets -- -D warnings`.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "api-server-handlers-in-main",
+      "summary": "main.rs keeps 9 console handlers inline while sibling route groups live in modules, and route modules also hold SQL DDL",
+      "related_files": [
+        "crates/api-server/src/main.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/api-server/src/a2a.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/main.rs (389 LOC) defines health (94), list_alerts (108), get_alert (129), thehive_query (141), list_cases (156), get_case (164), list_audit (182), metrics (202) and get_plan (255) alongside Config, AppState, api_router (283) and main (328).",
+        "Eight sibling route groups were extracted instead (coverage.rs, playbooks.rs, kill.rs, vulns.rs, stream.rs, a2a.rs, acp.rs, ratelimit.rs), so the answer to 'where does a handler live?' differs per endpoint.",
+        "crates/api-server/src/acp.rs mixes routing, SSE and persistence: ensure_schema with CREATE TABLE (line 79) and load_run row loading (line 144), while its sibling crates/api-server/src/a2a.rs:396 introduces a TaskBackend/PgBackend seam for the same job — two placements for the same kind of code."
+      ],
+      "suggestion": "Move the console read-model handlers out of main.rs into alerts.rs, cases.rs, audit.rs, metrics.rs and plans.rs (leaving main.rs with Config, AppState, router and bootstrap), and move acp.rs's ensure_schema/load_run SQL next to the a2a backend seam (or into a store.rs per protocol). Validate with `cargo test -p api-server` and `cargo clippy -p api-server --all-targets -- -D warnings`; the route table in main.rs:283-327 is the checklist for which paths must still resolve.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "policy-engine-single-module",
+      "summary": "policy-engine/src/lib.rs is 779 LOC holding CIDR parsing, protected-asset compilation, policy compilation and evaluation",
+      "related_files": ["crates/policy-engine/src/lib.rs"],
+      "evidence": [
+        "One module contains the CIDR type and mask helpers (154-217), Protected compilation from protected-assets.yml (218-252), CompiledTool/PolicyEngine loading (253-330), the 9-step evaluate/evaluate_inner decision order (340-441), the private kill-switch copy (443-457), check_protected (459-490), extract_targets (490-508) and check_forbidden_args (509-546).",
+        "The crate is the security boundary for every tool call (docstring: 'the order of checks in evaluate is load-bearing and must not be reordered'), so a reviewer must read a 779-line file to audit the order instead of seeing it as a numbered sequence across modules.",
+        "Scan evidence flags it as a complexity hotspot (723 LOC, complexity score 54) with clippy and future-proofing signals."
+      ],
+      "suggestion": "Split into cidr.rs (Cidr, mask4/mask6), protected.rs (Protected + compilation), compile.rs (ToolsFile/ToolPolicy/CompiledTool loading), evaluate.rs (PolicyEngine::evaluate and the numbered checks) and args.rs (extract_targets, check_forbidden_args), keeping lib.rs as the facade. Move in dependency order (cidr, args, protected, compile, evaluate); validate with `cargo test -p policy-engine` and `cargo test -p tool-server` since tool-server is the main consumer.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "single-file-module-growth"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "crate-naming-suffix-drift",
+      "summary": "Crate names mix domain nouns with uninformative -lib/-limits suffixes, so a name does not predict a crate's responsibility",
+      "related_files": ["crates/enrichment-lib/src/lib.rs", "crates/http-limits/src/lib.rs"],
+      "evidence": [
+        "Every workspace member is a library, yet two are named with suffixes: crates/enrichment-lib (actually IoC extraction + 5-provider enrichment fan-out + Redis caching) and crates/http-limits (per-key token buckets + SSE concurrency caps + tier config).",
+        "Sibling crates are named after the domain they own (connectors, cvss, audit, policy-engine, agent-protocol), so the suffix pattern gives no signal about contents and does not match the documented ownership model in docs/services.md.",
+        "enrichment-lib is also a single 579-line module holding three responsibilities (extract_iocs, Enricher::enrich fan-out, cache_key), so the vague name hides a flat file as well."
+      ],
+      "suggestion": "Rename crates/enrichment-lib to crates/enrichment (or crates/ioc-enrichment) and split its lib.rs into iocs.rs, providers.rs and cache.rs; leave http-limits as-is if the name is meant to mark it as a mechanism crate, otherwise rename to http-ratelimit. Renames touch Cargo.toml members, the 4 dependent Cargo.toml path deps and `use enrichment_lib` call sites; validate with `cargo metadata --no-deps` and `cargo test --workspace`.",
+      "confidence": "low",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "single-file-module-growth"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Cross-cutting concerns that span crates with no shared dependency (activity event contract, kill switch, policies directory) were copied per crate instead of being given an owning module, and the copies drifted.",
+      "Large single-file modules grew by accretion in the crates with the widest consumer sets (connectors, executors, policy-engine, enrichment-lib), because adding a client/executor needed no new file.",
+      "Service route modules were extracted only when their logic was heavy, leaving the light read-model handlers in main.rs and no stated rule for the split."
+    ],
+    "likely_symptoms": [
+      "vuln-agent emits activity events without workflow_run_id",
+      "triage-agent's ActivityEvent.step is &'static str while siblings use String",
+      "kill file semantics differ between agent-core and policy-engine",
+      "docs/services.md cites line numbers inside connectors/lib.rs"
+    ],
+    "possible_false_positives": [
+      "Treating crates/connectors and crates/policy-engine single-file layout as defects when the crate boundary itself is already the ownership boundary",
+      "Treating documented root content directories (policies/, playbooks/, detection-content/, bas/) as straggler roots"
+    ]
+  },
+  "context_updates": {
+    "package_organization": {
+      "add": [
+        {
+          "header": "Documented ownership map at repo root",
+          "description": "README.md's 'Repo layout' table and docs/services.md's 'Contexts and ownership' table name the owner of every top-level path and database table, so a new developer can navigate by contract rather than by search. This is the main reason the crate-level layout reads as intentional.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "agent-core private modules with public facade",
+          "description": "crates/agent-core/src/lib.rs declares all 7 modules private and re-exports AgentLoop, Budgets, Checkpointer, ToolGateway and kill_switch_engaged, so internal file placement can change without touching the 5 consumer crates.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Per-service crates split by responsibility",
+          "description": "ingestion-gateway (main/pollers/nats_sink/ratelimit), orchestrator (main/dedupe/nats_bus), cvss (lib/v31/v40/lookup_table) and a2a (lib/card/rpc/task) all keep 2-5 cohesive files per crate, which is the pattern the monolith crates should follow.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Shared mechanism crates for edge concerns",
+          "description": "http-limits owns the limiter and each service supplies only a `classify` function (api-server/ratelimit.rs, ingestion-gateway/ratelimit.rs), and agent-protocol owns the envelope/tool contracts with 13 and 9 importers — sharing happens where the mechanism is identical and varies only by policy.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Four single-module monolith crates",
+          "description": "connectors (1189 LOC), tool-server executors/mod.rs (816), policy-engine (779) and enrichment-lib (579) hold ~27% of the workspace LOC with no submodule boundary, so the crate is the only navigable unit inside them.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Cross-cutting contracts duplicated instead of placed",
+          "description": "The activity event, the kill switch and the policies directory have no owning module, so they are re-implemented per crate (6, 3 and 5 copies respectively) and have already diverged in wire shape and fail-closed semantics.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Module names shadow sibling crates in api-server",
+          "description": "api-server's `mod a2a` and `mod acp` collide with the workspace crates of the same name, forcing `::a2a::task::Message` at acp.rs:244 and making `a2a::` ambiguous to readers.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

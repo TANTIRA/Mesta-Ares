@@ -1,0 +1,19 @@
+# Stakpak session files
+.stakpak/session*
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Rust
+target/
+
+# Node / Next.js
+node_modules/
+.next/
+dist/
+
+# OS / editors
+.DS_Store
+*.swp

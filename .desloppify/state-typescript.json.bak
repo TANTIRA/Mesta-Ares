@@ -1,0 +1,5698 @@
+{
+  "version": 3,
+  "created": "2026-10-26T08:16:17+00:00",
+  "last_scan": "2026-10-26T08:16:24+00:00",
+  "scan_count": 1,
+  "overall_score": 17.1,
+  "objective_score": 68.4,
+  "strict_score": 17.1,
+  "verified_strict_score": 68.4,
+  "stats": {
+    "total": 125,
+    "auto_resolved": 0,
+    "deferred": 0,
+    "false_positive": 0,
+    "fixed": 0,
+    "open": 125,
+    "triaged_out": 0,
+    "wontfix": 0,
+    "by_tier": {
+      "2": {
+        "auto_resolved": 0,
+        "deferred": 0,
+        "false_positive": 0,
+        "fixed": 0,
+        "open": 18,
+        "triaged_out": 0,
+        "wontfix": 0
+      },
+      "3": {
+        "auto_resolved": 0,
+        "deferred": 0,
+        "false_positive": 0,
+        "fixed": 0,
+        "open": 85,
+        "triaged_out": 0,
+        "wontfix": 0
+      },
+      "4": {
+        "auto_resolved": 0,
+        "deferred": 0,
+        "false_positive": 0,
+        "fixed": 0,
+        "open": 22,
+        "triaged_out": 0,
+        "wontfix": 0
+      }
+    }
+  },
+  "work_items": {
+    "structural::apps/console/components/blocks/settings-form-1.tsx": {
+      "id": "structural::apps/console/components/blocks/settings-form-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/settings-form-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (1244 LOC) / 21 hooks (4 useEffects, 12 useStates)",
+      "detail": {
+        "loc": 1244,
+        "hook_total": 21,
+        "hook_reasons": [
+          "4 useEffects",
+          "12 useStates",
+          "21 total hooks"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/prompt-input-1.tsx": {
+      "id": "structural::apps/console/components/blocks/prompt-input-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/prompt-input-1.tsx",
+      "tier": 4,
+      "confidence": "high",
+      "summary": "Large file: large (938 LOC) / complexity score 45 / 45 hooks (12 useEffects, 18 useStates)",
+      "detail": {
+        "loc": 938,
+        "complexity_score": 45,
+        "complexity_signals": [
+          "12 useEffects",
+          "15 useRefs"
+        ],
+        "hook_total": 45,
+        "hook_reasons": [
+          "12 useEffects",
+          "18 useStates",
+          "45 total hooks"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/filtering-1.tsx": {
+      "id": "structural::apps/console/components/blocks/filtering-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/filtering-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (865 LOC) / 14 hooks (8 useStates, 14 total hooks)",
+      "detail": {
+        "loc": 865,
+        "hook_total": 14,
+        "hook_reasons": [
+          "8 useStates",
+          "14 total hooks"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/kanban-1.tsx": {
+      "id": "structural::apps/console/components/blocks/kanban-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/kanban-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (794 LOC) / 13 hooks (8 useStates, 13 total hooks)",
+      "detail": {
+        "loc": 794,
+        "hook_total": 13,
+        "hook_reasons": [
+          "8 useStates",
+          "13 total hooks"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/data-table-1.tsx": {
+      "id": "structural::apps/console/components/blocks/data-table-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/data-table-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (739 LOC) / 16 hooks (8 useStates, 16 total hooks)",
+      "detail": {
+        "loc": 739,
+        "hook_total": 16,
+        "hook_reasons": [
+          "8 useStates",
+          "16 total hooks"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/ai-chat-1.tsx": {
+      "id": "structural::apps/console/components/blocks/ai-chat-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/ai-chat-1.tsx",
+      "tier": 4,
+      "confidence": "high",
+      "summary": "Large file: large (736 LOC) / complexity score 15 / 27 hooks (6 useEffects, 12 useStates)",
+      "detail": {
+        "loc": 736,
+        "complexity_score": 15,
+        "complexity_signals": [
+          "6 useEffects",
+          "9 useRefs"
+        ],
+        "hook_total": 27,
+        "hook_reasons": [
+          "6 useEffects",
+          "12 useStates",
+          "11 custom hooks",
+          "27 total hooks"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/app-shell-1.tsx": {
+      "id": "structural::apps/console/components/blocks/app-shell-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/app-shell-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (659 LOC) / 16 hooks (4 useEffects, 5 useStates)",
+      "detail": {
+        "loc": 659,
+        "hook_total": 16,
+        "hook_reasons": [
+          "4 useEffects",
+          "5 useStates",
+          "16 total hooks"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/tool-calls-1.tsx": {
+      "id": "structural::apps/console/components/blocks/tool-calls-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/tool-calls-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (654 LOC) / 16 hooks (5 useEffects, 6 useStates)",
+      "detail": {
+        "loc": 654,
+        "hook_total": 16,
+        "hook_reasons": [
+          "5 useEffects",
+          "6 useStates",
+          "10 custom hooks",
+          "16 total hooks"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/monitoring-1.tsx": {
+      "id": "structural::apps/console/components/blocks/monitoring-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/monitoring-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (606 LOC)",
+      "detail": {
+        "loc": 606
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/notifications-1.tsx": {
+      "id": "structural::apps/console/components/blocks/notifications-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/notifications-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (542 LOC)",
+      "detail": {
+        "loc": 542
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/dashboard-1.tsx": {
+      "id": "structural::apps/console/components/blocks/dashboard-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/dashboard-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: large (535 LOC)",
+      "detail": {
+        "loc": 535
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "structural::apps/console/components/blocks/app-dialog-1.tsx": {
+      "id": "structural::apps/console/components/blocks/app-dialog-1.tsx",
+      "detector": "structural",
+      "file": "apps/console/components/blocks/app-dialog-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Large file: 13 hooks (4 useEffects, 13 total hooks)",
+      "detail": {
+        "hook_total": 13,
+        "hook_reasons": [
+          "4 useEffects",
+          "13 total hooks"
+        ],
+        "loc": 393
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "flat_dirs::apps/console/app/(console)": {
+      "id": "flat_dirs::apps/console/app/(console)",
+      "detector": "flat_dirs",
+      "file": "apps/console/app/(console)",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "Directory overload: 2 files, 11 child dirs (combined 35) \u2014 consider grouping by domain",
+      "detail": {
+        "file_count": 2,
+        "child_dir_count": 11,
+        "combined_score": 35,
+        "kind": "overload",
+        "parent_sibling_count": 0,
+        "wrapper_item_count": 0,
+        "sparse_child_count": 0,
+        "sparse_child_ratio": 0.0,
+        "sparse_child_file_threshold": 0
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "signature::apps/console/components/blocks/agent-activity-1.tsx::signature_variance::useScrollFade": {
+      "id": "signature::apps/console/components/blocks/agent-activity-1.tsx::signature_variance::useScrollFade",
+      "detector": "signature",
+      "file": "apps/console/components/blocks/agent-activity-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "'useScrollFade' has 2 different signatures across 7 files",
+      "detail": {},
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "signature::apps/console/components/blocks/app-shell-1.tsx::signature_variance::onKeyDown": {
+      "id": "signature::apps/console/components/blocks/app-shell-1.tsx::signature_variance::onKeyDown",
+      "detector": "signature",
+      "file": "apps/console/components/blocks/app-shell-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "'onKeyDown' has 2 different signatures across 3 files",
+      "detail": {},
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/settings-form-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/settings-form-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/settings-form-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (1244 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 1244,
+        "importer_count": 1,
+        "loc_weight": 35.270384177096794
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/prompt-input-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/prompt-input-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/prompt-input-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "Untested module (938 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_critical",
+        "loc": 938,
+        "importer_count": 1,
+        "loc_weight": 30.62678566222711,
+        "complexity_score": 45
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/filtering-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/filtering-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/filtering-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (865 LOC, 2 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 865,
+        "importer_count": 2,
+        "loc_weight": 29.410882339705484
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/kanban-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/kanban-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/kanban-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (794 LOC, 2 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 794,
+        "importer_count": 2,
+        "loc_weight": 28.178005607210743
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/data-table-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/data-table-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/data-table-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (739 LOC, 2 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 739,
+        "importer_count": 2,
+        "loc_weight": 27.184554438136374
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/ai-chat-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/ai-chat-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/ai-chat-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (736 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 736,
+        "importer_count": 1,
+        "loc_weight": 27.129319932501073
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/app-shell-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/app-shell-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/app-shell-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (659 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 659,
+        "importer_count": 1,
+        "loc_weight": 25.67099530598687
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/tool-calls-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/tool-calls-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/tool-calls-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (654 LOC, 3 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 654,
+        "importer_count": 3,
+        "loc_weight": 25.573423705088842
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/monitoring-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/monitoring-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/monitoring-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (606 LOC, 2 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 606,
+        "importer_count": 2,
+        "loc_weight": 24.61706725018234
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/notifications-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/notifications-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/notifications-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (542 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 542,
+        "importer_count": 1,
+        "loc_weight": 23.280893453645632
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/dashboard-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/dashboard-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/dashboard-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (535 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 535,
+        "importer_count": 1,
+        "loc_weight": 23.130067012440755
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/lib/api.ts": {
+      "id": "test_coverage::apps/console/lib/api.ts",
+      "detector": "test_coverage",
+      "file": "apps/console/lib/api.ts",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "Untested module (454 LOC, 17 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_critical",
+        "loc": 454,
+        "importer_count": 17,
+        "loc_weight": 21.307275752662516
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/analytics-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/analytics-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/analytics-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (425 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 425,
+        "importer_count": 1,
+        "loc_weight": 20.615528128088304
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/integrations-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/integrations-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/integrations-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (415 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 415,
+        "importer_count": 1,
+        "loc_weight": 20.37154878746336
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/app-dialog-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/app-dialog-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/app-dialog-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (393 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 393,
+        "importer_count": 1,
+        "loc_weight": 19.82422760159901
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/agent-plan-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/agent-plan-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/agent-plan-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (385 LOC, 2 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 385,
+        "importer_count": 2,
+        "loc_weight": 19.621416870348583
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/agent-approval-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/agent-approval-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/agent-approval-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (315 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 315,
+        "importer_count": 1,
+        "loc_weight": 17.74823934929885
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/list-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/list-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/list-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (286 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 286,
+        "importer_count": 1,
+        "loc_weight": 16.911534525287763
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/plan-graph.tsx": {
+      "id": "test_coverage::apps/console/components/plan-graph.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/plan-graph.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (281 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 281,
+        "importer_count": 1,
+        "loc_weight": 16.76305461424021
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/agent-activity-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/agent-activity-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/agent-activity-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (265 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 265,
+        "importer_count": 1,
+        "loc_weight": 16.278820596099706
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/settings/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/settings/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/settings/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (257 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 257,
+        "importer_count": 0,
+        "loc_weight": 16.0312195418814
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/vulns/[cveId]/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/vulns/[cveId]/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/vulns/[cveId]/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (228 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 228,
+        "importer_count": 0,
+        "loc_weight": 15.0996688705415
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/playbooks/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/playbooks/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/playbooks/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (199 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 199,
+        "importer_count": 0,
+        "loc_weight": 14.106735979665885
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/vulns/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/vulns/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/vulns/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (192 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 192,
+        "importer_count": 0,
+        "loc_weight": 13.856406460551018
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/blocks/card-1.tsx": {
+      "id": "test_coverage::apps/console/components/blocks/card-1.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/blocks/card-1.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (182 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 182,
+        "importer_count": 1,
+        "loc_weight": 13.490737563232042
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (171 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 171,
+        "importer_count": 0,
+        "loc_weight": 13.076696830622021
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/alerts/[id]/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/alerts/[id]/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/alerts/[id]/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (156 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 156,
+        "importer_count": 0,
+        "loc_weight": 12.489995996796797
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/lib/map.ts": {
+      "id": "test_coverage::apps/console/lib/map.ts",
+      "detector": "test_coverage",
+      "file": "apps/console/lib/map.ts",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (131 LOC, 4 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 131,
+        "importer_count": 4,
+        "loc_weight": 11.445523142259598
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/cases/[id]/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/cases/[id]/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/cases/[id]/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (124 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 124,
+        "importer_count": 0,
+        "loc_weight": 11.135528725660043
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/tools/cvss/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/tools/cvss/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/tools/cvss/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (115 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 115,
+        "importer_count": 0,
+        "loc_weight": 10.723805294763608
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/coverage/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/coverage/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/coverage/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (94 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 94,
+        "importer_count": 0,
+        "loc_weight": 9.695359714832659
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/hunt/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/hunt/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/hunt/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (57 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 57,
+        "importer_count": 0,
+        "loc_weight": 7.54983443527075
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/agents/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/agents/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/agents/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (49 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 49,
+        "importer_count": 0,
+        "loc_weight": 7.0
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/notifications/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/notifications/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/notifications/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (45 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 45,
+        "importer_count": 0,
+        "loc_weight": 6.708203932499369
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/alerts/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/alerts/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/alerts/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (35 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 35,
+        "importer_count": 0,
+        "loc_weight": 5.916079783099616
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/lib/use-api.ts": {
+      "id": "test_coverage::apps/console/lib/use-api.ts",
+      "detector": "test_coverage",
+      "file": "apps/console/lib/use-api.ts",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "Untested module (34 LOC, 13 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_critical",
+        "loc": 34,
+        "importer_count": 13,
+        "loc_weight": 5.830951894845301
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/cvss-badge.tsx": {
+      "id": "test_coverage::apps/console/components/cvss-badge.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/cvss-badge.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (29 LOC, 3 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 29,
+        "importer_count": 3,
+        "loc_weight": 5.385164807134504
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/layout.tsx": {
+      "id": "test_coverage::apps/console/app/layout.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/layout.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (27 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 27,
+        "importer_count": 0,
+        "loc_weight": 5.196152422706632
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/cases/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/cases/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/cases/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (27 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 27,
+        "importer_count": 0,
+        "loc_weight": 5.196152422706632
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/audit/page.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/audit/page.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/audit/page.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (25 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 25,
+        "importer_count": 0,
+        "loc_weight": 5.0
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/empty-state.tsx": {
+      "id": "test_coverage::apps/console/components/empty-state.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/empty-state.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "Untested module (18 LOC, 11 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_critical",
+        "loc": 18,
+        "importer_count": 11,
+        "loc_weight": 4.242640687119285
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/app/(console)/layout.tsx": {
+      "id": "test_coverage::apps/console/app/(console)/layout.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/app/(console)/layout.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (15 LOC, 0 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 15,
+        "importer_count": 0,
+        "loc_weight": 3.872983346207417
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "test_coverage::apps/console/components/theme-provider.tsx": {
+      "id": "test_coverage::apps/console/components/theme-provider.tsx",
+      "detector": "test_coverage",
+      "file": "apps/console/components/theme-provider.tsx",
+      "tier": 3,
+      "confidence": "high",
+      "summary": "Untested module (11 LOC, 1 importers) \u2014 no test files found",
+      "detail": {
+        "kind": "untested_module",
+        "loc": 11,
+        "importer_count": 1,
+        "loc_weight": 3.3166247903554
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:19+00:00",
+      "last_seen": "2026-10-26T08:16:19+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/vulns/[cveId]/page.tsx::monster_function": {
+      "id": "smells::apps/console/app/(console)/vulns/[cveId]/page.tsx::monster_function",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/vulns/[cveId]/page.tsx",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "1x Monster function (>150 LOC)",
+      "detail": {
+        "smell_id": "monster_function",
+        "severity": "high",
+        "count": 1,
+        "lines": [
+          40
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/vulns/page.tsx::monster_function": {
+      "id": "smells::apps/console/app/(console)/vulns/page.tsx::monster_function",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/vulns/page.tsx",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "1x Monster function (>150 LOC)",
+      "detail": {
+        "smell_id": "monster_function",
+        "severity": "high",
+        "count": 1,
+        "lines": [
+          16
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/alerts/[id]/page.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/app/(console)/alerts/[id]/page.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/alerts/[id]/page.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          24
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/cases/[id]/page.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/app/(console)/cases/[id]/page.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/cases/[id]/page.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          20
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/page.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/app/(console)/page.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/page.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "2x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 2,
+        "lines": [
+          27,
+          73
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/playbooks/page.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/app/(console)/playbooks/page.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/playbooks/page.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          115
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/settings/page.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/app/(console)/settings/page.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/settings/page.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          178
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/vulns/[cveId]/page.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/app/(console)/vulns/[cveId]/page.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/vulns/[cveId]/page.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "2x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 2,
+        "lines": [
+          17,
+          40
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/vulns/page.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/app/(console)/vulns/page.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/vulns/page.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          16
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/app-dialog-1.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/components/blocks/app-dialog-1.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/app-dialog-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          78
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/app-shell-1.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/components/blocks/app-shell-1.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/app-shell-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          229
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/filtering-1.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/components/blocks/filtering-1.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/filtering-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "2x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 2,
+        "lines": [
+          190,
+          352
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/kanban-1.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/components/blocks/kanban-1.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/kanban-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          402
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/settings-form-1.tsx::high_cyclomatic_complexity": {
+      "id": "smells::apps/console/components/blocks/settings-form-1.tsx::high_cyclomatic_complexity",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/settings-form-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x High cyclomatic complexity (>15 branches)",
+      "detail": {
+        "smell_id": "high_cyclomatic_complexity",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          686
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/cases/[id]/page.tsx::nested_closure": {
+      "id": "smells::apps/console/app/(console)/cases/[id]/page.tsx::nested_closure",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/cases/[id]/page.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x Deeply nested closures \u2014 extract to module level",
+      "detail": {
+        "smell_id": "nested_closure",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          20
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/ai-chat-1.tsx::nested_closure": {
+      "id": "smells::apps/console/components/blocks/ai-chat-1.tsx::nested_closure",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/ai-chat-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "2x Deeply nested closures \u2014 extract to module level",
+      "detail": {
+        "smell_id": "nested_closure",
+        "severity": "medium",
+        "count": 2,
+        "lines": [
+          111,
+          197
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/app-dialog-1.tsx::nested_closure": {
+      "id": "smells::apps/console/components/blocks/app-dialog-1.tsx::nested_closure",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/app-dialog-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x Deeply nested closures \u2014 extract to module level",
+      "detail": {
+        "smell_id": "nested_closure",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          78
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/filtering-1.tsx::nested_closure": {
+      "id": "smells::apps/console/components/blocks/filtering-1.tsx::nested_closure",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/filtering-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x Deeply nested closures \u2014 extract to module level",
+      "detail": {
+        "smell_id": "nested_closure",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          352
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/tool-calls-1.tsx::nested_closure": {
+      "id": "smells::apps/console/components/blocks/tool-calls-1.tsx::nested_closure",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/tool-calls-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x Deeply nested closures \u2014 extract to module level",
+      "detail": {
+        "smell_id": "nested_closure",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          322
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/plan-graph.tsx::hardcoded_color": {
+      "id": "smells::apps/console/components/plan-graph.tsx::hardcoded_color",
+      "detector": "smells",
+      "file": "apps/console/components/plan-graph.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "2x Hardcoded color values",
+      "detail": {
+        "smell_id": "hardcoded_color",
+        "severity": "medium",
+        "count": 2,
+        "lines": [
+          163,
+          169
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/lib/api.ts::hardcoded_url": {
+      "id": "smells::apps/console/lib/api.ts::hardcoded_url",
+      "detector": "smells",
+      "file": "apps/console/lib/api.ts",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x Hardcoded URL in source code",
+      "detail": {
+        "smell_id": "hardcoded_url",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          4
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/filtering-1.tsx::sort_no_comparator": {
+      "id": "smells::apps/console/components/blocks/filtering-1.tsx::sort_no_comparator",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/filtering-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "1x .sort() without comparator function",
+      "detail": {
+        "smell_id": "sort_no_comparator",
+        "severity": "medium",
+        "count": 1,
+        "lines": [
+          519
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/agent-activity-1.tsx::magic_number": {
+      "id": "smells::apps/console/components/blocks/agent-activity-1.tsx::magic_number",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/agent-activity-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "1x Magic numbers (>1000 in logic)",
+      "detail": {
+        "smell_id": "magic_number",
+        "severity": "low",
+        "count": 1,
+        "lines": [
+          125
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/ai-chat-1.tsx::magic_number": {
+      "id": "smells::apps/console/components/blocks/ai-chat-1.tsx::magic_number",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/ai-chat-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "1x Magic numbers (>1000 in logic)",
+      "detail": {
+        "smell_id": "magic_number",
+        "severity": "low",
+        "count": 1,
+        "lines": [
+          137
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/tool-calls-1.tsx::magic_number": {
+      "id": "smells::apps/console/components/blocks/tool-calls-1.tsx::magic_number",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/tool-calls-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "1x Magic numbers (>1000 in logic)",
+      "detail": {
+        "smell_id": "magic_number",
+        "severity": "low",
+        "count": 1,
+        "lines": [
+          287
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/dashboard-1.tsx::switch_no_default": {
+      "id": "smells::apps/console/components/blocks/dashboard-1.tsx::switch_no_default",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/dashboard-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "1x Switch without default case",
+      "detail": {
+        "smell_id": "switch_no_default",
+        "severity": "low",
+        "count": 1,
+        "lines": [
+          278
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/components/blocks/prompt-input-1.tsx::switch_no_default": {
+      "id": "smells::apps/console/components/blocks/prompt-input-1.tsx::switch_no_default",
+      "detector": "smells",
+      "file": "apps/console/components/blocks/prompt-input-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "2x Switch without default case",
+      "detail": {
+        "smell_id": "switch_no_default",
+        "severity": "low",
+        "count": 2,
+        "lines": [
+          331,
+          644
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "smells::apps/console/app/(console)/cases/[id]/page.tsx::stub_function": {
+      "id": "smells::apps/console/app/(console)/cases/[id]/page.tsx::stub_function",
+      "detector": "smells",
+      "file": "apps/console/app/(console)/cases/[id]/page.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "1x Stub function (body is empty/return-only)",
+      "detail": {
+        "smell_id": "stub_function",
+        "severity": "low",
+        "count": 1,
+        "lines": [
+          33
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "react::apps/console/components/blocks/kanban-1.tsx::setCards, setItems": {
+      "id": "react::apps/console/components/blocks/kanban-1.tsx::setCards, setItems",
+      "detector": "react",
+      "file": "apps/console/components/blocks/kanban-1.tsx",
+      "tier": 3,
+      "confidence": "medium",
+      "summary": "State sync anti-pattern: useEffect only calls setCards, setItems",
+      "detail": {
+        "line": 272,
+        "setters": [
+          "setCards",
+          "setItems"
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "react::apps/console/components/blocks/prompt-input-1.tsx::bool_state::(mixed)": {
+      "id": "react::apps/console/components/blocks/prompt-input-1.tsx::bool_state::(mixed)",
+      "detector": "react",
+      "file": "apps/console/components/blocks/prompt-input-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Boolean state explosion: 9 boolean useState hooks (dragging, ready, open, shown, dismissed)",
+      "detail": {
+        "count": 9,
+        "setters": [
+          "setDragging",
+          "setReady",
+          "setOpen",
+          "setShown",
+          "setDismissed",
+          "setBusy",
+          "setEffortOpen",
+          "setEffortShown",
+          "setRecording"
+        ],
+        "states": [
+          "dragging",
+          "ready",
+          "open",
+          "shown",
+          "dismissed",
+          "busy",
+          "effortOpen",
+          "effortShown",
+          "recording"
+        ],
+        "line": 138
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "react::apps/console/components/blocks/ai-chat-1.tsx::bool_state::(mixed)": {
+      "id": "react::apps/console/components/blocks/ai-chat-1.tsx::bool_state::(mixed)",
+      "detector": "react",
+      "file": "apps/console/components/blocks/ai-chat-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Boolean state explosion: 5 boolean useState hooks (done, showJump, open, open, stopped)",
+      "detail": {
+        "count": 5,
+        "setters": [
+          "setDone",
+          "setShowJump",
+          "setOpen",
+          "setOpen",
+          "setStopped"
+        ],
+        "states": [
+          "done",
+          "showJump",
+          "open",
+          "open",
+          "stopped"
+        ],
+        "line": 113
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "react::apps/console/components/blocks/app-shell-1.tsx::bool_state::(mixed)": {
+      "id": "react::apps/console/components/blocks/app-shell-1.tsx::bool_state::(mixed)",
+      "detector": "react",
+      "file": "apps/console/components/blocks/app-shell-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Boolean state explosion: 4 boolean useState hooks (accountOpen, accountShown, drawerOpen, drawerShown)",
+      "detail": {
+        "count": 4,
+        "setters": [
+          "setAccountOpen",
+          "setAccountShown",
+          "setDrawerOpen",
+          "setDrawerShown"
+        ],
+        "states": [
+          "accountOpen",
+          "accountShown",
+          "drawerOpen",
+          "drawerShown"
+        ],
+        "line": 202
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "react::apps/console/components/blocks/settings-form-1.tsx::bool_state::(mixed)": {
+      "id": "react::apps/console/components/blocks/settings-form-1.tsx::bool_state::(mixed)",
+      "detector": "react",
+      "file": "apps/console/components/blocks/settings-form-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Boolean state explosion: 4 boolean useState hooks (open, instant, flip, saving)",
+      "detail": {
+        "count": 4,
+        "setters": [
+          "setOpen",
+          "setInstant",
+          "setFlip",
+          "setSaving"
+        ],
+        "states": [
+          "open",
+          "instant",
+          "flip",
+          "saving"
+        ],
+        "line": 623
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:20+00:00",
+      "last_seen": "2026-10-26T08:16:20+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "next_lint::apps/console/components/blocks/agent-activity-1.tsx::lint": {
+      "id": "next_lint::apps/console/components/blocks/agent-activity-1.tsx::lint",
+      "detector": "next_lint",
+      "file": "apps/console/components/blocks/agent-activity-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "next lint: 'DONE_SECONDS' is assigned a value but never used. (2 issue(s) in file)",
+      "detail": {
+        "count": 2,
+        "messages": [
+          {
+            "line": 69,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'DONE_SECONDS' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 104,
+            "column": 3,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'title' is assigned a value but never used.",
+            "severity": 1
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "next_lint::apps/console/components/blocks/ai-chat-1.tsx::lint": {
+      "id": "next_lint::apps/console/components/blocks/ai-chat-1.tsx::lint",
+      "detector": "next_lint",
+      "file": "apps/console/components/blocks/ai-chat-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "next lint: 'Cancel01Icon' is defined but never used. (3 issue(s) in file)",
+      "detail": {
+        "count": 3,
+        "messages": [
+          {
+            "line": 17,
+            "column": 3,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'Cancel01Icon' is defined but never used.",
+            "severity": 1
+          },
+          {
+            "line": 47,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'chip' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 49,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'chipRemove' is assigned a value but never used.",
+            "severity": 1
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "next_lint::apps/console/components/blocks/app-dialog-1.tsx::lint": {
+      "id": "next_lint::apps/console/components/blocks/app-dialog-1.tsx::lint",
+      "detector": "next_lint",
+      "file": "apps/console/components/blocks/app-dialog-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "next lint: 'toastTitle' is assigned a value but never used. (2 issue(s) in file)",
+      "detail": {
+        "count": 2,
+        "messages": [
+          {
+            "line": 38,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'toastTitle' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 39,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'toastDescription' is assigned a value but never used.",
+            "severity": 1
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "next_lint::apps/console/components/blocks/app-shell-1.tsx::lint": {
+      "id": "next_lint::apps/console/components/blocks/app-shell-1.tsx::lint",
+      "detector": "next_lint",
+      "file": "apps/console/components/blocks/app-shell-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "next lint: 'useId' is defined but never used. (32 issue(s) in file)",
+      "detail": {
+        "count": 32,
+        "messages": [
+          {
+            "line": 3,
+            "column": 34,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'useId' is defined but never used.",
+            "severity": 1
+          },
+          {
+            "line": 27,
+            "column": 3,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'UserAdd01Icon' is defined but never used.",
+            "severity": 1
+          },
+          {
+            "line": 67,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'text2' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 73,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'typeBodySm' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 75,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'typeCodeSm' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 76,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'primaryButton' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 82,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'buttonMd' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 94,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statusWord' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 96,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statusWordSm' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 98,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statusQueued' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 99,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statusRunning' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 100,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statusOk' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 101,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statusWarn' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 102,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statusFail' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 103,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'arcLine' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 104,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'runningArc' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 112,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statGroup' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 114,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statGrid' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 116,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statCell' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 117,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statLabel' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 119,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statValue' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 121,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'statDescription' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 133,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'navCount' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 135,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'navGroupLabel' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 146,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'disclosureCaret' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 148,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'table' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 150,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'tableHead' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 152,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'tableRow' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 154,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'tableCell' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 156,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'numericCell' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 157,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'fadeTopOnPaper' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 161,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'fadeBottomOnPaper' is assigned a value but never used.",
+            "severity": 1
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "next_lint::apps/console/components/blocks/card-1.tsx::lint": {
+      "id": "next_lint::apps/console/components/blocks/card-1.tsx::lint",
+      "detector": "next_lint",
+      "file": "apps/console/components/blocks/card-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "next lint: 'title' is defined but never used. (1 issue(s) in file)",
+      "detail": {
+        "count": 1,
+        "messages": [
+          {
+            "line": 99,
+            "column": 3,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'title' is defined but never used.",
+            "severity": 1
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "next_lint::apps/console/components/blocks/data-table-1.tsx::lint": {
+      "id": "next_lint::apps/console/components/blocks/data-table-1.tsx::lint",
+      "detector": "next_lint",
+      "file": "apps/console/components/blocks/data-table-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "next lint: React Hook useMemo has a missing dependency: 'SEV_RANK'. Either include it or remove the dependency array. (1 issue(s) in file)",
+      "detail": {
+        "count": 1,
+        "messages": [
+          {
+            "line": 356,
+            "column": 6,
+            "ruleId": "react-hooks/exhaustive-deps",
+            "message": "React Hook useMemo has a missing dependency: 'SEV_RANK'. Either include it or remove the dependency array.",
+            "severity": 1
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "next_lint::apps/console/components/blocks/filtering-1.tsx::lint": {
+      "id": "next_lint::apps/console/components/blocks/filtering-1.tsx::lint",
+      "detector": "next_lint",
+      "file": "apps/console/components/blocks/filtering-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "next lint: 'textOnField' is assigned a value but never used. (5 issue(s) in file)",
+      "detail": {
+        "count": 5,
+        "messages": [
+          {
+            "line": 25,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'textOnField' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 26,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'textInverse' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 37,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'ghostButton' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 41,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'iconButtonMd' is assigned a value but never used.",
+            "severity": 1
+          },
+          {
+            "line": 81,
+            "column": 7,
+            "ruleId": "@typescript-eslint/no-unused-vars",
+            "message": "'cornerXs' is assigned a value but never used.",
+            "severity": 1
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "next_lint::apps/console/components/blocks/integrations-1.tsx::lint": {
+      "id": "next_lint::apps/console/components/blocks/integrations-1.tsx::lint",
+      "detector": "next_lint",
+      "file": "apps/console/components/blocks/integrations-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "next lint: React Hook useMemo has a missing dependency: 'apps'. Either include it or remove the dependency array. (1 issue(s) in file)",
+      "detail": {
+        "count": 1,
+        "messages": [
+          {
+            "line": 226,
+            "column": 6,
+            "ruleId": "react-hooks/exhaustive-deps",
+            "message": "React Hook useMemo has a missing dependency: 'apps'. Either include it or remove the dependency array.",
+            "severity": 1
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "next_lint::apps/console/components/blocks/settings-form-1.tsx::lint": {
+      "id": "next_lint::apps/console/components/blocks/settings-form-1.tsx::lint",
+      "detector": "next_lint",
+      "file": "apps/console/components/blocks/settings-form-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "next lint: React Hook useMemo has a missing dependency: 'sections'. Either include it or remove the dependency array. (1 issue(s) in file)",
+      "detail": {
+        "count": 1,
+        "messages": [
+          {
+            "line": 894,
+            "column": 5,
+            "ruleId": "react-hooks/exhaustive-deps",
+            "message": "React Hook useMemo has a missing dependency: 'sections'. Either include it or remove the dependency array.",
+            "severity": 1
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::abstraction_fitness": {
+      "id": "subjective_review::.::abstraction_fitness",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Abstraction fit \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "abstraction_fitness"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::ai_generated_debt": {
+      "id": "subjective_review::.::ai_generated_debt",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "AI generated debt \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "ai_generated_debt"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::api_surface_coherence": {
+      "id": "subjective_review::.::api_surface_coherence",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "API coherence \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "api_surface_coherence"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::authorization_consistency": {
+      "id": "subjective_review::.::authorization_consistency",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Auth consistency \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "authorization_consistency"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::contract_coherence": {
+      "id": "subjective_review::.::contract_coherence",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Contracts \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "contract_coherence"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::convention_outlier": {
+      "id": "subjective_review::.::convention_outlier",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Convention drift \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "convention_outlier"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::cross_module_architecture": {
+      "id": "subjective_review::.::cross_module_architecture",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Cross-module arch \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "cross_module_architecture"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::dependency_health": {
+      "id": "subjective_review::.::dependency_health",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Dep health \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "dependency_health"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::design_coherence": {
+      "id": "subjective_review::.::design_coherence",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Design coherence \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "design_coherence"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::error_consistency": {
+      "id": "subjective_review::.::error_consistency",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Error consistency \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "error_consistency"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::high_level_elegance": {
+      "id": "subjective_review::.::high_level_elegance",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "High elegance \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "high_level_elegance"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::incomplete_migration": {
+      "id": "subjective_review::.::incomplete_migration",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Stale migration \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "incomplete_migration"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::initialization_coupling": {
+      "id": "subjective_review::.::initialization_coupling",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Init coupling \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "initialization_coupling"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::logic_clarity": {
+      "id": "subjective_review::.::logic_clarity",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Logic clarity \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "logic_clarity"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::low_level_elegance": {
+      "id": "subjective_review::.::low_level_elegance",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Low elegance \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "low_level_elegance"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::mid_level_elegance": {
+      "id": "subjective_review::.::mid_level_elegance",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Mid elegance \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "mid_level_elegance"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::naming_quality": {
+      "id": "subjective_review::.::naming_quality",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Naming quality \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "naming_quality"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::package_organization": {
+      "id": "subjective_review::.::package_organization",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Structure nav \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "package_organization"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::test_strategy": {
+      "id": "subjective_review::.::test_strategy",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Test strategy \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "test_strategy"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "subjective_review::.::type_safety": {
+      "id": "subjective_review::.::type_safety",
+      "detector": "subjective_review",
+      "file": ".",
+      "tier": 4,
+      "confidence": "low",
+      "summary": "Type safety \u2014 no assessment on record, run `desloppify review --prepare`",
+      "detail": {
+        "reason": "unassessed",
+        "dimension": "type_safety"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "assessment_request",
+      "issue_kind": "assessment_request",
+      "origin": "synthetic_task",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "dupes::apps/console/components/blocks/agent-activity-1.tsx::useScrollFade::apps/console/components/blocks/agent-plan-1.tsx::useScrollFade": {
+      "id": "dupes::apps/console/components/blocks/agent-activity-1.tsx::useScrollFade::apps/console/components/blocks/agent-plan-1.tsx::useScrollFade",
+      "detector": "dupes",
+      "file": "apps/console/components/blocks/agent-activity-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "Exact dupe cluster (8 functions, 100% similar): useScrollFade (apps/console/components/blocks/agent-activity-1.tsx:75), useScrollFade (apps/console/components/blocks/agent-plan-1.tsx:164), ...",
+      "detail": {
+        "fn_a": {
+          "file": "apps/console/components/blocks/agent-activity-1.tsx",
+          "name": "useScrollFade",
+          "line": 75,
+          "loc": 26
+        },
+        "fn_b": {
+          "file": "apps/console/components/blocks/agent-plan-1.tsx",
+          "name": "useScrollFade",
+          "line": 164,
+          "loc": 26
+        },
+        "similarity": 1.0,
+        "kind": "exact",
+        "cluster_size": 8,
+        "cluster": [
+          {
+            "file": "apps/console/components/blocks/agent-activity-1.tsx",
+            "name": "useScrollFade",
+            "line": 75,
+            "loc": 26
+          },
+          {
+            "file": "apps/console/components/blocks/agent-plan-1.tsx",
+            "name": "useScrollFade",
+            "line": 164,
+            "loc": 26
+          },
+          {
+            "file": "apps/console/components/blocks/ai-chat-1.tsx",
+            "name": "useScrollFade",
+            "line": 170,
+            "loc": 26
+          },
+          {
+            "file": "apps/console/components/blocks/app-dialog-1.tsx",
+            "name": "useScrollFade",
+            "line": 128,
+            "loc": 26
+          },
+          {
+            "file": "apps/console/components/blocks/app-shell-1.tsx",
+            "name": "cx",
+            "line": 31,
+            "loc": 29
+          },
+          {
+            "file": "apps/console/components/blocks/data-table-1.tsx",
+            "name": "useScrollFade",
+            "line": 204,
+            "loc": 26
+          },
+          {
+            "file": "apps/console/components/blocks/monitoring-1.tsx",
+            "name": "useScrollFade",
+            "line": 191,
+            "loc": 23
+          },
+          {
+            "file": "apps/console/components/blocks/notifications-1.tsx",
+            "name": "useScrollFade",
+            "line": 219,
+            "loc": 23
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "dupes::apps/console/components/blocks/analytics-1.tsx::useMeasure::apps/console/components/blocks/monitoring-1.tsx::useMeasure": {
+      "id": "dupes::apps/console/components/blocks/analytics-1.tsx::useMeasure::apps/console/components/blocks/monitoring-1.tsx::useMeasure",
+      "detector": "dupes",
+      "file": "apps/console/components/blocks/analytics-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "Exact dupe: useMeasure (apps/console/components/blocks/analytics-1.tsx:119) <-> useMeasure (apps/console/components/blocks/monitoring-1.tsx:172) [100%]",
+      "detail": {
+        "fn_a": {
+          "file": "apps/console/components/blocks/analytics-1.tsx",
+          "name": "useMeasure",
+          "line": 119,
+          "loc": 18
+        },
+        "fn_b": {
+          "file": "apps/console/components/blocks/monitoring-1.tsx",
+          "name": "useMeasure",
+          "line": 172,
+          "loc": 18
+        },
+        "similarity": 1.0,
+        "kind": "exact",
+        "cluster_size": 2,
+        "cluster": [
+          {
+            "file": "apps/console/components/blocks/analytics-1.tsx",
+            "name": "useMeasure",
+            "line": 119,
+            "loc": 18
+          },
+          {
+            "file": "apps/console/components/blocks/monitoring-1.tsx",
+            "name": "useMeasure",
+            "line": 172,
+            "loc": 18
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "dupes::apps/console/components/blocks/data-table-1.tsx::useScrollFadeX::apps/console/components/blocks/integrations-1.tsx::useScrollFadeX": {
+      "id": "dupes::apps/console/components/blocks/data-table-1.tsx::useScrollFadeX::apps/console/components/blocks/integrations-1.tsx::useScrollFadeX",
+      "detector": "dupes",
+      "file": "apps/console/components/blocks/data-table-1.tsx",
+      "tier": 2,
+      "confidence": "high",
+      "summary": "Exact dupe: useScrollFadeX (apps/console/components/blocks/data-table-1.tsx:231) <-> useScrollFadeX (apps/console/components/blocks/integrations-1.tsx:85) [100%]",
+      "detail": {
+        "fn_a": {
+          "file": "apps/console/components/blocks/data-table-1.tsx",
+          "name": "useScrollFadeX",
+          "line": 231,
+          "loc": 26
+        },
+        "fn_b": {
+          "file": "apps/console/components/blocks/integrations-1.tsx",
+          "name": "useScrollFadeX",
+          "line": 85,
+          "loc": 23
+        },
+        "similarity": 1.0,
+        "kind": "exact",
+        "cluster_size": 2,
+        "cluster": [
+          {
+            "file": "apps/console/components/blocks/data-table-1.tsx",
+            "name": "useScrollFadeX",
+            "line": 231,
+            "loc": 26
+          },
+          {
+            "file": "apps/console/components/blocks/integrations-1.tsx",
+            "name": "useScrollFadeX",
+            "line": 85,
+            "loc": 23
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "dupes::apps/console/components/blocks/list-1.tsx::signed::apps/console/components/blocks/notifications-1.tsx::onRadioKeys": {
+      "id": "dupes::apps/console/components/blocks/list-1.tsx::signed::apps/console/components/blocks/notifications-1.tsx::onRadioKeys",
+      "detector": "dupes",
+      "file": "apps/console/components/blocks/list-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Near dupe: signed (apps/console/components/blocks/list-1.tsx:117) <-> onRadioKeys (apps/console/components/blocks/notifications-1.tsx:193) [96%]",
+      "detail": {
+        "fn_a": {
+          "file": "apps/console/components/blocks/list-1.tsx",
+          "name": "signed",
+          "line": 117,
+          "loc": 28
+        },
+        "fn_b": {
+          "file": "apps/console/components/blocks/notifications-1.tsx",
+          "name": "onRadioKeys",
+          "line": 193,
+          "loc": 25
+        },
+        "similarity": 0.962,
+        "kind": "near-duplicate",
+        "cluster_size": 2,
+        "cluster": [
+          {
+            "file": "apps/console/components/blocks/list-1.tsx",
+            "name": "signed",
+            "line": 117,
+            "loc": 28
+          },
+          {
+            "file": "apps/console/components/blocks/notifications-1.tsx",
+            "name": "onRadioKeys",
+            "line": 193,
+            "loc": 25
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "dupes::apps/console/components/blocks/ai-chat-1.tsx::useStickToBottom::apps/console/components/blocks/tool-calls-1.tsx::useStickToBottom": {
+      "id": "dupes::apps/console/components/blocks/ai-chat-1.tsx::useStickToBottom::apps/console/components/blocks/tool-calls-1.tsx::useStickToBottom",
+      "detector": "dupes",
+      "file": "apps/console/components/blocks/ai-chat-1.tsx",
+      "tier": 3,
+      "confidence": "low",
+      "summary": "Near dupe: useStickToBottom (apps/console/components/blocks/ai-chat-1.tsx:197) <-> useStickToBottom (apps/console/components/blocks/tool-calls-1.tsx:322) [96%]",
+      "detail": {
+        "fn_a": {
+          "file": "apps/console/components/blocks/ai-chat-1.tsx",
+          "name": "useStickToBottom",
+          "line": 197,
+          "loc": 55
+        },
+        "fn_b": {
+          "file": "apps/console/components/blocks/tool-calls-1.tsx",
+          "name": "useStickToBottom",
+          "line": 322,
+          "loc": 55
+        },
+        "similarity": 0.957,
+        "kind": "near-duplicate",
+        "cluster_size": 2,
+        "cluster": [
+          {
+            "file": "apps/console/components/blocks/ai-chat-1.tsx",
+            "name": "useStickToBottom",
+            "line": 197,
+            "loc": 55
+          },
+          {
+            "file": "apps/console/components/blocks/tool-calls-1.tsx",
+            "name": "useStickToBottom",
+            "line": 322,
+            "loc": 55
+          }
+        ]
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T08:16:24+00:00",
+      "last_seen": "2026-10-26T08:16:24+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "mechanical_defect",
+      "issue_kind": "mechanical_defect",
+      "origin": "scan",
+      "lang": "typescript",
+      "zone": "production",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    }
+  },
+  "scan_coverage": {
+    "typescript": {
+      "status": "full",
+      "confidence": 1.0,
+      "detectors": {
+        "security": {
+          "detector": "security",
+          "status": "full",
+          "confidence": 1.0,
+          "summary": "Security coverage complete for enabled detectors.",
+          "impact": "",
+          "remediation": "",
+          "tool": "",
+          "reason": ""
+        }
+      },
+      "warnings": [],
+      "updated_at": "2026-10-26T08:16:24+00:00"
+    }
+  },
+  "score_confidence": {
+    "status": "full",
+    "confidence": 1.0,
+    "detectors": [],
+    "dimensions": []
+  },
+  "scan_metadata": {
+    "source": "scan"
+  },
+  "subjective_integrity": {
+    "status": "pass",
+    "target_score": 85.0,
+    "matched_count": 0,
+    "matched_dimensions": [],
+    "reset_dimensions": []
+  },
+  "subjective_assessments": {},
+  "scan_history": [
+    {
+      "timestamp": "2026-10-26T08:16:24+00:00",
+      "lang": "typescript",
+      "strict_score": 17.1,
+      "verified_strict_score": 68.4,
+      "objective_score": 68.4,
+      "overall_score": 17.1,
+      "open": 125,
+      "diff_new": 125,
+      "diff_resolved": 0,
+      "ignored": 0,
+      "raw_issues": 125,
+      "suppressed_pct": 0.0,
+      "ignore_patterns": 0,
+      "subjective_integrity": {
+        "status": "pass",
+        "matched_count": 0,
+        "reset_count": 0,
+        "target_score": 85.0
+      },
+      "score_confidence": {
+        "status": "full",
+        "confidence": 1.0,
+        "detector_count": 0,
+        "dimension_count": 0
+      },
+      "dimension_scores": {
+        "Code quality": {
+          "score": 93.2,
+          "strict": 93.2
+        },
+        "Security": {
+          "score": 100.0,
+          "strict": 100.0
+        },
+        "File health": {
+          "score": 79.5,
+          "strict": 79.5
+        },
+        "Duplication": {
+          "score": 97.8,
+          "strict": 97.8
+        },
+        "Test health": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Abstraction fit": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "AI generated debt": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "API coherence": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Auth consistency": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Contracts": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Convention drift": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Cross-module arch": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Dep health": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Design coherence": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Error consistency": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "High elegance": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Stale migration": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Init coupling": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Logic clarity": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Low elegance": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Mid elegance": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Naming quality": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Structure nav": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Test strategy": {
+          "score": 0.0,
+          "strict": 0.0
+        },
+        "Type safety": {
+          "score": 0.0,
+          "strict": 0.0
+        }
+      }
+    }
+  ],
+  "review_cache": {
+    "detectors": {
+      "boilerplate": {
+        "version": 1,
+        "fingerprint": "364516208334b7497ab295d0e5edf15344a3e4b1",
+        "entries": []
+      },
+      "security": {
+        "version": 1,
+        "fingerprint": "7876890a923aee297757fb724417ba1da0fa6f8e",
+        "entries": [],
+        "files_scanned": 44,
+        "coverage": null
+      },
+      "dupes": {
+        "version": 1,
+        "threshold": 0.9,
+        "functions": {
+          "apps/console/app/(console)/alerts/[id]/page.tsx:initials:16:156": {
+            "body_hash": "6b8827d0cacfe8e1834374099732ed27",
+            "loc": 141
+          },
+          "apps/console/app/(console)/alerts/page.tsx:open:14:18": {
+            "body_hash": "c891dab12bb40768b3a8f9590d969529",
+            "loc": 5
+          },
+          "apps/console/app/(console)/cases/[id]/page.tsx:refresh:33:37": {
+            "body_hash": "54255fab3ae1ea29ac4262429abfeb43",
+            "loc": 5
+          },
+          "apps/console/app/(console)/cases/[id]/page.tsx:close:39:47": {
+            "body_hash": "922f6156129f2d45bec2f3b2f552de78",
+            "loc": 9
+          },
+          "apps/console/app/(console)/coverage/page.tsx:covered:24:30": {
+            "body_hash": "196f507dd8a9b241a31b19f114972876",
+            "loc": 7
+          },
+          "apps/console/app/(console)/hunt/page.tsx:HuntInner:9:49": {
+            "body_hash": "adbfaf4938e10e7f0b7eee55cfa61622",
+            "loc": 41
+          },
+          "apps/console/app/(console)/notifications/page.tsx:seed:24:36": {
+            "body_hash": "9cb990bb7e2dd6ef6b863d1e4b3be03f",
+            "loc": 13
+          },
+          "apps/console/app/(console)/page.tsx:dashboardRanges:27:71": {
+            "body_hash": "7584190201a0bf4e2806f37bf68542e9",
+            "loc": 45
+          },
+          "apps/console/app/(console)/page.tsx:incidents:88:101": {
+            "body_hash": "ab96179f17eea5a04cf72e4223e76d26",
+            "loc": 14
+          },
+          "apps/console/app/(console)/playbooks/page.tsx:PlaybookNodeView:38:72": {
+            "body_hash": "64083ff4d5aa397e1783063243b7e7b6",
+            "loc": 35
+          },
+          "apps/console/app/(console)/playbooks/page.tsx:layoutLR:81:95": {
+            "body_hash": "16409607aed101581b953f3d1e9685ad",
+            "loc": 15
+          },
+          "apps/console/app/(console)/playbooks/page.tsx:toFlow:97:111": {
+            "body_hash": "45699e31a8acbc522fe5fac8b24f7394",
+            "loc": 15
+          },
+          "apps/console/app/(console)/tools/cvss/page.tsx:score:23:34": {
+            "body_hash": "df6671c3568bf260d68aac3dff85aebf",
+            "loc": 12
+          },
+          "apps/console/app/(console)/vulns/[cveId]/page.tsx:cpeCriteria:17:32": {
+            "body_hash": "e1761b0e643faa1793647b95b9fc22c6",
+            "loc": 16
+          },
+          "apps/console/app/(console)/vulns/[cveId]/page.tsx:versions:56:61": {
+            "body_hash": "2fbbee1e85f900c85b69924e26deb9ef",
+            "loc": 6
+          },
+          "apps/console/components/blocks/agent-activity-1.tsx:cx:11:51": {
+            "body_hash": "93f491a8516bbee1edf403665230d929",
+            "loc": 41
+          },
+          "apps/console/components/blocks/agent-activity-1.tsx:DONE_SECONDS:69:73": {
+            "body_hash": "e861fe37c41a96c3bdd4ec7452d35c59",
+            "loc": 5
+          },
+          "apps/console/components/blocks/agent-activity-1.tsx:useScrollFade:75:100": {
+            "body_hash": "ec1067ebf5ae00c6f8b2631b84389b72",
+            "loc": 26
+          },
+          "apps/console/components/blocks/agent-activity-1.tsx:id:124:126": {
+            "body_hash": "aeae0a91f7968992577dc0d7bb3245eb",
+            "loc": 3
+          },
+          "apps/console/components/blocks/agent-activity-1.tsx:doneSeconds:130:139": {
+            "body_hash": "4032a4394b94b6d46830f014bd771a20",
+            "loc": 10
+          },
+          "apps/console/components/blocks/agent-approval-1.tsx:cx:12:87": {
+            "body_hash": "480dd805b607bf96a98c72c8d2365197",
+            "loc": 76
+          },
+          "apps/console/components/blocks/agent-approval-1.tsx:id:130:134": {
+            "body_hash": "de8dcca366c5ea1ab9b08e06aa039bb3",
+            "loc": 5
+          },
+          "apps/console/components/blocks/agent-plan-1.tsx:cx:7:74": {
+            "body_hash": "a911e65df70e5ffe583689dcd5a3d18c",
+            "loc": 68
+          },
+          "apps/console/components/blocks/agent-plan-1.tsx:stateFor:157:162": {
+            "body_hash": "1ee752549712369568b4467597cdf9c4",
+            "loc": 6
+          },
+          "apps/console/components/blocks/agent-plan-1.tsx:useScrollFade:164:189": {
+            "body_hash": "ec1067ebf5ae00c6f8b2631b84389b72",
+            "loc": 26
+          },
+          "apps/console/components/blocks/agent-plan-1.tsx:doneCount:213:223": {
+            "body_hash": "47dfa6e87d82ebee08633f1b93032134",
+            "loc": 11
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:cx:22:82": {
+            "body_hash": "42bb8c00ee62dadf466f5abe51a1b320",
+            "loc": 61
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:lastWordBoundary:105:109": {
+            "body_hash": "2f490a1a6f3c364de4cc4e06d3a1e181",
+            "loc": 5
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:useSmoothedText:111:168": {
+            "body_hash": "5466b9aa3d4a398193ad7b550bc9eaa2",
+            "loc": 58
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:useScrollFade:170:195": {
+            "body_hash": "ec1067ebf5ae00c6f8b2631b84389b72",
+            "loc": 26
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:useStickToBottom:197:251": {
+            "body_hash": "e4d83b1b1c6dd2204dcacc6421b133ff",
+            "loc": 55
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:ReasoningRow:302:330": {
+            "body_hash": "f800a4f3e0d2fe6e851d22c6750cae91",
+            "loc": 29
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:ToolRow:332:364": {
+            "body_hash": "002ab63aaeb9200510609aea5b4e69a0",
+            "loc": 33
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:SourceChips:366:377": {
+            "body_hash": "58ef0b0f9ba7313a86bbdcfb56e02f58",
+            "loc": 12
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:autosize:450:455": {
+            "body_hash": "8212529073e5f4704e51a10eff4efbee",
+            "loc": 6
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:handleStop:523:530": {
+            "body_hash": "3b011b0d584b9bd3b6837fb61948c4c6",
+            "loc": 8
+          },
+          "apps/console/components/blocks/ai-chat-1.tsx:handleRegenerate:532:536": {
+            "body_hash": "3ac79e4a85ae7528192ef657c1423602",
+            "loc": 5
+          },
+          "apps/console/components/blocks/analytics-1.tsx:cx:16:63": {
+            "body_hash": "852a81085068236c916a1314e043bd5a",
+            "loc": 48
+          },
+          "apps/console/components/blocks/analytics-1.tsx:useMeasure:119:136": {
+            "body_hash": "2cc40341cb5ae3765a000e3dc0728da8",
+            "loc": 18
+          },
+          "apps/console/components/blocks/analytics-1.tsx:moveChoice:138:160": {
+            "body_hash": "3a45484c2f27e0b4fc349c0630e64981",
+            "loc": 23
+          },
+          "apps/console/components/blocks/analytics-1.tsx:Delta:162:186": {
+            "body_hash": "6ac1aad94174d9ceb3acb9576f230396",
+            "loc": 25
+          },
+          "apps/console/components/blocks/analytics-1.tsx:formatValue:188:194": {
+            "body_hash": "097ec8def2eccd84a859bb9bd0b3a789",
+            "loc": 7
+          },
+          "apps/console/components/blocks/analytics-1.tsx:Spark:203:291": {
+            "body_hash": "6ce13b3f5d6de9c9fa7385a4f5288768",
+            "loc": 89
+          },
+          "apps/console/components/blocks/analytics-1.tsx:data:301:307": {
+            "body_hash": "4a8d23dd2d19c54c8b4bba8c79460846",
+            "loc": 7
+          },
+          "apps/console/components/blocks/analytics-1.tsx:pick:309:312": {
+            "body_hash": "67071ebae4ccbeab8bc1c79ca3cbb7ef",
+            "loc": 4
+          },
+          "apps/console/components/blocks/app-dialog-1.tsx:cx:8:66": {
+            "body_hash": "77a3a0501dbb70cc1e6483802a5ebcbc",
+            "loc": 59
+          },
+          "apps/console/components/blocks/app-dialog-1.tsx:getFocusable:74:76": {
+            "body_hash": "ec7157daa919e913f00ab3bfc5f3095f",
+            "loc": 3
+          },
+          "apps/console/components/blocks/app-dialog-1.tsx:useDialogFocus:78:126": {
+            "body_hash": "bebcaf367c5ff7cc3d1d71621407b85a",
+            "loc": 49
+          },
+          "apps/console/components/blocks/app-dialog-1.tsx:useScrollFade:128:153": {
+            "body_hash": "ec1067ebf5ae00c6f8b2631b84389b72",
+            "loc": 26
+          },
+          "apps/console/components/blocks/app-dialog-1.tsx:id:192:196": {
+            "body_hash": "ac6ca0e86ab3ce98a386c4ae721b46d1",
+            "loc": 5
+          },
+          "apps/console/components/blocks/app-shell-1.tsx:cx:31:59": {
+            "body_hash": "023921c6b8a16c7e8ca4d49ea60f3e15",
+            "loc": 29
+          },
+          "apps/console/components/blocks/app-shell-1.tsx:SidebarBody:196:450": {
+            "body_hash": "f4bc46c6166c493183b09ec19798c414",
+            "loc": 255
+          },
+          "apps/console/components/blocks/app-shell-1.tsx:frame:472:475": {
+            "body_hash": "cc1911f30e01128ed43320ee4c0559a5",
+            "loc": 4
+          },
+          "apps/console/components/blocks/app-shell-1.tsx:frame:483:494": {
+            "body_hash": "b743f9fba4b7902120288b645e4d4de9",
+            "loc": 12
+          },
+          "apps/console/components/blocks/app-shell-1.tsx:onKeyDown:496:515": {
+            "body_hash": "9d113b2d7a23219d7b824f9278f9946c",
+            "loc": 20
+          },
+          "apps/console/components/blocks/app-shell-1.tsx:closeDrawer:524:528": {
+            "body_hash": "1fb4740d3fa4177ddcec0bc86dfc26d5",
+            "loc": 5
+          },
+          "apps/console/components/blocks/card-1.tsx:cx:5:38": {
+            "body_hash": "3081724bead42b51db38573f63a2485c",
+            "loc": 34
+          },
+          "apps/console/components/blocks/card-1.tsx:toggle:108:114": {
+            "body_hash": "61cc758445118fcb892fd4610bdd6d22",
+            "loc": 7
+          },
+          "apps/console/components/blocks/dashboard-1.tsx:cx:12:56": {
+            "body_hash": "e947b3f4dbece698a9cf270f12aabbfc",
+            "loc": 45
+          },
+          "apps/console/components/blocks/dashboard-1.tsx:isDown:187:219": {
+            "body_hash": "277da35de01543db7ff3dc19ed7b2bca",
+            "loc": 33
+          },
+          "apps/console/components/blocks/dashboard-1.tsx:RangeSelect:221:376": {
+            "body_hash": "9777693c39b82283e4d4a9eec9055e29",
+            "loc": 156
+          },
+          "apps/console/components/blocks/dashboard-1.tsx:yTicks:398:408": {
+            "body_hash": "05df3f388bf2ed5729312c03e8d8ea97",
+            "loc": 11
+          },
+          "apps/console/components/blocks/data-table-1.tsx:cx:16:101": {
+            "body_hash": "676f9c685eec2e6efaff39b375ff6d5b",
+            "loc": 86
+          },
+          "apps/console/components/blocks/data-table-1.tsx:SeverityCell:114:132": {
+            "body_hash": "fc57e7c5ae1ef5bb3c3cedb73ecddacc",
+            "loc": 19
+          },
+          "apps/console/components/blocks/data-table-1.tsx:timeLabel:134:143": {
+            "body_hash": "fa248fde709916ba511c6bd7dc33a830",
+            "loc": 10
+          },
+          "apps/console/components/blocks/data-table-1.tsx:SortHead:147:202": {
+            "body_hash": "08c033634b39eba4fe75e431db18eb1b",
+            "loc": 56
+          },
+          "apps/console/components/blocks/data-table-1.tsx:useScrollFade:204:229": {
+            "body_hash": "ec1067ebf5ae00c6f8b2631b84389b72",
+            "loc": 26
+          },
+          "apps/console/components/blocks/data-table-1.tsx:useScrollFadeX:231:256": {
+            "body_hash": "ff9b50a680b007e17de28ae5a1dd5ceb",
+            "loc": 26
+          },
+          "apps/console/components/blocks/data-table-1.tsx:raf:294:302": {
+            "body_hash": "c0227df349a46dea81750fd94fdb439a",
+            "loc": 9
+          },
+          "apps/console/components/blocks/data-table-1.tsx:onKeyDown:303:309": {
+            "body_hash": "223883d9d305b19cbea84db2f3d1a879",
+            "loc": 7
+          },
+          "apps/console/components/blocks/data-table-1.tsx:closeMenu:319:323": {
+            "body_hash": "f7e8798da0d2932297a9a3977053ae5b",
+            "loc": 5
+          },
+          "apps/console/components/blocks/data-table-1.tsx:toggleSort:325:328": {
+            "body_hash": "427ba956f2e8410c4c2311d0b41fefbb",
+            "loc": 4
+          },
+          "apps/console/components/blocks/data-table-1.tsx:rows:339:356": {
+            "body_hash": "dd9807d1c659d2639a617509aa4b9eea",
+            "loc": 18
+          },
+          "apps/console/components/blocks/data-table-1.tsx:focusItem:365:368": {
+            "body_hash": "9caf674889e3ee5f48dd4d947f8b420a",
+            "loc": 4
+          },
+          "apps/console/components/blocks/data-table-1.tsx:i:479:484": {
+            "body_hash": "9893140cbc9d6a8ef85625498d3d2289",
+            "loc": 6
+          },
+          "apps/console/components/blocks/filtering-1.tsx:cx:19:87": {
+            "body_hash": "feea70b4b70b11ae557981398f4e18a0",
+            "loc": 69
+          },
+          "apps/console/components/blocks/filtering-1.tsx:Select:89:311": {
+            "body_hash": "636f8579bd57ba1b8ccdab8b7d300694",
+            "loc": 223
+          },
+          "apps/console/components/blocks/filtering-1.tsx:RangeSlider:313:419": {
+            "body_hash": "6851389e3fc1ea38134adae7e065bb8d",
+            "loc": 107
+          },
+          "apps/console/components/blocks/filtering-1.tsx:scoreFmt:447:450": {
+            "body_hash": "dc7efbf4f2d7bdacb80e206de068bedd",
+            "loc": 4
+          },
+          "apps/console/components/blocks/filtering-1.tsx:matches:469:494": {
+            "body_hash": "2331372317e31e83cd98b632221d0ba8",
+            "loc": 26
+          },
+          "apps/console/components/blocks/filtering-1.tsx:Group:496:503": {
+            "body_hash": "b8587bc047cf64620f3c80ae0923222d",
+            "loc": 8
+          },
+          "apps/console/components/blocks/filtering-1.tsx:toggle:524:530": {
+            "body_hash": "6fa5a468a52366cf21c08758525447ef",
+            "loc": 7
+          },
+          "apps/console/components/blocks/filtering-1.tsx:results:532:539": {
+            "body_hash": "bad428e81343f799cda8bf88e0e8fa09",
+            "loc": 8
+          },
+          "apps/console/components/blocks/filtering-1.tsx:sev:816:818": {
+            "body_hash": "a29f683f429beffb19762c55e3b715e9",
+            "loc": 3
+          },
+          "apps/console/components/blocks/integrations-1.tsx:cx:11:83": {
+            "body_hash": "099e2505cef5ff40246f06b287d554f1",
+            "loc": 73
+          },
+          "apps/console/components/blocks/integrations-1.tsx:useScrollFadeX:85:107": {
+            "body_hash": "ff9b50a680b007e17de28ae5a1dd5ceb",
+            "loc": 23
+          },
+          "apps/console/components/blocks/integrations-1.tsx:moveChoice:109:129": {
+            "body_hash": "b226498e0008eab22c56c84e7fe9629a",
+            "loc": 21
+          },
+          "apps/console/components/blocks/integrations-1.tsx:list:217:226": {
+            "body_hash": "de121129162e15b01c84ae6384301d81",
+            "loc": 10
+          },
+          "apps/console/components/blocks/kanban-1.tsx:cx:14:82": {
+            "body_hash": "4f9a7839d956001fe4831b633d6de168",
+            "loc": 69
+          },
+          "apps/console/components/blocks/kanban-1.tsx:initials:217:229": {
+            "body_hash": "2e0d42ed47ef31c4c260ef3c684de65b",
+            "loc": 13
+          },
+          "apps/console/components/blocks/kanban-1.tsx:seed:243:267": {
+            "body_hash": "698a285189b1a5e789022fd20a36f58e",
+            "loc": 25
+          },
+          "apps/console/components/blocks/kanban-1.tsx:move:304:320": {
+            "body_hash": "6acbf079dc89d70d45bf89d850a1f33a",
+            "loc": 17
+          },
+          "apps/console/components/blocks/kanban-1.tsx:onPointerDown:345:366": {
+            "body_hash": "8fc15cbabe2bb96fbec928db1880f76a",
+            "loc": 22
+          },
+          "apps/console/components/blocks/kanban-1.tsx:onPointerMove:368:386": {
+            "body_hash": "bf3c7398f99437d9d55e2120389e87a2",
+            "loc": 19
+          },
+          "apps/console/components/blocks/kanban-1.tsx:endDrag:388:400": {
+            "body_hash": "53e076b7c162180164a93b7a55433c9b",
+            "loc": 13
+          },
+          "apps/console/components/blocks/kanban-1.tsx:onCardKeyDown:402:447": {
+            "body_hash": "bb5763bd3d10f1b81cf0447c2831d1b6",
+            "loc": 46
+          },
+          "apps/console/components/blocks/kanban-1.tsx:addCard:449:475": {
+            "body_hash": "cda1cd5672a0a154eac7946bdd811f96",
+            "loc": 27
+          },
+          "apps/console/components/blocks/list-1.tsx:cx:15:62": {
+            "body_hash": "0393409d19e818710514c19cd571ade0",
+            "loc": 48
+          },
+          "apps/console/components/blocks/list-1.tsx:signed:117:144": {
+            "body_hash": "4b3ebcec30d394d17c34f9322328f07c",
+            "loc": 28
+          },
+          "apps/console/components/blocks/monitoring-1.tsx:cx:13:92": {
+            "body_hash": "4a229ab324f4d431929d2d2b379d885b",
+            "loc": 80
+          },
+          "apps/console/components/blocks/monitoring-1.tsx:useMeasure:172:189": {
+            "body_hash": "2cc40341cb5ae3765a000e3dc0728da8",
+            "loc": 18
+          },
+          "apps/console/components/blocks/monitoring-1.tsx:useScrollFade:191:213": {
+            "body_hash": "ec1067ebf5ae00c6f8b2631b84389b72",
+            "loc": 23
+          },
+          "apps/console/components/blocks/monitoring-1.tsx:format:215:220": {
+            "body_hash": "2e42768c3230535aa1728dab444e236a",
+            "loc": 6
+          },
+          "apps/console/components/blocks/monitoring-1.tsx:Throughput:222:362": {
+            "body_hash": "13cb2a82513c523f2184a47e48fd0fbc",
+            "loc": 141
+          },
+          "apps/console/components/blocks/monitoring-1.tsx:total:395:403": {
+            "body_hash": "9f102f31f9cca56cb0057ee6b089d87d",
+            "loc": 9
+          },
+          "apps/console/components/blocks/notifications-1.tsx:cx:18:86": {
+            "body_hash": "c7025c9134d4c91c37182b9052f0bd39",
+            "loc": 69
+          },
+          "apps/console/components/blocks/notifications-1.tsx:onRadioKeys:193:217": {
+            "body_hash": "b194e80bec5a4845b620ee72e43dc662",
+            "loc": 25
+          },
+          "apps/console/components/blocks/notifications-1.tsx:useScrollFade:219:241": {
+            "body_hash": "75461633ac7865d9164951ac14b1fd66",
+            "loc": 23
+          },
+          "apps/console/components/blocks/notifications-1.tsx:Name:243:255": {
+            "body_hash": "6e135edf3ac4323f0357115a94944b22",
+            "loc": 13
+          },
+          "apps/console/components/blocks/notifications-1.tsx:unread:266:284": {
+            "body_hash": "df5dca881eb956c0a7792eeb00cdb5ea",
+            "loc": 19
+          },
+          "apps/console/components/blocks/notifications-1.tsx:grouped:286:289": {
+            "body_hash": "b877f8612e053707e3fc4e865c9c7386",
+            "loc": 4
+          },
+          "apps/console/components/blocks/notifications-1.tsx:toggleRead:291:293": {
+            "body_hash": "8f464a30064b5a893a33bf8c971ce9f1",
+            "loc": 3
+          },
+          "apps/console/components/blocks/notifications-1.tsx:dismiss:296:300": {
+            "body_hash": "9b4751d9e956c93d6a722ea66fc8b9dd",
+            "loc": 5
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:cx:27:115": {
+            "body_hash": "00ffb978c9ca055e8f7ae69d4ed25d93",
+            "loc": 89
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:EffortSlider:129:244": {
+            "body_hash": "6eb2ab3d9bceaf69f0e2a66b5fb7d0e4",
+            "loc": 116
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:Dropdown:258:434": {
+            "body_hash": "9f7ff0c2748d3ce89edc88b597d4e72e",
+            "loc": 177
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:resize:506:510": {
+            "body_hash": "7c9d8b6b67f3ad912038904355620130",
+            "loc": 5
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:observer:519:523": {
+            "body_hash": "1df32e6780ce715fb86d215f96c5c32a",
+            "loc": 5
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:openEffort:542:551": {
+            "body_hash": "3a3109ce96c94780b8a99354f23a800c",
+            "loc": 10
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:closeEffort:553:559": {
+            "body_hash": "de91acdd8a557c9cc7e63ed981e2246d",
+            "loc": 7
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:timer:569:573": {
+            "body_hash": "0f3bb7bc623c9145ebb75e24e6417069",
+            "loc": 5
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:onPointerDown:577:586": {
+            "body_hash": "efe34bacf4058bab8af3c288f968bbc1",
+            "loc": 10
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:matches:600:603": {
+            "body_hash": "2a0a0f4a695a64b5f197660b2af8cdca",
+            "loc": 4
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:runCommand:609:612": {
+            "body_hash": "e5dae9220de54240a45070027a6b0556",
+            "loc": 4
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:addAttachment:614:622": {
+            "body_hash": "dcbafe2ea8a400782b989418010a5f4f",
+            "loc": 9
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:submit:624:635": {
+            "body_hash": "1e0c575c046a777014e688de0de8b014",
+            "loc": 12
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:cancel:637:640": {
+            "body_hash": "fb0e6d968b031a59e83eaecf1df08b69",
+            "loc": 4
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:onKeyDown:642:676": {
+            "body_hash": "5af86dbae37c843d955200da9c33494f",
+            "loc": 35
+          },
+          "apps/console/components/blocks/prompt-input-1.tsx:onChange:700:704": {
+            "body_hash": "741c2192606e1c1e4a5317c8b4c6a759",
+            "loc": 5
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:cx:20:130": {
+            "body_hash": "35a95122efe710a20578a2788239c40d",
+            "loc": 111
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:useScrollFadeX:132:154": {
+            "body_hash": "3e657a6aa6b44133160feb3f15bdaa18",
+            "loc": 23
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:roomAround:156:168": {
+            "body_hash": "1ec9ef0d81c9f25fc34f5aec7294e5d7",
+            "loc": 13
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:Switch:580:607": {
+            "body_hash": "36ce49590789fc1597b8eaacbbbca06a",
+            "loc": 28
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:Select:609:796": {
+            "body_hash": "06fd4690d2a9fa113671353895c4d146",
+            "loc": 188
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:SettingsRow:798:848": {
+            "body_hash": "93c8ff60016102e4c6c5d148182acb93",
+            "loc": 51
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:section:897:900": {
+            "body_hash": "41d7836ca2a171944862ffab00887f47",
+            "loc": 4
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:save:902:914": {
+            "body_hash": "72fc5eefe4297a3278b0d0e38faed229",
+            "loc": 13
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:discard:916:931": {
+            "body_hash": "3c7edce2fafd5079f82b3f63fbce023f",
+            "loc": 16
+          },
+          "apps/console/components/blocks/settings-form-1.tsx:renderField:933:1061": {
+            "body_hash": "11b8e3d5b09763568185866f5b30811e",
+            "loc": 129
+          },
+          "apps/console/components/blocks/tool-calls-1.tsx:cx:19:94": {
+            "body_hash": "097356e4ec64d32539d295706ea108a0",
+            "loc": 76
+          },
+          "apps/console/components/blocks/tool-calls-1.tsx:lastWordBoundary:249:253": {
+            "body_hash": "2f490a1a6f3c364de4cc4e06d3a1e181",
+            "loc": 5
+          },
+          "apps/console/components/blocks/tool-calls-1.tsx:useSmoothedText:255:320": {
+            "body_hash": "6d6d1c9cecc19cd753e5b21419a33f45",
+            "loc": 66
+          },
+          "apps/console/components/blocks/tool-calls-1.tsx:useStickToBottom:322:376": {
+            "body_hash": "19525a4fdb34330b6e6ed871138171d4",
+            "loc": 55
+          },
+          "apps/console/components/blocks/tool-calls-1.tsx:isActive:392:401": {
+            "body_hash": "2db7166eb93db8dd360405d2a911d63f",
+            "loc": 10
+          },
+          "apps/console/components/blocks/tool-calls-1.tsx:feed:432:441": {
+            "body_hash": "a9ed73eb75478415468bed64b2f87140",
+            "loc": 10
+          },
+          "apps/console/components/blocks/tool-calls-1.tsx:toRunning:448:453": {
+            "body_hash": "a332d41439a4108a1502966b0ca9067d",
+            "loc": 6
+          },
+          "apps/console/components/blocks/tool-calls-1.tsx:stop:456:459": {
+            "body_hash": "5d0fa15298979d7571c2dad9ebe1dfee",
+            "loc": 4
+          },
+          "apps/console/components/cvss-badge.tsx:CvssBadge:12:29": {
+            "body_hash": "956cf4768637b39a11aaa331cfd71c54",
+            "loc": 18
+          },
+          "apps/console/components/empty-state.tsx:EmptyState:1:18": {
+            "body_hash": "1e2dcb1651628346ddc68e030dd0f514",
+            "loc": 18
+          },
+          "apps/console/components/plan-graph.tsx:cx:21:46": {
+            "body_hash": "d2690d5dc05d4f6c1b06e12731b1cde8",
+            "loc": 26
+          },
+          "apps/console/components/plan-graph.tsx:stateOf:48:57": {
+            "body_hash": "828be57e24ed02bfdd312d18135d9ee8",
+            "loc": 10
+          },
+          "apps/console/components/plan-graph.tsx:PlanStepNode:70:137": {
+            "body_hash": "b7fefad5971eae6f1a51d3a2b5b8db6f",
+            "loc": 68
+          },
+          "apps/console/components/plan-graph.tsx:RollbackChip:139:155": {
+            "body_hash": "4b1424206e617c826b38a020489a2c4a",
+            "loc": 17
+          },
+          "apps/console/components/theme-provider.tsx:ThemeProvider:6:11": {
+            "body_hash": "0ba7f964b28f9ac1303cd52aff96c7ed",
+            "loc": 6
+          },
+          "apps/console/lib/api.ts:json:273:283": {
+            "body_hash": "49ea53b0bf4483bf8831a550a9117297",
+            "loc": 11
+          },
+          "apps/console/lib/api.ts:argsSummary:294:302": {
+            "body_hash": "78d3482d9afba08dfbea9ae57d5ae013",
+            "loc": 9
+          },
+          "apps/console/lib/api.ts:actionToPlanStep:304:322": {
+            "body_hash": "f5947e72c32eedd8ac42bbb87163e730",
+            "loc": 19
+          },
+          "apps/console/lib/api.ts:json:383:394": {
+            "body_hash": "faae590546bafb2d96a17cd58ec3e2c8",
+            "loc": 12
+          },
+          "apps/console/lib/api.ts:sse:437:454": {
+            "body_hash": "6a0bdfddba8e32debe1821efea833b2e",
+            "loc": 18
+          },
+          "apps/console/lib/map.ts:sev:11:23": {
+            "body_hash": "f3b8e1c33b6ca417e03d031fc4756cfc",
+            "loc": 13
+          },
+          "apps/console/lib/map.ts:alertToFacet:28:36": {
+            "body_hash": "9fb6f6e90472588d16ba1c4fc9ce8f0b",
+            "loc": 9
+          },
+          "apps/console/lib/map.ts:caseToCard:61:71": {
+            "body_hash": "75bab9b811fbdad119417f6428499a2d",
+            "loc": 11
+          },
+          "apps/console/lib/map.ts:pretty:83:99": {
+            "body_hash": "fd6a9d1a8293dee087af2b16297a9e09",
+            "loc": 17
+          },
+          "apps/console/lib/map.ts:planToStep:118:124": {
+            "body_hash": "02904a3208235ced7368650cebc5960b",
+            "loc": 7
+          },
+          "apps/console/lib/map.ts:planCurrentIndex:126:131": {
+            "body_hash": "8993b75d88df361535fc51ee49a8185c",
+            "loc": 6
+          },
+          "apps/console/lib/use-api.ts:useApi:9:34": {
+            "body_hash": "6d7fa18f9da951a9d7d33deb2510fdda",
+            "loc": 26
+          },
+          "apps/console/lib/utils.ts:cn:4:6": {
+            "body_hash": "12d54a1199e958a649edf8b04f21a3e4",
+            "loc": 3
+          }
+        },
+        "near_pairs": [
+          {
+            "a": "apps/console/components/blocks/notifications-1.tsx:onRadioKeys:193:217",
+            "b": "apps/console/components/blocks/list-1.tsx:signed:117:144",
+            "similarity": 0.961538
+          },
+          {
+            "a": "apps/console/components/blocks/agent-activity-1.tsx:useScrollFade:75:100",
+            "b": "apps/console/components/blocks/app-shell-1.tsx:cx:31:59",
+            "similarity": 0.958333
+          },
+          {
+            "a": "apps/console/components/blocks/agent-plan-1.tsx:useScrollFade:164:189",
+            "b": "apps/console/components/blocks/app-shell-1.tsx:cx:31:59",
+            "similarity": 0.958333
+          },
+          {
+            "a": "apps/console/components/blocks/ai-chat-1.tsx:useScrollFade:170:195",
+            "b": "apps/console/components/blocks/app-shell-1.tsx:cx:31:59",
+            "similarity": 0.958333
+          },
+          {
+            "a": "apps/console/components/blocks/app-dialog-1.tsx:useScrollFade:128:153",
+            "b": "apps/console/components/blocks/app-shell-1.tsx:cx:31:59",
+            "similarity": 0.958333
+          },
+          {
+            "a": "apps/console/components/blocks/data-table-1.tsx:useScrollFade:204:229",
+            "b": "apps/console/components/blocks/app-shell-1.tsx:cx:31:59",
+            "similarity": 0.958333
+          },
+          {
+            "a": "apps/console/components/blocks/monitoring-1.tsx:useScrollFade:191:213",
+            "b": "apps/console/components/blocks/app-shell-1.tsx:cx:31:59",
+            "similarity": 0.958333
+          },
+          {
+            "a": "apps/console/components/blocks/ai-chat-1.tsx:useStickToBottom:197:251",
+            "b": "apps/console/components/blocks/tool-calls-1.tsx:useStickToBottom:322:376",
+            "similarity": 0.957447
+          },
+          {
+            "a": "apps/console/components/blocks/monitoring-1.tsx:useScrollFade:191:213",
+            "b": "apps/console/components/blocks/notifications-1.tsx:useScrollFade:219:241",
+            "similarity": 0.913043
+          },
+          {
+            "a": "apps/console/components/blocks/notifications-1.tsx:useScrollFade:219:241",
+            "b": "apps/console/components/blocks/agent-activity-1.tsx:useScrollFade:75:100",
+            "similarity": 0.913043
+          },
+          {
+            "a": "apps/console/components/blocks/notifications-1.tsx:useScrollFade:219:241",
+            "b": "apps/console/components/blocks/agent-plan-1.tsx:useScrollFade:164:189",
+            "similarity": 0.913043
+          },
+          {
+            "a": "apps/console/components/blocks/notifications-1.tsx:useScrollFade:219:241",
+            "b": "apps/console/components/blocks/ai-chat-1.tsx:useScrollFade:170:195",
+            "similarity": 0.913043
+          },
+          {
+            "a": "apps/console/components/blocks/notifications-1.tsx:useScrollFade:219:241",
+            "b": "apps/console/components/blocks/app-dialog-1.tsx:useScrollFade:128:153",
+            "similarity": 0.913043
+          },
+          {
+            "a": "apps/console/components/blocks/notifications-1.tsx:useScrollFade:219:241",
+            "b": "apps/console/components/blocks/data-table-1.tsx:useScrollFade:204:229",
+            "similarity": 0.913043
+          }
+        ]
+      }
+    }
+  },
+  "lang_capabilities": {
+    "typescript": {
+      "fixers": [
+        "dead-useeffect",
+        "debug-logs",
+        "empty-if-chain",
+        "unused-imports",
+        "unused-params",
+        "unused-vars"
+      ],
+      "typecheck_cmd": "npx tsc --noEmit"
+    }
+  },
+  "zone_distribution": {
+    "production": 44,
+    "config": 1
+  },
+  "tool_hash": "2ead5ae7d4e6",
+  "scan_path": "apps/console",
+  "scan_completeness": {
+    "typescript": "full"
+  },
+  "potentials": {
+    "typescript": {
+      "logs": 45,
+      "unused": 45,
+      "exports": 0,
+      "deprecated": 0,
+      "structural": 44,
+      "flat_dirs": 21,
+      "props": 1,
+      "single_use": 15,
+      "coupling": 0,
+      "cycles": 45,
+      "orphaned": 45,
+      "patterns": 0,
+      "naming": 20,
+      "facade": 45,
+      "signature": 2,
+      "test_coverage": 676,
+      "smells": 45,
+      "react": 58,
+      "nextjs": 48,
+      "next_lint": 9,
+      "security": 44,
+      "subjective_review": 20,
+      "boilerplate_duplication": 0,
+      "dupes": 167,
+      "stale_wontfix": 0
+    }
+  },
+  "codebase_metrics": {
+    "typescript": {
+      "total_files": 45,
+      "total_loc": 0,
+      "total_directories": 20
+    }
+  },
+  "dimension_scores": {
+    "Code quality": {
+      "score": 93.2,
+      "strict": 93.2,
+      "verified_strict_score": 93.2,
+      "checks": 397,
+      "failing": 43,
+      "tier": 3,
+      "detectors": {
+        "unused": {
+          "potential": 45,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "logs": {
+          "potential": 45,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "smells": {
+          "potential": 45,
+          "pass_rate": 0.6622222222222223,
+          "failing": 28,
+          "weighted_failures": 15.2
+        },
+        "orphaned": {
+          "potential": 45,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "flat_dirs": {
+          "potential": 21,
+          "pass_rate": 0.9666666666666667,
+          "failing": 1,
+          "weighted_failures": 0.7
+        },
+        "naming": {
+          "potential": 20,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "single_use": {
+          "potential": 15,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "facade": {
+          "potential": 45,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "props": {
+          "potential": 1,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "react": {
+          "potential": 58,
+          "pass_rate": 0.9672413793103448,
+          "failing": 5,
+          "weighted_failures": 1.9000000000000001
+        },
+        "nextjs": {
+          "potential": 48,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "next_lint": {
+          "potential": 9,
+          "pass_rate": 0.0,
+          "failing": 9,
+          "weighted_failures": 9.0
+        }
+      }
+    },
+    "Security": {
+      "score": 100.0,
+      "strict": 100.0,
+      "verified_strict_score": 100.0,
+      "checks": 89,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "cycles": {
+          "potential": 45,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "security": {
+          "potential": 44,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        }
+      }
+    },
+    "File health": {
+      "score": 79.5,
+      "strict": 79.5,
+      "verified_strict_score": 79.5,
+      "checks": 44,
+      "failing": 12,
+      "tier": 3,
+      "detectors": {
+        "structural": {
+          "potential": 44,
+          "pass_rate": 0.7954545454545454,
+          "failing": 12,
+          "weighted_failures": 9.0
+        }
+      }
+    },
+    "Duplication": {
+      "score": 97.8,
+      "strict": 97.8,
+      "verified_strict_score": 97.8,
+      "checks": 167,
+      "failing": 5,
+      "tier": 3,
+      "detectors": {
+        "dupes": {
+          "potential": 167,
+          "pass_rate": 0.9784431137724551,
+          "failing": 5,
+          "weighted_failures": 3.5999999999999996
+        }
+      }
+    },
+    "Test health": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 676,
+      "failing": 43,
+      "tier": 4,
+      "detectors": {
+        "test_coverage": {
+          "potential": 676,
+          "pass_rate": 0.00017678734902108924,
+          "failing": 43,
+          "weighted_failures": 675.8804917520617
+        }
+      }
+    },
+    "Abstraction fit": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "abstraction_fitness",
+          "configured_weight": 8.0,
+          "components": []
+        }
+      }
+    },
+    "AI generated debt": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "ai_generated_debt",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "API coherence": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "api_surface_coherence",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Auth consistency": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "authorization_consistency",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Contracts": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "contract_coherence",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    },
+    "Convention drift": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "convention_outlier",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Cross-module arch": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "cross_module_architecture",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Dep health": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "dependency_health",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Design coherence": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "design_coherence",
+          "configured_weight": 10.0,
+          "components": []
+        }
+      }
+    },
+    "Error consistency": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "error_consistency",
+          "configured_weight": 3.0,
+          "components": []
+        }
+      }
+    },
+    "High elegance": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "high_level_elegance",
+          "configured_weight": 22.0,
+          "components": []
+        }
+      }
+    },
+    "Stale migration": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "incomplete_migration",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Init coupling": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "initialization_coupling",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Logic clarity": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "logic_clarity",
+          "configured_weight": 6.0,
+          "components": []
+        }
+      }
+    },
+    "Low elegance": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "low_level_elegance",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    },
+    "Mid elegance": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "mid_level_elegance",
+          "configured_weight": 22.0,
+          "components": []
+        }
+      }
+    },
+    "Naming quality": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "naming_quality",
+          "configured_weight": 2.0,
+          "components": []
+        }
+      }
+    },
+    "Structure nav": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "package_organization",
+          "configured_weight": 5.0,
+          "components": []
+        }
+      }
+    },
+    "Test strategy": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "test_strategy",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Type safety": {
+      "score": 0.0,
+      "strict": 0.0,
+      "verified_strict_score": 0.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.0,
+          "failing": 0,
+          "weighted_failures": 10.0,
+          "assessment_score": 0.0,
+          "placeholder": true,
+          "dimension_key": "type_safety",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    }
+  }
+}

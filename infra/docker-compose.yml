@@ -1,0 +1,516 @@
+# verify tags exist on first docker compose pull — a few images (misp-core,
+# shuffle 2.0.9, wazuh 4.9.2) are pinned from memory; bump if a pull fails.
+#
+# Mesta-Ares dev stack. Usage:
+#   cp .env.example .env   # fill in API keys
+#   docker compose -f infra/docker-compose.yml up -d
+#   # add "wazuh-ui" profile for the dashboard: --profile wazuh-ui
+#
+# Host prerequisite: vm.max_map_count >= 262144 (OpenSearch).
+name: ares
+
+# ---- shared blocks -----------------------------------------------------------
+
+x-rust-build: &rust-build
+  context: ..
+  dockerfile: infra/Dockerfile.rust-service
+
+x-ares-env: &ares-env
+  NATS_URL: nats://nats:4222
+  REDIS_URL: redis://redis:6379
+  DATABASE_URL: postgres://ares:ares@postgres:5432/ares
+  TOOL_SERVER_URL: http://tool-server:8090
+  OPENSEARCH_URL: http://opensearch:9200
+  THEHIVE_URL: http://thehive:9000
+  CORTEX_URL: http://cortex:9001
+  MISP_URL: https://misp:443         # misp-core terminates TLS; dev clients must skip cert verify
+  WAZUH_API_URL: https://wazuh-manager:55000
+  SHUFFLE_URL: http://shuffle-backend:5001
+  RUST_LOG: ${RUST_LOG:-info}
+
+# Secrets are interpolated from the .env file next to the repo root
+# (compose auto-loads ../.env relative to this file). Never hardcode here.
+x-ares-secrets: &ares-secrets
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  VIRUSTOTAL_API_KEY: ${VIRUSTOTAL_API_KEY:-}
+  SHODAN_API_KEY: ${SHODAN_API_KEY:-}
+  ABUSEIPDB_API_KEY: ${ABUSEIPDB_API_KEY:-}
+  GREYNOISE_API_KEY: ${GREYNOISE_API_KEY:-}
+  MISP_API_KEY: ${MISP_API_KEY:-}
+  THEHIVE_API_KEY: ${THEHIVE_API_KEY:-}
+  WAZUH_API_USER: ${WAZUH_API_USER:-wazuh-wui}
+  WAZUH_API_PASS: ${WAZUH_API_PASS:-}
+  SHUFFLE_API_KEY: ${SHUFFLE_API_KEY:-}
+  NVD_API_KEY: ${NVD_API_KEY:-}
+
+x-depends-core: &depends-core
+  postgres:
+    condition: service_healthy
+  nats:
+    condition: service_healthy
+  redis:
+    condition: service_started
+
+services:
+
+  # ---- core datastore --------------------------------------------------------
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ares
+      POSTGRES_PASSWORD: ares
+      POSTGRES_DB: ares
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ares -d ares"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  nats:
+    image: nats:2.11-alpine
+    command: ["-js", "-sd", "/data", "-m", "8222"]
+    ports: ["4222:4222", "8222:8222"]   # 8222 = http monitor
+    volumes: [nats-data:/data]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8222/healthz || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  opensearch:
+    image: opensearchproject/opensearch:2.17.1
+    environment:
+      discovery.type: single-node
+      # Dev only: plaintext :9200, no auth. If you re-enable the security
+      # plugin you MUST set OPENSEARCH_INITIAL_ADMIN_PASSWORD and switch
+      # OPENSEARCH_URL to https.
+      DISABLE_SECURITY_PLUGIN: "true"
+      bootstrap.memory_lock: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms768m -Xmx768m"
+    ulimits:
+      memlock: {soft: -1, hard: -1}
+      nofile: {soft: 65536, hard: 65536}
+    ports: ["9200:9200"]
+    volumes: [opensearch-data:/usr/share/opensearch/data]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  # ---- SIEM ------------------------------------------------------------------
+
+  wazuh-manager:
+    image: wazuh/wazuh-manager:4.9.2
+    ports:
+      - "1514:1514"        # agents
+      - "1515:1515"        # agent registration
+      - "55000:55000"      # Wazuh API
+      - "514:514/udp"      # syslog
+    volumes:
+      - wazuh-data:/var/ossec/data
+      # To enable the alert webhook, append the <integration> block from
+      # infra/wazuh/integratord.xml to ossec.conf inside the container and
+      # copy infra/wazuh/custom-ares-webhook into /var/ossec/integrations/.
+      - ../infra/wazuh/custom-ares-webhook:/var/ossec/integrations/custom-ares-webhook:ro
+    # API creds: default user wazuh-wui; set password via
+    #   docker exec -it ares-wazuh-manager-1 /var/ossec/bin/wazuh-passwd-tool
+    restart: unless-stopped
+
+  wazuh-dashboard:
+    image: wazuh/wazuh-dashboard:4.9.2
+    profiles: ["wazuh-ui"]            # optional; expects an indexer backend
+    environment:
+      INDEXER_URL: http://opensearch:9200   # works only because security is disabled
+      WAZUH_API_URL: https://wazuh-manager:55000
+      API_USERNAME: ${WAZUH_API_USER:-wazuh-wui}
+      API_PASSWORD: ${WAZUH_API_PASS:-}
+    ports: ["5601:5601"]
+    depends_on:
+      - opensearch
+      - wazuh-manager
+    restart: unless-stopped
+
+  # ---- SOAR ------------------------------------------------------------------
+
+  cassandra:
+    image: cassandra:4.1
+    environment:
+      CASSANDRA_CLUSTER_NAME: ares
+      MAX_HEAP_SIZE: 1G
+      HEAP_NEWSIZE: 256M
+    volumes: [cassandra-data:/var/lib/cassandra]
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'describe keyspaces'"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+    restart: unless-stopped
+
+  thehive:
+    image: thehiveproject/thehive:latest
+    command:                         # override config on the cmdline; or mount
+      - --db.janusgraph.storage.hostname   # /etc/thehive/application.conf for more
+      - cassandra
+      - --db.janusgraph.index.search.backend
+      - lucene                        # default local index — no ES dependency
+    environment:
+      TH_APPLICATION_SECRET: ${THEHIVE_APPLICATION_SECRET:-dev-only-secret-change-me}
+    ports: ["9000:9000"]
+    volumes: [thehive-data:/opt/thp/thehive/files]
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    restart: unless-stopped
+    # First boot: create org + service account in the UI, put the API key in .env.
+
+  cortex:
+    image: thehiveproject/cortex:3.2.1-1
+    command:
+      - --job-directory
+      - /tmp/cortex-jobs
+      - --docker-uri
+      - unix:///var/run/docker.sock
+    ports: ["9001:9001"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock   # analyzers run as sibling containers
+      - cortex-data:/opt/Cortex-Analyzers
+    restart: unless-stopped
+
+  # MISP stack per github.com/MISP/misp-docker: misp-core + misp-modules +
+  # mariadb + dedicated redis. ADMIN_KEY becomes the deterministic automation
+  # key — set it once in .env as MISP_API_KEY and our connectors reuse it.
+  misp:
+    image: ghcr.io/misp/misp-docker/misp-core:latest
+    environment:
+      BASE_URL: ${MISP_BASE_URL:-https://localhost:8443}
+      ADMIN_PASSWORD: ${MISP_ADMIN_PASSWORD:-admin}
+      ADMIN_KEY: ${MISP_API_KEY:-change-me-automation-key}
+      MYSQL_HOST: misp-db
+      MYSQL_PORT: "3306"
+      MYSQL_USER: ${MISP_MYSQL_USER:-misp}
+      MYSQL_PASSWORD: ${MISP_MYSQL_PASSWORD:-misp}
+      MYSQL_DATABASE: ${MISP_MYSQL_DATABASE:-misp}
+      REDIS_FQDN: misp-redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${MISP_REDIS_PASSWORD:-redispassword}
+      MISP_MODULES_FQDN: misp-modules
+      TIMEZONE: UTC
+      INIT: "true"
+      CRON_USER_ID: "1"
+      FASTCGI_STATUS_LISTEN: enabled
+      PHP_SESSIONS_IN_REDIS: "true"
+      PHP_SESSIONS_REDIS_HOST: misp-redis
+      PHP_SESSIONS_REDIS_AUTH: ${MISP_REDIS_PASSWORD:-redispassword}
+    ports: ["8443:443"]
+    volumes:
+      - misp-data:/var/www/MISP
+      - misp-attach:/var/www/MISP/app/files
+    depends_on:
+      misp-db:
+        condition: service_healthy
+      misp-redis:
+        condition: service_started
+      misp-modules:
+        condition: service_started
+    restart: unless-stopped
+
+  misp-db:
+    image: mariadb:10.11
+    environment:
+      MYSQL_DATABASE: ${MISP_MYSQL_DATABASE:-misp}
+      MYSQL_USER: ${MISP_MYSQL_USER:-misp}
+      MYSQL_PASSWORD: ${MISP_MYSQL_PASSWORD:-misp}
+      MYSQL_ROOT_PASSWORD: ${MISP_MYSQL_ROOT_PASSWORD:-misp_root}
+    volumes: [misp-db-data:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  misp-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "${MISP_REDIS_PASSWORD:-redispassword}"]
+    volumes: [misp-redis-data:/data]
+    restart: unless-stopped
+
+  misp-modules:
+    image: ghcr.io/misp/misp-docker/misp-modules:latest
+    environment:
+      REDIS_BACKEND: misp-redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${MISP_REDIS_PASSWORD:-redispassword}
+    restart: unless-stopped
+
+  shuffle-backend:
+    image: ghcr.io/shuffle/shuffle-backend:latest   # verify tag on first pull
+    environment:
+      SHUFFLE_OPENSEARCH_URL: http://opensearch:9200
+      SHUFFLE_OPENSEARCH_INDEX: shuffle
+      SHUFFLE_OPENSEARCH_SKIPSSL_VERIFY: "true"
+      SHUFFLE_STATS_DISABLED: "true"
+      ORG_ID: ares
+      ENVIRONMENT_NAME: ares
+      SHUFFLE_APP_DOWNLOAD_SOURCE: https://github.com/shuffle/python-apps
+    ports: ["5001:5001"]
+    volumes: [shuffle-data:/etc/shuffle]
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  shuffle-frontend:
+    image: ghcr.io/shuffle/shuffle-frontend:latest  # verify tag
+    environment:
+      BACKEND: http://localhost:5001   # browser-facing URL, not in-cluster
+    ports: ["3001:80"]
+    depends_on: [shuffle-backend]
+    restart: unless-stopped
+
+  shuffle-orborus:
+    image: ghcr.io/shuffle/shuffle-orborus:latest   # verify tag
+    environment:
+      ORG_ID: ares
+      ENVIRONMENT_NAME: ares
+      BASE_URL: http://shuffle-backend:5001
+      SHUFFLE_APP_DOWNLOAD_SOURCE: https://github.com/shuffle/python-apps
+      SHUFFLE_SWARM_CONFIG: "run"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock   # launches worker/app containers
+    depends_on: [shuffle-backend]
+    restart: unless-stopped
+
+  # ---- Mesta-Ares services ----------------------------------------------------
+  # All built from one Dockerfile (infra/Dockerfile.rust-service) with a
+  # different BIN build arg. Env names below follow each crate's clap/env
+  # config — adjust when the crates land.
+
+  tool-server:
+    build:
+      <<: *rust-build
+      args: {BIN: tool-server}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+      POLICIES_DIR: /policies
+      BIND_ADDR: 0.0.0.0:8090
+      # exec.* tools shell out to the OpenShell CLI (installed in this image —
+      # see infra/Dockerfile.rust-service). The CLI is a gRPC client of an
+      # OpenShell gateway, so after `--profile sandbox up -d` register once:
+      #   docker compose -f infra/docker-compose.yml exec tool-server \
+      #     openshell gateway add http://openshell-gateway:8080 --name ares
+      #   docker compose -f infra/docker-compose.yml exec tool-server \
+      #     openshell sandbox create --name ares-bas
+      # Registration state lives under $HOME (container layer — re-add after
+      # recreate). With no registered gateway exec.* fails closed
+      # ("sandbox unavailable"); every other tool is unaffected.
+      OPENSHELL_BIN: /usr/local/bin/openshell
+      # Pre-created sandbox to exec into; empty = ephemeral `sandbox create
+      # --no-keep` per call (slower, self-cleaning).
+      OPENSHELL_SANDBOX: ${OPENSHELL_SANDBOX:-}
+      HOME: /tmp
+    ports: ["8090:8090"]
+    volumes: ["../policies:/policies:ro"]
+    depends_on:
+      <<: *depends-core
+      opensearch: {condition: service_started}
+    restart: unless-stopped
+
+  api-server:
+    build:
+      <<: *rust-build
+      args: {BIN: api-server}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+      API_BIND: 0.0.0.0:8080
+    ports: ["8080:8080"]
+    depends_on:
+      <<: *depends-core
+      tool-server: {condition: service_started}
+    restart: unless-stopped
+
+  ingestion-gateway:
+    build:
+      <<: *rust-build
+      args: {BIN: ingestion-gateway}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+      BIND_ADDR: 0.0.0.0:8091
+    ports: ["8091:8091"]
+    depends_on:
+      <<: *depends-core
+    restart: unless-stopped
+
+  orchestrator:
+    build:
+      <<: *rust-build
+      args: {BIN: orchestrator}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+    depends_on:
+      <<: *depends-core
+      tool-server: {condition: service_started}
+    restart: unless-stopped
+
+  triage-agent:
+    build:
+      <<: *rust-build
+      args: {BIN: triage-agent}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+    depends_on:
+      <<: *depends-core
+      orchestrator: {condition: service_started}
+    restart: unless-stopped
+
+  response-agent:
+    build:
+      <<: *rust-build
+      args: {BIN: response-agent}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+    depends_on:
+      <<: *depends-core
+      tool-server: {condition: service_started}
+    restart: unless-stopped
+
+  vuln-agent:
+    build:
+      <<: *rust-build
+      args: {BIN: vuln-agent}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+      VULN_WATCHLIST: /policies/vuln-watchlist.yml
+    volumes:
+      - ../policies:/policies:ro
+    depends_on:
+      <<: *depends-core
+      tool-server: {condition: service_started}
+    restart: unless-stopped
+
+  detection-agent:
+    build:
+      <<: *rust-build
+      args: {BIN: detection-agent}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+    # crate resolves ./detection-content relative to CWD (/); rw because the
+    # agent writes drafts into pending/ and promotes into active/
+    volumes: ["../detection-content:/detection-content"]
+    depends_on:
+      <<: *depends-core
+      tool-server: {condition: service_started}
+      opensearch: {condition: service_started}
+    restart: unless-stopped
+
+  hunt-agent:
+    build:
+      <<: *rust-build
+      args: {BIN: hunt-agent}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+    depends_on:
+      <<: *depends-core
+      tool-server: {condition: service_started}
+      opensearch: {condition: service_started}
+    restart: unless-stopped
+
+  bas-runner:
+    build:
+      <<: *rust-build
+      args: {BIN: bas-runner}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+      BAS_SCENARIOS_DIR: /bas
+    volumes: ["../bas:/bas:ro"]
+    depends_on:
+      <<: *depends-core
+      opensearch: {condition: service_started}
+    restart: unless-stopped
+
+  # ---- optional: OpenShell sandbox plane (profile: sandbox) ------------------
+  # Control plane for exec.* tools. The openshell CLI inside tool-server is a
+  # gRPC client of this gateway; the gateway launches sandbox containers as
+  # siblings on the host daemon (DooD — no --privileged, just docker.sock).
+  # Mirrored from NVIDIA/OpenShell deploy/docker/docker-compose.yml.
+  # Enable: docker compose -f infra/docker-compose.yml --profile sandbox up -d
+  openshell-gateway-init:
+    image: ghcr.io/nvidia/openshell/gateway:latest
+    profiles: ["sandbox"]
+    restart: "no"
+    user: "0"
+    command: ["generate-certs", "--output-dir", "/var/lib/openshell/tls"]
+    environment: {HOME: /var/lib/openshell}
+    volumes:
+      # Same absolute path on host and in the container: sandbox supervisor
+      # binaries are handed to the host Docker daemon as host-side bind-mount
+      # sources, so a named volume cannot work here.
+      - /var/lib/openshell:/var/lib/openshell
+
+  openshell-gateway:
+    image: ghcr.io/nvidia/openshell/gateway:latest
+    profiles: ["sandbox"]
+    command: []          # empty: let gateway.toml own bind/port (upstream note)
+    user: "0"            # docker.sock access + writes under /var/lib/openshell
+    # Host ports optional — handy for driving the CLI from the dev host too.
+    ports: ["8180:8080", "8181:8081"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/openshell:/var/lib/openshell
+      - ./openshell/gateway.toml:/etc/openshell/gateway.toml:ro
+    environment:
+      OPENSHELL_GATEWAY_CONFIG: /etc/openshell/gateway.toml
+      # SQLite (no credentials) — swap for a real DSN via .env if externalized.
+      OPENSHELL_DB_URL: "sqlite:/var/lib/openshell/gateway.db?mode=rwc"
+      # OS-level path vars so the extracted supervisor lands in the bind mount.
+      XDG_DATA_HOME: /var/lib/openshell
+      HOME: /var/lib/openshell
+    depends_on:
+      openshell-gateway-init: {condition: service_completed_successfully}
+    restart: unless-stopped
+
+  console:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.console
+      args:
+        # Baked into the client bundle — must be reachable from the browser.
+        NEXT_PUBLIC_API_URL: http://localhost:8080
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    ports: ["3000:3000"]
+    depends_on: [api-server]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  nats-data:
+  redis-data:
+  opensearch-data:
+  wazuh-data:
+  cassandra-data:
+  thehive-data:
+  cortex-data:
+  misp-data:
+  misp-attach:
+  misp-db-data:
+  misp-redis-data:
+  shuffle-data:

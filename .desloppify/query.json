@@ -1,0 +1,872 @@
+{
+  "command": "next",
+  "items": [
+    {
+      "id": "review::.::holistic::abstraction_fitness::activity_event_contract_copied",
+      "confidence": "high",
+      "detector": "review",
+      "file": ".",
+      "summary": "ActivityEvent is defined four times per agent and a fifth time inline without workflow_run_id",
+      "detail": {
+        "holistic": true,
+        "dimension": "abstraction_fitness",
+        "related_files": [
+          "crates/triage-agent/src/activity.rs",
+          "crates/detection-agent/src/activity.rs",
+          "crates/response-agent/src/activity.rs",
+          "crates/hunt-agent/src/activity.rs",
+          "crates/vuln-agent/src/main.rs",
+          "crates/agent-protocol/src/lib.rs"
+        ],
+        "evidence": [
+          "The four activity.rs files differ only in doc comments and in `step: &'static str` (triage) vs `step: String` (the other three); each also re-declares SUBJECT_ACTIVITY = \"ares.activity\" and an identical emit() helper in main.rs",
+          "vuln-agent emits a bare json!({agent, step, detail, ts}) (crates/vuln-agent/src/main.rs:120-135) with no workflow_run_id, while docs/services.md specifies {workflow_run_id, agent, step, detail, ts} and both SSE filters key on workflow_run_id (api-server/src/a2a.rs:600, acp.rs:560)",
+          "agent-protocol already owns the other NATS subjects (SUBJECT_ALERTS..SUBJECT_BAS) but not SUBJECT_ACTIVITY, so the console contract has no single definition"
+        ],
+        "suggestion": "Move ActivityEvent and SUBJECT_ACTIVITY into agent-protocol (next to the other subjects), delete the four activity.rs copies and the five emit() helpers, and have vuln-agent construct the same struct so its events carry workflow_run_id.",
+        "reasoning": "",
+        "summary_hash": "62b3ecc9"
+      },
+      "status": "open",
+      "kind": "issue",
+      "primary_command": "desloppify plan resolve \"review::.::holistic::abstraction_fitness::activity_event_contract_copied\" --note \"<what you did>\" --confirm",
+      "queue_position": 1
+    }
+  ],
+  "queue": {
+    "total": 1,
+    "mode": "execution"
+  },
+  "narrative": {
+    "phase": "early_momentum",
+    "headline": "Score 77.7/100 with 495 issues open. Keep the momentum going. (174 review work items \u2014 run `desloppify show review --status open`)",
+    "dimensions": {
+      "lowest_dimensions": [
+        {
+          "name": "Test health",
+          "strict": 47.4,
+          "failing": 41,
+          "impact": 0.0
+        },
+        {
+          "name": "Auth consistency",
+          "strict": 58.0,
+          "failing": 10,
+          "impact": 0.0,
+          "subjective": true,
+          "impact_description": "re-review to improve"
+        },
+        {
+          "name": "Test strategy",
+          "strict": 63.0,
+          "failing": 9,
+          "impact": 0.0,
+          "subjective": true,
+          "impact_description": "re-review to improve"
+        }
+      ],
+      "biggest_gap_dimensions": [
+        {
+          "name": "Test health",
+          "lenient": 55.0,
+          "strict": 47.4,
+          "gap": 7.6,
+          "wontfix_count": 0
+        },
+        {
+          "name": "Code quality",
+          "lenient": 91.6,
+          "strict": 90.2,
+          "gap": 1.4,
+          "wontfix_count": 0
+        }
+      ],
+      "stagnant_dimensions": [
+        {
+          "name": "Security",
+          "strict": 100.0,
+          "stuck_scans": 3
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "refactor",
+        "detector": "structural",
+        "count": 8,
+        "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable",
+        "command": "desloppify show structural --status open",
+        "impact": 0.0,
+        "dimension": "File health",
+        "priority": 1,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "refactor",
+        "detector": "dupes",
+        "count": 7,
+        "description": "7 dupes work items \u2014 extract shared utility or consolidate duplicates",
+        "command": "desloppify show dupes --status open",
+        "impact": 0.0,
+        "dimension": "Duplication",
+        "priority": 2,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "refactor",
+        "detector": "test_coverage",
+        "count": 40,
+        "description": "40 test_coverage issues in 3 cluster(s) \u2014 run `desloppify next`",
+        "command": "desloppify next",
+        "impact": 0.0,
+        "dimension": "Test health",
+        "priority": 3,
+        "clusters": [
+          "auto/test_coverage-transitive_only",
+          "auto/test_coverage-untested_module",
+          "auto/test_coverage-untested_critical"
+        ],
+        "cluster_count": 3,
+        "lane": "test_coverage"
+      },
+      {
+        "type": "refactor",
+        "detector": "signature",
+        "count": 1,
+        "description": "1 signature work items \u2014 consolidate inconsistent function signatures",
+        "command": "desloppify show signature --status open",
+        "impact": 0.0,
+        "dimension": "Unknown",
+        "priority": 4,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "refactor",
+        "detector": "boilerplate_duplication",
+        "count": 28,
+        "description": "28 boilerplate_duplication work items \u2014 extract shared boilerplate into reusable helpers or base classes",
+        "command": "desloppify show boilerplate_duplication --status open",
+        "impact": 0.0,
+        "dimension": "Duplication",
+        "priority": 5,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "refactor",
+        "detector": "review",
+        "count": 174,
+        "description": "174 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
+        "command": "desloppify show review --status open",
+        "impact": 0.0,
+        "dimension": "Unknown",
+        "priority": 6,
+        "lane": "refactor_1"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "smells",
+        "count": 2,
+        "description": "2 smells issues \u2014 inspect with `desloppify next` and fix manually",
+        "command": "desloppify show smells --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 7,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "clippy_warning",
+        "count": 176,
+        "description": "176 clippy_warning issues in 1 cluster(s) \u2014 run `desloppify next`",
+        "command": "desloppify next",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 8,
+        "clusters": [
+          "auto/clippy_warning"
+        ],
+        "cluster_count": 1,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "rustdoc_warning",
+        "count": 1,
+        "description": "1 rustdoc_warning work items \u2014 fix rustdoc warnings and keep public docs and links valid",
+        "command": "desloppify show rustdoc_warning --status open",
+        "impact": 0.0,
+        "dimension": "Test health",
+        "priority": 9,
+        "lane": "refactor_2"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "rust_future_proofing",
+        "count": 54,
+        "description": "54 rust_future_proofing work items \u2014 review public structs and enums for brittle API shape and consider `#[non_exhaustive]` where appropriate",
+        "command": "desloppify show rust_future_proofing --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 10,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "rust_async_locking",
+        "count": 4,
+        "description": "4 rust_async_locking work items \u2014 drop lock guards before awaiting and avoid blocking std::sync locks on async executor threads",
+        "command": "desloppify show rust_async_locking --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 11,
+        "lane": "refactor_0"
+      }
+    ],
+    "strategy": {
+      "fixer_leverage": {
+        "auto_fixable_count": 0,
+        "total_count": 843,
+        "coverage": 0.0,
+        "impact_ratio": 0.0,
+        "recommendation": "none"
+      },
+      "lanes": {
+        "refactor_0": {
+          "actions": [
+            1,
+            2,
+            4,
+            5,
+            7,
+            8,
+            10,
+            11
+          ],
+          "file_count": 40,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        },
+        "refactor_1": {
+          "actions": [
+            6
+          ],
+          "file_count": 1,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        },
+        "refactor_2": {
+          "actions": [
+            9
+          ],
+          "file_count": 1,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        },
+        "test_coverage": {
+          "actions": [
+            3
+          ],
+          "file_count": 40,
+          "total_impact": 0.0,
+          "automation": "manual",
+          "run_first": false
+        }
+      },
+      "can_parallelize": true,
+      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 174 issue(s) \u2014 `desloppify show review --status open`."
+    },
+    "tools": {
+      "fixers": [],
+      "move": {
+        "available": true,
+        "relevant": false,
+        "reason": null,
+        "usage": "desloppify move <source> <dest> [--dry-run]"
+      },
+      "plan": {
+        "command": "desloppify plan",
+        "description": "Generate prioritized markdown cleanup plan"
+      },
+      "badge": {
+        "generated": false,
+        "in_readme": false,
+        "path": "scorecard.png",
+        "recommendation": null
+      }
+    },
+    "debt": {
+      "overall_gap": 0.4,
+      "wontfix_count": 0,
+      "worst_dimension": "Test health",
+      "worst_gap": 7.6,
+      "trend": "growing"
+    },
+    "milestone": null,
+    "primary_action": {
+      "command": "desloppify show structural --status open",
+      "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable"
+    },
+    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 174 issue(s) \u2014 `desloppify show review --status open`.",
+    "verification_step": {
+      "command": "desloppify scan",
+      "reason": "revalidate after changes"
+    },
+    "risk_flags": [],
+    "strict_target": {
+      "target": 85.0,
+      "current": 77.7,
+      "gap": 7.3,
+      "state": "below",
+      "warning": null
+    },
+    "reminders": [
+      {
+        "type": "review_issues_pending",
+        "message": "174 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
+        "command": "desloppify show review --status open",
+        "priority": 1,
+        "severity": "high"
+      },
+      {
+        "type": "stagnant_nudge",
+        "message": "Security has been at 100.0% for 3 scans. The remaining items may be worth marking as wontfix if they're intentional.",
+        "command": null,
+        "priority": 2,
+        "severity": "medium"
+      },
+      {
+        "type": "wontfix_growing",
+        "message": "Wontfix debt is growing. Review stale decisions: `desloppify show --status wontfix`.",
+        "command": "desloppify show --status wontfix",
+        "priority": 2,
+        "severity": "medium"
+      }
+    ],
+    "reminder_history": {
+      "report_scores": 2,
+      "review_issues_pending": 2,
+      "stagnant_nudge": 2,
+      "wontfix_growing": 2,
+      "feedback_nudge": 1
+    }
+  },
+  "agent_notes": [
+    "Do NOT use `desloppify plan skip` unless the user explicitly asks you to skip an item.",
+    "If you cannot fix an item, report it and move to the next one.",
+    "For cluster items: if the autofix_hint finds 0 results, drill into individual issues with the primary_command."
+  ],
+  "plan": {
+    "active": true,
+    "focus": null,
+    "clusters": [
+      {
+        "name": "auto/clippy_warning",
+        "description": "Fix 147 clippy warning issues",
+        "item_count": 0
+      },
+      {
+        "name": "auto/test_coverage-transitive_only",
+        "description": "Fix 21 test coverage issues",
+        "item_count": 0
+      },
+      {
+        "name": "auto/test_coverage-untested_module",
+        "description": "Fix 17 test coverage issues",
+        "item_count": 0
+      },
+      {
+        "name": "auto/test_coverage-untested_critical",
+        "description": "Fix 4 test coverage issues",
+        "item_count": 0
+      },
+      {
+        "name": "auto/initial-review",
+        "description": "Initial review of 20 unscored subjective dimensions",
+        "item_count": 20
+      }
+    ],
+    "total_ordered": 193,
+    "total_skipped": 0,
+    "plan_overrides_narrative": true
+  },
+  "overall_score": 78.3,
+  "objective_score": 84.1,
+  "strict_score": 77.7,
+  "scorecard_dimensions": [
+    {
+      "name": "File health",
+      "score": 91.4,
+      "strict": 91.4,
+      "checks": 65,
+      "failing": 8,
+      "tier": 3,
+      "subjective": false
+    },
+    {
+      "name": "AI generated debt",
+      "score": 79.0,
+      "strict": 79.0,
+      "checks": 10,
+      "failing": 10,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "ai_generated_debt"
+      ]
+    },
+    {
+      "name": "API coherence",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 10,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "api_surface_coherence"
+      ]
+    },
+    {
+      "name": "Abstraction fit",
+      "score": 73.0,
+      "strict": 73.0,
+      "checks": 10,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "abstraction_fitness"
+      ]
+    },
+    {
+      "name": "Auth consistency",
+      "score": 58.0,
+      "strict": 58.0,
+      "checks": 10,
+      "failing": 10,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "authorization_consistency"
+      ]
+    },
+    {
+      "name": "Code quality",
+      "score": 91.6,
+      "strict": 90.2,
+      "checks": 1962,
+      "failing": 236,
+      "tier": 3,
+      "subjective": false
+    },
+    {
+      "name": "Convention drift",
+      "score": 79.5,
+      "strict": 79.5,
+      "checks": 10,
+      "failing": 6,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "convention_outlier"
+      ]
+    },
+    {
+      "name": "Cross-module arch",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "cross_module_architecture"
+      ]
+    },
+    {
+      "name": "Dep health",
+      "score": 78.0,
+      "strict": 78.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "dependency_health"
+      ]
+    },
+    {
+      "name": "Design coherence",
+      "score": 73.0,
+      "strict": 73.0,
+      "checks": 10,
+      "failing": 9,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "design_coherence"
+      ]
+    },
+    {
+      "name": "Duplication",
+      "score": 95.7,
+      "strict": 95.5,
+      "checks": 549,
+      "failing": 35,
+      "tier": 3,
+      "subjective": false
+    },
+    {
+      "name": "Elegance",
+      "score": 76.0,
+      "strict": 76.0,
+      "checks": 30,
+      "failing": 25,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "high_level_elegance",
+        "low_level_elegance",
+        "mid_level_elegance"
+      ]
+    },
+    {
+      "name": "Error consistency",
+      "score": 83.0,
+      "strict": 83.0,
+      "checks": 10,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "error_consistency"
+      ]
+    },
+    {
+      "name": "Init coupling",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "initialization_coupling"
+      ]
+    },
+    {
+      "name": "Naming quality",
+      "score": 88.5,
+      "strict": 88.5,
+      "checks": 10,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "naming_quality"
+      ]
+    },
+    {
+      "name": "Security",
+      "score": 100.0,
+      "strict": 100.0,
+      "checks": 65,
+      "failing": 0,
+      "tier": 4,
+      "subjective": false
+    },
+    {
+      "name": "Stale migration",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 9,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "incomplete_migration"
+      ]
+    },
+    {
+      "name": "Structure nav",
+      "score": 78.0,
+      "strict": 78.0,
+      "checks": 10,
+      "failing": 10,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "package_organization"
+      ]
+    },
+    {
+      "name": "Test health",
+      "score": 55.0,
+      "strict": 47.4,
+      "checks": 986,
+      "failing": 41,
+      "tier": 4,
+      "subjective": false
+    },
+    {
+      "name": "Test strategy",
+      "score": 63.0,
+      "strict": 63.0,
+      "checks": 10,
+      "failing": 9,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "test_strategy"
+      ]
+    }
+  ],
+  "subjective_measures": [
+    {
+      "name": "AI generated debt",
+      "score": 79.0,
+      "strict": 79.0,
+      "checks": 10,
+      "failing": 10,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "ai_generated_debt"
+      ]
+    },
+    {
+      "name": "API coherence",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 10,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "api_surface_coherence"
+      ]
+    },
+    {
+      "name": "Abstraction fit",
+      "score": 73.0,
+      "strict": 73.0,
+      "checks": 10,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "abstraction_fitness"
+      ]
+    },
+    {
+      "name": "Auth consistency",
+      "score": 58.0,
+      "strict": 58.0,
+      "checks": 10,
+      "failing": 10,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "authorization_consistency"
+      ]
+    },
+    {
+      "name": "Convention drift",
+      "score": 79.5,
+      "strict": 79.5,
+      "checks": 10,
+      "failing": 6,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "convention_outlier"
+      ]
+    },
+    {
+      "name": "Cross-module arch",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "cross_module_architecture"
+      ]
+    },
+    {
+      "name": "Dep health",
+      "score": 78.0,
+      "strict": 78.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "dependency_health"
+      ]
+    },
+    {
+      "name": "Design coherence",
+      "score": 73.0,
+      "strict": 73.0,
+      "checks": 10,
+      "failing": 9,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "design_coherence"
+      ]
+    },
+    {
+      "name": "Elegance",
+      "score": 76.0,
+      "strict": 76.0,
+      "checks": 30,
+      "failing": 25,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "high_level_elegance",
+        "low_level_elegance",
+        "mid_level_elegance"
+      ]
+    },
+    {
+      "name": "Error consistency",
+      "score": 83.0,
+      "strict": 83.0,
+      "checks": 10,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "error_consistency"
+      ]
+    },
+    {
+      "name": "Init coupling",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "initialization_coupling"
+      ]
+    },
+    {
+      "name": "Naming quality",
+      "score": 88.5,
+      "strict": 88.5,
+      "checks": 10,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "naming_quality"
+      ]
+    },
+    {
+      "name": "Stale migration",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 9,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "incomplete_migration"
+      ]
+    },
+    {
+      "name": "Structure nav",
+      "score": 78.0,
+      "strict": 78.0,
+      "checks": 10,
+      "failing": 10,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "package_organization"
+      ]
+    },
+    {
+      "name": "Test strategy",
+      "score": 63.0,
+      "strict": 63.0,
+      "checks": 10,
+      "failing": 9,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "test_strategy"
+      ]
+    }
+  ],
+  "config": {
+    "target_strict_score": 85,
+    "review_max_age_days": 30,
+    "review_batch_max_files": 80,
+    "holistic_max_age_days": 30,
+    "generate_scorecard": true,
+    "badge_path": "scorecard.png",
+    "exclude": [],
+    "ignore": [],
+    "ignore_metadata": {},
+    "zone_overrides": {},
+    "review_dimensions": [],
+    "large_files_threshold": 0,
+    "props_threshold": 0,
+    "issue_noise_budget": 10,
+    "issue_noise_global_budget": 0,
+    "execution_log_max_entries": 10000,
+    "needs_rescan": false,
+    "languages": {},
+    "commit_tracking_enabled": true,
+    "commit_pr": 0,
+    "commit_default_branch": "",
+    "commit_message_template": "desloppify: {status} {count} issue(s) \u2014 {summary}",
+    "trust_plugins": false,
+    "transition_messages": {},
+    "hermes_enabled": false,
+    "hermes_models": {
+      "execute": "openrouter:x-ai/grok-4.20-beta",
+      "review": "openrouter:google/gemini-3.1-pro-preview"
+    }
+  }
+}

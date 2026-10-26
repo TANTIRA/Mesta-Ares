@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ares.fullname" . }}-redis
+  labels:
+    app.kubernetes.io/name: redis
+    {{- include "ares.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/name: redis}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+        {{- include "ares.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: redis
+          image: {{ .Values.redis.image }}
+          ports: [{containerPort: {{ .Values.redis.port }}}]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ares.fullname" . }}-redis
+spec:
+  selector: {app.kubernetes.io/name: redis}
+  ports: [{port: {{ .Values.redis.port }}, targetPort: {{ .Values.redis.port }}}]

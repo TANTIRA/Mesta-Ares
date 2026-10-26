@@ -1,0 +1,21 @@
+<!-- Wazuh -> ingestion-gateway alert webhook.
+
+  Where it goes: inside the top-level <ossec_config> block of
+  /var/ossec/etc/ossec.conf in the wazuh-manager container (this file is
+  just the snippet, not a full ossec.conf).
+
+  integratord requires a matching script at
+  /var/ossec/integrations/<name> — compose already bind-mounts
+  custom-ares-webhook from this directory there. Make sure it is executable
+  (`docker exec ares-wazuh-manager-1 chmod +x /var/ossec/integrations/custom-ares-webhook`),
+  then restart the manager to pick up ossec.conf changes.
+
+  <alert_format>json</alert_format> passes the full JSON alert to the script;
+  the script POSTs it to <hook_url>.
+-->
+<integration>
+  <name>custom-ares-webhook</name>
+  <hook_url>http://ingestion-gateway:8091/webhook/wazuh</hook_url>
+  <level>5</level>
+  <alert_format>json</alert_format>
+</integration>

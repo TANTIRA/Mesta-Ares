@@ -1,0 +1,18 @@
+[package]
+name = "http-limits"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+axum.workspace = true
+tokio.workspace = true
+dashmap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+futures.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }

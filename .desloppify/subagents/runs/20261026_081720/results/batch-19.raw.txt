@@ -1,0 +1,287 @@
+{
+  "batch": "logic_clarity",
+  "batch_index": 19,
+  "assessments": {
+    "logic_clarity": 82.5
+  },
+  "dimension_notes": {
+    "logic_clarity": {
+      "evidence": [
+        "PolicyEngine::evaluate_inner (crates/policy-engine/src/lib.rs:343-437) is a flat, numbered, guard-clause pipeline whose check order is documented as load-bearing; every branch returns a Decision with a reason string, so the flow is traceable end to end.",
+        "crates/tool-server/src/idempotency.rs:95-115 extracts the claim decision into a pure `next(&KeyState, &str) -> Claim` transition shared by the Postgres and DashMap backends, with a transition table in the module doc and unit tests per state.",
+        "Guard-clause style (`let Some(x) = ... else { return ... }`) is used consistently for optional clients, e.g. crates/tool-server/src/executors/mod.rs:96-98, crates/enrichment-lib/src/lib.rs:246-248, crates/agent-core/src/agent_loop.rs:120-126.",
+        "Dead/redundant constructs recur across services: crates/connectors/src/lib.rs:87-89, crates/api-server/src/stream.rs:39-41, crates/api-server/src/main.rs:341, crates/policy-engine/src/lib.rs:433, crates/api-server/src/main.rs:270.",
+        "crates/policy-engine/src/lib.rs:314 and :331 declare `pub async fn evaluate` / `evaluate_approved` that call only the synchronous `evaluate_inner`; callers in crates/tool-server/src/main.rs:97 and crates/tool-server/src/approvals.rs:243 must `.await` a future that never suspends (and tool-server holds its `eval_ctx` mutex across that await).",
+        "crates/api-server/src/acp.rs:459-484 contains two textually identical return blocks: the `rows_affected() == 0` early return and the fall-through tail.",
+        "crates/response-agent/src/main.rs:104-130 maps every reversible action to a rollback tool name (blocklist.ip.remove, wazuh.active_response.unisolate_host, entra.user.enable, misp.ioc.unblock, ...) that appears nowhere in policies/tools.yml or executors::build_registry; grep for those names returns only this function plus docs/services.md:65, and nothing reads `rollback_json` except the read-model SELECT at crates/api-server/src/main.rs:261.",
+        "crates/bas-runner/src/main.rs:186 calls `execute(scenario, deps.dry)?`, which returns Ok(()) on a dry run (lines 93-99), after which run_scenario still waits out MTTD/MTTR and inserts `detected=false` rows into bas_results plus a SUBJECT_DETECTION envelope, so `--dry` writes simulation results and triggers detection-agent rule drafting.",
+        "crates/api-server/src/playbooks.rs:71 and :77 destructure `_errors` from load_playbooks() and drop it, although load_playbooks documents that unparseable files are 'reported in errors'.",
+        "crates/audit/src/lib.rs:132-150 `AuditWriter::ship` (OpenSearch mirroring promised by the module doc at lines 3-5) has zero call sites, and `append` (lines 78-92) reads the previous hash and inserts in two unsynchronised statements, so concurrent appends can fork the tamper-evident chain.",
+        "crates/vuln-agent/src/main.rs:86-94 `severity_rank` returns 0 for unknown input, and :221 uses it on the configured `VULN_MIN_SEVERITY`; a typo therefore makes `severity_rank(&severity) >= min_rank` always true and disables the severity filter (fail-open).",
+        "crates/a2a/src/rpc.rs:37 parses `jsonrpc` but `dispatch` (line 152+) never inspects it, and the `INVALID_REQUEST` code defined at line 23 is never emitted, so a `\"jsonrpc\":\"1.0\"` request is accepted.",
+        "Large-file structural signals (connectors 928 LOC, tool-server executors 703, policy-engine 723, api-server a2a 631) do not translate into tangled control flow: those files are flat sequences of near-identical client methods / executor impls / handler bodies rather than nested branching."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "Recurring dead or unreachable branches (connectors retry guard, SSE relay warn, ACP duplicate return), no-op statements presented as meaningful (api-server boot warm-up, policy blast-radius drop), two async APIs that never await, and two behaviours that contradict their own documentation (rollback tool names that cannot exist, playbook parse errors discarded).",
+      "sub_axes": {
+        "abstraction_leverage": 84.0,
+        "indirection_cost": 86.0,
+        "interface_honesty": 74.0,
+        "delegation_density": 80.0,
+        "definition_directness": 82.0,
+        "type_discipline": 85.0
+      }
+    }
+  },
+  "dimension_judgment": {
+    "logic_clarity": {
+      "dimension_character": "Control flow is mostly direct and deliberate: the security-critical paths (policy evaluation, idempotency claims, tool dispatch) are written as flat guard-clause pipelines with numbered or tabulated ordering, so a reader can trace a decision without surprises. The defects are small and scattered rather than systemic — an unreachable retry branch, a duplicate return block, two no-op statements, an async API that never awaits — but two of them break the 'provably does what it claims' promise outright: rollback entries name tools that exist nowhere in the allowlist, and dry-run BAS mode still writes results and triggers detection. A developer would trust the hot paths and be tripped up only at these seams.",
+      "score_rationale": "The score sits in the solid-but-uneven band because the dominant impression is of purposeful, well-commented control flow (a pure idempotency state machine, documented check order, fail-closed error paths), which pushes it above 80, while roughly one dead or contradictory construct per service pulls it back down. The 85+ anchors require that a developer hit only isolated simplification opportunities; here the dead branches and the documented-but-unimplemented compensation path are more than isolated, and the fail-open severity filter is a latent correctness trap. Hence 82.5 rather than the high 80s."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "logic_clarity",
+      "identifier": "response-rollback-tools-nonexistent",
+      "summary": "rollback_for maps reversible actions to tool names that exist in no allowlist or registry, so every recorded rollback is undispatchable",
+      "related_files": [
+        "crates/response-agent/src/main.rs",
+        "policies/tools.yml",
+        "crates/tool-server/src/executors/mod.rs",
+        "docs/services.md"
+      ],
+      "evidence": [
+        "crates/response-agent/src/main.rs:104-130 returns rollback tools such as \"blocklist.ip.remove\", \"wazuh.active_response.unisolate_host\", \"entra.user.enable\", \"ad.user.enable\", \"firewall.rule.remove\", \"o365.email.release\", \"misp.ioc.unblock\".",
+        "grep across the repo finds those names only in that function and in docs/services.md:65; policies/tools.yml lists 41 tools and none of the *remove/enable/unblock/unisolate/release variants.",
+        "executors::build_registry (crates/tool-server/src/executors/mod.rs:660-780) registers no such executor, so a rollback call would be denied by PolicyEngine as \"tool not in allowlist\" before dispatch.",
+        "Nothing consumes `rollback_json` except the read-model SELECT at crates/api-server/src/main.rs:261, so the compensation path described in docs/services.md:64-67 never runs."
+      ],
+      "suggestion": "Either register and allowlist the inverse tools (blocklist.ip.remove, wazuh.active_response.unisolate_host, entra.user.enable, ad.user.enable, firewall.rule.remove, o365.email.release, misp.ioc.unblock) so the stored rollback entries are dispatchable, or drop rollback_for and the rollback_json column until the inverse tools exist, and correct docs/services.md so it does not promise compensation the code cannot perform.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "documented-but-unimplemented-compensation"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "bas-runner-dry-run-records-results",
+      "summary": "--dry skips execution but still records detected=false rows and publishes coverage-gap envelopes that trigger detection-agent",
+      "related_files": [
+        "crates/bas-runner/src/main.rs"
+      ],
+      "evidence": [
+        "crates/bas-runner/src/main.rs:93-99: `execute` logs and returns Ok(()) when the transport env var is unset or `dry` is true.",
+        "crates/bas-runner/src/main.rs:186-243: run_scenario proceeds regardless of `deps.dry`, waits up to 600s for MTTD, inserts one `bas_results` row per technique with `detected=false`, and republishes the payload to SUBJECT_DETECTION when `!detected`.",
+        "The module doc (lines 15-17) describes dry mode as 'the run is a logged dry run', i.e. no results are implied."
+      ],
+      "suggestion": "Return early from run_scenario when `deps.dry` is true (or when execute reported a dry run) so no bas_results rows are written and no SUBJECT_DETECTION envelope is published; alternatively tag the payload/row with `dry_run=true` and have the detection-agent filter on it.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "mode-flag-only-consulted-in-leaf"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "policy-evaluate-async-no-await",
+      "summary": "PolicyEngine::evaluate and evaluate_approved are async but only call the synchronous evaluate_inner, forcing pointless awaits",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/tool-server/src/approvals.rs"
+      ],
+      "evidence": [
+        "crates/policy-engine/src/lib.rs:314-326 and :331-343 declare `pub async fn evaluate` / `evaluate_approved` whose bodies contain no `.await`.",
+        "Both delegate to the synchronous `fn evaluate_inner` (line 342), so the futures never suspend.",
+        "Callers must await while holding the shared context lock: crates/tool-server/src/main.rs:96-98 and crates/tool-server/src/approvals.rs:242-244 both do `state.eval_ctx.lock().await` then `engine.evaluate(...).await`.",
+        "`kill_switch_engaged` inside evaluate_inner does blocking `std::fs::read_to_string` (line 443-457) inside what looks like an async path."
+      ],
+      "suggestion": "Make evaluate/evaluate_approved synchronous (drop `async`) and update the two call sites; if the blocking kill-file read must stay, note it explicitly or move the check to a cached value refreshed off the request path.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "connectors-retry-guard-dead-branch",
+      "summary": "The retry loop re-checks try_clone() after the function already returned when the body is not replayable, making the loop's error branch unreachable",
+      "related_files": [
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/connectors/src/lib.rs:80-83: if `req.try_clone().is_none()` the function sends once and returns, so a non-cloneable builder can never reach the loop.",
+        "crates/connectors/src/lib.rs:87-89: inside the loop, `let Some(attempt_req) = req.try_clone() else { return Err(anyhow!(\"request body cannot be replayed\")) }` can therefore never fire; `req` is never consumed (only its clones are sent).",
+        "The same condition is handled two different ways in one function (single send vs. hard error), which is what makes the dead arm confusing."
+      ],
+      "suggestion": "Delete the in-loop `try_clone` guard and clone unconditionally (or hoist one clone before the loop); keep the single early guard as the only place that decides replayability.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "acp-cancel-duplicate-return-blocks",
+      "summary": "cancel_run's `rows_affected() == 0` early return is textually identical to the fall-through tail, so the guard changes nothing",
+      "related_files": [
+        "crates/api-server/src/acp.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/acp.rs:459-472 returns `load_run(...).map(...ACCEPTED...).ok_or_else(404)` when the UPDATE matched no row.",
+        "crates/api-server/src/acp.rs:473-484 repeats the exact same expression unconditionally, so the early return is dead weight and a reader must diff two 14-line blocks to see they agree."
+      ],
+      "suggestion": "Drop the `if updated.rows_affected() == 0 { ... }` block and rely on the single trailing load_run/404 path (the UPDATE result is only needed if you intend different status codes for 'already terminal' vs 'just cancelled').",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "triage-deps-os-dead-field",
+      "summary": "Deps.os is never read but its construction makes OPENSEARCH_URL mandatory at boot",
+      "related_files": [
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/triage-agent/src/main.rs:339-342 carries `#[allow(dead_code)] os: Arc<OpensearchClient>` with the comment 'kept for parity with the connector config'.",
+        "crates/triage-agent/src/main.rs:480-484 builds it with `.context(\"OPENSEARCH_URL not set\")?`, so the process refuses to start without an env var that no code path uses (verdict writes go through `http`/`os_url`, which has a localhost default).",
+        "`process` and `open_case` take `&Deps` and never touch `os`, confirming the field is inert."
+      ],
+      "suggestion": "Delete the `os` field and its construction from Deps; `os_url` already carries the only OpenSearch information the agent uses, so the startup requirement disappears with it.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "playbooks-errors-discarded",
+      "summary": "load_playbooks collects parse errors and both handlers immediately discard them, so broken playbook files are invisible",
+      "related_files": [
+        "crates/api-server/src/playbooks.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/playbooks.rs:24-27 documents that unparseable files are 'skipped and reported in `errors`'.",
+        "crates/api-server/src/playbooks.rs:71 and :77 both bind `let (playbooks, _errors) = load_playbooks();` and drop the error vector, so `GET /playbooks` silently returns a short list.",
+        "The `Err` arm at :53-56 and the 'cannot read {dir}' arm at :36-39 therefore write into a channel with no reader."
+      ],
+      "suggestion": "Either return the errors in the response body (`{\"playbooks\": [...], \"errors\": [...]}`) so a developer sees why a file vanished, or change load_playbooks to log via tracing and remove the unused error vector.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "audit-ship-never-called-and-racy-chain",
+      "summary": "AuditWriter::ship (OpenSearch mirroring promised by the module doc) has no callers, and append's read-then-insert can fork the hash chain",
+      "related_files": [
+        "crates/audit/src/lib.rs",
+        "crates/tool-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/audit/src/lib.rs:3-5 states that `ship` mirrors each event into OpenSearch `ares-audit` for SIEM visibility; grep for `.ship(` across the workspace returns zero call sites.",
+        "crates/tool-server/src/main.rs:99-112 only calls `writer.append(...)`, so no audit event ever reaches OpenSearch.",
+        "crates/audit/src/lib.rs:79-92 reads `SELECT hash ... ORDER BY seq DESC LIMIT 1` and then inserts in a separate statement with no transaction or lock, so two concurrent /invoke calls can both chain onto the same prev_hash and fork the tamper-evident chain."
+      ],
+      "suggestion": "Call `ship` after a successful append (log-and-continue on failure), or delete it and the doc sentence; and make the chain read+insert atomic, e.g. `INSERT ... SELECT` with the previous hash computed in one statement plus a unique index on (prev_hash) or an advisory lock.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "vuln-min-severity-fail-open",
+      "summary": "An unrecognised VULN_MIN_SEVERITY ranks 0, which makes the severity filter always true instead of failing",
+      "related_files": [
+        "crates/vuln-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/vuln-agent/src/main.rs:86-94: `severity_rank` returns 0 for any unknown string.",
+        "crates/vuln-agent/src/main.rs:221-228: `min_rank = severity_rank(&cfg.min_severity)` and `qualifies = severity_rank(&severity) >= min_rank || rec.has_kev || matched.is_some()`; with a typo such as `VULN_MIN_SEVERITY=hgih` every CVE (rank >= 0) qualifies and cases are opened for the whole NVD window.",
+        "The clap arg at :64-66 is a free-form String, so nothing rejects the typo earlier."
+      ],
+      "suggestion": "Parse `min_severity` once at startup into a validated enum (clap `value_parser` or a `match` returning an error) and abort boot on an unknown value, so the comparison can never degrade to `>= 0`.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "a2a-jsonrpc-version-unvalidated",
+      "summary": "JsonRpcRequest.jsonrpc is parsed but never checked and the INVALID_REQUEST error code is never emitted",
+      "related_files": [
+        "crates/a2a/src/rpc.rs",
+        "crates/api-server/src/a2a.rs"
+      ],
+      "evidence": [
+        "crates/a2a/src/rpc.rs:33-38 declares `jsonrpc: String` with the doc 'The JSON-RPC version string (\"2.0\")'.",
+        "crates/a2a/src/rpc.rs:152-215 `dispatch` matches only on `req.method`; `req.jsonrpc` is never read, so `{\"jsonrpc\":\"1.0\",...}` is served as valid.",
+        "crates/a2a/src/rpc.rs:22-23 defines `INVALID_REQUEST = -32600`, which grep shows is never used anywhere in the workspace (dead constant that documents a check nobody wrote)."
+      ],
+      "suggestion": "Add a leading guard in `dispatch`: `if req.jsonrpc != \"2.0\" { return JsonRpcResponse::err(id, INVALID_REQUEST, format!(\"unsupported jsonrpc: {}\", req.jsonrpc)) }`, which also makes the existing constant live.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Mode flags and capability flags are consulted only in the leaf function (bas-runner `dry`, response-agent `rollback_for`) while the caller keeps the full side-effecting path, so the flag documents an intent the control flow does not honour.",
+      "Security/observability features are documented ahead of implementation (audit `ship`, rollback tool names, `INVALID_REQUEST`), leaving dead code whose comments assert behaviour the runtime never produces.",
+      "Optional deps are kept 'for parity' with `#[allow(dead_code)]` instead of deleted, which converts a dead field into a boot-time env requirement (triage-agent `os`).",
+      "Redundant fallbacks are added defensively at call sites (`unwrap_or(settled)`, `if row.get(\"status\").is_none()`, in-loop `try_clone`) even where the invariant already guarantees the value, which costs the reader a proof each time."
+    ],
+    "likely_symptoms": [
+      "connectors-retry-guard-dead-branch",
+      "acp-cancel-duplicate-return-blocks",
+      "playbooks-errors-discarded"
+    ],
+    "possible_false_positives": [
+      "policy-engine #[allow(dead_code)] version fields (deliberate YAML contract pins, not logic defects)",
+      "orchestrator delivery_count/DLQ path (documented as a JetStream-only hint; core NATS always yields 1)",
+      "llm-client wire_role mapping Role::System to \"user\" (Anthropic has no system role in messages; the system prompt travels in the separate `system` field)",
+      "PolicyEngine::spec's `_ => TierSpec { u32::MAX, u32::MAX }` fallback (documented as unreachable for Exempt/Stream)"
+    ]
+  },
+  "context_updates": {
+    "logic_clarity": {
+      "add": [
+        {
+          "header": "Numbered guard-clause policy pipeline",
+          "description": "PolicyEngine::evaluate_inner is a flat sequence of numbered early returns whose order is documented as load-bearing, so a reviewer can verify the deny-by-default ordering without following nested branches.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Pure idempotency transition function",
+          "description": "idempotency::next encodes the claim state machine once and both the Postgres and DashMap backends route through it, keeping a table-driven invariant instead of two divergent implementations.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Large files are flat, not tangled",
+          "description": "The structural hotspots (connectors, tool-server executors, api-server a2a) are long because they are repetitions of one client method or one handler shape; their control flow is shallow, so file size does not translate into logic confusion here.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Kill-switch logic implemented twice",
+          "description": "agent_core::kill_switch_engaged and PolicyEngine::kill_switch_engaged duplicate the truthy-env parsing and kill-file check with different path resolution ($POLICIES_DIR/kill vs {policy_dir}/kill), so the two can drift on the same operator control.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Per-agent ActivityEvent copies diverge",
+          "description": "Each agent crate carries its own activity.rs; the step field is &'static str in four of them and String in response-agent, so the shared SSE event shape is only kept aligned by hand.",
+          "settled": false,
+          "positive": false
+        },
+        {
+          "header": "Status enums keep a second spelling table",
+          "description": "TaskState and RunStatus each expose as_str/parse alongside their serde renames, giving two sources of truth for the wire spelling (RunStatus::parse even relies on the wildcard for \"in-progress\").",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

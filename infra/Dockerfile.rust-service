@@ -1,0 +1,38 @@
+# syntax=docker/dockerfile:1
+# Shared image for every Rust binary in the workspace.
+#   docker build -f infra/Dockerfile.rust-service --build-arg BIN=tool-server .
+ARG RUST_VERSION=1.89
+
+FROM rust:${RUST_VERSION}-slim AS builder
+ARG BIN
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends pkg-config libssl-dev \
+ && rm -rf /var/lib/apt/lists/*
+WORKDIR /build
+COPY . .
+RUN cargo build --release --bin "${BIN}" \
+ && cp "target/release/${BIN}" /ares-bin
+
+FROM debian:bookworm-slim
+ARG BIN
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates curl \
+ && rm -rf /var/lib/apt/lists/* \
+ && useradd --system --uid 10001 --no-create-home ares
+# exec.* tools shell out to the OpenShell CLI — a static musl binary published
+# per release (no deb needed; RPMs/debs also exist). The CLI needs a
+# registered gateway (docker-compose `sandbox` profile); without the binary or
+# a reachable gateway, exec.* tools fail closed ("sandbox unavailable") while
+# every other tool keeps working. Only the tool-server image gets the ~10MB
+# binary.
+ARG OPENSHELL_VERSION=0.1.5
+RUN if [ "${BIN}" = "tool-server" ]; then \
+      set -eux; arch="$(uname -m)"; \
+      curl -fsSL "https://github.com/NVIDIA/OpenShell/releases/download/v${OPENSHELL_VERSION}/openshell-${arch}-unknown-linux-musl.tar.gz" \
+        | tar -xz -C /usr/local/bin openshell; \
+      openshell --version; \
+    fi
+COPY --from=builder /ares-bin /usr/local/bin/ares-bin
+USER ares
+ENV RUST_LOG=info
+ENTRYPOINT ["/usr/local/bin/ares-bin"]

@@ -1,0 +1,269 @@
+{
+  "batch": "convention_outlier",
+  "batch_index": 3,
+  "assessments": {
+    "convention_outlier": 79.5
+  },
+  "dimension_notes": {
+    "convention_outlier": {
+      "evidence": [
+        "Core pipeline crates are highly consistent: api-server handlers all return `Result<Json<Value>, (StatusCode, String)>` (main.rs:111,156,164,182,255; vulns.rs:49,133; playbooks.rs:70,76), tool-server executors all implement one `Tool` trait with the same `dry_run` fallback (executors/mod.rs:24-37, 80-660), and connectors groups its clients under identical `// ---` section banners (connectors/src/lib.rs:55,121,156,263,306,528,611,644,768).",
+        "Accessor naming is uniform across all 21 crates: `list_*` for collections, `get_*` for single lookups, `load_*` for disk/DB reads, `ensure_schema` for DDL bootstrap (grep: 12 `list_`, 10 `get_`, 5 `load_`, 5 `ensure_schema` sites, no `fetch_`/`read_` synonyms except the two intentionally stubby `fetch_m365_records`/`fetch_entra_signins` in ingestion-gateway/src/pollers.rs:99,109).",
+        "Error strategy splits cleanly by crate role rather than randomly: typed thiserror enums in agent-core/src/error.rs:5, llm-client/src/error.rs:5, cvss/src/lib.rs:19, audit/src/lib.rs:27; anyhow everywhere in the binaries and the thin HTTP libs (connectors, enrichment-lib, policy-engine).",
+        "Test placement is uniform: 17 files put `#[cfg(test)] mod tests` at the end of the file (a2a/src/rpc.rs:212, acp/src/lib.rs:267, agent-core/src/kill.rs:36, policy-engine/src/lib.rs:539, http-limits/src/lib.rs:325, tool-server/src/idempotency.rs:396, etc.); there is no tests/ directory and no scattered inline `assert!`.",
+        "The five agent crates are the drift island. Four of them (detection, hunt, response, triage) carry a near-identical `activity.rs` with `pub struct ActivityEvent` + `pub const SUBJECT_ACTIVITY` + `pub fn new(...)`; `desloppify show dupes` reports `ActivityEvent::new` as an exact 3-function cluster and `emit` as an exact 4-function cluster.",
+        "vuln-agent is the behavioural outlier inside that family: no `activity.rs` module, `SUBJECT_ACTIVITY` and `SUBJECT_VULNS` declared locally (vuln-agent/src/main.rs:27-29), activity emitted as an ad-hoc `json!` object in `emit_activity` (main.rs:120-135) with no `workflow_run_id`, no `Deps` struct (six positional args to `poll_once`, main.rs:188-195), no `tracing::Instrument` span, and a `let cfg = Config::parse()` binding (main.rs:301) where the four siblings use `config`.",
+        "vuln-agent is also the only agent crate with no `agent-protocol` dependency (crates/vuln-agent/Cargo.toml:9-22), which is why it cannot build an `Envelope` or reuse a shared subject constant.",
+        "The four copies of ActivityEvent are not identical: triage-agent/src/activity.rs:21 declares `pub step: &'static str` while detection/hunt/response declare `pub step: String` (activity.rs:18 in each). The same type name has two different field types across sibling crates.",
+        "`SUBJECT_ACTIVITY = \"ares.activity\"` is declared six times: detection-agent/src/activity.rs:8, hunt-agent/src/activity.rs:8, response-agent/src/activity.rs:8, triage-agent/src/activity.rs:11, api-server/src/stream.rs:22, vuln-agent/src/main.rs:29 — even though agent-protocol/src/lib.rs:15-26 documents itself as the owner of 'NATS subject constants [that] name the topics that connect the services' and already holds the other six subjects.",
+        "Kill-switch protocol is applied inconsistently across sibling agents: triage checks it before every write (triage-agent/src/main.rs:316-325), response checks it per action mid-plan (response-agent/src/main.rs:262-270), vuln checks it before case creation (vuln-agent/src/main.rs:251-253), but detection-agent writes pending YAML, git-commits, promotes rules and deploys monitors with no check at all (detection-agent/src/main.rs:153-205) and hunt-agent opens TheHive cases unguarded (hunt-agent/src/main.rs:102-128). docs/services.md:56 calls `policies/kill` 'the system-level breaker'.",
+        "`ares.*` carries two message conventions: six producers publish `Envelope` JSON (ingestion-gateway/src/main.rs:100, bas-runner/src/main.rs:236-245, triage-agent/src/main.rs:225-233, api-server/src/a2a.rs:269-272) while five agents publish bare `ActivityEvent` JSON on `ares.activity` and vuln-agent publishes a bare advisory object on `ares.vulns` (vuln-agent/src/main.rs:236-250). orchestrator/src/main.rs:139 subscribes to `ares.*` and dead-letters anything that fails `Envelope` parsing (main.rs:69-76), so every activity event lands in `ares.dlq`.",
+        "The LLM call + markdown-fence strip + JSON parse sequence is re-implemented three times with divergent fence handling: detection-agent/src/pipeline.rs:44-55 strips ```yaml and ```yml as well as ```, while triage-agent/src/main.rs:117-125 and response-agent/src/main.rs:148-155 strip only ```json and ```.",
+        "Cargo manifests split 7/14 on declaration style: a2a, acp, agent-core, agent-protocol, audit, cvss, llm-client use `dep = { workspace = true }` plus `description` plus `rust-version.workspace = true`; the other 14 use `dep.workspace = true` and omit both. The split does not follow lib-vs-bin (4 of the 11 library crates — connectors, enrichment-lib, http-limits, policy-engine — use the bin style).",
+        "`#![warn(missing_docs)]` appears in exactly six crates (agent-protocol/src/lib.rs:8, agent-core/src/lib.rs:9, a2a/src/lib.rs:8, acp/src/lib.rs:9, audit/src/lib.rs:12, llm-client/src/lib.rs:8) and in none of the other five libraries, even though all of them are fully documented by hand.",
+        "Sibling route modules inside api-server intentionally differ on error shape: main.rs/vulns.rs/playbooks.rs/coverage.rs use `(StatusCode, String)`, a2a.rs uses bare `StatusCode` (a2a.rs:508) because JSON-RPC carries the error in the body, and acp.rs uses `(StatusCode, Json<AcpError>)` (acp.rs:312) because the ACP spec defines an error envelope. This is protocol-driven, not drift."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "convention_outlier": {
+      "dimension_character": "The infrastructure half of the workspace (agent-protocol, agent-core, api-server, tool-server, connectors, policy-engine, cvss) is genuinely uniform — one executor protocol, one accessor vocabulary, one error strategy per layer, one test placement — so a developer who learns api-server or executors can predict the next module they open. The drift is concentrated in the five agent binaries and in the Cargo manifests: four agents copy-paste the same `activity.rs` while the fifth hand-rolls a different payload shape, the kill-switch protocol is applied by three agents and skipped by two, and the manifests split 7/14 on declaration style with no role-based rationale. The result is a codebase where the shared libraries are trustworthy but the agent family and build files require reading each sibling individually.",
+      "score_rationale": "The score sits at the 80 anchor ('noticeable convention drift across major areas') rather than above it: the agent crates are the product's core subsystem and they diverge on the activity contract, subject-constant ownership, kill-switch protocol and boot skeleton, and 14 of 21 manifests contradict the other 7. It is held above 70 by how disciplined the rest is — no naming drift at all across 21 crates, one plugin protocol for ~20 executors, and error/test/doc conventions that split cleanly by layer — so the friction is localised and mechanical rather than pervasive."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "convention_outlier",
+      "identifier": "vuln-agent-activity-shape-outlier",
+      "summary": "vuln-agent emits a different activity payload than its four sibling agents, dropping workflow_run_id",
+      "related_files": [
+        "crates/vuln-agent/src/main.rs",
+        "crates/vuln-agent/Cargo.toml",
+        "crates/triage-agent/src/activity.rs",
+        "crates/detection-agent/src/activity.rs",
+        "docs/services.md"
+      ],
+      "evidence": [
+        "crates/vuln-agent/src/main.rs:120-135 builds the event with `json!({\"agent\", \"step\", \"detail\", \"ts\"})`; the four sibling agents publish a typed `ActivityEvent` carrying `workflow_run_id` (detection/hunt/response activity.rs:14, triage activity.rs:17).",
+        "docs/services.md:33 documents the SSE contract as `{workflow_run_id, agent, step, detail, ts}`, and docs/services.md:81 states workflow_run_id = Envelope.correlation_id is carried through `ares.activity`.",
+        "apps/console/app/(console)/cases/[id]/page.tsx:41 filters activity by `e.workflow_run_id`, so every vuln event silently fails to correlate to a case.",
+        "vuln-agent is the only agent crate without an `agent-protocol` dependency (crates/vuln-agent/Cargo.toml:9-22), so it has no Envelope and no shared subject constant — the payload divergence follows from the missing dependency.",
+        "vuln-agent also has no `Deps` struct (main.rs:188-195 passes six positional args to `poll_once`) and no `tracing::Instrument` span, unlike detection/hunt/triage/response."
+      ],
+      "suggestion": "Move `ActivityEvent` + `SUBJECT_ACTIVITY` into agent-protocol (which already owns the other subjects) and delete the four local activity.rs modules; then make vuln-agent depend on agent-protocol and call the same `emit` helper, passing a run id (use the poll cycle's start timestamp id or a fresh Uuid).",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "activity-event-contract-copied-per-agent"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "activity-event-copied-and-diverged",
+      "summary": "ActivityEvent and SUBJECT_ACTIVITY are copy-pasted per agent and the copies have already diverged",
+      "related_files": [
+        "crates/detection-agent/src/activity.rs",
+        "crates/hunt-agent/src/activity.rs",
+        "crates/response-agent/src/activity.rs",
+        "crates/triage-agent/src/activity.rs",
+        "crates/api-server/src/stream.rs",
+        "crates/agent-protocol/src/lib.rs"
+      ],
+      "evidence": [
+        "`ActivityEvent::new` is an exact 3-function dupe cluster and `emit` an exact 4-function cluster (desloppify show dupes); the four activity.rs files are 41, 41, 41 and 44 lines of the same content.",
+        "triage-agent/src/activity.rs:21 declares `pub step: &'static str` while detection-agent/src/activity.rs:18, hunt-agent/src/activity.rs:18 and response-agent/src/activity.rs:18 declare `pub step: String` — same type name, different field type, so the structs cannot be swapped or unified without touching call sites.",
+        "`SUBJECT_ACTIVITY = \"ares.activity\"` is declared six times (four activity.rs files, api-server/src/stream.rs:22, vuln-agent/src/main.rs:29) although agent-protocol/src/lib.rs:5-6 documents itself as the owner of the NATS subject constants and already holds the other six.",
+        "The consumer side (api-server/src/stream.rs:22-33) re-declares the constant rather than importing it, so a subject rename would need six coordinated edits with no compiler help."
+      ],
+      "suggestion": "Define `ActivityEvent` and `SUBJECT_ACTIVITY` once in agent-protocol (next to SUBJECT_ALERTS..SUBJECT_BAS), delete the four activity.rs modules, and have each agent import them; standardise `step` on `String` so `action_{idx}` style dynamic steps stay possible.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "activity-event-contract-copied-per-agent",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "dupes::crates/detection-agent/src/activity.rs::new::crates/hunt-agent/src/activity.rs::new"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "kill-switch-protocol-skipped-by-two-agents",
+      "summary": "detection-agent and hunt-agent perform writes with no kill-switch check while the other three agents gate every write",
+      "related_files": [
+        "crates/detection-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/triage-agent/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/vuln-agent/src/main.rs",
+        "docs/services.md"
+      ],
+      "evidence": [
+        "triage-agent/src/main.rs:316-325 comments 'Kill switch gates every write path' and returns early when engaged; response-agent/src/main.rs:262-270 halts mid-plan; vuln-agent/src/main.rs:251-253 skips case creation.",
+        "detection-agent/src/main.rs:153-205 writes pending YAML, backtests, promotes to active, git-commits, deploys an OpenSearch monitor and audits — with no `kill_switch_engaged()` call anywhere in the crate (grep for `kill_switch` in crates/detection-agent returns nothing).",
+        "hunt-agent/src/main.rs:102-128 opens TheHive cases from `run_sweep` with no kill-switch check either (grep for `kill_switch` in crates/hunt-agent returns nothing).",
+        "docs/services.md:56-57 describes the global `policies/kill` file as 'the system-level breaker', implying all services honour it."
+      ],
+      "suggestion": "Add the same guard the siblings use: call `agent_core::kill_switch_engaged()` at the top of detection-agent's `run_cycle` (before `write_pending`) and at the top of hunt-agent's `open_finding`/`run_sweep`, emitting a `kill_switch` activity step and returning early — matching triage-agent/src/main.rs:316-325 verbatim.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "activity-event-contract-copied-per-agent"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "ares-star-namespace-two-message-conventions",
+      "summary": "The ares.* subject namespace mixes Envelope and bare-JSON messages, so the orchestrator dead-letters every activity event",
+      "related_files": [
+        "crates/orchestrator/src/main.rs",
+        "crates/detection-agent/src/activity.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/api-server/src/stream.rs"
+      ],
+      "evidence": [
+        "orchestrator/src/main.rs:139 subscribes to `ares.*` and main.rs:69-76 treats any payload that fails `serde_json::from_slice::<Envelope>` as unparseable, republishing it to `SUBJECT_DLQ` (main.rs:33).",
+        "Five agents publish `ActivityEvent` (a non-Envelope: workflow_run_id/agent/step/detail/ts) on `ares.activity` — detection-agent/src/activity.rs:8, hunt-agent, response-agent, triage-agent, vuln-agent/src/main.rs:29 — and vuln-agent publishes a bare advisory object on `ares.vulns` (vuln-agent/src/main.rs:236-250).",
+        "Every other producer on `ares.*` publishes an `Envelope`: ingestion-gateway/src/main.rs:100, bas-runner/src/main.rs:236-245, triage-agent/src/main.rs:225-233, api-server/src/a2a.rs:269-272.",
+        "Consequence: `ares.*` is a single-level wildcard, so each activity and vulns message is parsed, rejected, and re-published to `ares.dlq`, which nothing consumes."
+      ],
+      "suggestion": "Stop matching the non-Envelope subjects: subscribe the orchestrator to the explicit routed subjects (`ares.alerts|triage|respond|detection|hunt|bas`) instead of `ares.*`, and document in agent-protocol/src/lib.rs that `ares.activity` and `ares.vulns` are out-of-band feeds.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "cargo-manifest-style-split",
+      "summary": "Cargo manifests split 7/14 between brace-style workspace deps with metadata and dotted-style without",
+      "related_files": [
+        "crates/a2a/Cargo.toml",
+        "crates/agent-core/Cargo.toml",
+        "crates/connectors/Cargo.toml",
+        "crates/api-server/Cargo.toml",
+        "crates/policy-engine/Cargo.toml"
+      ],
+      "evidence": [
+        "a2a, acp, agent-core, agent-protocol, audit, cvss, llm-client declare `serde = { workspace = true }` plus a `description` and `rust-version.workspace = true` (e.g. crates/a2a/Cargo.toml:6-14).",
+        "The other 14 declare `serde.workspace = true` with no `description` and no `rust-version` (e.g. crates/connectors/Cargo.toml:9-16, crates/api-server/Cargo.toml:6-26).",
+        "The split is not lib-vs-bin: connectors, enrichment-lib, http-limits and policy-engine are libraries that follow the bin style, so 4 of 11 libraries contradict the other 7.",
+        "`#![warn(missing_docs)]` tracks the same 7-crate group (present in agent-protocol:8, agent-core:9, a2a:8, acp:9, audit:12, llm-client:8; absent from cvss, connectors, enrichment-lib, http-limits, policy-engine), so the doc-completeness lint covers only part of the library surface.",
+        "agent-core/Cargo.toml:17-19 and audit/Cargo.toml:15-17 both re-declare sqlx inline with a comment explaining that the workspace spec requests a nonexistent `pgvector` feature — a documented workaround that leaves two crates outside the centralised-dependency convention."
+      ],
+      "suggestion": "Pick one manifest style (dotted is the majority at 14/21) and apply it to all 21 crates, add `description` to the 14 that lack one, and add `#![warn(missing_docs)]` to the five libraries that already document everything by hand.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "llm-json-completion-protocol-duplicated",
+      "summary": "Three agents re-implement the LLM completion + fence-strip + parse sequence with different fence handling",
+      "related_files": [
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/triage-agent/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/llm-client/src/lib.rs"
+      ],
+      "evidence": [
+        "detection-agent/src/pipeline.rs:32-56, triage-agent/src/main.rs:105-127 and response-agent/src/main.rs:136-157 each build a `CompletionRequest`, call `router.complete`, then hand-roll `.trim().trim_start_matches(\"```json\")...trim_end_matches(\"```\")` before parsing.",
+        "The three copies have already diverged: pipeline.rs:48-50 also strips ```yaml and ```yml (needed for Sigma drafting) while the two JSON consumers strip only ```json and ``` — so an uppercase ```JSON fence or a ` ``` json` variant is handled by none of them.",
+        "llm-client (the crate that owns provider interaction) exposes no helper for this, so each agent re-derives the protocol; detection-agent/src/pipeline.rs:35 and response-agent/src/main.rs:139 are also flagged as a boilerplate-duplication pair."
+      ],
+      "suggestion": "Add one `llm_client::complete_json<T: DeserializeOwned>(router, tier, req) -> Result<T>` (or a `strip_fences` + `complete_text` pair, ~15 lines) that strips an optional case-insensitive fence with an optional language tag, and call it from the three sites.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "signature-variance-execute-dismissed",
+      "summary": "Detector-reported 'execute has 4 different signatures' is a false positive from trait impls plus two unrelated private helpers",
+      "related_files": [
+        "crates/bas-runner/src/main.rs",
+        "crates/tool-server/src/executors/mod.rs",
+        "crates/tool-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/executors/mod.rs:28 declares `async fn execute(&self, args: &Value) -> Result<Value>` and 20 impls at lines 88-664 all match it exactly — that is one signature, not variance.",
+        "The only genuinely different `execute` functions are two private, crate-local helpers: bas-runner/src/main.rs:86 `execute(scenario, dry)` and tool-server/src/main.rs:109 `execute(state, call)`. Neither is exported and neither shadows the other.",
+        "A shared trait name across implementations is the intended Rust pattern, so there is no naming-convention drift to fix here."
+      ],
+      "suggestion": "No change. If the detector noise matters, rename the two private helpers (bas-runner `run_on_fleet`, tool-server `dispatch_tool`) to silence it, but the trait impls should stay as they are.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "concern_verdict": "dismissed",
+      "concern_fingerprint": "signature::crates/bas-runner/src/main.rs::signature_variance::execute",
+      "reasoning": "The 20 Tool::execute impls share one trait signature by design; the remaining two are unrelated private helpers in different crates, so this is detector noise rather than convention drift."
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "The agent crates were written as independent binaries with no shared 'agent service' skeleton, so each copied the activity module, the emit helper and the boot sequence instead of importing them; agent-protocol was not treated as the owner of the activity contract even though it owns every other subject and envelope.",
+      "vuln-agent was added later without the agent-protocol dependency, so it could not reuse Envelope/subject types and invented a bare-JSON activity payload.",
+      "Cargo manifests were copied per crate from two different templates, which is why the style split follows no role boundary and correlates exactly with the missing_docs lint group."
+    ],
+    "likely_symptoms": [
+      "vuln-agent-activity-shape-outlier",
+      "activity-event-copied-and-diverged",
+      "kill-switch-protocol-skipped-by-two-agents"
+    ],
+    "possible_false_positives": [
+      "The `ares.*` DLQ observation may be considered intentional tolerance in orchestrator rather than a namespace-convention defect.",
+      "api-server's three different handler error shapes (StatusCode / String / Json<AcpError>) look like drift but are dictated by the JSON-RPC and ACP specs."
+    ]
+  },
+  "context_updates": {
+    "convention_outlier": {
+      "add": [
+        {
+          "header": "Uniform service-binary skeleton",
+          "description": "Every service crate follows the same shape: clap `Config` with env-backed args, a `Deps`/`AppState` struct holding shared clients, one `process`/`run_cycle`/`run_sweep` entry point, and a `#[tokio::main]` that inits tracing then connects. A developer can open any service and know where to look.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One executor plugin protocol in tool-server",
+          "description": "All ~20 executors implement the single `Tool` trait with an `Option<Client>` field and a shared `dry_run` fallback, and are registered in one `build_registry` table. Adding a tool is one struct plus one `put` line, and the dry-run path means the registry stays exercisable without credentials.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Error strategy split by crate role",
+          "description": "Typed thiserror enums live in the libraries that define domain failures (agent-core, llm-client, cvss, audit) while binaries and thin HTTP wrappers use anyhow. The split is consistent enough that a caller can predict whether it will get a matchable error type.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Accessor verb vocabulary held everywhere",
+          "description": "`list_*`, `get_*`, `load_*` and `ensure_schema` mean the same thing in all 21 crates; there are no competing `fetch_`/`read_`/`find_` synonyms for the same operations, which is why the CRUD surface is predictable across crates.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Uniform test module placement",
+          "description": "17 files place `#[cfg(test)] mod tests` at the end of the file with no tests/ directory and no scattered inline asserts, so test coverage is discoverable by scrolling rather than by searching.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Agent crates are the convention drift island",
+          "description": "The five agent binaries are the one family that diverges: four copy the same activity.rs while vuln-agent hand-rolls a different payload, and kill-switch, Deps-struct and span conventions are only partly shared. The rest of the workspace does not have this problem.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Two NATS access styles by delivery need",
+          "description": "ingestion-gateway and orchestrator wrap NATS in a small facade (NatsSink for JetStream durability, NatsBus for core publish) while agents call `async_nats::Client` directly. The difference tracks durable-vs-fire-and-forget delivery rather than taste.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Library crates split on module visibility",
+          "description": "agent-protocol and a2a expose `pub mod` submodules so callers write path-qualified imports, while agent-core and llm-client keep modules private and re-export a flat surface. Both are internally consistent; the split costs only a moment of 'which import style is this'.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

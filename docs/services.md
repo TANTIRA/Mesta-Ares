@@ -1,0 +1,197 @@
+# Mesta-Ares service map
+
+Bounded contexts, contracts, failure semantics. Keep this file updated when a
+service or contract changes — it is the consumer-facing view.
+
+## Contexts and ownership
+
+| Service | Port | Owns | Depends on (sync) | Events (async, NATS `ares.*`) |
+|---|---|---|---|---|
+| ingestion-gateway | 8091 | Envelope normalization, JetStream publish | — | pub `ares.alerts` |
+| orchestrator | — | Routing, dedupe (`seen_alerts`), DLQ | postgres | `ares.*` → `ares.triage|respond|detection|hunt`, `ares.dlq` |
+| triage-agent | — | Enrichment fan-out, verdicts | llm (Anthropic), enrichment providers, thehive | sub `ares.triage`, pub `ares.respond`, `ares.activity` |
+| response-agent | — | Plan build + execution record (`response_actions`) | tool-server, thehive, wazuh | sub `ares.respond`, pub `ares.activity` |
+| tool-server | 8090 | Policy gate + all side-effect executors | policy files, postgres audit_log, cortex/misp/shuffle/wazuh/entra | — |
+| detection-agent | — | Sigma draft→pending→active, monitor deploy | llm, opensearch, sigma CLI | sub `ares.detection`, pub `ares.activity` |
+| hunt-agent | — | Scheduled hunts, findings | opensearch, thehive | sub `ares.hunt`, pub `ares.activity` |
+| api-server | 8080 | Read model + control API for console, A2A protocol endpoints (`a2a_tasks`) | opensearch, postgres, thehive | sub `ares.activity` (SSE relay), pub `ares.triage|respond|detection|hunt` (A2A tasks) |
+| bas-runner | — | Scenario exec, MTTD/MTTR (`bas_results`) | opensearch, postgres | pub `ares.bas`, `ares.detection` |
+
+Shared Postgres is split per service by table ownership (each service owns its
+tables: `seen_alerts`→orchestrator, `response_actions`→response-agent,
+`bas_results`→bas-runner, `agent_checkpoints`→agent-core, `audit_log`→audit).
+No service reads another's table except audit_log (api-server read-model only).
+
+## HTTP contracts
+
+- `POST tool-server:8090/invoke` — body `ToolCall`; **always HTTP 200**, verdict
+  is `InvokeResponse{decision:{kind:allow|deny|approval_required,reason},result:ToolResult}`.
+  Idempotent via `idempotency_key` (case_id+tool+sha256(args)); cached replays return the first result.
+- `GET tool-server:8090/tools` — effective allowlist (from `policies/tools.yml`).
+- `GET api-server:8080/…` — `/health /alerts /alerts/:id /cases /cases/:id /audit /metrics /coverage /plans/:case_id`.
+- `POST /controls/kill-switch` — engages/disengages `$POLICIES_DIR/kill`; `GET` reads state. Fail-closed reads.
+- `GET /stream/activity` — SSE, event `{workflow_run_id, agent, step, detail, ts}`.
+- A2A interop: `GET /.well-known/agent.json` (platform card), `GET /a2a/agents`, `GET /a2a/{agent}/.well-known/agent.json`, `POST /a2a/{agent}` (JSON-RPC `tasks/send|get|cancel|sendSubscribe`), `GET /a2a/tasks/{id}/events` (per-task SSE). Agents: `triage-agent`, `response-agent`, `detection-agent`, `hunt-agent`. Task → `Envelope` (source `a2a:<task_id>`, correlation_id = task UUID) published on the agent's subject.
+- `POST ingestion-gateway:8091/webhook/wazuh` — Wazuh integratord JSON → `Envelope`. `202 Accepted` on publish, `503` if NATS down (caller retries; integratord does not, so monitor this).
+
+Errors: JSON `{error: string}`; 4xx = caller fixable, 5xx = retryable. All
+handlers set explicit timeouts (see table).
+
+## Resilience table
+
+| Dependency | Timeout | Retry | Fallback |
+|---|---|---|---|
+| LLM provider (triage) | 30s | 1 retry, jitter | verdict `suspicious` + `enrichment_partial` flag |
+| LLM provider (response/detection/hunt) | 120s | 1 retry | hold plan, retry next delivery |
+| Enrichment provider (VT/Shodan/AbuseIPDB/GreyNoise/MISP) | 8s each | none | provider skipped, `raw` notes failure |
+| Redis cache | 1s | none | bypass cache, enrich direct |
+| NATS publish | 5s | 3 attempts | ingress returns 503 (drop only on `ares.dlq` after 3 deliveries) |
+| tool-server `/invoke` (agent side) | 15s | none (idempotent → safe to redeliver via NATS) | plan step recorded `error` |
+| Postgres | 10s | connect retry loop at boot | service exits (restart) |
+| OpenSearch | 10s | 2 on 429/5xx | skip backtest/hunt cycle |
+| TheHive/Cortex/Wazuh/Shuffle executors | 15s | none (idempotency at tool layer) | `ToolResult.ok=false` + audit |
+| OpenShell CLI/gateway (exec.sandbox, exec.bas.run) | 30s (kill on expiry) | none | fail closed — exec tools return `sandbox unavailable`; non-exec tools unaffected |
+
+Circuit breakers: blast-radius caps in policy-engine act as action-class
+breakers (trip on rate anomaly); a global `policies/kill` file is the
+system-level breaker. Per-provider breakers: not implemented — first signal
+for adding is sustained provider 5xx.
+
+## Consistency
+
+- **Idempotent consumers**: orchestrator dedupe (`seen_alerts`, 24h key);
+  tool-server `idempotency_key` → NATS redelivery is always safe.
+- **Compensation**: reversible actions store `rollback_json` in
+  `response_actions`; a `rollback` tool call inverts it (isolate→unisolate,
+  block→unblock). No saga coordinator — response-agent owns plan-level
+  compensation linearly.
+- **Outbox**: not used; audit_log is written inside tool-server's invoke path
+  before execution, so a crash mid-action leaves a decided-but-unexecuted
+  audit row — acceptable (audit is the forensics record, replay by NATS
+  redelivery).
+
+## Graceful shutdown / health
+
+Every binary: `tracing` init, `/health` where HTTP, SIGTERM → stop consuming,
+finish in-flight envelope (agent loop checkpoints to Postgres so restart
+resumes, not restarts).
+
+## Observability
+
+`workflow_run_id` = `Envelope.correlation_id`, carried through NATS subjects,
+agent spans, audit rows, and `ares.activity` SSE. Metrics surface: `/metrics`
+(alerts/hr, verdict mix, MTTD/MTTR from `bas_results`), audit deny-spike is a
+SIEM alert itself.
+
+## Rate limits
+
+Per-key token buckets on the two HTTP edge services (`crates/http-limits`).
+**Key = peer IP** (`ConnectInfo`) until authentication lands; API-key tiers
+replace it then. Numbers load from `policies/rate-limits.yml` (defaults
+below when the file is absent); metering is request count, burst = bucket
+capacity, sustained = refill rate.
+
+| Surface | Tier | Sustained | Burst | Notes |
+|---|---|---|---|---|
+| api-server general reads | `general` | 60 req/s | 120 | all routes not listed below |
+| `POST /cvss/score`, `POST /a2a/{agent}` (JSON-RPC) | `expensive` | 10 req/s | 20 | LLM/expensive |
+| `POST /controls/kill-switch` | `kill_switch` | 1 req/s | 5 | tight but never fully closed — safety endpoint stays reachable |
+| `GET /stream/activity`, `GET /a2a/tasks/{id}/events` | `stream` | — | — | exempt from request counting; capped at **20 concurrent connections/key** |
+| ingestion-gateway `POST /webhook/{wazuh,generic}` | `ingest` | 100 req/s | 500 | Wazuh alert storms |
+| `GET /health` (both services) | — | — | — | exempt, unmetered |
+
+Every metered response carries `x-ratelimit-limit` (burst capacity, or the
+concurrency cap for streams), `x-ratelimit-remaining`, and
+`x-ratelimit-reset` (**epoch seconds** when the bucket refills; "now" for
+streams, which have no refill schedule). Rejection is **429** +
+`Retry-After: <seconds>` (delay-seconds form) + JSON
+`{"error":"rate_limit_exceeded","retry_after":N}` — no 200-throttled
+responses. A 429 costs no token against the tier that rejected it.
+
+Limits are operational hints, not SLAs; we reserve the right to tighten
+them without notice, and they are per-instance (each replica counts
+independently).
+
+## API Security Assessment
+
+OWASP API Security Top 10 (2023), static review of `api-server` (:8080),
+`ingestion-gateway` (:8091) and `tool-server` (:8090). No endpoint in any of
+the three services performs authentication or authorization today; every
+verdict below assumes the port is reachable (all three are published to the
+host by `infra/docker-compose.yml`). Probe script: `scripts/api-security-check.sh`.
+
+| # | Category | Verdict | Detail |
+|---|---|---|---|
+| API1 | Broken Object Level Authorization | VULNERABLE | Every path-param lookup is a direct fetch with no object-level check: `/alerts/{id}`, `/cases/{id}`, `/plans/{case_id}`, `/playbooks/{name}`, `/vulns/{cve_id}` (`main.rs:281-305`), `tasks/get`/`tasks/cancel` (`a2a.rs:469-485`), `/a2a/tasks/{id}/events` (`a2a.rs:528`). Re-test when authn lands — nothing to hang an ownership check on yet. |
+| API2 | Broken Authentication | VULNERABLE | Zero authn on all three HTTP services; no middleware, token, or mTLS anywhere. A2A agent cards even advertise `authentication.schemes:["bearer"]` that is never enforced (`a2a.rs:158-160,189-191`). |
+| API3 | Broken Object Property Level Authorization | VULNERABLE | `SendParams` accepts arbitrary `parts`, `metadata`, `sessionId` (a2a `task.rs:196-208`) → `build_payload` → `Envelope` → agent LLM context and, for response-agent, the planner `goal` (`a2a.rs:366-384`); no property-level validation beyond serde shape. `/webhook/generic` accepts arbitrary JSON incl. attacker-chosen `source` (`ingestion-gateway/main.rs:79-89`). |
+| API4 | Unrestricted Resource Consumption | VULNERABLE | No rate limiting or body limits configured anywhere (axum's implicit 2 MiB `DefaultBodyLimit` is the only cap). `/vulns*` serialize on the ≥6 s NVD client mutex (`connectors/lib.rs:695-740`) → trivial connection-queue exhaustion; NVD fetches `resultsPerPage=2000` (`lib.rs:773`); `/playbooks` + `/coverage` rescan/parse the filesystem per request; SSE streams are unbounded per client. |
+| API5 | Broken Function Level Authorization | VULNERABLE | `POST /controls/kill-switch` toggles the global safety control for any client (`kill.rs:39`); `POST /a2a/response-agent` `tasks/send` is an unauthenticated command path into the response planner (`a2a.rs:394-467`); `tasks/cancel` mutates anyone's task (`a2a.rs:473-485`); `/a2a/tasks/{id}/events` is a GET that writes `state='completed'` (`a2a.rs:607-613`). |
+| API6 | Unrestricted Access to Sensitive Business Flows | VULNERABLE | Anyone can inject unlimited "alerts" via `POST /webhook/{wazuh,generic}` → each one consumes LLM tokens, can open TheHive cases and trigger response handoffs (`triage-agent/main.rs:296-353`). |
+| API7 | Server-Side Request Forgery | VULNERABLE (limited) | Connector base URLs are env-pinned — no arbitrary-origin SSRF found. But tool args steer internal requests: `opensearch.query` takes caller `index` + Lucene `q` + DSL `body` with no schema (`executors/mod.rs:88-99` — read any index); `thehive.case.update` joins raw `case_id` into the URL path (`connectors/lib.rs:182-191`). Reachable unauthenticated via `:8090/invoke`. |
+| API8 | Security Misconfiguration | VULNERABLE | `CorsLayer::permissive()` (`main.rs:339`) + kill-switch/A2A accept any content-type → CSRF-able cross-origin POSTs; no security headers on any service or the console (`next.config.ts`); upstream/DB error strings echoed in bodies (`main.rs:119,154,191` etc.); compose defaults — `WAZUH_API_PASS:-`, `THEHIVE_APPLICATION_SECRET=dev-only-secret-change-me`, `MISP_ADMIN_PASSWORD=admin`, `DISABLE_SECURITY_PLUGIN=true`, `postgres ares/ares`, tool-server `:8090` published; `API_BIND` env is dead (code reads `BIND_ADDR`, `main.rs:61`). |
+| API9 | Improper Inventory Management | VULNERABLE | Undocumented routes: `/playbooks*`, `/vulns*`, `/vulns/advisories`, `/cvss/score`, `/webhook/generic` are absent above; console calls a nonexistent `POST /hunt` (`apps/console/lib/api.ts:373`); doc promises `503` on NATS-down but code returns `502` (`ingestion-gateway/main.rs:110`). |
+| API10 | Unsafe Consumption of APIs | VULNERABLE | Attacker-controlled JSON (webhook payloads, A2A `message`) flows verbatim into LLM prompts — triage context (`triage-agent/main.rs:297-304`) and response planner (`response-agent/main.rs:247-248`) — so prompt injection becomes planned tool calls; `exec.sandbox` permits `bash -c` and `FORBIDDEN_SUBSTRINGS` misses `\n`, `>`, `&`, `<(` (`executors/openshell.rs:50-55,92-96`); `/stream/activity` relays raw NATS payloads to browsers (`stream.rs:48-68`). |
+
+### Findings (ordered)
+
+1. **Unauthenticated end-to-end command path.** `POST /a2a/response-agent`
+   `tasks/send` → `ares.respond` → Strong-tier plan → `tool-server/invoke`
+   (`a2a.rs:394-467`, `response-agent/main.rs:235-341`); `tool-server` itself is
+   published on `:8090` with no auth (`infra/docker-compose.yml:330`,
+   `tool-server/main.rs:202-206`), so the policy engine is the *only* gate
+   between any network client and `wazuh.active_response.*`, `entra.user.*`,
+   `exec.sandbox`. *Fix:* bearer-token middleware on all three routers
+   (tower `from_fn` vs env token) + stop publishing `:8090`/`:8091` to the host
+   (compose `ports:` → internal `expose:`) until auth lands.
+2. **Kill-switch is an unauthenticated, CSRF-able, and currently broken
+   control.** `POST /controls/kill-switch` needs no auth and takes a raw
+   `Bytes` body (any content-type → simple-request CSRF under permissive CORS);
+   engaging = fleet-wide tool-exec DoS, disengaging = re-arms a safety
+   boundary (`kill.rs:39-46`). Separately it is non-functional in compose:
+   api-server has no `/policies` mount so the file lands in its own container
+   FS, and tool-server's `../policies:/policies:ro` mount never sees it —
+   `POST` lies to the operator (`docker-compose.yml:307-348`). *Fix:* authz-gate
+   the POST + propagate state over a shared writable mount or a NATS control
+   subject, not a per-container file.
+3. **Prompt injection → tool execution.** `/webhook/generic` and A2A message
+   text reach the LLM unquoted/unisolated (`triage-agent/main.rs:297-304`,
+   `response-agent/main.rs:77-83,247-248`); a hostile "alert" or task goal can
+   steer the planner. Worst-case sink: `exec.sandbox` allows `bash -c` and the
+   metachar denylist misses `\n`, `>`, `&`, `<(` (`openshell.rs:55`), so
+   `bash -c "id > /tmp/x"`-shaped args pass the schema *and* the executor.
+   *Fix:* quote/tag untrusted fields in prompts, add `\n`/`>`/`&`/`<` to
+   `FORBIDDEN_SUBSTRINGS` (or drop `bash`), and set `autonomy: approval` on
+   high-impact tools in `policies/tools.yml`.
+4. **Anonymous read of operational internals (BOLA + info leak).**
+   `/plans/{case_id}` returns executed tool args/results/rollbacks
+   (`main.rs:249-274`); `/audit` dumps the decision log (`main.rs:176-193`);
+   `tasks/get`, `tasks/cancel`, `/a2a/tasks/{id}/events` read/mutate any task;
+   `/stream/activity` broadcasts internal ops detail; `GET tool-server/tools`
+   discloses the full allowlist (`tool-server/main.rs:152-154`). *Fix:* authn +
+   per-object authz at the route layer when identity lands.
+5. **No inbound resource controls.** No rate limit, no explicit body cap beyond
+   axum's 2 MiB default, unbounded SSE fan-out, per-request filesystem scans in
+   `/playbooks` & `/coverage`, and `/vulns` requests serialize behind a ≥6 s
+   NVD mutex — a handful of slow requests parks every connection. *Fix:* add
+   `tower` rate-limit + `DefaultBodyLimit::max`, cache playbook/coverage scans,
+   bound SSE clients, cap `resultsPerPage`.
+6. **Verbose errors + permissive CORS + weak compose defaults.** Handlers
+   return `e.to_string()` from sqlx/reqwest/anyhow — upstream URLs, SQL and
+   connector internals leak to clients (`main.rs:119,154,165,191,262`;
+   `vulns.rs:73,107,121,145`); `CorsLayer::permissive()` on a state-changing
+   API (`main.rs:339`); shipped dev secrets and a published tool-server port
+   (`docker-compose.yml:42,62,103,175,205,330`). *Fix:* map errors to generic
+   bodies + log internals, scope CORS to the console origin, remove published
+   ports for internal services, drop empty-string secret defaults.
+7. **Inventory drift.** Undocumented routes listed under API9; `POST /hunt`
+   called by the console doesn't exist; `webhook/generic` undocumented;
+   `503`-vs-`502` contract drift; dead `API_BIND` env. *Fix:* regenerate the
+   route table from `api_router()` and reconcile `services.md`.
+
+Positive notes worth keeping: deny-by-default tool allowlist + compiled JSON
+Schemas + protected-asset boundary (`policy-engine/lib.rs:327-423`); all SQL is
+parameterized (`sqlx::query*.bind`); `valid_cve_id` shape-checks before NVD
+(`vulns.rs:18-26`); CVE lookups are Redis-cached/negative-cached
+(`enrichment-lib/lib.rs:427-472`); exec runs inside OpenShell and fails closed
+(`openshell.rs:123-176`).

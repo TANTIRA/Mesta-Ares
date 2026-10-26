@@ -1,0 +1,40 @@
+title: LSASS Memory Access by Non-System Process
+id: 7c9e1b4a-2f3d-4e5a-9b6c-1d8f0a2c4e51
+status: stable
+description: >-
+  Detects a process opening a handle to lsass.exe with access rights commonly
+  requested by credential-dumping tools (Mimikatz, comsvcs MiniDump, nanodump).
+author: Mesta-Ares
+date: 2025/01/01
+logsource:
+  product: windows
+  category: process_access   # Sysmon Event ID 10
+detection:
+  selection_target:
+    TargetImage|endswith: '\lsass.exe'
+  selection_access:
+    GrantedAccess|contains:
+      - '0x1FFFFF'   # PROCESS_ALL_ACCESS
+      - '0x1010'     # VM_READ | QUERY_LIMITED_INFORMATION
+      - '0x1410'
+      - '0x1438'
+      - '0x143a'
+      - '0x40'       # PROCESS_DUP_HANDLE
+  filter_known_good:
+    SourceImage|endswith:
+      - '\svchost.exe'
+      - '\services.exe'
+      - '\wininit.exe'
+      - '\winlogon.exe'
+      - '\csrss.exe'
+      - '\smss.exe'
+      - '\MsMpEng.exe'
+      - '\NisSrv.exe'
+  condition: selection_target and selection_access and not filter_known_good
+falsepositives:
+  - EDR/AV sensors legitimately reading LSASS memory
+  - Backup and DLP agents (extend filter_known_good per environment)
+level: high
+tags:
+  - attack.credential_access
+  - attack.t1003.001
