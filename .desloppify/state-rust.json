@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 23,
-    "open": 493,
+    "fixed": 44,
+    "open": 472,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 2,
-        "open": 105,
+        "fixed": 20,
+        "open": 87,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 1,
-        "open": 251,
+        "fixed": 4,
+        "open": 248,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -8151,11 +8151,11 @@
         "reasoning": "",
         "summary_hash": "d263f32a"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:09+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8163,7 +8163,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:09+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::cross_module_architecture::vuln_off_contract_publish": {
       "id": "review::.::holistic::cross_module_architecture::vuln_off_contract_publish",
@@ -8508,11 +8514,11 @@
         "reasoning": "",
         "summary_hash": "19efc4ab"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:15:51+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8520,7 +8526,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:15:51+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::high_level_elegance::docs_inventory_drift": {
       "id": "review::.::holistic::high_level_elegance::docs_inventory_drift",
@@ -8672,11 +8684,11 @@
         "reasoning": "",
         "summary_hash": "2959fc92"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:08+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8684,7 +8696,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:08+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::convention_outlier::activity-event-copied-and-diverged": {
       "id": "review::.::holistic::convention_outlier::activity-event-copied-and-diverged",
@@ -8714,11 +8732,11 @@
         "reasoning": "",
         "summary_hash": "e0842b08"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:07+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8726,7 +8744,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:07+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::convention_outlier::kill-switch-protocol-skipped-by-two-agents": {
       "id": "review::.::holistic::convention_outlier::kill-switch-protocol-skipped-by-two-agents",
@@ -8756,11 +8780,11 @@
         "reasoning": "",
         "summary_hash": "b60e4922"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:15:57+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8768,7 +8792,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:15:57+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::convention_outlier::ares-star-namespace-two-message-conventions": {
       "id": "review::.::holistic::convention_outlier::ares-star-namespace-two-message-conventions",
@@ -8917,11 +8947,11 @@
         "reasoning": "",
         "summary_hash": "3e0847f6"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:15:54+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8929,7 +8959,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:15:54+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::error_consistency::fire_and_forget_state_writes": {
       "id": "review::.::holistic::error_consistency::fire_and_forget_state_writes",
@@ -10180,11 +10216,11 @@
         "reasoning": "",
         "summary_hash": "42d938be"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:05+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10192,7 +10228,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:05+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::identical_helpers_copied_per_crate": {
       "id": "review::.::holistic::low_level_elegance::identical_helpers_copied_per_crate",
@@ -10372,11 +10414,11 @@
         "reasoning": "",
         "summary_hash": "c6070aa6"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:01+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10384,7 +10426,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:01+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::triage_dead_opensearch_client_field": {
       "id": "review::.::holistic::low_level_elegance::triage_dead_opensearch_client_field",
@@ -10408,11 +10456,11 @@
         "reasoning": "",
         "summary_hash": "6fc7ff2a"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:03+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10420,7 +10468,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:03+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::enrich_cve_bypasses_cache_helpers": {
       "id": "review::.::holistic::low_level_elegance::enrich_cve_bypasses_cache_helpers",
@@ -10602,11 +10656,11 @@
         "reasoning": "",
         "summary_hash": "41e72b07"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:10+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10614,7 +10668,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:10+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented": {
       "id": "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented",
@@ -10792,11 +10852,11 @@
         "reasoning": "",
         "summary_hash": "8966a061"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:15:52+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10804,7 +10864,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:15:52+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::mid_level_elegance::connector_surface_gaps_pushed_to_callers": {
       "id": "review::.::holistic::mid_level_elegance::connector_surface_gaps_pushed_to_callers",
@@ -12027,11 +12093,11 @@
         "reasoning": "",
         "summary_hash": "a78bf089"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:06+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12039,7 +12105,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:06+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::ai_generated_debt::agent-core-unused-framework": {
       "id": "review::.::holistic::ai_generated_debt::agent-core-unused-framework",
@@ -12152,11 +12224,11 @@
         "reasoning": "",
         "summary_hash": "538e0158"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:15:49+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12164,7 +12236,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:15:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony": {
       "id": "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony",
@@ -12778,11 +12856,11 @@
         "reasoning": "",
         "summary_hash": "face7155"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:12+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12790,7 +12868,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:12+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::package_organization::connectors-single-module": {
       "id": "review::.::holistic::package_organization::connectors-single-module",
@@ -12890,11 +12974,11 @@
         "reasoning": "",
         "summary_hash": "93972f15"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:15:55+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12902,7 +12986,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:15:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::package_organization::policies-dir-no-owner": {
       "id": "review::.::holistic::package_organization::policies-dir-no-owner",
@@ -13155,11 +13245,11 @@
         "reasoning": "",
         "summary_hash": "83e424e6"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:15:54+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13167,7 +13257,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:15:54+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::initialization_coupling::ambient_env_in_policy_evaluate": {
       "id": "review::.::holistic::initialization_coupling::ambient_env_in_policy_evaluate",
@@ -13558,11 +13654,11 @@
         "reasoning": "",
         "summary_hash": "17966e4b"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:15:50+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13570,7 +13666,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:15:50+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::design_coherence::provider_clients_duplicated_across_crates": {
       "id": "review::.::holistic::design_coherence::provider_clients_duplicated_across_crates",
@@ -13676,11 +13778,11 @@
         "reasoning": "",
         "summary_hash": "2fec88a7"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:04+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13688,7 +13790,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:04+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::design_coherence::yaml_dir_scan_duplicated": {
       "id": "review::.::holistic::design_coherence::yaml_dir_scan_duplicated",
@@ -13895,11 +14003,11 @@
         "reasoning": "",
         "summary_hash": "c86249b9"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:15:59+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13907,7 +14015,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:15:59+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::contract_coherence::approvals_approved_means_executed": {
       "id": "review::.::holistic::contract_coherence::approvals_approved_means_executed",
@@ -14335,11 +14449,11 @@
         "reasoning": "",
         "summary_hash": "2009eac0"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:02+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14347,7 +14461,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:02+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::logic_clarity::playbooks-errors-discarded": {
       "id": "review::.::holistic::logic_clarity::playbooks-errors-discarded",
@@ -14715,11 +14835,11 @@
         "reasoning": "",
         "summary_hash": "e2f06fcf"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:13+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14727,7 +14847,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:13+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::type_safety::gateway_fabricates_deny_decision": {
       "id": "review::.::holistic::type_safety::gateway_fabricates_deny_decision",
@@ -17413,7 +17539,10 @@
     "ai_generated_debt": {
       "score": 79.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:06+00:00"
     },
     "api_surface_coherence": {
       "score": 74.0,
@@ -17428,20 +17557,26 @@
     "contract_coherence": {
       "score": 80.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:15:59+00:00"
     },
     "convention_outlier": {
       "score": 79.5,
       "source": "holistic",
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
-      "refresh_reason": "mechanical_issues_changed",
-      "stale_since": "2026-10-26T09:05:51+00:00"
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:08+00:00"
     },
     "cross_module_architecture": {
       "score": 74.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:09+00:00"
     },
     "dependency_health": {
       "score": 78.0,
@@ -17453,21 +17588,24 @@
       "source": "holistic",
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
-      "refresh_reason": "mechanical_issues_changed",
-      "stale_since": "2026-10-26T09:05:51+00:00"
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:04+00:00"
     },
     "error_consistency": {
       "score": 83.0,
       "source": "holistic",
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
-      "refresh_reason": "mechanical_issues_changed",
-      "stale_since": "2026-10-26T09:05:51+00:00"
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:15:54+00:00"
     },
     "high_level_elegance": {
       "score": 78.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:15:51+00:00"
     },
     "incomplete_migration": {
       "score": 74.0,
@@ -17477,25 +17615,34 @@
     "initialization_coupling": {
       "score": 74.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:15:54+00:00"
     },
     "logic_clarity": {
       "score": 82.5,
       "source": "holistic",
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
-      "refresh_reason": "mechanical_issues_changed",
-      "stale_since": "2026-10-26T09:05:51+00:00"
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:02+00:00"
     },
     "low_level_elegance": {
       "score": 80.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:05+00:00"
     },
     "mid_level_elegance": {
       "score": 70.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:10+00:00"
     },
     "naming_quality": {
       "score": 88.5,
@@ -17505,7 +17652,10 @@
     "package_organization": {
       "score": 78.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:12+00:00"
     },
     "test_strategy": {
       "score": 63.0,
@@ -17515,7 +17665,10 @@
     "type_safety": {
       "score": 78.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:13+00:00"
     }
   },
   "scan_history": [
@@ -22018,13 +22171,13 @@
       "strict": 79.0,
       "verified_strict_score": 79.0,
       "checks": 10,
-      "failing": 10,
+      "failing": 8,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.79,
-          "failing": 10,
+          "failing": 8,
           "weighted_failures": 2.1,
           "assessment_score": 79.0,
           "placeholder": false,
@@ -22081,13 +22234,13 @@
       "strict": 80.0,
       "verified_strict_score": 80.0,
       "checks": 10,
-      "failing": 10,
+      "failing": 9,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.8,
-          "failing": 10,
+          "failing": 9,
           "weighted_failures": 2.0,
           "assessment_score": 80.0,
           "placeholder": false,
@@ -22102,13 +22255,13 @@
       "strict": 79.5,
       "verified_strict_score": 79.5,
       "checks": 10,
-      "failing": 6,
+      "failing": 3,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.795,
-          "failing": 6,
+          "failing": 3,
           "weighted_failures": 2.05,
           "assessment_score": 79.5,
           "placeholder": false,
@@ -22123,13 +22276,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 8,
+          "failing": 7,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22165,13 +22318,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 9,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 9,
+          "failing": 7,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,
@@ -22186,13 +22339,13 @@
       "strict": 83.0,
       "verified_strict_score": 83.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.83,
-          "failing": 8,
+          "failing": 7,
           "weighted_failures": 1.7,
           "assessment_score": 83.0,
           "placeholder": false,
@@ -22207,13 +22360,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 6,
+      "failing": 5,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 6,
+          "failing": 5,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,
@@ -22249,13 +22402,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 7,
+          "failing": 6,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22270,13 +22423,13 @@
       "strict": 82.5,
       "verified_strict_score": 82.5,
       "checks": 10,
-      "failing": 10,
+      "failing": 9,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.825,
-          "failing": 10,
+          "failing": 9,
           "weighted_failures": 1.75,
           "assessment_score": 82.5,
           "placeholder": false,
@@ -22291,13 +22444,13 @@
       "strict": 80.0,
       "verified_strict_score": 80.0,
       "checks": 10,
-      "failing": 10,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.8,
-          "failing": 10,
+          "failing": 7,
           "weighted_failures": 2.0,
           "assessment_score": 80.0,
           "placeholder": false,
@@ -22312,13 +22465,13 @@
       "strict": 70.0,
       "verified_strict_score": 70.0,
       "checks": 10,
-      "failing": 9,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.7,
-          "failing": 9,
+          "failing": 7,
           "weighted_failures": 3.0,
           "assessment_score": 70.0,
           "placeholder": false,
@@ -22354,13 +22507,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 10,
+      "failing": 8,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 10,
+          "failing": 8,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,
@@ -22396,13 +22549,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 10,
+      "failing": 9,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 10,
+          "failing": 9,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,

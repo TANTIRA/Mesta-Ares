@@ -1,21 +1,18 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T09:12:56+00:00",
+  "updated": "2026-10-26T09:16:13+00:00",
   "queue_order": [
-    "review::.::holistic::abstraction_fitness::connector_config_factory_getters",
     "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers",
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
     "review::.::holistic::abstraction_fitness::model_router_never_routes",
     "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated",
     "review::.::holistic::abstraction_fitness::rollback_tools_never_exist",
     "review::.::holistic::abstraction_fitness::unused_agent_loop_and_gateway",
-    "review::.::holistic::ai_generated_debt::activity-event-copied-per-agent",
     "review::.::holistic::ai_generated_debt::agent-core-unused-framework",
     "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony",
     "review::.::holistic::ai_generated_debt::idem-key-serde-roundtrip",
     "review::.::holistic::ai_generated_debt::jetstream-bootstrap-duplicated",
-    "review::.::holistic::ai_generated_debt::kill-switch-duplicated-divergent",
     "review::.::holistic::ai_generated_debt::micro-helpers-reimplemented-per-crate",
     "review::.::holistic::ai_generated_debt::restating-field-docs",
     "review::.::holistic::ai_generated_debt::sse-unfold-duplicated",
@@ -40,7 +37,6 @@
     "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification",
     "review::.::holistic::authorization_consistency::no-inbound-authn-any-service",
     "review::.::holistic::authorization_consistency::side-effects-bypass-policy-engine",
-    "review::.::holistic::contract_coherence::a2a_terminal_step_marks_completed",
     "review::.::holistic::contract_coherence::acp_sync_mode_timeout",
     "review::.::holistic::contract_coherence::approvals_approved_means_executed",
     "review::.::holistic::contract_coherence::audit_chain_fork_race",
@@ -50,13 +46,9 @@
     "review::.::holistic::contract_coherence::registry_startup_abort_doc",
     "review::.::holistic::contract_coherence::rollback_targets_not_allowlisted",
     "review::.::holistic::contract_coherence::triage_severity_clamp_downgrade",
-    "review::.::holistic::convention_outlier::activity-event-copied-and-diverged",
     "review::.::holistic::convention_outlier::ares-star-namespace-two-message-conventions",
     "review::.::holistic::convention_outlier::cargo-manifest-style-split",
-    "review::.::holistic::convention_outlier::kill-switch-protocol-skipped-by-two-agents",
     "review::.::holistic::convention_outlier::llm-json-completion-protocol-duplicated",
-    "review::.::holistic::convention_outlier::vuln-agent-activity-shape-outlier",
-    "review::.::holistic::cross_module_architecture::activity_contract_fragmented",
     "review::.::holistic::cross_module_architecture::agent_runtime_duplicated",
     "review::.::holistic::cross_module_architecture::bas_double_delivery",
     "review::.::holistic::cross_module_architecture::dlq_republish_loop",
@@ -74,9 +66,7 @@
     "review::.::holistic::design_coherence::a2a_acp_duplicate_run_machinery",
     "review::.::holistic::design_coherence::agent_scaffolding_copied_per_crate",
     "review::.::holistic::design_coherence::cvss_metric_validation_duplicated",
-    "review::.::holistic::design_coherence::kill_switch_two_implementations",
     "review::.::holistic::design_coherence::llm_request_boilerplate_repeated",
-    "review::.::holistic::design_coherence::opensearch_client_missing_write_method",
     "review::.::holistic::design_coherence::provider_clients_duplicated_across_crates",
     "review::.::holistic::design_coherence::unwired_agent_core_loop",
     "review::.::holistic::design_coherence::yaml_dir_scan_duplicated",
@@ -86,13 +76,11 @@
     "review::.::holistic::error_consistency::http_error_shape_drift",
     "review::.::holistic::error_consistency::intel_parse_failures_silent",
     "review::.::holistic::error_consistency::invoke_client_three_contracts",
-    "review::.::holistic::error_consistency::kill_switch_duplicated_fail_open",
     "review::.::holistic::error_consistency::orchestrator_dlq_asymmetry",
     "review::.::holistic::high_level_elegance::acp_subsystem_did_not_localize",
     "review::.::holistic::high_level_elegance::agent_core_role_unfilled",
     "review::.::holistic::high_level_elegance::agent_roster_duplicated",
     "review::.::holistic::high_level_elegance::docs_inventory_drift",
-    "review::.::holistic::high_level_elegance::kill_switch_two_implementations",
     "review::.::holistic::high_level_elegance::side_effect_boundary_untrue",
     "review::.::holistic::incomplete_migration::agent_runtime_never_adopted",
     "review::.::holistic::incomplete_migration::api_bind_rename_incomplete",
@@ -106,7 +94,6 @@
     "review::.::holistic::initialization_coupling::ambient_env_in_policy_evaluate",
     "review::.::holistic::initialization_coupling::cwd_relative_path_constants",
     "review::.::holistic::initialization_coupling::ddl_ownership_split_from_owner_crate",
-    "review::.::holistic::initialization_coupling::dual_kill_switch_predicate",
     "review::.::holistic::initialization_coupling::enricher_new_hidden_env",
     "review::.::holistic::initialization_coupling::eval_ctx_singleton_never_initialized",
     "review::.::holistic::initialization_coupling::two_config_planes",
@@ -118,25 +105,19 @@
     "review::.::holistic::logic_clarity::playbooks-errors-discarded",
     "review::.::holistic::logic_clarity::policy-evaluate-async-no-await",
     "review::.::holistic::logic_clarity::response-rollback-tools-nonexistent",
-    "review::.::holistic::logic_clarity::triage-deps-os-dead-field",
     "review::.::holistic::logic_clarity::vuln-min-severity-fail-open",
-    "review::.::holistic::low_level_elegance::acp_cancel_run_identical_branches",
     "review::.::holistic::low_level_elegance::enrich_cve_bypasses_cache_helpers",
     "review::.::holistic::low_level_elegance::idem_key_serde_roundtrip_and_result_literals",
     "review::.::holistic::low_level_elegance::identical_helpers_copied_per_crate",
     "review::.::holistic::low_level_elegance::nvd_list_published_inlines_list_window",
-    "review::.::holistic::low_level_elegance::policy_counter_noop_drop",
     "review::.::holistic::low_level_elegance::provider_lookup_repeats_http_chain",
     "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes",
     "review::.::holistic::low_level_elegance::severity_to_int_mapping_drift",
-    "review::.::holistic::low_level_elegance::triage_dead_opensearch_client_field",
-    "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented",
     "review::.::holistic::mid_level_elegance::case_id_encoded_in_uri_string",
     "review::.::holistic::mid_level_elegance::connector_surface_gaps_pushed_to_callers",
     "review::.::holistic::mid_level_elegance::decision_label_duplicates_serde",
     "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented",
     "review::.::holistic::mid_level_elegance::evalctx_asset_classes_unwired",
-    "review::.::holistic::mid_level_elegance::kill_switch_two_implementations",
     "review::.::holistic::mid_level_elegance::orchestrator_dlq_self_feed",
     "review::.::holistic::mid_level_elegance::tool_invoke_boundary_reimplemented",
     "review::.::holistic::naming_quality::cvss_required_metric_named_num",
@@ -147,14 +128,12 @@
     "review::.::holistic::naming_quality::sse_state_struct_st",
     "review::.::holistic::naming_quality::tool_arg_alias_vocabulary",
     "review::.::holistic::naming_quality::tool_server_execute_verb_inversion",
-    "review::.::holistic::package_organization::activity-contract-duplicated",
     "review::.::holistic::package_organization::agent-registry-inside-a2a-routes",
     "review::.::holistic::package_organization::api-server-handlers-in-main",
     "review::.::holistic::package_organization::api-server-module-shadows-crate",
     "review::.::holistic::package_organization::connectors-single-module",
     "review::.::holistic::package_organization::crate-naming-suffix-drift",
     "review::.::holistic::package_organization::executors-flat-in-mod",
-    "review::.::holistic::package_organization::kill-switch-three-homes",
     "review::.::holistic::package_organization::policies-dir-no-owner",
     "review::.::holistic::package_organization::policy-engine-single-module",
     "review::.::holistic::test_strategy::agent_decision_logic_untested",
@@ -166,7 +145,6 @@
     "review::.::holistic::test_strategy::policy_matrix_rows_unasserted",
     "review::.::holistic::test_strategy::policy_tests_read_ambient_env",
     "review::.::holistic::test_strategy::tool_invoke_path_untested",
-    "review::.::holistic::type_safety::activity_event_parallel_types",
     "review::.::holistic::type_safety::audit_decision_string_not_enum",
     "review::.::holistic::type_safety::cvss_metric_fields_default_not_option",
     "review::.::holistic::type_safety::dry_run_ok_masks_no_op",
@@ -4300,13 +4278,1417 @@
       "actor": "user",
       "note": "Renamed ConnectorConfig getters to build_*_client (explicit allocation), derived Clone on all connector clients (Wazuh/NVD lazy state moved behind Arc<Mutex>), and hoisted one client per backend in tool-server build_registry (13+ pools -> 6). Added OpensearchClient::index_doc; triage-agent writes verdicts through it and the dead http/os_url Deps fields are gone.",
       "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:12:56+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::connector_config_factory_getters"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Renamed ConnectorConfig getters to build_*_client (explicit allocation), derived Clone on all connector clients (Wazuh/NVD lazy state moved behind Arc<Mutex>), and hoisted one client per backend in tool-server build_registry (13+ pools -> 6). Added OpensearchClient::index_doc; triage-agent writes verdicts through it and the dead http/os_url Deps fields are gone.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Renamed ConnectorConfig getters to build_*_client (explicit allocation), derived Clone on all connector clients (Wazuh/NVD lazy state moved behind Arc<Mutex>), and hoisted one client per backend in tool-server build_registry (13+ pools -> 6). Added OpensearchClient::index_doc; triage-agent writes verdicts through it and the dead http/os_url Deps fields are gone. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:13+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::kill-switch-duplicated-divergent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:13+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:14+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::high_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:14+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:15+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::kill_switch_duplicated_fail_open"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:15+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::initialization_coupling::dual_kill_switch_predicate"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:15+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::package_organization::kill-switch-three-homes"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:16+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::kill-switch-protocol-skipped-by-two-agents"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:16+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::a2a_terminal_step_marks_completed"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:16+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::policy_counter_noop_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:17+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::policy_counter_noop_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:17+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::triage-deps-os-dead-field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:17+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::triage_dead_opensearch_client_field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:18+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::opensearch_client_missing_write_method"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:18+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::acp_cancel_run_identical_branches"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:18+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::activity-event-copied-per-agent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:18+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::activity-event-copied-and-diverged"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:19+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::vuln-agent-activity-shape-outlier"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:19+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::activity_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:19+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:20+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::package_organization::activity-contract-duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:20+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::type_safety::activity_event_parallel_types"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:21+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::activity_event_contract_copied"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps now mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also: triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:33+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::kill-switch-duplicated-divergent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:33+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:34+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::high_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:34+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:34+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::kill_switch_duplicated_fail_open"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:34+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::initialization_coupling::dual_kill_switch_predicate"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:35+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::package_organization::kill-switch-three-homes"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:35+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::kill-switch-protocol-skipped-by-two-agents"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:35+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::a2a_terminal_step_marks_completed"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:35+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::policy_counter_noop_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:36+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::policy_counter_noop_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:36+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::triage-deps-os-dead-field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:37+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::triage_dead_opensearch_client_field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:37+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::opensearch_client_missing_write_method"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:37+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::acp_cancel_run_identical_branches"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:37+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::activity-event-copied-per-agent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:38+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::activity-event-copied-and-diverged"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:38+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::vuln-agent-activity-shape-outlier"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:38+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::activity_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:38+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:39+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::package_organization::activity-contract-duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:39+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::type_safety::activity_event_parallel_types"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:39+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::activity_event_contract_copied"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:45+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:49+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::kill-switch-duplicated-divergent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:49+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::kill-switch-duplicated-divergent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:49+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::kill-switch-duplicated-divergent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:50+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:50+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:50+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:51+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::high_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:51+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::high_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:51+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::high_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:52+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:52+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:52+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::kill_switch_two_implementations"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:53+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::kill_switch_duplicated_fail_open"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:53+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::kill_switch_duplicated_fail_open"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:54+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::kill_switch_duplicated_fail_open"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:54+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::initialization_coupling::dual_kill_switch_predicate"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:54+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::initialization_coupling::dual_kill_switch_predicate"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:55+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::initialization_coupling::dual_kill_switch_predicate"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:55+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::package_organization::kill-switch-three-homes"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:55+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::package_organization::kill-switch-three-homes"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:55+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::package_organization::kill-switch-three-homes"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:56+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::kill-switch-protocol-skipped-by-two-agents"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:57+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::kill-switch-protocol-skipped-by-two-agents"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:57+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::kill-switch-protocol-skipped-by-two-agents"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:58+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::a2a_terminal_step_marks_completed"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:15:59+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::a2a_terminal_step_marks_completed"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:15:59+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::a2a_terminal_step_marks_completed"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:00+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::policy_counter_noop_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:00+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::policy_counter_noop_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:01+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::policy_counter_noop_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:01+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::policy_counter_noop_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:02+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::triage-deps-os-dead-field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:02+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::triage-deps-os-dead-field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:02+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::triage-deps-os-dead-field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:03+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::triage_dead_opensearch_client_field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:03+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::triage_dead_opensearch_client_field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:03+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::triage_dead_opensearch_client_field"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:04+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::opensearch_client_missing_write_method"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:04+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::opensearch_client_missing_write_method"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:04+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::opensearch_client_missing_write_method"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:05+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::acp_cancel_run_identical_branches"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:05+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::acp_cancel_run_identical_branches"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:05+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::acp_cancel_run_identical_branches"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:06+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::activity-event-copied-per-agent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:06+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::activity-event-copied-per-agent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:06+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::activity-event-copied-per-agent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:07+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::activity-event-copied-and-diverged"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:07+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::activity-event-copied-and-diverged"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:07+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::activity-event-copied-and-diverged"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:08+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::vuln-agent-activity-shape-outlier"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:08+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::vuln-agent-activity-shape-outlier"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:08+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::vuln-agent-activity-shape-outlier"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:09+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::activity_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:09+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::activity_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:09+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::activity_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:10+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:10+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:11+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:11+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::package_organization::activity-contract-duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:12+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::package_organization::activity-contract-duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:12+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::package_organization::activity-contract-duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:12+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::type_safety::activity_event_parallel_types"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:13+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::type_safety::activity_event_parallel_types"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:16:13+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::type_safety::activity_event_parallel_types"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
+      }
     }
   ],
   "epic_triage_meta": {},
   "commit_log": [],
   "uncommitted_issues": [
     "review::.::holistic::abstraction_fitness::acp_duplicates_a2a_run_machinery",
-    "review::.::holistic::abstraction_fitness::activity_event_contract_copied"
+    "review::.::holistic::abstraction_fitness::activity_event_contract_copied",
+    "review::.::holistic::abstraction_fitness::connector_config_factory_getters",
+    "review::.::holistic::ai_generated_debt::kill-switch-duplicated-divergent",
+    "review::.::holistic::design_coherence::kill_switch_two_implementations",
+    "review::.::holistic::high_level_elegance::kill_switch_two_implementations",
+    "review::.::holistic::mid_level_elegance::kill_switch_two_implementations",
+    "review::.::holistic::error_consistency::kill_switch_duplicated_fail_open",
+    "review::.::holistic::initialization_coupling::dual_kill_switch_predicate",
+    "review::.::holistic::package_organization::kill-switch-three-homes",
+    "review::.::holistic::convention_outlier::kill-switch-protocol-skipped-by-two-agents",
+    "review::.::holistic::contract_coherence::a2a_terminal_step_marks_completed",
+    "review::.::holistic::low_level_elegance::policy_counter_noop_drop",
+    "review::.::holistic::logic_clarity::triage-deps-os-dead-field",
+    "review::.::holistic::low_level_elegance::triage_dead_opensearch_client_field",
+    "review::.::holistic::design_coherence::opensearch_client_missing_write_method",
+    "review::.::holistic::low_level_elegance::acp_cancel_run_identical_branches",
+    "review::.::holistic::ai_generated_debt::activity-event-copied-per-agent",
+    "review::.::holistic::convention_outlier::activity-event-copied-and-diverged",
+    "review::.::holistic::convention_outlier::vuln-agent-activity-shape-outlier",
+    "review::.::holistic::cross_module_architecture::activity_contract_fragmented",
+    "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented",
+    "review::.::holistic::package_organization::activity-contract-duplicated",
+    "review::.::holistic::type_safety::activity_event_parallel_types"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3

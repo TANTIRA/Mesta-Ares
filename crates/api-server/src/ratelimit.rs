@@ -27,7 +27,8 @@ fn classify(req: &Request) -> Tier {
     // Long-lived SSE: concurrency-capped, not request-counted.
     if req.method() == Method::GET
         && (path == "/stream/activity"
-            || (path.starts_with("/a2a/tasks/") && path.ends_with("/events")))
+            || (path.starts_with("/a2a/tasks/") && path.ends_with("/events"))
+            || (path.starts_with("/acp/runs/") && path.ends_with("/events")))
     {
         return Tier::Stream;
     }
@@ -35,7 +36,7 @@ fn classify(req: &Request) -> Tier {
         if path == "/controls/kill-switch" {
             return Tier::KillSwitch;
         }
-        if path == "/cvss/score" || path.starts_with("/a2a/") {
+        if path == "/cvss/score" || path.starts_with("/a2a/") || path.starts_with("/acp/runs") {
             return Tier::Expensive;
         }
     }

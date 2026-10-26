@@ -9,7 +9,6 @@ use std::net::IpAddr;
 use std::sync::LazyLock;
 use std::time::Duration;
 
-use anyhow::Result;
 use connectors::{ConnectorConfig, CveRecord, MispClient, NvdClient};
 use redis::AsyncCommands;
 use regex::Regex;
@@ -169,27 +168,6 @@ pub fn composite_score(results: &[EnrichmentResult]) -> u8 {
 }
 
 /// Base64-url (unpadded) encoding for VirusTotal URL ids.
-fn b64url(data: &[u8]) -> String {
-    const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-    let mut out = String::with_capacity(data.len() * 4 / 3 + 4);
-    for chunk in data.chunks(3) {
-        let b = [
-            chunk[0],
-            *chunk.get(1).unwrap_or(&0),
-            *chunk.get(2).unwrap_or(&0),
-        ];
-        let n = ((b[0] as u32) << 16) | ((b[1] as u32) << 8) | b[2] as u32;
-        out.push(T[(n >> 18) as usize & 63] as char);
-        out.push(T[(n >> 12) as usize & 63] as char);
-        if chunk.len() > 1 {
-            out.push(T[(n >> 6) as usize & 63] as char);
-        }
-        if chunk.len() > 2 {
-            out.push(T[n as usize & 63] as char);
-        }
-    }
-    out
-}
 
 fn env(key: &str) -> Option<String> {
     std::env::var(key).ok().filter(|s| !s.is_empty())
@@ -197,35 +175,26 @@ fn env(key: &str) -> Option<String> {
 
 /// Multi-provider IoC enrichment fan-out with Redis caching.
 pub struct Enricher {
-    http: reqwest::Client,
     redis: Option<redis::Client>,
     misp: Option<MispClient>,
     nvd: NvdClient,
-    virustotal_key: Option<String>,
-    abuseipdb_key: Option<String>,
-    shodan_key: Option<String>,
-    greynoise_key: Option<String>,
+    intel: connectors::intel::ThreatIntelClient,
 }
 
 impl Enricher {
     /// Build from env: `REDIS_URL`, `VIRUSTOTAL_API_KEY`, `SHODAN_API_KEY`,
     /// `ABUSEIPDB_API_KEY`, `GREYNOISE_API_KEY`, `MISP_URL`/`MISP_API_KEY`.
     pub fn new() -> Self {
-        let http = reqwest::Client::builder()
-            .timeout(PROVIDER_TIMEOUT)
-            .build()
-            .unwrap_or_else(|_| reqwest::Client::new());
         let redis = env("REDIS_URL").and_then(|u| redis::Client::open(u).ok());
         let cfg = ConnectorConfig::from_env();
         Self {
-            http,
             redis,
             misp: cfg.build_misp_client(),
             nvd: cfg.build_nvd_client(),
-            virustotal_key: env("VIRUSTOTAL_API_KEY"),
-            abuseipdb_key: env("ABUSEIPDB_API_KEY"),
-            shodan_key: env("SHODAN_API_KEY"),
-            greynoise_key: env("GREYNOISE_API_KEY"),
+            intel: connectors::intel::ThreatIntelClient::with_timeout(
+                connectors::intel::IntelKeys::from_env(),
+                PROVIDER_TIMEOUT,
+            ),
         }
     }
 
@@ -282,29 +251,15 @@ impl Enricher {
     }
 
     async fn virustotal(&self, ioc: &str, kind: &str) -> Option<EnrichmentResult> {
-        let key = self.virustotal_key.as_ref()?;
-        let path = match kind {
-            "ip" => format!("ip_addresses/{ioc}"),
-            "domain" => format!("domains/{ioc}"),
-            "hash" => format!("files/{ioc}"),
-            "url" => format!("urls/{}", b64url(ioc.as_bytes())),
-            _ => return None,
-        };
-        let url = format!("https://www.virustotal.com/api/v3/{path}");
+        if !matches!(kind, "ip" | "domain" | "hash" | "url") {
+            return None;
+        }
         let raw = self
-            .http
-            .get(&url)
-            .header("x-apikey", key)
-            .send()
+            .intel
+            .lookup("virustotal.lookup", ioc)
             .await
             .map_err(|e| warn!(error = %e, "virustotal request failed"))
-            .ok()?
-            .error_for_status()
-            .map_err(|e| warn!(error = %e, "virustotal HTTP error"))
-            .ok()?
-            .json::<Value>()
-            .await
-            .ok()?;
+            .ok()??;
         let stats = &raw["data"]["attributes"]["last_analysis_stats"];
         let malicious = stats["malicious"].as_u64().unwrap_or(0);
         let total: u64 = ["malicious", "suspicious", "harmless", "undetected"]
@@ -327,25 +282,15 @@ impl Enricher {
     }
 
     async fn abuseipdb(&self, ioc: &str, kind: &str) -> Option<EnrichmentResult> {
-        let key = self.abuseipdb_key.as_ref()?;
         if kind != "ip" {
             return None;
         }
         let raw = self
-            .http
-            .get("https://api.abuseipdb.com/api/v2/check")
-            .header("Key", key)
-            .header("Accept", "application/json")
-            .query(&[("ipAddress", ioc), ("maxAgeInDays", "90")])
-            .send()
+            .intel
+            .lookup("abuseipdb.check", ioc)
             .await
             .map_err(|e| warn!(error = %e, "abuseipdb request failed"))
-            .ok()?
-            .error_for_status()
-            .ok()?
-            .json::<Value>()
-            .await
-            .ok()?;
+            .ok()??;
         let score = raw["data"]["abuseConfidenceScore"]
             .as_u64()
             .unwrap_or(0)
@@ -361,23 +306,15 @@ impl Enricher {
     }
 
     async fn shodan(&self, ioc: &str, kind: &str) -> Option<EnrichmentResult> {
-        let key = self.shodan_key.as_ref()?;
         if kind != "ip" {
             return None;
         }
         let raw = self
-            .http
-            .get(format!("https://api.shodan.io/shodan/host/{ioc}"))
-            .query(&[("key", key.as_str())])
-            .send()
+            .intel
+            .lookup("shodan.host", ioc)
             .await
             .map_err(|e| warn!(error = %e, "shodan request failed"))
-            .ok()?
-            .error_for_status()
-            .ok()?
-            .json::<Value>()
-            .await
-            .ok()?;
+            .ok()??;
         let vulns = raw["vulns"].as_array().map(|v| v.len()).unwrap_or(0);
         let score = (30 + 15 * vulns as u64).min(100) as u8;
         Some(EnrichmentResult {
@@ -391,23 +328,15 @@ impl Enricher {
     }
 
     async fn greynoise(&self, ioc: &str, kind: &str) -> Option<EnrichmentResult> {
-        let key = self.greynoise_key.as_ref()?;
         if kind != "ip" {
             return None;
         }
         let raw = self
-            .http
-            .get(format!("https://api.greynoise.io/v3/community/{ioc}"))
-            .header("key", key)
-            .send()
+            .intel
+            .lookup("greynoise.ip", ioc)
             .await
             .map_err(|e| warn!(error = %e, "greynoise request failed"))
-            .ok()?
-            .error_for_status()
-            .ok()?
-            .json::<Value>()
-            .await
-            .ok()?;
+            .ok()??;
         let classification = raw["classification"].as_str().unwrap_or("");
         let (malicious, score) = match classification {
             "malicious" => (true, 90),
@@ -517,10 +446,6 @@ fn cache_key(ioc: &str) -> String {
 }
 
 /// Convenience wrapper: enrich one indicator through a shared `Enricher`.
-pub async fn enrich(enricher: &Enricher, ioc: &str) -> Result<Vec<EnrichmentResult>> {
-    Ok(enricher.enrich(ioc).await)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -571,9 +496,4 @@ mod tests {
         );
     }
 
-    #[test]
-    fn b64url_is_unpadded_urlsafe() {
-        assert_eq!(b64url(b"https://a.b/?=>"), "aHR0cHM6Ly9hLmIvPz0-");
-        assert_eq!(b64url(b"a"), "YQ");
-    }
 }

@@ -51,28 +51,6 @@ fn http() -> &'static reqwest::Client {
     })
 }
 
-fn b64url(data: &[u8]) -> String {
-    const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-    let mut out = String::with_capacity(data.len() * 4 / 3 + 4);
-    for chunk in data.chunks(3) {
-        let b = [
-            chunk[0],
-            *chunk.get(1).unwrap_or(&0),
-            *chunk.get(2).unwrap_or(&0),
-        ];
-        let n = ((b[0] as u32) << 16) | ((b[1] as u32) << 8) | b[2] as u32;
-        out.push(T[(n >> 18) as usize & 63] as char);
-        out.push(T[(n >> 12) as usize & 63] as char);
-        if chunk.len() > 1 {
-            out.push(T[(n >> 6) as usize & 63] as char);
-        }
-        if chunk.len() > 2 {
-            out.push(T[n as usize & 63] as char);
-        }
-    }
-    out
-}
-
 // ---------------------------------------------------------------------------
 // Connector-backed executors
 // ---------------------------------------------------------------------------
@@ -393,6 +371,7 @@ impl Tool for ShuffleWorkflow {
 /// `shodan.host`, `greynoise.ip`, `urlscan.submit`.
 struct ProviderLookup {
     name: &'static str,
+    intel: connectors::intel::ThreatIntelClient,
 }
 
 #[async_trait]
@@ -403,95 +382,9 @@ impl Tool for ProviderLookup {
     async fn execute(&self, args: &Value) -> Result<Value> {
         let ioc = arg_str(args, &["ioc", "value", "ip", "domain", "hash", "url"])
             .context("missing ioc/value arg")?;
-        match self.name {
-            "virustotal.lookup" => {
-                let Some(key) = env("VIRUSTOTAL_API_KEY") else {
-                    return dry_run(args);
-                };
-                let path = if ioc.parse::<std::net::IpAddr>().is_ok() {
-                    format!("ip_addresses/{ioc}")
-                } else if ioc.starts_with("http://") || ioc.starts_with("https://") {
-                    format!("urls/{}", b64url(ioc.as_bytes()))
-                } else if ioc.len() == 64 || ioc.len() == 32 {
-                    format!("files/{ioc}")
-                } else {
-                    format!("domains/{ioc}")
-                };
-                Ok(http()
-                    .get(format!("https://www.virustotal.com/api/v3/{path}"))
-                    .header("x-apikey", key)
-                    .send()
-                    .await
-                    .context("virustotal request")?
-                    .error_for_status()
-                    .context("virustotal HTTP error")?
-                    .json::<Value>()
-                    .await?)
-            }
-            "abuseipdb.check" => {
-                let Some(key) = env("ABUSEIPDB_API_KEY") else {
-                    return dry_run(args);
-                };
-                Ok(http()
-                    .get("https://api.abuseipdb.com/api/v2/check")
-                    .header("Key", key)
-                    .header("Accept", "application/json")
-                    .query(&[("ipAddress", ioc), ("maxAgeInDays", "90")])
-                    .send()
-                    .await
-                    .context("abuseipdb request")?
-                    .error_for_status()
-                    .context("abuseipdb HTTP error")?
-                    .json::<Value>()
-                    .await?)
-            }
-            "shodan.host" => {
-                let Some(key) = env("SHODAN_API_KEY") else {
-                    return dry_run(args);
-                };
-                Ok(http()
-                    .get(format!("https://api.shodan.io/shodan/host/{ioc}"))
-                    .query(&[("key", key.as_str())])
-                    .send()
-                    .await
-                    .context("shodan request")?
-                    .error_for_status()
-                    .context("shodan HTTP error")?
-                    .json::<Value>()
-                    .await?)
-            }
-            "greynoise.ip" => {
-                let Some(key) = env("GREYNOISE_API_KEY") else {
-                    return dry_run(args);
-                };
-                Ok(http()
-                    .get(format!("https://api.greynoise.io/v3/community/{ioc}"))
-                    .header("key", key)
-                    .send()
-                    .await
-                    .context("greynoise request")?
-                    .error_for_status()
-                    .context("greynoise HTTP error")?
-                    .json::<Value>()
-                    .await?)
-            }
-            "urlscan.submit" => {
-                let Some(key) = env("URLSCAN_API_KEY") else {
-                    return dry_run(args);
-                };
-                Ok(http()
-                    .post("https://urlscan.io/api/v1/scan/")
-                    .header("API-Key", key)
-                    .json(&json!({ "url": ioc, "visibility": "private" }))
-                    .send()
-                    .await
-                    .context("urlscan request")?
-                    .error_for_status()
-                    .context("urlscan HTTP error")?
-                    .json::<Value>()
-                    .await?)
-            }
-            other => anyhow::bail!("unknown provider executor `{other}`"),
+        match self.intel.lookup(self.name, ioc).await? {
+            Some(raw) => Ok(raw),
+            None => dry_run(args),
         }
     }
 }
@@ -704,6 +597,7 @@ pub fn build_registry(cfg: &ConnectorConfig) -> HashMap<String, Arc<dyn Tool>> {
     put(Arc::new(MispEventView(misp.clone())));
     put(Arc::new(MispWarninglist(misp.clone())));
     put(Arc::new(MispSighting(misp)));
+    let intel = connectors::intel::ThreatIntelClient::from_env();
     for name in [
         "virustotal.lookup",
         "abuseipdb.check",
@@ -711,7 +605,10 @@ pub fn build_registry(cfg: &ConnectorConfig) -> HashMap<String, Arc<dyn Tool>> {
         "greynoise.ip",
         "urlscan.submit",
     ] {
-        put(Arc::new(ProviderLookup { name }));
+        put(Arc::new(ProviderLookup {
+            name,
+            intel: intel.clone(),
+        }));
     }
     put(Arc::new(DryRun {
         name: "osquery.fleet_query",

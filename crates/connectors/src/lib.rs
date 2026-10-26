@@ -6,6 +6,8 @@
 //! 502/503/504) twice with full jitter under a 15s budget; caching and
 //! semantic retries remain the caller's job.
 
+pub mod intel;
+
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
