@@ -16,7 +16,6 @@ use std::sync::Arc;
 use agent_protocol::tool::{Decision, DecisionKind, ToolCall, ToolResult};
 use axum::{
     extract::{Path, Query, State},
-    http::StatusCode,
     Json,
 };
 use chrono::{DateTime, Duration, Utc};
@@ -36,8 +35,10 @@ const EXPIRY: Duration = Duration::hours(24);
 pub enum Status {
     /// Waiting on a human.
     Pending,
-    /// A human approved and the call was executed.
+    /// A human approved the call and it executed successfully.
     Approved,
+    /// A human approved the call but execution failed; `result.error` says why.
+    ExecutionFailed,
     /// A human refused the call.
     Rejected,
     /// Not decided within [`EXPIRY`].
@@ -113,9 +114,9 @@ impl Store {
                 expire(&mut r);
                 r.clone()
             })
-            .filter(|a| status.is_none_or(|s| a.status == s))
+            .filter(|a| status.map(|s| a.status == s).unwrap_or(true))
             .collect();
-        out.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+        out.sort_by_key(|a| std::cmp::Reverse(a.created_at));
         out
     }
 
@@ -131,6 +132,17 @@ impl Store {
         rec.status = status;
         rec.decided_at = Some(Utc::now());
         rec.decided_by = Some(by.to_string());
+        Ok(rec.clone())
+    }
+
+    /// Records that an approved call failed to execute, so `approved` always
+    /// means "approved and succeeded" and failures stay visible in the state.
+    pub fn mark_failed(&self, id: &Uuid) -> Result<Approval, SettleError> {
+        let mut rec = self.items.get_mut(id).ok_or(SettleError::NotFound)?;
+        if rec.status != Status::Approved {
+            return Err(SettleError::AlreadyDecided(rec.status));
+        }
+        rec.status = Status::ExecutionFailed;
         Ok(rec.clone())
     }
 
@@ -162,6 +174,17 @@ pub enum SettleError {
     NotFound,
     /// Already approved, rejected or expired.
     AlreadyDecided(Status),
+}
+
+/// Stable wire spelling for an approval status.
+fn status_label(status: Status) -> &'static str {
+    match status {
+        Status::Pending => "pending",
+        Status::Approved => "approved",
+        Status::ExecutionFailed => "execution_failed",
+        Status::Rejected => "rejected",
+        Status::Expired => "expired",
+    }
 }
 
 /// Query params for `GET /approvals`.
@@ -208,18 +231,20 @@ pub async fn approve(
     Path(id): Path<Uuid>,
     axum::extract::Extension(actor): axum::extract::Extension<http_limits::auth::Actor>,
     _body: Option<Json<DecideBody>>,
-) -> Result<Json<Outcome>, (StatusCode, String)> {
+) -> Result<Json<Outcome>, http_limits::error::ApiError> {
     let by = actor.0;
 
     let settled = s
         .approvals
         .settle(&id, Status::Approved, &by)
         .map_err(|e| match e {
-            SettleError::NotFound => (StatusCode::NOT_FOUND, format!("approval not found: {id}")),
-            SettleError::AlreadyDecided(st) => (
-                StatusCode::CONFLICT,
-                format!("approval {id} already decided: {st:?}"),
-            ),
+            SettleError::NotFound => {
+                http_limits::error::ApiError::not_found(format!("approval not found: {id}"))
+            }
+            SettleError::AlreadyDecided(st) => http_limits::error::ApiError::conflict(format!(
+                "approval {id} already decided: {}",
+                status_label(st)
+            )),
         })?;
     let call = settled.call.clone();
 
@@ -239,6 +264,11 @@ pub async fn approve(
         },
     };
     s.approvals.attach_result(&id, result.clone());
+    if !result.ok {
+        if let Err(e) = s.approvals.mark_failed(&id) {
+            tracing::error!(approval = %id, error = ?e, "could not record execution failure");
+        }
+    }
 
     if let Some(writer) = &s.audit {
         if let Err(e) = writer
@@ -270,7 +300,7 @@ pub async fn reject(
     Path(id): Path<Uuid>,
     axum::extract::Extension(actor): axum::extract::Extension<http_limits::auth::Actor>,
     body: Option<Json<DecideBody>>,
-) -> Result<Json<Outcome>, (StatusCode, String)> {
+) -> Result<Json<Outcome>, http_limits::error::ApiError> {
     let by = actor.0;
     let note = body.as_ref().and_then(|Json(b)| b.reason.clone());
 
@@ -278,11 +308,13 @@ pub async fn reject(
         .approvals
         .settle(&id, Status::Rejected, &by)
         .map_err(|e| match e {
-            SettleError::NotFound => (StatusCode::NOT_FOUND, format!("approval not found: {id}")),
-            SettleError::AlreadyDecided(st) => (
-                StatusCode::CONFLICT,
-                format!("approval {id} already decided: {st:?}"),
-            ),
+            SettleError::NotFound => {
+                http_limits::error::ApiError::not_found(format!("approval not found: {id}"))
+            }
+            SettleError::AlreadyDecided(st) => http_limits::error::ApiError::conflict(format!(
+                "approval {id} already decided: {}",
+                status_label(st)
+            )),
         })?;
     let call = settled.call.clone();
 
@@ -356,7 +388,9 @@ mod tests {
             SettleError::AlreadyDecided(Status::Approved)
         );
         assert_eq!(
-            store.settle(&Uuid::new_v4(), Status::Rejected, "bob").unwrap_err(),
+            store
+                .settle(&Uuid::new_v4(), Status::Rejected, "bob")
+                .unwrap_err(),
             SettleError::NotFound
         );
     }
@@ -401,5 +435,59 @@ mod tests {
         };
         store.attach_result(&id, res);
         assert!(store.get(&id).unwrap().result.unwrap().ok);
+    }
+}
+
+#[cfg(test)]
+mod state_tests {
+    use super::*;
+    use serde_json::json;
+
+    fn call() -> ToolCall {
+        ToolCall {
+            id: Uuid::new_v4(),
+            tool: "misp.sighting.add".to_string(),
+            args: json!({"value": "203.0.113.9"}),
+            actor: "response-agent".to_string(),
+            idempotency_key: String::new(),
+            correlation_id: Uuid::new_v4(),
+        }
+    }
+
+    /// `approved` means approved *and* executed; a failed execution moves the
+    /// record to its own state instead of masquerading as success.
+    #[test]
+    fn failed_execution_has_its_own_state() {
+        let store = Store::new();
+        let id = store.insert(&call(), "needs approval");
+        store.settle(&id, Status::Approved, "alice").unwrap();
+        let rec = store.mark_failed(&id).unwrap();
+        assert_eq!(rec.status, Status::ExecutionFailed);
+        assert_eq!(status_label(rec.status), "execution_failed");
+    }
+
+    #[test]
+    fn only_approved_records_can_fail() {
+        let store = Store::new();
+        let id = store.insert(&call(), "needs approval");
+        assert_eq!(
+            store.mark_failed(&id).unwrap_err(),
+            SettleError::AlreadyDecided(Status::Pending)
+        );
+        assert_eq!(
+            store.mark_failed(&Uuid::new_v4()).unwrap_err(),
+            SettleError::NotFound
+        );
+    }
+
+    #[test]
+    fn rejected_records_never_become_failures() {
+        let store = Store::new();
+        let id = store.insert(&call(), "needs approval");
+        store.settle(&id, Status::Rejected, "alice").unwrap();
+        assert_eq!(
+            store.mark_failed(&id).unwrap_err(),
+            SettleError::AlreadyDecided(Status::Rejected)
+        );
     }
 }

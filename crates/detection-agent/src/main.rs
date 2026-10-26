@@ -18,12 +18,10 @@ mod pipeline;
 use std::sync::Arc;
 use std::time::Duration;
 
-use agent_protocol::envelope::Envelope;
 use agent_protocol::SUBJECT_DETECTION;
 use anyhow::Context;
 use clap::Parser;
 use connectors::{ConnectorConfig, MispClient, OpensearchClient};
-use futures::StreamExt;
 use llm_client::{AnthropicProvider, LlmProvider};
 use serde_json::{json, Value};
 use tracing::{error, info, warn, Instrument};
@@ -66,7 +64,6 @@ struct Deps {
     pool: Option<sqlx::PgPool>,
     fp_max: u64,
 }
-
 
 /// Gathers detection-gap context from OpenSearch, MISP and `bas_results`.
 async fn gather_context(deps: &Deps) -> Value {
@@ -234,9 +231,6 @@ async fn main() -> anyhow::Result<()> {
         fp_max: config.detect_fp_max,
     });
 
-    let mut sub = nats.subscribe(SUBJECT_DETECTION.to_string()).await?;
-    info!(subject = SUBJECT_DETECTION, "detection-agent subscribed");
-
     // Hourly autonomous cycle alongside envelope-driven triggers.
     let cron_deps = deps.clone();
     tokio::spawn(async move {
@@ -254,26 +248,9 @@ async fn main() -> anyhow::Result<()> {
         }
     });
 
-    while let Some(msg) = sub.next().await {
+    agent_core::run_worker(&nats, SUBJECT_DETECTION, "detection", move |envelope| {
         let deps = deps.clone();
-        tokio::spawn(async move {
-            let result: anyhow::Result<()> = async {
-                let envelope: Envelope =
-                    serde_json::from_slice(&msg.payload).context("parse envelope")?;
-                let span = tracing::info_span!(
-                    "detection",
-                    workflow_run_id = %envelope.correlation_id,
-                    envelope_id = %envelope.id,
-                );
-                run_cycle(&deps, "envelope trigger", envelope.correlation_id)
-                    .instrument(span)
-                    .await
-            }
-            .await;
-            if let Err(e) = result {
-                error!(error = %e, "triggered detection cycle failed");
-            }
-        });
-    }
-    Ok(())
+        async move { run_cycle(&deps, "envelope trigger", envelope.correlation_id).await }
+    })
+    .await
 }

@@ -34,14 +34,14 @@ use std::time::Duration;
 use anyhow::{Context, Result};
 use axum::{
     extract::{Request, State},
-    http::{header, Method, StatusCode},
+    http::{header, Method},
     middleware,
     response::{IntoResponse, Response},
     routing::{any, get},
     Json, Router,
 };
 use clap::Parser;
-use http_limits::{RateLimiter, RateLimits, Tier};
+use http_limits::{RateLimiter, Tier};
 use serde_json::json;
 use tracing::info;
 
@@ -153,7 +153,9 @@ fn router(state: Arc<AppState>, auth: auth::AuthState, rl: Arc<RateLimiter>) -> 
         .route("/api/{*path}", any(proxy::api))
         .route("/ingest/{*path}", any(proxy::ingest))
         .route("/tools/{*path}", any(proxy::tools))
-        .fallback(|| async { (StatusCode::NOT_FOUND, Json(json!({"error": "no_route"}))) })
+        .fallback(|| async {
+            http_limits::error::ApiError::not_found("no route matches this path")
+        })
         // Authentication outermost so unauthenticated floods are rejected
         // before they can spend rate-limit budget; the limiter then meters the
         // authenticated caller.
@@ -210,6 +212,7 @@ async fn main() -> Result<()> {
 mod tests {
     use super::*;
     use axum::body::Body;
+    use http_limits::RateLimits;
 
     fn req(method: Method, uri: &str) -> Request {
         Request::builder()

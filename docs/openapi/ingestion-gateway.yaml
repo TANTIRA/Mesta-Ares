@@ -48,7 +48,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Rejected'
+                $ref: '#/components/schemas/Error'
 
   /webhook/generic:
     post:
@@ -79,7 +79,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Rejected'
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -95,14 +95,30 @@ components:
           type: string
           enum: [accepted]
 
-    Rejected:
+    Error:
       type: object
-      required: [id, status, error]
+      required: [error]
       properties:
-        id: { type: string, format: uuid }
-        status:
-          type: string
-          enum: [error]
-        error: { type: string }
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Stable machine-readable class.
+              enum:
+                [BAD_REQUEST, VALIDATION_ERROR, UNAUTHORIZED, NOT_FOUND, CONFLICT,
+                 RATE_LIMITED, UPSTREAM_ERROR, INTERNAL_ERROR, SERVICE_UNAVAILABLE]
+            message:
+              type: string
+            details:
+              type: array
+              description: Field-scoped problems; omitted when empty.
+              items:
+                type: object
+                properties:
+                  field: { type: string }
+                  message: { type: string }
+
 
 security: []

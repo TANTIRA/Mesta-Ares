@@ -193,11 +193,17 @@ mod tests {
     #[test]
     fn bas_results_route_only_for_coverage_gaps() {
         assert_eq!(
-            route_subject(&envelope(EnvelopeKind::BasResult, json!({"detected": false}))),
+            route_subject(&envelope(
+                EnvelopeKind::BasResult,
+                json!({"detected": false})
+            )),
             Some(SUBJECT_DETECTION)
         );
         assert_eq!(
-            route_subject(&envelope(EnvelopeKind::BasResult, json!({"detected": true}))),
+            route_subject(&envelope(
+                EnvelopeKind::BasResult,
+                json!({"detected": true})
+            )),
             None
         );
     }

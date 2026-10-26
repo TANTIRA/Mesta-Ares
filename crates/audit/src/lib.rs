@@ -103,16 +103,16 @@ impl AuditWriter {
             .unwrap_or(ts)
             .with_timezone(&Utc);
         let hash = sha256_hex(
-            canonical_string(
-                &prev_hash,
+            canonical_string(&HashFields {
+                prev_hash: &prev_hash,
                 actor,
                 tool,
-                &args_sha256,
-                decision_label,
+                args_sha256: &args_sha256,
+                decision: decision_label,
                 reason,
                 correlation_id,
-                &ts,
-            )
+                ts: &ts,
+            })
             .as_bytes(),
         );
 
@@ -166,16 +166,16 @@ impl AuditWriter {
         let mut expected_prev = GENESIS_HASH.to_string();
         let mut verified = 0u64;
         for row in &rows {
-            let canonical = canonical_string(
-                &row.prev_hash,
-                &row.actor,
-                &row.tool,
-                &row.args_sha256,
-                &row.decision,
-                &row.reason,
-                row.correlation_id,
-                &row.ts,
-            );
+            let canonical = canonical_string(&HashFields {
+                prev_hash: &row.prev_hash,
+                actor: &row.actor,
+                tool: &row.tool,
+                args_sha256: &row.args_sha256,
+                decision: &row.decision,
+                reason: &row.reason,
+                correlation_id: row.correlation_id,
+                ts: &row.ts,
+            });
             if row.prev_hash != expected_prev {
                 return Ok(ChainReport {
                     rows: rows.len() as u64,
@@ -234,17 +234,30 @@ pub struct ChainReport {
 
 use agent_protocol::hex::sha256_hex;
 
-/// The exact string a row's `hash` covers.
-fn canonical_string(
-    prev_hash: &str,
-    actor: &str,
-    tool: &str,
-    args_sha256: &str,
-    decision: &str,
-    reason: &str,
+/// The fields one audit row's `hash` covers.
+struct HashFields<'a> {
+    prev_hash: &'a str,
+    actor: &'a str,
+    tool: &'a str,
+    args_sha256: &'a str,
+    decision: &'a str,
+    reason: &'a str,
     correlation_id: Uuid,
-    ts: &chrono::DateTime<Utc>,
-) -> String {
+    ts: &'a chrono::DateTime<Utc>,
+}
+
+/// The exact string a row's `hash` covers.
+fn canonical_string(f: &HashFields<'_>) -> String {
+    let HashFields {
+        prev_hash,
+        actor,
+        tool,
+        args_sha256,
+        decision,
+        reason,
+        correlation_id,
+        ts,
+    } = *f;
     format!(
         "{prev_hash}|{actor}|{tool}|{args_sha256}|{decision}|{reason}|{correlation_id}|{ts}",
         ts = ts.to_rfc3339(),

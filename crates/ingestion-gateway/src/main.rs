@@ -95,22 +95,23 @@ async fn publish_alert(
     state: &Arc<AppState>,
     source: &str,
     payload: Value,
-) -> (StatusCode, Json<Value>) {
+) -> Result<(StatusCode, Json<Value>), http_limits::error::ApiError> {
     let envelope = Envelope::new(source, EnvelopeKind::Alert, payload);
     let id = envelope.id;
     match state.sink.publish(SUBJECT_ALERTS, &envelope).await {
         Ok(()) => {
             info!(envelope_id = %id, source, "alert ingested");
-            (
+            Ok((
                 StatusCode::ACCEPTED,
                 Json(serde_json::json!({"id": id, "status": "accepted"})),
-            )
+            ))
         }
         Err(e) => {
             warn!(error = %e, envelope_id = %id, "failed to publish alert");
-            (
-                StatusCode::BAD_GATEWAY,
-                Json(serde_json::json!({"id": id, "status": "error", "error": e.to_string()})),
+            Err(
+                http_limits::error::ApiError::upstream("failed to publish alert")
+                    .with_detail("envelope_id", id.to_string())
+                    .with_detail("cause", e.to_string()),
             )
         }
     }
@@ -156,6 +157,10 @@ async fn main() -> anyhow::Result<()> {
 
     let listener = tokio::net::TcpListener::bind(&config.bind_addr).await?;
     info!(addr = %config.bind_addr, "ingestion-gateway listening");
-    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await?;
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await?;
     Ok(())
 }

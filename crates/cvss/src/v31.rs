@@ -143,8 +143,9 @@ pub(crate) fn score(vector: &str, v30: bool) -> Result<CvssScore, CvssError> {
     }
 
     let scope_changed = required_metric(&map, "S")? == "C";
-    let isc_base =
-        (1.0 - cia(required_metric(&map, "C")?)) * (1.0 - cia(required_metric(&map, "I")?)) * (1.0 - cia(required_metric(&map, "A")?));
+    let isc_base = (1.0 - cia(required_metric(&map, "C")?))
+        * (1.0 - cia(required_metric(&map, "I")?))
+        * (1.0 - cia(required_metric(&map, "A")?));
     let isc_base = 1.0 - isc_base;
     let impact = if scope_changed {
         7.52 * (isc_base - 0.029) - 3.25 * (isc_base - 0.02).powi(15)

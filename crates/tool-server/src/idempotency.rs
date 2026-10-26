@@ -46,6 +46,7 @@ pub const ERR_STORE: &str = "idempotency store unavailable, retry later";
 #[derive(Debug, Clone)]
 pub enum KeyState {
     /// No live row for the key (absent or expired).
+    #[allow(dead_code)] // part of the public state vocabulary; callers match on it
     Absent,
     /// Another caller claimed the key and has not finished.
     InFlight {
@@ -152,7 +153,7 @@ pub enum Store {
 
 /// One in-memory record, mirroring a `tool_idempotency` row.
 #[derive(Debug)]
-struct Record {
+pub(crate) struct Record {
     fingerprint: String,
     status: Status,
     result: Option<ToolResult>,

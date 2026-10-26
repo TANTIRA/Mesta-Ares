@@ -34,6 +34,9 @@ and `agent_checkpoints` (api-server folds it into task/run status).
   is `InvokeResponse{decision:{kind:allow|deny|approval_required,reason},result:ToolResult}`.
   Idempotent via `idempotency_key` (case_id+tool+sha256(args)); cached replays return the first result.
 - `GET tool-server:8090/tools` — effective allowlist (from `policies/tools.yml`).
+- `GET|POST tool-server:8090/approvals…` — calls parked by `autonomy: approval`.
+  Statuses: `pending → approved` (approved *and* executed), `execution_failed`
+  (approved but the tool failed; `result.error` says why), `rejected`, `expired`.
 - `GET api-server:8080/…` — `/health /alerts /alerts/:id /cases /cases/:id /audit /metrics /coverage /plans/:case_id`.
 - `POST /controls/kill-switch` — engages/disengages `$POLICIES_DIR/kill`; `GET` reads state. Fail-closed reads.
 - `GET /stream/activity` — SSE, event `{workflow_run_id, agent, step, detail, ts}`.
@@ -41,8 +44,10 @@ and `agent_checkpoints` (api-server folds it into task/run status).
 - `POST ingestion-gateway:8091/webhook/wazuh` — Wazuh integratord JSON → `Envelope`. `202 Accepted` on publish, `502` if the publish fails (caller retries; integratord does not, so monitor this).
 - `GET|POST api-gateway:8082/…` — single entry point: `/api/*`→api-server, `/ingest/*`→ingestion-gateway, `/tools/*`→tool-server (prefix stripped, method/headers/body forwarded, response streamed). Auth: `Authorization: Bearer <key>` or `X-API-Key` against `GATEWAY_API_KEYS`; `/health` and `/metrics` exempt; empty key list fails closed unless `GATEWAY_ALLOW_ANONYMOUS=1`. `GET /aggregate/dashboard` fans in metrics + alerts + advisories. `GET /metrics` is Prometheus text (`ares_gateway_requests_total{route,status}`, latency sums, cache hits). GETs under `GATEWAY_CACHE_PREFIXES` are cached for `GATEWAY_CACHE_TTL_SECONDS` and answer `x-gateway-cache: hit|miss`.
 
-Errors: JSON `{error: string}`; 4xx = caller fixable, 5xx = retryable. All
-handlers set explicit timeouts (see table).
+Errors: JSON `{"error": {"code", "message", "details"?}}` from every service
+(`http_limits::error::ApiError`); 4xx = caller fixable, 5xx = retryable. ACP
+routes keep their spec-mandated `{code, message, data}` body. All handlers set
+explicit timeouts (see table).
 
 ## Resilience table
 

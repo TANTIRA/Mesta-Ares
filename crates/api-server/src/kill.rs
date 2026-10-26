@@ -52,7 +52,7 @@ pub async fn set_state(
     State(s): State<Arc<AppState>>,
     Extension(actor): Extension<http_limits::auth::Actor>,
     body: Bytes,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, crate::error::ApiError> {
     let engaged = if body.is_empty() {
         true
     } else {
@@ -94,14 +94,12 @@ pub async fn set_state(
                     tracing::error!(error = %e, "kill-switch audit append failed");
                 }
             }
-            (
+            Ok((
                 StatusCode::OK,
                 Json(json!({"state": state, "engaged": kill_switch_engaged()})),
-            )
+            ))
         }
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({"error": e.to_string(), "path": path.display().to_string()})),
-        ),
+        Err(e) => Err(crate::error::ApiError::internal(e.to_string())
+            .with_detail("path", path.display().to_string())),
     }
 }

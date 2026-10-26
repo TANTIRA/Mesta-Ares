@@ -28,7 +28,9 @@ pub type ActivityTx = broadcast::Sender<String>;
 /// channel consumed by SSE handlers.
 pub async fn spawn_activity_relay(nats: Client) -> anyhow::Result<ActivityTx> {
     let (tx, _) = broadcast::channel(CHANNEL_CAP);
-    let mut sub = nats.subscribe(agent_protocol::activity::SUBJECT_ACTIVITY.to_string()).await?;
+    let mut sub = nats
+        .subscribe(agent_protocol::activity::SUBJECT_ACTIVITY.to_string())
+        .await?;
     let relay_tx = tx.clone();
     tokio::spawn(async move {
         while let Some(msg) = sub.next().await {

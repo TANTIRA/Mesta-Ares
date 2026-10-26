@@ -1,6 +1,8 @@
 # Tool allowlist for the agentic SOAR layer.
 # Deny-by-default: a tool absent from this file cannot be invoked.
 # `impact`: read | write | high   `autonomy`: auto | approval | deny
+# `aliases` maps accepted alternative argument names to the canonical key the
+# executor reads; the gateway renames them before `args_schema` validation.
 # autonomy=approval returns `approval_required` without executing: a human
 # must clear the call. Only the MISP write tools require approval; everything
 # else enabled here runs `auto`.
@@ -10,24 +12,40 @@ tools:
   # ---- read-only / enrichment ----
   opensearch.query:
     impact: read
+    aliases:
+      query_string: q
     autonomy: auto
   thehive.case.create:
     impact: write
     autonomy: auto
   thehive.case.update:
     impact: write
+    aliases:
+      id: case_id
     autonomy: auto
   thehive.observable.add:
     impact: write
+    aliases:
+      id: case_id
     autonomy: auto
   cortex.analyzer.run:
     impact: read
+    aliases:
+      analyzer: analyzer_id
+      dataType: data_type
+      observable: data
     autonomy: auto
   misp.search:
     impact: read
+    aliases:
+      ioc: value
+      query: value
     autonomy: auto
   misp.attribute.search:
     impact: read
+    aliases:
+      ioc: value
+      query: value
     autonomy: auto
     args_schema:
       type: object
@@ -38,6 +56,8 @@ tools:
       additionalProperties: false
   misp.event.view:
     impact: read
+    aliases:
+      id: event_id
     autonomy: auto
     args_schema:
       type: object
@@ -47,27 +67,49 @@ tools:
       additionalProperties: false
   misp.warninglist.check:
     impact: read
+    aliases:
+      ioc: value
     autonomy: auto
   misp.sighting.add:
     impact: write
+    aliases:
+      ioc: value
     autonomy: approval
   misp.attribute.add:
     impact: write
     autonomy: approval
   virustotal.lookup:
     impact: read
+    aliases:
+      value: ioc
+      ip: ioc
+      domain: ioc
+      hash: ioc
+      url: ioc
     autonomy: auto
   abuseipdb.check:
     impact: read
+    aliases:
+      value: ioc
+      ip: ioc
     autonomy: auto
   shodan.host:
     impact: read
+    aliases:
+      value: ioc
+      ip: ioc
     autonomy: auto
   greynoise.ip:
     impact: read
+    aliases:
+      value: ioc
+      ip: ioc
     autonomy: auto
   urlscan.submit:
     impact: read
+    aliases:
+      value: ioc
+      url: ioc
     autonomy: auto
   osquery.fleet_query:
     impact: read
@@ -77,6 +119,9 @@ tools:
     autonomy: auto
   nvd.lookup_cve:
     impact: read
+    aliases:
+      id: cve_id
+      cve: cve_id
     autonomy: auto
     args_schema:
       type: object
@@ -86,6 +131,9 @@ tools:
       additionalProperties: false
   nvd.cve_history:
     impact: read
+    aliases:
+      id: cve_id
+      cve: cve_id
     autonomy: auto
     args_schema:
       type: object
@@ -95,6 +143,8 @@ tools:
       additionalProperties: false
   nvd.recent_cves:
     impact: read
+    aliases:
+      q: keyword
     autonomy: auto
     args_schema:
       type: object
@@ -107,6 +157,8 @@ tools:
       additionalProperties: false
   cvss.score:
     impact: read
+    aliases:
+      cvss_vector: vector
     autonomy: auto
     args_schema:
       type: object
@@ -167,6 +219,8 @@ tools:
       additionalProperties: false
   entra.user.revoke_sessions:
     impact: high
+    aliases:
+      id: user_id
     autonomy: auto
     blast_radius: { max_per_hour: 10 }
     args_schema:
@@ -177,6 +231,8 @@ tools:
       additionalProperties: false
   entra.user.disable:
     impact: high
+    aliases:
+      id: user_id
     autonomy: auto
     blast_radius: { max_per_hour: 5 }
     args_schema:
@@ -262,6 +318,8 @@ tools:
       additionalProperties: false
   entra.user.enable:
     impact: high
+    aliases:
+      id: user_id
     autonomy: auto
     blast_radius: { max_per_hour: 5 }
     args_schema:

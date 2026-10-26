@@ -42,6 +42,7 @@ use tokio::sync::broadcast;
 use uuid::Uuid;
 
 use crate::a2a;
+use crate::agents;
 use crate::run_stream::{self, CheckpointProgress, RunRecord};
 use crate::AppState;
 
@@ -58,7 +59,7 @@ fn acp_err(
 }
 
 /// Builds the [`AgentManifest`] for one Ares agent.
-fn manifest_for(def: &a2a::AgentDef) -> AgentManifest {
+fn manifest_for(def: &agents::AgentDef) -> AgentManifest {
     AgentManifest {
         name: def.name.to_string(),
         description: def.description.to_string(),
@@ -164,14 +165,18 @@ async fn load_run(pool: &PgPool, run_id: &str) -> Result<Option<Run>, AcpError> 
             CheckpointProgress::Final(text) => {
                 status = RunStatus::Completed;
                 output.push(Message::agent_text(&row.agent, text));
-                let _ = sqlx::query(
-                    "UPDATE acp_runs SET status = 'completed', output = $2,
+                if let Err(e) = sqlx::query(
+                    "UPDATE acp_runs SET status = $3, output = $2,
                      finished_at = now(), updated_at = now() WHERE id = $1",
                 )
                 .bind(&row.id)
                 .bind(sqlx::types::Json(&output))
+                .bind(RunStatus::Completed.as_str())
                 .execute(pool)
-                .await;
+                .await
+                {
+                    tracing::error!(run_id = %row.id, error = %e, "completion write failed");
+                }
             }
             CheckpointProgress::InProgress | CheckpointProgress::None => {}
         }
@@ -219,7 +224,7 @@ fn input_to_text(input: &[Message]) -> String {
 /// the row is marked `failed`.
 async fn dispatch_run(
     s: &AppState,
-    def: &a2a::AgentDef,
+    def: &agents::AgentDef,
     run_id: &str,
     session_id: Option<&str>,
     input: &[Message],
@@ -229,12 +234,13 @@ async fn dispatch_run(
 
     sqlx::query(
         "INSERT INTO acp_runs (id, agent, session_id, status, input, created_at, updated_at)
-         VALUES ($1, $2, $3, 'in-progress', $4, now(), now())",
+         VALUES ($1, $2, $3, $5, $4, now(), now())",
     )
     .bind(run_id)
     .bind(def.name)
     .bind(session_id)
     .bind(sqlx::types::Json(input))
+    .bind(RunStatus::InProgress.as_str())
     .execute(&s.pool)
     .await
     .map_err(|e| AcpError::new(ERR_SERVER, e.to_string()))?;
@@ -247,7 +253,7 @@ async fn dispatch_run(
     env.correlation_id = a2a::task_uuid(run_id);
     if let Err(e) = s.sink.publish(def.subject, &env).await {
         if let Err(werr) = sqlx::query(
-            "UPDATE acp_runs SET status = 'failed', error = $2, finished_at = now(),
+            "UPDATE acp_runs SET status = $3, error = $2, finished_at = now(),
              updated_at = now() WHERE id = $1",
         )
         .bind(run_id)
@@ -255,6 +261,7 @@ async fn dispatch_run(
             ERR_SERVER,
             format!("publish {}: {e}", def.subject),
         )))
+        .bind(RunStatus::Failed.as_str())
         .execute(&s.pool)
         .await
         {
@@ -285,7 +292,7 @@ pub struct AgentsQuery {
 /// `GET /acp/agents`.
 pub async fn list_agents(Query(q): Query<AgentsQuery>) -> Json<Value> {
     let offset = q.offset.unwrap_or(0);
-    let agents: Vec<_> = a2a::AGENTS
+    let agents: Vec<_> = agents::AGENTS
         .iter()
         .skip(offset)
         .take(q.limit.unwrap_or(usize::MAX))
@@ -298,7 +305,7 @@ pub async fn list_agents(Query(q): Query<AgentsQuery>) -> Json<Value> {
 pub async fn get_agent(
     Path(name): Path<String>,
 ) -> Result<Json<AgentManifest>, (StatusCode, Json<AcpError>)> {
-    a2a::find_agent(&name)
+    agents::find_agent(&name)
         .map(|def| Json(manifest_for(def)))
         .ok_or_else(|| {
             acp_err(
@@ -320,7 +327,7 @@ pub async fn well_known_manifest() -> impl IntoResponse {
         output_content_types: vec!["text/plain".to_string()],
         metadata: Some(json!({
             "protocol_version": "0.2.0",
-            "agents": a2a::AGENTS.iter().map(|d| d.name).collect::<Vec<_>>(),
+            "agents": agents::AGENTS.iter().map(|d| d.name).collect::<Vec<_>>(),
         })),
     };
     (
@@ -334,7 +341,7 @@ pub async fn create_run(
     State(s): State<Arc<AppState>>,
     Json(req): Json<RunCreateRequest>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<AcpError>)> {
-    let def = a2a::find_agent(&req.agent_name).ok_or_else(|| {
+    let def = agents::find_agent(&req.agent_name).ok_or_else(|| {
         acp_err(
             StatusCode::NOT_FOUND,
             ERR_NOT_FOUND,
@@ -443,10 +450,14 @@ pub async fn cancel_run(
     Path(run_id): Path<String>,
 ) -> Result<impl IntoResponse, (StatusCode, Json<AcpError>)> {
     sqlx::query(
-        "UPDATE acp_runs SET status = 'cancelled', finished_at = now(), updated_at = now()
-         WHERE id = $1 AND status NOT IN ('completed', 'failed', 'cancelled')",
+        "UPDATE acp_runs SET status = $2, finished_at = now(), updated_at = now()
+         WHERE id = $1 AND status NOT IN ($3, $4, $5)",
     )
     .bind(&run_id)
+    .bind(RunStatus::Cancelled.as_str())
+    .bind(RunStatus::Completed.as_str())
+    .bind(RunStatus::Failed.as_str())
+    .bind(RunStatus::Cancelled.as_str())
     .execute(&s.pool)
     .await
     .map_err(|e| acp_err(StatusCode::INTERNAL_SERVER_ERROR, ERR_SERVER, e.to_string()))?;
@@ -497,12 +508,16 @@ impl RunRecord for Run {
     }
 
     async fn mark_terminal(pool: &PgPool, id: &str, aborted: bool) {
-        let status = if aborted { "failed" } else { "completed" };
+        let status = if aborted {
+            RunStatus::Failed
+        } else {
+            RunStatus::Completed
+        };
         if let Err(e) = sqlx::query(
             "UPDATE acp_runs SET status = $2, finished_at = now(), updated_at = now() WHERE id = $1",
         )
         .bind(id)
-        .bind(status)
+        .bind(status.as_str())
         .execute(pool)
         .await
         {
@@ -527,7 +542,7 @@ pub async fn run_events(
         }
         Err(e) => return Err((StatusCode::INTERNAL_SERVER_ERROR, Json(e))),
     };
-    let agent = a2a::find_agent(&run.agent_name)
+    let agent = agents::find_agent(&run.agent_name)
         .map(|d| d.activity_name)
         .unwrap_or_default();
     Ok(run_stream::activity_stream::<Run>(
@@ -573,7 +588,10 @@ mod tests {
 
     #[test]
     fn input_to_text_joins_messages() {
-        let input = vec![Message::agent_text("user", "one"), Message::agent_text("user", "two")];
+        let input = vec![
+            Message::agent_text("user", "one"),
+            Message::agent_text("user", "two"),
+        ];
         assert_eq!(input_to_text(&input), "one\n\ntwo");
     }
 

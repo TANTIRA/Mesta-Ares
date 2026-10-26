@@ -15,7 +15,6 @@
 //! is visible as `decision.kind == "deny"` with `result.error` carrying the
 //! reason.
 
-
 use std::sync::Arc;
 
 use agent_core::{
@@ -30,16 +29,12 @@ use agent_protocol::{
 use anyhow::Context;
 use clap::Parser;
 use connectors::{ConnectorConfig, ThehiveClient, WazuhClient};
-use futures::StreamExt;
-use llm_client::{
-    AnthropicProvider, CompletionRequest, LlmProvider, Message, Role,
-    strong_model,
-};
+use llm_client::{strong_model, AnthropicProvider, CompletionRequest, LlmProvider, Message, Role};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use sqlx::PgPool;
-use tracing::{error, info, warn, Instrument};
+use tracing::warn;
 use uuid::Uuid;
 
 use agent_core::publish_activity;
@@ -84,7 +79,6 @@ Available tools are the allowlist in policies/tools.yml (opensearch.query,
 thehive.*, misp.*, blocklist.ip.add, blocklist.domain.add, wazuh.active_response.*,
 entra.user.*, firewall.rule.add, o365.email.quarantine, notify.slack.post)."#;
 
-
 /// Maps a tool to the rollback call that reverses it, when one exists.
 ///
 /// Returns `(rollback_tool, rollback_args)` for the `response_actions`
@@ -121,7 +115,10 @@ fn rollback_for(action: &PlannedAction) -> Option<Value> {
 }
 
 /// Asks the Strong model for an ordered [`PlannedAction`] list.
-async fn build_plan(provider: &dyn LlmProvider, context: &Value) -> anyhow::Result<Vec<PlannedAction>> {
+async fn build_plan(
+    provider: &dyn LlmProvider,
+    context: &Value,
+) -> anyhow::Result<Vec<PlannedAction>> {
     let req = CompletionRequest {
         model: strong_model(),
         system: Some(PLAN_PROMPT.to_string()),
@@ -271,8 +268,12 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
                     &ActivityEvent::new(run_id, "response", &step, "invoke failed; plan stopped"),
                 )
                 .await;
-                save_final_checkpoint(deps, run_id, format!("aborted: {} invoke failed", action.tool))
-                    .await;
+                save_final_checkpoint(
+                    deps,
+                    run_id,
+                    format!("aborted: {} invoke failed", action.tool),
+                )
+                .await;
                 return Ok(());
             }
         };
@@ -408,34 +409,24 @@ async fn main() -> anyhow::Result<()> {
         provider: provider.clone(),
         gateway: Arc::new(HttpToolGateway::new(config.tool_server_url.clone())),
         checkpoints: Arc::new(PostgresCheckpointer::new(pool.clone())),
-        hive: Arc::new(conn_cfg.build_thehive_client().context("THEHIVE_URL not set")?),
-        wazuh: Arc::new(conn_cfg.build_wazuh_client().context("WAZUH_API_URL not set")?),
+        hive: Arc::new(
+            conn_cfg
+                .build_thehive_client()
+                .context("THEHIVE_URL not set")?,
+        ),
+        wazuh: Arc::new(
+            conn_cfg
+                .build_wazuh_client()
+                .context("WAZUH_API_URL not set")?,
+        ),
         pool,
     });
 
-    let mut sub = nats.subscribe(SUBJECT_RESPOND.to_string()).await?;
-    info!(subject = SUBJECT_RESPOND, "response-agent subscribed");
-
-    while let Some(msg) = sub.next().await {
+    agent_core::run_worker(&nats, SUBJECT_RESPOND, "response", move |envelope| {
         let deps = deps.clone();
-        tokio::spawn(async move {
-            let result: anyhow::Result<()> = async {
-                let envelope: Envelope =
-                    serde_json::from_slice(&msg.payload).context("parse envelope")?;
-                let span = tracing::info_span!(
-                    "response",
-                    workflow_run_id = %envelope.correlation_id,
-                    envelope_id = %envelope.id,
-                );
-                process(&deps, &envelope).instrument(span).await
-            }
-            .await;
-            if let Err(e) = result {
-                error!(error = %e, "response processing failed");
-            }
-        });
-    }
-    Ok(())
+        async move { process(&deps, &envelope).await }
+    })
+    .await
 }
 
 #[cfg(test)]
@@ -444,8 +435,8 @@ mod tests {
 
     /// Tool names allowlisted in `policies/tools.yml`.
     fn policy_tools() -> std::collections::HashSet<String> {
-        let text = std::fs::read_to_string("../../policies/tools.yml")
-            .expect("read policies/tools.yml");
+        let text =
+            std::fs::read_to_string("../../policies/tools.yml").expect("read policies/tools.yml");
         let doc: serde_yaml_ng::Value = serde_yaml_ng::from_str(&text).expect("parse tools.yml");
         doc["tools"]
             .as_mapping()
@@ -462,8 +453,14 @@ mod tests {
             ("blocklist.ip.add", json!({"ip": "203.0.113.9"})),
             ("blocklist.domain.add", json!({"domain": "evil.example"})),
             ("firewall.rule.add", json!({"remote": "203.0.113.9"})),
-            ("wazuh.active_response.isolate_host", json!({"agent_id": "001"})),
-            ("entra.user.disable", json!({"user_id": "00000000-0000-0000-0000-000000000000"})),
+            (
+                "wazuh.active_response.isolate_host",
+                json!({"agent_id": "001"}),
+            ),
+            (
+                "entra.user.disable",
+                json!({"user_id": "00000000-0000-0000-0000-000000000000"}),
+            ),
             ("ad.user.disable", json!({"sam_account_name": "jdoe"})),
             ("o365.email.quarantine", json!({"message_id": "m1"})),
             ("misp.ioc.block", json!({"value": "203.0.113.9"})),

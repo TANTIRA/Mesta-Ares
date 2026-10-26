@@ -254,10 +254,25 @@ export type CvssScore = z.infer<typeof CvssScoreSchema>;
 
 export class ApiError extends Error {
   status: number;
-  constructor(status: number, message: string) {
+  /** Machine-readable class from the service envelope (`UPSTREAM_ERROR`, ...). */
+  code?: string;
+  constructor(status: number, message: string, code?: string) {
     super(message);
     this.status = status;
+    this.code = code;
   }
+}
+
+/** Reads `{error:{code,message}}` from a failed response; never throws. */
+async function errorEnvelope(
+  res: Response,
+): Promise<{ code?: string; message?: string }> {
+  const body = await res.json().catch(() => null);
+  const err = body?.error;
+  return {
+    code: typeof err?.code === "string" ? err.code : undefined,
+    message: typeof err?.message === "string" ? err.message : undefined,
+  };
 }
 
 async function request<S extends z.ZodTypeAny>(
@@ -269,7 +284,14 @@ async function request<S extends z.ZodTypeAny>(
     ...init,
     headers: { "content-type": "application/json", ...init?.headers },
   });
-  if (!res.ok) throw new ApiError(res.status, `${res.status} ${path}`);
+  if (!res.ok) {
+    const { code, message } = await errorEnvelope(res);
+    throw new ApiError(
+      res.status,
+      message ? `${res.status} ${message}` : `${res.status} ${path}`,
+      code,
+    );
+  }
   const json = await res.json().catch(() => null);
   const parsed = schema.safeParse(json);
   return parsed.success ? parsed.data : (json as z.output<S>);

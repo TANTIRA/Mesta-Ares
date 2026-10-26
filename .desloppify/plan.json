@@ -1,7 +1,7 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T10:31:18+00:00",
+  "updated": "2026-10-26T17:18:47+00:00",
   "queue_order": [
     "subjective::abstraction_fitness",
     "subjective::ai_generated_debt",
@@ -3306,15 +3306,15 @@
   },
   "promoted_ids": [],
   "plan_start_scores": {
-    "strict": 78.6,
-    "overall": 80.6,
-    "objective": 90.9,
-    "verified": 90.9
+    "strict": 78.5,
+    "overall": 80.3,
+    "objective": 89.9,
+    "verified": 89.9
   },
   "refresh_state": {
     "_subjective_migration_pruned": true,
     "lifecycle_phase": "plan",
-    "postflight_scan_completed_at_scan_count": 6,
+    "postflight_scan_completed_at_scan_count": 7,
     "subjective_review_completed_at_scan_count": 5
   },
   "execution_log": [
@@ -11437,6 +11437,48 @@
       "detail": {
         "scan_count": 6
       }
+    },
+    {
+      "timestamp": "2026-10-26T17:18:47+00:00",
+      "action": "sync_subjective",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-10-26T17:18:47+00:00",
+      "action": "sync_triage",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "injected": true
+      }
+    },
+    {
+      "timestamp": "2026-10-26T17:18:47+00:00",
+      "action": "seed_start_scores",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T17:18:47+00:00",
+      "action": "complete_postflight_scan",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "scan_count": 7
+      }
     }
   ],
   "epic_triage_meta": {},
@@ -11605,11 +11647,11 @@
     "review::.::holistic::test_strategy::auth_middleware_decision_untested"
   ],
   "commit_tracking_branch": null,
-  "scan_count_at_plan_start": 6,
+  "scan_count_at_plan_start": 7,
   "previous_plan_start_scores": {
-    "strict": 77.7,
-    "overall": 78.3,
-    "objective": 84.1,
-    "verified": 84.1
+    "strict": 78.6,
+    "overall": 80.6,
+    "objective": 90.9,
+    "verified": 90.9
   }
 }

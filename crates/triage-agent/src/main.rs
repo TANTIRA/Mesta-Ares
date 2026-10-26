@@ -17,7 +17,6 @@
 //! {OPENSEARCH_URL}/ares-verdicts/_doc` because [`OpensearchClient`] only
 //! exposes `_search`.
 
-
 use std::sync::Arc;
 
 use agent_core::kill_switch_engaged;
@@ -30,14 +29,12 @@ use anyhow::Context;
 use clap::Parser;
 use connectors::{ConnectorConfig, NewCase, NewObservable, OpensearchClient};
 use enrichment_lib::{composite_score, extract_iocs, Enricher, IocSet};
-use futures::StreamExt;
 use llm_client::{
-    fast_model, AnthropicProvider, CompletionRequest, LlmProvider, Message,
-    Role, SystemOneClient,
+    fast_model, AnthropicProvider, CompletionRequest, LlmProvider, Message, Role, SystemOneClient,
 };
 use serde::Deserialize;
 use serde_json::{json, Value};
-use tracing::{error, info, warn, Instrument};
+use tracing::warn;
 
 use agent_core::{publish_activity, HttpToolGateway};
 use agent_protocol::activity::ActivityEvent;
@@ -125,7 +122,6 @@ object — no prose, no markdown — with exactly these keys:
 {"verdict":"tp|fp|suspicious","severity":"low|medium|high|critical","rationale":"one paragraph"}
 "tp" = true positive needing response, "fp" = benign false positive,
 "suspicious" = likely malicious but needs monitoring."#;
-
 
 /// Lists every IOC in the set paired with its TheHive `dataType`.
 fn typed_iocs(set: &IocSet) -> Vec<(&'static str, &String)> {
@@ -479,7 +475,14 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
         VerdictKind::Tp | VerdictKind::Suspicious => {
             let mut observables = iocs.clone();
             observables.extend(ioc_set.cve_ids.iter().map(|c| ("cve", c)));
-            let case_id = open_case(&deps.gateway, &envelope.payload, &verdict, &observables, run_id).await?;
+            let case_id = open_case(
+                &deps.gateway,
+                &envelope.payload,
+                &verdict,
+                &observables,
+                run_id,
+            )
+            .await?;
             publish_activity(
                 &deps.nats,
                 &ActivityEvent::new(run_id, "triage", "case", format!("case {case_id} opened")),
@@ -524,29 +527,11 @@ async fn main() -> anyhow::Result<()> {
         ),
     });
 
-    let mut sub = nats.subscribe(SUBJECT_TRIAGE.to_string()).await?;
-    info!(subject = SUBJECT_TRIAGE, "triage-agent subscribed");
-
-    while let Some(msg) = sub.next().await {
+    agent_core::run_worker(&nats, SUBJECT_TRIAGE, "triage", move |envelope| {
         let deps = deps.clone();
-        tokio::spawn(async move {
-            let result: anyhow::Result<()> = async {
-                let envelope: Envelope =
-                    serde_json::from_slice(&msg.payload).context("parse envelope")?;
-                let span = tracing::info_span!(
-                    "triage",
-                    workflow_run_id = %envelope.correlation_id,
-                    envelope_id = %envelope.id,
-                );
-                process(&deps, &envelope).instrument(span).await
-            }
-            .await;
-            if let Err(e) = result {
-                error!(error = %e, "triage processing failed");
-            }
-        });
-    }
-    Ok(())
+        async move { process(&deps, &envelope).await }
+    })
+    .await
 }
 
 #[cfg(test)]

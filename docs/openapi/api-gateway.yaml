@@ -218,7 +218,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/GatewayError'
+            $ref: '#/components/schemas/Error'
     RateLimited:
       description: Rate limit exceeded
       headers:
@@ -238,30 +238,39 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              error:
-                type: string
-                example: rate_limit_exceeded
+            $ref: '#/components/schemas/Error'
     GatewayError:
       description: Gateway could not reach the upstream
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/GatewayError'
+            $ref: '#/components/schemas/Error'
 
   schemas:
-    GatewayError:
+    Error:
       type: object
       required: [error]
       properties:
         error:
-          type: string
-          example: upstream_unavailable
-        upstream:
-          type: string
-          description: Present on `502` responses.
-          example: http://ares-tool-server:8090
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Stable machine-readable class.
+              enum:
+                [BAD_REQUEST, VALIDATION_ERROR, UNAUTHORIZED, NOT_FOUND, CONFLICT,
+                 RATE_LIMITED, UPSTREAM_ERROR, INTERNAL_ERROR, SERVICE_UNAVAILABLE]
+            message:
+              type: string
+            details:
+              type: array
+              description: Field-scoped problems; omitted when empty.
+              items:
+                type: object
+                properties:
+                  field: { type: string }
+                  message: { type: string }
 
     AggregateDashboard:
       type: object

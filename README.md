@@ -87,7 +87,7 @@ manifests for the same stack live in `infra/k8s` — deploy with
 
 | Path | Contents |
 |---|---|
-| `crates/` | Rust workspace (see `Cargo.toml`): control plane (`tool-server`, `policy-engine`, `audit`, `idempotency`), edge (`api-server`, `ingestion-gateway`), agents (`orchestrator`, triage/response/detection/hunt/vuln), shared libs (`agent-protocol`, `agent-core`, `llm-client`, `connectors`, `enrichment-lib`, `cvss`, `http-limits`, `a2a`, `acp`), and `bas-runner` |
+| `crates/` | Rust workspace (see `Cargo.toml`): control plane (`tool-server`, `policy-engine`, `audit`, `idempotency`), edge (`api-server`, `ingestion-gateway`), agents (`orchestrator`, triage/response/detection/hunt/vuln), shared libs (`agent-protocol`, `agent-core` — worker loop, tool gateway, checkpoints — `llm-client`, `connectors`, `enrichment-lib`, `cvss`, `http-limits`, `a2a`, `acp`, `api-gateway`), and `bas-runner` |
 | `apps/console/` | Next.js console |
 | `infra/` | docker-compose dev stack, Dockerfiles, Helm chart, plain k8s manifests, Wazuh integration |
 | `docs/openapi/` | OpenAPI 3.0.3 specs for every HTTP surface (gateway, api-server, tool-server, ingestion-gateway) |
