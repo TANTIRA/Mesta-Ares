@@ -18,4 +18,12 @@ pub enum AgentError {
     /// Serialization failure (transcript, checkpoint, observation).
     #[error("serialization error: {0}")]
     Json(#[from] serde_json::Error),
+
+    /// The policy gate denied the call.
+    #[error("tool call denied: {0}")]
+    Denied(String),
+
+    /// The tool ran but reported a failure.
+    #[error("tool failed: {0}")]
+    Tool(String),
 }

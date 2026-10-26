@@ -28,7 +28,7 @@ use agent_protocol::{
 };
 use anyhow::Context;
 use clap::Parser;
-use connectors::{ConnectorConfig, NewCase, NewObservable, OpensearchClient, ThehiveClient};
+use connectors::{ConnectorConfig, NewCase, NewObservable, OpensearchClient};
 use enrichment_lib::{composite_score, extract_iocs, Enricher, IocSet};
 use futures::StreamExt;
 use llm_client::{
@@ -39,8 +39,9 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use tracing::{error, info, warn, Instrument};
 
-use agent_core::publish_activity;
+use agent_core::{publish_activity, HttpToolGateway};
 use agent_protocol::activity::ActivityEvent;
+use agent_protocol::tool::ToolCall;
 
 /// Triage agent service configuration.
 #[derive(Debug, Parser)]
@@ -49,6 +50,10 @@ struct Config {
     /// NATS server URL.
     #[arg(long, env = "NATS_URL", default_value = "nats://localhost:4222")]
     nats_url: String,
+
+    /// Tool-server base URL (every side effect goes through its policy gate).
+    #[arg(long, env = "TOOL_SERVER_URL", default_value = "http://localhost:8090")]
+    tool_server_url: String,
 }
 
 /// LLM verdict parsed from the strict-JSON completion.
@@ -218,12 +223,25 @@ async fn write_fp_verdict(
     Ok(())
 }
 
+/// Builds a governed [`ToolCall`] for a side effect this agent owns.
+fn tool_call(tool: &str, args: Value, idempotency_key: String, run_id: uuid::Uuid) -> ToolCall {
+    ToolCall {
+        id: uuid::Uuid::new_v4(),
+        tool: tool.to_string(),
+        args,
+        actor: "triage-agent".to_string(),
+        idempotency_key,
+        correlation_id: run_id,
+    }
+}
+
 /// Opens a TheHive case and attaches each IOC as an observable.
 async fn open_case(
-    hive: &ThehiveClient,
+    gateway: &HttpToolGateway,
     alert: &Value,
     verdict: &Verdict,
     iocs: &[(&'static str, &String)],
+    run_id: uuid::Uuid,
 ) -> anyhow::Result<String> {
     let title = alert
         .get("rule")
@@ -238,14 +256,25 @@ async fn open_case(
         _ => 2,
     };
     let case = NewCase {
-        title,
+        title: title.clone(),
         description: verdict.rationale.clone(),
         severity,
         tags: vec!["ares".to_string(), "triaged".to_string()],
         tlp: 2,
     };
-    let created = hive.create_case(&case).await?;
-    let case_id = created.id.clone();
+    let created = gateway
+        .invoke_allowed(&tool_call(
+            "thehive.case.create",
+            serde_json::to_value(&case)?,
+            format!("triage-case:{title}"),
+            run_id,
+        ))
+        .await?;
+    let case_id = created
+        .get("id")
+        .and_then(Value::as_str)
+        .context("thehive.case.create returned no id")?
+        .to_string();
 
     for (data_type, ioc) in iocs {
         let obs = NewObservable {
@@ -256,7 +285,13 @@ async fn open_case(
             tlp: Some(2),
             ioc: true,
         };
-        if let Err(e) = hive.add_observable(&case_id, &obs).await {
+        let call = tool_call(
+            "thehive.observable.add",
+            json!({"case_id": case_id, "observable": obs}),
+            format!("triage-obs:{case_id}:{ioc}"),
+            run_id,
+        );
+        if let Err(e) = gateway.invoke_allowed(&call).await {
             warn!(error = %e, case_id, "observable add failed");
         }
     }
@@ -305,7 +340,7 @@ struct Deps {
     decision: Option<SystemOneClient>,
     /// Decision-model name (e.g. `tev1:4b`); `None` uses the LLM path.
     decision_model: Option<String>,
-    hive: Arc<ThehiveClient>,
+    gateway: Arc<HttpToolGateway>,
     /// Verdict documents are indexed here.
     os: Arc<OpensearchClient>,
 }
@@ -398,7 +433,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
         "tp" | "suspicious" => {
             let mut observables = iocs.clone();
             observables.extend(ioc_set.cve_ids.iter().map(|c| ("cve", c)));
-            let case_id = open_case(&deps.hive, &envelope.payload, &verdict, &observables).await?;
+            let case_id = open_case(&deps.gateway, &envelope.payload, &verdict, &observables, run_id).await?;
             publish_activity(
                 &deps.nats,
                 &ActivityEvent::new(run_id, "triage", "case", format!("case {case_id} opened")),
@@ -438,7 +473,7 @@ async fn main() -> anyhow::Result<()> {
         decision_model: std::env::var("DECISION_MODEL")
             .ok()
             .filter(|s| !s.is_empty()),
-        hive: Arc::new(conn_cfg.build_thehive_client().context("THEHIVE_URL not set")?),
+        gateway: Arc::new(HttpToolGateway::new(config.tool_server_url.clone())),
         os: Arc::new(
             conn_cfg
                 .build_opensearch_client()

@@ -114,6 +114,25 @@ impl HttpToolGateway {
 }
 
 impl HttpToolGateway {
+    /// Invokes `call` and returns its output, erroring on a non-allow verdict
+    /// or a failed result. Use this for side effects that must not be skipped
+    /// silently.
+    pub async fn invoke_allowed(&self, call: &ToolCall) -> Result<serde_json::Value, AgentError> {
+        let response = self.invoke_verdict(call).await?;
+        if response.decision.kind != DecisionKind::Allow {
+            return Err(AgentError::Denied(response.decision.reason));
+        }
+        if !response.result.ok {
+            return Err(AgentError::Tool(
+                response
+                    .result
+                    .error
+                    .unwrap_or_else(|| "tool reported failure".to_string()),
+            ));
+        }
+        Ok(response.result.output)
+    }
+
     /// Invokes `call` and returns the full verdict plus result.
     pub async fn invoke_verdict(&self, call: &ToolCall) -> Result<InvokeResponse, AgentError> {
         let url = format!("{}/invoke", self.base_url.trim_end_matches('/'));

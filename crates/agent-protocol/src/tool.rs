@@ -35,6 +35,17 @@ pub enum DecisionKind {
     ApprovalRequired,
 }
 
+impl DecisionKind {
+    /// Stable snake_case label used in audit rows and logs.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Allow => "allow",
+            Self::Deny => "deny",
+            Self::ApprovalRequired => "approval_required",
+        }
+    }
+}
+
 /// A policy decision rendered on a tool call.
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Decision {

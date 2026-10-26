@@ -32,8 +32,9 @@ flowchart LR
     CON[console] --> API
 ```
 
-`tool-server` is the only path to side effects: every tool call passes the
-policy gate before execution.
+Every side effect goes through `tool-server`: response actions, case creation
+(triage and hunt), and detection deployments all invoke allowlisted tools, so
+the policy gate, idempotency store and audit chain see them.
 
 ## Security model
 
@@ -44,9 +45,9 @@ policy gate before execution.
   controllers, Tier-0 accounts, RFC1918 ranges, the control plane itself)
   that can never be the target of a write/high-impact call — not
   runtime-overridable; changes require a commit.
-- **Kill switch.** Revoke the `tool-server`'s NATS credentials (or stop the
-  service) and every agent loses the ability to act while keeping read
-  access to data.
+- **Kill switch.** `ARES_KILL_SWITCH=1` or a non-empty `$POLICIES_DIR/kill`
+  file halts every agent and the policy gate (one shared predicate in
+  `agent-protocol::kill`); `POST /controls/kill-switch` writes that file.
 - **Detection-as-code.** Rules live in `detection-content/`, are drafted by
   the agent into `pending/`, backtested, and promoted to `active/` only by
   commit — then deployed as OpenSearch monitors.
@@ -86,7 +87,7 @@ manifests for the same stack live in `infra/k8s` — deploy with
 
 | Path | Contents |
 |---|---|
-| `crates/` | Rust workspace: tool-server, api-server, ingestion-gateway, orchestrator, triage/response/detection/hunt agents, bas-runner |
+| `crates/` | Rust workspace (see `Cargo.toml`): control plane (`tool-server`, `policy-engine`, `audit`, `idempotency`), edge (`api-server`, `ingestion-gateway`), agents (`orchestrator`, triage/response/detection/hunt/vuln), shared libs (`agent-protocol`, `agent-core`, `llm-client`, `connectors`, `enrichment-lib`, `cvss`, `http-limits`, `a2a`, `acp`), and `bas-runner` |
 | `apps/console/` | Next.js console |
 | `infra/` | docker-compose dev stack, Dockerfiles, Helm chart, plain k8s manifests, Wazuh integration |
 | `policies/` | Tool allowlist + protected assets (policy gate inputs) |

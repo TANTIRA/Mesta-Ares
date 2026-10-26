@@ -15,14 +15,15 @@ use agent_protocol::envelope::Envelope;
 use agent_protocol::SUBJECT_HUNT;
 use anyhow::Context;
 use clap::Parser;
-use connectors::{ConnectorConfig, NewCase, OpensearchClient, ThehiveClient};
+use connectors::{ConnectorConfig, NewCase, OpensearchClient};
 use futures::StreamExt;
 use serde_json::Value;
 use tracing::{error, info, warn, Instrument};
 use uuid::Uuid;
 
-use agent_core::{kill_switch_engaged, publish_activity};
+use agent_core::{kill_switch_engaged, publish_activity, HttpToolGateway};
 use agent_protocol::activity::ActivityEvent;
+use agent_protocol::tool::ToolCall;
 
 /// Default hunt interval: 6 hours.
 const DEFAULT_HUNT_INTERVAL_SECS: u64 = 6 * 3600;
@@ -39,6 +40,10 @@ struct Config {
     #[arg(long, env = "NATS_URL", default_value = "nats://localhost:4222")]
     nats_url: String,
 
+    /// Tool-server base URL (case creation goes through its policy gate).
+    #[arg(long, env = "TOOL_SERVER_URL", default_value = "http://localhost:8090")]
+    tool_server_url: String,
+
     /// Seconds between autonomous hunt sweeps.
     #[arg(long, env = "HUNT_INTERVAL_SECS", default_value_t = DEFAULT_HUNT_INTERVAL_SECS)]
     hunt_interval_secs: u64,
@@ -48,7 +53,7 @@ struct Config {
 struct Deps {
     nats: async_nats::Client,
     os: Arc<OpensearchClient>,
-    hive: Arc<ThehiveClient>,
+    gateway: Arc<HttpToolGateway>,
 }
 
 
@@ -86,10 +91,11 @@ fn score_hits(resp: &Value) -> u64 {
 
 /// Opens a TheHive case for a scored hunt finding.
 async fn open_finding(
-    hive: &ThehiveClient,
+    gateway: &HttpToolGateway,
     h: &hypotheses::Hypothesis,
     score: u64,
     resp: &Value,
+    run_id: Uuid,
 ) -> anyhow::Result<()> {
     let case = NewCase {
         title: format!("[hunt] {} — {}", h.technique, h.name),
@@ -108,8 +114,20 @@ async fn open_finding(
         tags: vec!["hunt".to_string(), format!("attack.{}", h.technique.to_ascii_lowercase())],
         tlp: 2,
     };
-    let created = hive.create_case(&case).await?;
-    info!(case_id = %created.id, hunt = h.id, "hunt finding case opened");
+    let call = ToolCall {
+        id: Uuid::new_v4(),
+        tool: "thehive.case.create".to_string(),
+        args: serde_json::to_value(&case)?,
+        actor: "hunt-agent".to_string(),
+        idempotency_key: format!("hunt-case:{}:{score}", h.id),
+        correlation_id: run_id,
+    };
+    let created = gateway.invoke_allowed(&call).await?;
+    info!(
+        case_id = created.get("id").and_then(serde_json::Value::as_str).unwrap_or("?"),
+        hunt = h.id,
+        "hunt finding case opened"
+    );
     Ok(())
 }
 
@@ -145,7 +163,7 @@ async fn run_sweep(deps: &Deps, run_id: Uuid) -> anyhow::Result<usize> {
         };
         let score = score_hits(&resp);
         if score >= CASE_THRESHOLD {
-            open_finding(&deps.hive, &h, score, &resp).await?;
+            open_finding(&deps.gateway, &h, score, &resp, run_id).await?;
             findings += 1;
             publish_activity(
                 &deps.nats,
@@ -189,7 +207,7 @@ async fn main() -> anyhow::Result<()> {
                 .build_opensearch_client()
                 .context("OPENSEARCH_URL not set")?,
         ),
-        hive: Arc::new(conn_cfg.build_thehive_client().context("THEHIVE_URL not set")?),
+        gateway: Arc::new(HttpToolGateway::new(config.tool_server_url.clone())),
     });
 
     let mut sub = nats.subscribe(SUBJECT_HUNT.to_string()).await?;

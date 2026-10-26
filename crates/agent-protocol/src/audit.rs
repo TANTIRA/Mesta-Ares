@@ -5,6 +5,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::tool::DecisionKind;
+
 /// An immutable, hash-chained record of a governed action.
 ///
 /// Each event carries the SHA-256 of the previous event in `prev_hash` and
@@ -21,8 +23,8 @@ pub struct AuditEvent {
     pub tool: String,
     /// SHA-256 hex digest of the canonical serialized tool arguments.
     pub args_sha256: String,
-    /// Policy decision rendered for the action (`allow`, `deny`, ...).
-    pub decision: String,
+    /// Policy decision rendered for the action.
+    pub decision: DecisionKind,
     /// Reason attached to the decision.
     pub reason: String,
     /// Correlation identifier tying the event to its triggering flow.

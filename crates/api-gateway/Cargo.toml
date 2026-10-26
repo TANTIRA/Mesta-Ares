@@ -1,0 +1,22 @@
+[package]
+name = "api-gateway"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "API gateway for the Ares console and integrations: routing, auth, rate limits, cache, metrics"
+
+[dependencies]
+http-limits = { path = "../http-limits" }
+tokio.workspace = true
+axum.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+reqwest.workspace = true
+dashmap.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+futures.workspace = true
+chrono.workspace = true

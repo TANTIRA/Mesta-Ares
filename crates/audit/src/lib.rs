@@ -1,8 +1,7 @@
 //! Tamper-evident audit log for ARES.
 //!
 //! [`AuditWriter::append`] writes a hash-chained [`AuditEvent`] into the
-//! `audit_log` Postgres table; [`AuditWriter::ship`] mirrors an event into
-//! OpenSearch (`ares-audit` index) for SIEM visibility.
+//! `audit_log` Postgres table; api-server serves those rows at `GET /audit`.
 //!
 //! Expected table:
 //! `audit_log (seq bigserial pk, ts timestamptz, actor text, tool text,
@@ -17,6 +16,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 pub use agent_protocol::audit::AuditEvent;
+use agent_protocol::tool::DecisionKind;
 
 /// SHA-256 hex digest of the zero hash used as `prev_hash` for the first
 /// event in the chain.
@@ -50,32 +50,60 @@ impl AuditWriter {
         Self { pg }
     }
 
+    /// Creates `audit_log` when absent.
+    pub async fn ensure_schema(pg: &PgPool) -> Result<(), AuditError> {
+        sqlx::query(
+            "CREATE TABLE IF NOT EXISTS audit_log (
+                seq BIGSERIAL PRIMARY KEY,
+                ts TIMESTAMPTZ NOT NULL,
+                actor TEXT NOT NULL,
+                tool TEXT NOT NULL,
+                args_sha256 TEXT NOT NULL,
+                decision TEXT NOT NULL,
+                reason TEXT NOT NULL,
+                correlation_id UUID NOT NULL,
+                prev_hash TEXT NOT NULL,
+                hash TEXT NOT NULL
+            )",
+        )
+        .execute(pg)
+        .await?;
+        Ok(())
+    }
+
     /// Append a hash-chained event to `audit_log`.
     ///
     /// Computes `args_sha256`, reads the previous event's `hash` (or the zero
     /// hash for the first row), chains `hash = sha256(prev_hash || canonical
     /// fields)`, inserts the row, and returns the stored event.
-    #[tracing::instrument(skip(self, args), fields(actor = %actor, tool = %tool, decision = %decision))]
+    #[tracing::instrument(skip(self, args), fields(actor = %actor, tool = %tool, decision = ?decision))]
     pub async fn append(
         &self,
         actor: &str,
         tool: &str,
         args: &serde_json::Value,
-        decision: &str,
+        decision: DecisionKind,
         reason: &str,
         correlation_id: Uuid,
     ) -> Result<AuditEvent, AuditError> {
         let args_sha256 = sha256_hex(&serde_json::to_vec(args)?);
+        let decision_label = decision.as_str();
 
+        // Serialize chain appends: read-then-insert without a lock forks the
+        // chain under concurrent /invoke traffic.
+        let mut tx = self.pg.begin().await?;
+        sqlx::query("SELECT pg_advisory_xact_lock(hashtext('audit_log_chain'))")
+            .execute(&mut *tx)
+            .await?;
         let prev_hash: Option<String> =
             sqlx::query_scalar("SELECT hash FROM audit_log ORDER BY seq DESC LIMIT 1")
-                .fetch_optional(&self.pg)
+                .fetch_optional(&mut *tx)
                 .await?;
         let prev_hash = prev_hash.unwrap_or_else(|| GENESIS_HASH.to_string());
 
         let ts = Utc::now();
         let canonical = format!(
-            "{prev_hash}|{actor}|{tool}|{args_sha256}|{decision}|{reason}|\
+            "{prev_hash}|{actor}|{tool}|{args_sha256}|{decision_label}|{reason}|\
              {correlation_id}|{ts}",
             ts = ts.to_rfc3339(),
         );
@@ -92,13 +120,14 @@ impl AuditWriter {
         .bind(actor)
         .bind(tool)
         .bind(&args_sha256)
-        .bind(decision)
+        .bind(decision_label)
         .bind(reason)
         .bind(correlation_id)
         .bind(&prev_hash)
         .bind(&hash)
-        .fetch_one(&self.pg)
+        .fetch_one(&mut *tx)
         .await?;
+        tx.commit().await?;
 
         Ok(AuditEvent {
             seq,
@@ -106,7 +135,7 @@ impl AuditWriter {
             actor: actor.to_string(),
             tool: tool.to_string(),
             args_sha256,
-            decision: decision.to_string(),
+            decision,
             reason: reason.to_string(),
             correlation_id,
             prev_hash,
@@ -114,27 +143,6 @@ impl AuditWriter {
         })
     }
 
-    /// Ship `event` to OpenSearch at `{opensearch_url}/ares-audit/_doc` for
-    /// SIEM visibility. Transport or non-2xx failures surface as
-    /// [`AuditError::Http`]; the Postgres row is already durable.
-    #[tracing::instrument(skip(self, client, event), fields(seq = event.seq))]
-    pub async fn ship(
-        &self,
-        client: &reqwest::Client,
-        opensearch_url: &str,
-        event: &AuditEvent,
-    ) -> Result<(), AuditError> {
-        let url = format!("{}/ares-audit/_doc", opensearch_url.trim_end_matches('/'));
-        client
-            .post(&url)
-            .json(event)
-            .send()
-            .await
-            .map_err(AuditError::Http)?
-            .error_for_status()
-            .map_err(AuditError::Http)?;
-        Ok(())
-    }
 }
 
 fn sha256_hex(bytes: &[u8]) -> String {

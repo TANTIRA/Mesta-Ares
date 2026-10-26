@@ -59,15 +59,6 @@ fn idem_key(call: &ToolCall) -> Option<String> {
         .and_then(|v| v.as_str().filter(|s| !s.is_empty()).map(str::to_string))
 }
 
-/// `DecisionKind` as the snake_case label the audit table stores.
-pub(crate) fn decision_label(kind: &DecisionKind) -> &'static str {
-    match kind {
-        DecisionKind::Allow => "allow",
-        DecisionKind::Deny => "deny",
-        DecisionKind::ApprovalRequired => "approval_required",
-    }
-}
-
 async fn invoke(
     State(state): State<Arc<AppState>>,
     Json(call): Json<ToolCall>,
@@ -86,7 +77,7 @@ async fn invoke(
                 &call.actor,
                 &call.tool,
                 &call.args,
-                decision_label(&decision.kind),
+                decision.kind,
                 &decision.reason,
                 call.correlation_id,
             )
@@ -230,7 +221,9 @@ async fn main() -> Result<()> {
     let registry = executors::build_registry(&cfg);
     let missing = executors::missing_executors(&registry, &engine.tool_names());
     if !missing.is_empty() {
-        warn!(?missing, "allowlisted tools have no executor");
+        anyhow::bail!(
+            "allowlisted tools have no executor: {missing:?}; refusing to start"
+        );
     }
 
     let pg = match std::env::var("DATABASE_URL") {
@@ -247,6 +240,11 @@ async fn main() -> Result<()> {
         }
     };
 
+    if let Some(pool) = &pg {
+        if let Err(e) = AuditWriter::ensure_schema(pool).await {
+            error!(error = %e, "audit_log schema init failed");
+        }
+    }
     let audit = pg.clone().map(AuditWriter::new);
     let idem = match &pg {
         Some(pool) => {

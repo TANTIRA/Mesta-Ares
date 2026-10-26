@@ -249,7 +249,7 @@ pub async fn approve(
                 &by,
                 &call.tool,
                 &call.args,
-                crate::decision_label(&decision.kind),
+                decision.kind,
                 &format!("approved by {by}: {}", decision.reason),
                 call.correlation_id,
             )
@@ -301,7 +301,7 @@ pub async fn reject(
                 &by,
                 &call.tool,
                 &call.args,
-                "deny",
+                DecisionKind::Deny,
                 &reason,
                 call.correlation_id,
             )

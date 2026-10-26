@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 64,
-    "open": 452,
+    "fixed": 72,
+    "open": 444,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 38,
-        "open": 69,
+        "fixed": 43,
+        "open": 64,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 6,
-        "open": 246,
+        "fixed": 9,
+        "open": 243,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -9958,11 +9958,11 @@
         "reasoning": "",
         "summary_hash": "d50a5c75"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:29:01+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9970,7 +9970,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:29:01+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::dependency_health::serde_yaml_deprecated": {
       "id": "review::.::holistic::dependency_health::serde_yaml_deprecated",
@@ -10001,11 +10007,11 @@
         "reasoning": "",
         "summary_hash": "59c69d4c"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:29:09+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10013,7 +10019,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:29:09+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::dependency_health::unused_direct_dependencies": {
       "id": "review::.::holistic::dependency_health::unused_direct_dependencies",
@@ -10047,11 +10059,11 @@
         "reasoning": "",
         "summary_hash": "aa13e390"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:29:07+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10059,7 +10071,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:29:07+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::dependency_health::dead_pgvector_and_sqlx_bypass": {
       "id": "review::.::holistic::dependency_health::dead_pgvector_and_sqlx_bypass",
@@ -10086,11 +10104,11 @@
         "reasoning": "",
         "summary_hash": "7fce6f2f"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:29:05+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10098,7 +10116,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:29:05+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::dependency_health::tokio_full_for_library_crates": {
       "id": "review::.::holistic::dependency_health::tokio_full_for_library_crates",
@@ -10126,11 +10150,11 @@
         "reasoning": "",
         "summary_hash": "d588889c"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:29:02+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10138,7 +10162,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:29:02+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::dependency_health::inline_version_pins_bypass_workspace": {
       "id": "review::.::holistic::dependency_health::inline_version_pins_bypass_workspace",
@@ -10171,11 +10201,11 @@
         "reasoning": "",
         "summary_hash": "3da9030d"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:29:04+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10183,7 +10213,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:29:04+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::dependency_health::no_dependency_policy_gate": {
       "id": "review::.::holistic::dependency_health::no_dependency_policy_gate",
@@ -12785,11 +12821,11 @@
         "reasoning": "",
         "summary_hash": "6c6b8185"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:29:06+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12797,7 +12833,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:29:06+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::incomplete_migration::api_bind_rename_incomplete": {
       "id": "review::.::holistic::incomplete_migration::api_bind_rename_incomplete",
@@ -15109,11 +15151,11 @@
         "reasoning": "",
         "summary_hash": "b3147e21"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:23:52+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -15121,7 +15163,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:23:52+00:00",
+        "scan_verified": false
+      }
     },
     "structural::crates/api-server/src/acp.rs": {
       "id": "structural::crates/api-server/src/acp.rs",
@@ -17707,7 +17755,10 @@
     "dependency_health": {
       "score": 78.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:29:09+00:00"
     },
     "design_coherence": {
       "score": 73.0,
@@ -17739,7 +17790,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:21:45+00:00"
+      "stale_since": "2026-10-26T09:29:06+00:00"
     },
     "initialization_coupling": {
       "score": 74.0,
@@ -17797,7 +17848,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:21:48+00:00"
+      "stale_since": "2026-10-26T09:23:52+00:00"
     }
   },
   "scan_history": [
@@ -22426,13 +22477,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 7,
+          "failing": 1,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,
@@ -22510,13 +22561,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 7,
+          "failing": 6,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22678,13 +22729,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 8,
+          "failing": 7,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,

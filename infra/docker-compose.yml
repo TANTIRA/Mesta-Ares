@@ -340,7 +340,7 @@ services:
       args: {BIN: api-server}
     environment:
       <<: [*ares-env, *ares-secrets]
-      API_BIND: 0.0.0.0:8080
+      BIND_ADDR: 0.0.0.0:8080
     ports: ["8080:8080"]
     depends_on:
       <<: *depends-core
