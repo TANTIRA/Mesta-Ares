@@ -144,6 +144,26 @@ paths:
         '502':
           $ref: '#/components/responses/UpstreamError'
 
+  /audit/verify:
+    get:
+      tags: [Read models]
+      summary: Re-walk the audit hash chain and report the first break
+      responses:
+        '200':
+          description: Chain verification report
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [rows, verified]
+                properties:
+                  rows: { type: integer, description: Rows inspected. }
+                  verified: { type: integer, description: Rows verified before any break. }
+                  broken_at: { type: integer, nullable: true, description: seq of the first broken row. }
+                  reason: { type: string, nullable: true, description: Why that row failed. }
+        '500':
+          $ref: '#/components/responses/UpstreamError'
+
   /metrics:
     get:
       tags: [Read models]

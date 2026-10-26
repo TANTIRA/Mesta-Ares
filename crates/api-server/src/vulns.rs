@@ -12,6 +12,7 @@ use axum::{
 use serde::Deserialize;
 use serde_json::{json, Value};
 
+use crate::error::{api_err, ApiError};
 use crate::AppState;
 
 /// Cheap shape check before hitting NVD.
@@ -46,7 +47,7 @@ pub struct VulnsQuery {
 pub async fn list_vulns(
     State(s): State<Arc<AppState>>,
     Query(q): Query<VulnsQuery>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     let days = q.days.unwrap_or(1).clamp(1, 120);
     let to = chrono::Utc::now();
     let from = to - chrono::Duration::days(days as i64);
@@ -70,25 +71,25 @@ pub async fn list_vulns(
         .list_published(&fmt(from), &fmt(to), q.start_index.unwrap_or(0), &extra)
         .await
         .map(|p| Json(serde_json::to_value(p).unwrap_or(Value::Null)))
-        .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))
+        .map_err(|e| api_err(StatusCode::BAD_GATEWAY, e.to_string()))
 }
 
 /// `GET /vulns/:cve_id` — one CVE record (Redis-cached through the enricher).
 pub async fn get_vuln(
     State(s): State<Arc<AppState>>,
     Path(cve_id): Path<String>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     let cve_id = cve_id.to_uppercase();
     if !valid_cve_id(&cve_id) {
-        return Err((StatusCode::BAD_REQUEST, "malformed CVE id".to_string()));
+        return Err(api_err(StatusCode::BAD_REQUEST, "malformed CVE id"));
     }
     match s.enricher.enrich_cve(&cve_id).await {
         Ok(Some(rec)) => Ok(Json(serde_json::to_value(rec).unwrap_or(Value::Null))),
-        Ok(None) => Err((
+        Ok(None) => Err(api_err(
             StatusCode::NOT_FOUND,
             format!("{cve_id}: no NVD record (unknown, reserved, or rejected)"),
         )),
-        Err(e) => Err((
+        Err(e) => Err(api_err(
             StatusCode::BAD_GATEWAY,
             format!("NVD lookup failed for {cve_id}: {e}"),
         )),
@@ -99,30 +100,30 @@ pub async fn get_vuln(
 pub async fn get_vuln_history(
     State(s): State<Arc<AppState>>,
     Path(cve_id): Path<String>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     let cve_id = cve_id.to_uppercase();
     if !valid_cve_id(&cve_id) {
-        return Err((StatusCode::BAD_REQUEST, "malformed CVE id".to_string()));
+        return Err(api_err(StatusCode::BAD_REQUEST, "malformed CVE id"));
     }
     s.nvd
         .get_history(&cve_id)
         .await
         .map(Json)
-        .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))
+        .map_err(|e| api_err(StatusCode::BAD_GATEWAY, e.to_string()))
 }
 
 /// `POST /cvss/score` — score a v3.1/v4.0 vector locally.
 pub async fn score_cvss(
     State(_s): State<Arc<AppState>>,
     Json(body): Json<Value>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     let vector = body
         .get("vector")
         .and_then(Value::as_str)
-        .ok_or((StatusCode::BAD_REQUEST, "missing `vector`".to_string()))?;
+        .ok_or(api_err(StatusCode::BAD_REQUEST, "missing `vector`"))?;
     cvss::parse_vector(vector)
         .map(|sc| Json(serde_json::to_value(sc).unwrap_or(Value::Null)))
-        .map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))
+        .map_err(|e| api_err(StatusCode::BAD_REQUEST, e.to_string()))
 }
 
 /// `GET /vulns/advisories` — vuln-agent advisories persisted to Postgres.
@@ -134,7 +135,7 @@ pub struct AdvisoryQuery {
 pub async fn list_advisories(
     State(s): State<Arc<AppState>>,
     Query(q): Query<AdvisoryQuery>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     let limit = q.limit.unwrap_or(100).min(1000);
     let rows: Vec<Value> = sqlx::query_scalar(
         "SELECT to_jsonb(t) FROM (
@@ -146,7 +147,7 @@ pub async fn list_advisories(
     .bind(limit)
     .fetch_all(&s.pool)
     .await
-    .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))?;
+    .map_err(|e| api_err(StatusCode::BAD_GATEWAY, e.to_string()))?;
     Ok(Json(json!({"advisories": rows})))
 }
 

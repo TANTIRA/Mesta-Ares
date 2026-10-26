@@ -5,11 +5,13 @@
 
 use std::collections::BTreeSet;
 
-use axum::{http::StatusCode, response::IntoResponse, Json};
+use axum::{response::IntoResponse, Json};
 use serde_json::{json, Value};
 
+use crate::error::ApiError;
+
 /// Lists the distinct ATT&CK technique ids covered by active rules.
-pub async fn get_coverage() -> Result<impl IntoResponse, (StatusCode, String)> {
+pub async fn get_coverage() -> Result<impl IntoResponse, ApiError> {
     let mut techniques = BTreeSet::new();
     let mut rules = 0usize;
     let mut errors: Vec<String> = Vec::new();

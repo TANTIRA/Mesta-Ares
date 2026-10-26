@@ -284,4 +284,4 @@ mod tests {
         assert_eq!(score_hits(&json!({})), 0);
     }
 }
-}
+

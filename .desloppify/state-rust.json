@@ -1,19 +1,19 @@
 {
   "version": 3,
   "created": "2026-10-26T08:15:39+00:00",
-  "last_scan": "2026-10-26T10:22:46+00:00",
-  "scan_count": 4,
+  "last_scan": "2026-10-26T10:27:36+00:00",
+  "scan_count": 5,
   "overall_score": 78.9,
   "objective_score": 84.1,
   "strict_score": 78.3,
   "verified_strict_score": 84.1,
   "stats": {
-    "total": 599,
+    "total": 608,
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
     "fixed": 156,
-    "open": 392,
+    "open": 401,
     "triaged_out": 0,
     "wontfix": 1,
     "by_tier": {
@@ -22,7 +22,7 @@
         "deferred": 0,
         "false_positive": 0,
         "fixed": 90,
-        "open": 35,
+        "open": 41,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -31,7 +31,7 @@
         "deferred": 0,
         "false_positive": 0,
         "fixed": 46,
-        "open": 220,
+        "open": 223,
         "triaged_out": 0,
         "wontfix": 1
       },
@@ -6045,7 +6045,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6079,7 +6079,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6113,7 +6113,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6147,7 +6147,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6181,7 +6181,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6215,7 +6215,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6249,7 +6249,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6283,7 +6283,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6317,7 +6317,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6351,7 +6351,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6385,7 +6385,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6419,7 +6419,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6453,7 +6453,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6487,7 +6487,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6521,7 +6521,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6555,7 +6555,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6589,7 +6589,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6623,7 +6623,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6657,7 +6657,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6691,7 +6691,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified_at": "2026-10-26T10:27:36+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -18205,7 +18205,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18245,7 +18245,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18285,7 +18285,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18324,7 +18324,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18361,7 +18361,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18398,7 +18398,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18437,7 +18437,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18484,7 +18484,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18522,7 +18522,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18561,7 +18561,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18599,7 +18599,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18637,7 +18637,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18674,7 +18674,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18710,7 +18710,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18746,7 +18746,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18782,7 +18782,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18817,7 +18817,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18853,7 +18853,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18889,7 +18889,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18925,7 +18925,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -18961,7 +18961,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19000,7 +19000,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19038,7 +19038,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19074,7 +19074,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19112,7 +19112,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19148,7 +19148,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19184,7 +19184,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19221,7 +19221,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19257,7 +19257,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19293,7 +19293,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19331,7 +19331,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19367,7 +19367,7 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19404,7 +19404,352 @@
       "status": "open",
       "note": null,
       "first_seen": "2026-10-26T10:22:46+00:00",
-      "last_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::test_strategy::auth_middleware_decision_untested": {
+      "id": "review::.::holistic::test_strategy::auth_middleware_decision_untested",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Both auth middlewares' 401/503/anonymous branches have no test; only key predicates are covered",
+      "detail": {
+        "holistic": true,
+        "dimension": "test_strategy",
+        "related_files": [
+          "crates/http-limits/src/auth.rs",
+          "crates/api-gateway/src/auth.rs",
+          "crates/api-server/src/main.rs"
+        ],
+        "evidence": [
+          "`http-limits/src/auth.rs:88` `require_auth` is the gate for api-server (main.rs:299), tool-server (main.rs:299) and ingestion-gateway (main.rs:148); the only tests (lines 120-138) exercise `ApiKeys::actor_for`/`is_enabled`, never the middleware's missing-credentials 401, invalid-credentials 401, dev-mode pass-through, or `Actor` insertion.",
+          "`api-gateway/src/auth.rs:95` `middleware` owns the 401 / 503-gateway_auth_not_configured / allow-anonymous branches; tests at lines 135-174 only cover `presented_key`, `accepts`, `is_exempt`, and the test fixture's own `allow_anonymous` field.",
+          "`http-limits/src/lib.rs:394` already demonstrates the required harness (`tower` `util` dev-dep + `app.oneshot(peer_req(...))`), so the same style would drive both middlewares without new infrastructure."
+        ],
+        "suggestion": "Add oneshot middleware tests in each crate: no credentials -> 401, wrong key -> 401, valid Bearer/X-API-Key -> 200 and `Actor` present in extensions, unset key set -> pass-through with `anonymous` (and 503 for api-gateway when keys are empty and anonymous is disabled).",
+        "reasoning": "",
+        "summary_hash": "242f77df"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:27:36+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::test_strategy::api_server_http_surface_untested": {
+      "id": "review::.::holistic::test_strategy::api_server_http_surface_untested",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "api-server's 1.4k LOC of HTTP handlers (A2A, ACP, SSE, kill, playbooks) have no handler-level tests",
+      "detail": {
+        "holistic": true,
+        "dimension": "test_strategy",
+        "related_files": [
+          "crates/api-server/src/a2a.rs",
+          "crates/api-server/src/acp.rs",
+          "crates/api-server/src/main.rs",
+          "crates/api-server/Cargo.toml"
+        ],
+        "evidence": [
+          "`a2a.rs` (548 LOC) and `acp.rs` (568 LOC) contain no `#[cfg(test)]` module; the crate's 4 tests are `api_router_registers_all_routes` (main.rs:404-409, which builds the router and drops it), `classify_maps_paths_to_tiers` (ratelimit.rs:56) and two `valid_cve_id` asserts (vulns.rs:158-172).",
+          "`api-server/Cargo.toml` has no `[dev-dependencies]`, so the crate cannot do `tower::ServiceExt::oneshot` route tests or a DB-backed test \u2014 unlike api-gateway (`router_registers_all_routes`, main.rs:258) and http-limits, which do.",
+          "Even the DB-free helpers are untested: `a2a::task_uuid` (a2a.rs:226, uuid-vs-v5-hash branch), `a2a::build_payload` (a2a.rs:304, HandoffPayload branch for response-agent), `acp::input_to_text` (acp.rs:204), `acp::manifest_for` (acp.rs:61)."
+        ],
+        "suggestion": "Cover the DB-free helpers first (task_uuid with a UUID and a non-UUID id, build_payload for SUBJECT_RESPOND vs other subjects, input_to_text, manifest_for), then add a `tower` dev-dependency and oneshot tests for `/.well-known/agent.json`, `/a2a/agents`, `/a2a/{agent}` and an unknown agent's 404, following api-gateway/src/main.rs:258.",
+        "reasoning": "",
+        "summary_hash": "c63fa3b1"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:27:36+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::test_strategy::shared_run_stream_db_coupled": {
+      "id": "review::.::holistic::test_strategy::shared_run_stream_db_coupled",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Shared SSE state machine takes a concrete PgPool, so the module both protocols depend on cannot be unit-tested",
+      "detail": {
+        "holistic": true,
+        "dimension": "test_strategy",
+        "related_files": [
+          "crates/api-server/src/run_stream.rs",
+          "crates/agent-core/src/checkpoint.rs"
+        ],
+        "evidence": [
+          "`run_stream.rs:34` `checkpoint_progress(pool: &PgPool, ..)`, `:94` `RunRecord::load(pool: &PgPool, ..)` and `:121` `activity_stream(rx, pool: PgPool, ..)` bind the replay/close state machine to `sqlx::PgPool`; the file has no test module.",
+          "`wait_for_terminal` (run_stream.rs:55-82) needs only a `broadcast::Receiver` and a timeout \u2014 lag handling, wrong `workflow_run_id`, and terminal-step matching are all testable today but untested.",
+          "The codebase already has the better pattern in `agent-core/src/checkpoint.rs:22-40`: a `CheckpointStore` trait plus `InMemoryCheckpointer`, which is why `agent_loop.rs` tests need no Postgres."
+        ],
+        "suggestion": "Replace the `PgPool` parameter with a small trait or a record-loader closure so `activity_stream` can be driven by a fake, and add direct tests for `wait_for_terminal` (lagged receiver, non-matching correlation id, terminal vs non-terminal step, timeout).",
+        "reasoning": "",
+        "summary_hash": "41ebba15"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:27:36+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::test_strategy::activity_terminal_step_contract_untested": {
+      "id": "review::.::holistic::test_strategy::activity_terminal_step_contract_untested",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "`terminal_step` agent/step string contract has no test; renaming one emitted step silently hangs every SSE stream",
+      "detail": {
+        "holistic": true,
+        "dimension": "test_strategy",
+        "related_files": [
+          "crates/agent-protocol/src/activity.rs",
+          "crates/api-server/src/run_stream.rs",
+          "crates/triage-agent/src/main.rs"
+        ],
+        "evidence": [
+          "`activity.rs:30-38` is a hard-coded agent x step table ('close', 'handoff', 'kill_switch', 'done', 'deployed', 'rejected'); the module has no `#[cfg(test)]`.",
+          "`run_stream.rs:72` is the only thing that closes an A2A/ACP stream, and the emitters are per-agent literals in triage-agent, response-agent, detection-agent and hunt-agent \u2014 a rename on the emitting side degrades to `wait_for_terminal` timing out (run_stream.rs:81) instead of a failing test.",
+          "`aborted_step` (activity.rs:41) decides whether a run is marked failed vs completed and is likewise untested."
+        ],
+        "suggestion": "Add a table test over every agent x terminal step plus a non-terminal step and an unknown agent, and a test asserting each agent's emitted step constants are members of that table (export the literals as consts so the test can reference them).",
+        "reasoning": "",
+        "summary_hash": "7ab681f3"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:27:36+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::test_strategy::no_db_integration_harness": {
+      "id": "review::.::holistic::test_strategy::no_db_integration_harness",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "No database-backed test harness: every Postgres store is untested while its in-memory twin is tested",
+      "detail": {
+        "holistic": true,
+        "dimension": "test_strategy",
+        "related_files": [
+          "crates/tool-server/src/idempotency.rs",
+          "crates/audit/src/lib.rs",
+          "crates/orchestrator/src/dedupe.rs",
+          "crates/agent-core/src/checkpoint.rs"
+        ],
+        "evidence": [
+          "`idempotency.rs:183` `Store::pg` and `:188` `Store::mem` are documented as 'identical semantics', but all 9 tests (lines 424-545) drive only `mem` and the pure `Record` helpers; `claim_pg`'s `INSERT .. ON CONFLICT` reclaim/expiry SQL (lines 217-320) is never executed.",
+          "`audit/src/lib.rs:157` `verify_chain` and `:238` `canonical_string` (the exact string whose hash is stored) are untested \u2014 the two tests cover `sha256_hex` shape and `GENESIS_HASH`, so a field-order change in `canonical_string` would invalidate every existing row's hash with no failing test.",
+          "`orchestrator/src/dedupe.rs:32` `check_and_mark`, `agent-core/src/checkpoint.rs:49` `PostgresCheckpointer` and `api-server`'s `a2a_tasks`/`acp_runs` lifecycle have no tests; `grep -rn 'sqlx::test|testcontainers' crates` returns nothing."
+        ],
+        "suggestion": "Add one `#[sqlx::test]` module (or a `DATABASE_URL`-gated module skipped when unset) per store and run the same scenario list against `mem` and `pg` to prove parity; start with audit append->verify_chain (including a tampered row) and idempotency claim/finish/expired-reclaim.",
+        "reasoning": "",
+        "summary_hash": "6643636f"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:27:36+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::test_strategy::agent_core_budget_killswitch_branches_untested": {
+      "id": "review::.::holistic::test_strategy::agent_core_budget_killswitch_branches_untested",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Agent loop's kill-switch branch and two of three budget stop reasons are never exercised",
+      "detail": {
+        "holistic": true,
+        "dimension": "test_strategy",
+        "related_files": [
+          "crates/agent-core/src/agent_loop.rs",
+          "crates/agent-core/src/budget.rs",
+          "crates/agent-core/src/gateway.rs"
+        ],
+        "evidence": [
+          "`agent_loop.rs:142-148` blocks a tool call and stops with `kill_switch`; the three tests (lines 239-275) cover only `final`, `max_steps` and fence stripping.",
+          "`budget.rs:39` `exceeded_reason` is pure and takes an injected `Instant`, yet has no direct test, so the `max_tokens` and `wall_time` stop reasons are never asserted anywhere.",
+          "`gateway.rs:130-155` `invoke_verdict`'s retry loop (retryable flag, `MAX_RETRIES`, `backoff`) is untested \u2014 only the sleep helper in connectors has a bound test."
+        ],
+        "suggestion": "Add `exceeded_reason` tests built from a literal `AgentState` plus `Instant::now() - Duration` (the injected-clock pattern already used at http-limits/src/lib.rs:377), a loop test with a token-exhausting provider, and make the kill switch injectable (a bool field) so the block branch is testable without process env.",
+        "reasoning": "",
+        "summary_hash": "d3b723ab"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:27:36+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::test_strategy::core_agent_pipelines_leaf_only_tests": {
+      "id": "review::.::holistic::test_strategy::core_agent_pipelines_leaf_only_tests",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Triage/vuln/hunt/orchestrator business logic has 0-2 tests each, all on trivial helpers",
+      "detail": {
+        "holistic": true,
+        "dimension": "test_strategy",
+        "related_files": [
+          "crates/triage-agent/src/main.rs",
+          "crates/vuln-agent/src/main.rs",
+          "crates/hunt-agent/src/main.rs",
+          "crates/orchestrator/src/main.rs"
+        ],
+        "evidence": [
+          "`triage-agent/src/main.rs` (575 LOC) tests only `severity_from_level` and `severity_gte_high` (lines 558-573); `llm_verdict` (line 142, fence stripping + `Verdict` parsing) and `decision_verdict` (line 200) are untested even though `llm_client::MockProvider` is a public seam.",
+          "`vuln-agent/src/main.rs` has zero tests: `best_cvss` (line 91) picks the severity shown in the console and `watchlist_match` (line 108) decides whether an advisory is surfaced at all.",
+          "`hunt-agent/src/main.rs` has zero tests: `score_hits` (line 64) is pure bucketing; `orchestrator/src/main.rs:49` `route_subject` (the routing table where the fixed DLQ-loop bug lived) is untested while `dedupe_key` next to it is tested."
+        ],
+        "suggestion": "Add the pure-function tests first, none of which need infrastructure: `llm_verdict` with MockProvider returning fenced JSON, bare JSON and malformed JSON; `best_cvss`/`watchlist_match` against a literal `CveRecord`; `score_hits` bucket boundaries; `route_subject` for all six `EnvelopeKind`s including `BasResult` with `detected` true/false.",
+        "reasoning": "",
+        "summary_hash": "02cf1aa2"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:27:36+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::test_strategy::eval_harness_is_stub": {
+      "id": "review::.::holistic::test_strategy::eval_harness_is_stub",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "The only end-to-end evaluation of the LLM triage layer is a JSON format check",
+      "detail": {
+        "holistic": true,
+        "dimension": "test_strategy",
+        "related_files": [
+          "evals/run.sh",
+          "evals/README.md",
+          "evals/golden_sets/triage_seed.jsonl",
+          ".github/workflows/ci.yml"
+        ],
+        "evidence": [
+          "`evals/run.sh` validates that each golden-set line parses and carries label tp/fp, then prints `TODO: replay golden sets through triage-agent and score precision/recall (needs ANTHROPIC_API_KEY)` and exits 0; CI runs it as the `eval` job, so a green build says nothing about verdict quality.",
+          "The corpus is 13 alerts (`evals/golden_sets/triage_seed.jsonl`) and `evals/policy_tests.md` (34 lines) is a prose negative matrix that no test executes.",
+          "Nothing exercises `triage-agent`'s `process` (main.rs:393) end-to-end; its only entry point is `main()`, so prompt/verdict/threshold regressions are invisible until runtime."
+        ],
+        "suggestion": "Make `run.sh` replay the golden set through a testable `triage_agent::process` (extract it from `main`, drive it with `MockProvider` or recorded completions) and fail below a precision/recall threshold; convert the `policy_tests.md` rows into cases in `policy-engine/tests/policies.rs`, which already loads the shipped policy files.",
+        "reasoning": "",
+        "summary_hash": "f2149fcc"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:27:36+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::test_strategy::dry_run_success_contract_untested": {
+      "id": "review::.::holistic::test_strategy::dry_run_success_contract_untested",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Unconfigured executors' dry-run success and its propagation to response-agent have no test",
+      "detail": {
+        "holistic": true,
+        "dimension": "test_strategy",
+        "related_files": [
+          "crates/tool-server/src/executors/mod.rs",
+          "crates/tool-server/src/main.rs",
+          "crates/response-agent/src/main.rs"
+        ],
+        "evidence": [
+          "`executors/mod.rs:35` `dry_run(args)` returns `{\"dry_run\": true}` as a *successful* result, used by the `DryRun` struct (lines 551-563, 12 allowlist entries) and by every connector-backed executor whose client is `None` (e.g. `OpensearchQuery::execute`, lines 66-70); `tool-server/src/main.rs:192-199` lifts that into `ToolResult.dry_run`.",
+          "`response-agent/src/main.rs:283` and `:300` skip the post-check and the rollback exactly when `dry_run` is set \u2014 the only guard that stops a credential-less fake success from being recorded as a real action \u2014 and neither side is asserted by a test.",
+          "`tool-server/src/main.rs:180` `run_tool` is DB-free, but only the happy `cvss.score` path is tested (main.rs:347-366)."
+        ],
+        "suggestion": "Add a tool-server test asserting `run_tool` returns ok=true + dry_run=true for a connector-less tool (e.g. `thehive.case.create` with `ConnectorConfig::default()`) and ok=false for an unregistered name; add a response-agent test that `rollback_for` is not attached for a dry-run result.",
+        "reasoning": "",
+        "summary_hash": "4f7a4222"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:27:36+00:00",
+      "last_seen": "2026-10-26T10:27:36+00:00",
       "resolved_at": null,
       "reopen_count": 0,
       "work_item_kind": "review_defect",
@@ -19456,7 +19801,7 @@
     "abstraction_fitness": {
       "score": 81.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T10:22:46+00:00",
+      "assessed_at": "2026-10-26T10:27:36+00:00",
       "components": [
         "Abstraction Leverage",
         "Indirection Cost",
@@ -19525,7 +19870,7 @@
     "dependency_health": {
       "score": 79.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T10:22:46+00:00"
+      "assessed_at": "2026-10-26T10:27:36+00:00"
     },
     "design_coherence": {
       "score": 73.0,
@@ -19570,12 +19915,12 @@
     "logic_clarity": {
       "score": 79.5,
       "source": "holistic",
-      "assessed_at": "2026-10-26T10:22:46+00:00"
+      "assessed_at": "2026-10-26T10:27:36+00:00"
     },
     "low_level_elegance": {
       "score": 84.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T10:22:46+00:00"
+      "assessed_at": "2026-10-26T10:27:36+00:00"
     },
     "mid_level_elegance": {
       "score": 70.0,
@@ -19602,12 +19947,9 @@
       "stale_since": "2026-10-26T10:14:36+00:00"
     },
     "test_strategy": {
-      "score": 63.0,
+      "score": 64.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00",
-      "needs_review_refresh": true,
-      "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:05:33+00:00"
+      "assessed_at": "2026-10-26T10:27:36+00:00"
     },
     "type_safety": {
       "score": 78.0,
@@ -20128,6 +20470,135 @@
         "Test strategy": {
           "score": 63.0,
           "strict": 63.0
+        },
+        "Type safety": {
+          "score": 78.0,
+          "strict": 78.0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:27:36+00:00",
+      "lang": "rust",
+      "strict_score": 78.3,
+      "verified_strict_score": 84.1,
+      "objective_score": 84.1,
+      "overall_score": 78.9,
+      "open": 401,
+      "diff_new": 9,
+      "diff_resolved": 20,
+      "ignored": 0,
+      "raw_issues": 42,
+      "suppressed_pct": 0.0,
+      "ignore_patterns": 0,
+      "subjective_integrity": {
+        "status": "disabled",
+        "matched_count": 0,
+        "reset_count": 0,
+        "target_score": null
+      },
+      "score_confidence": {
+        "status": "full",
+        "confidence": 1.0,
+        "detector_count": 0,
+        "dimension_count": 0
+      },
+      "dimension_scores": {
+        "Code quality": {
+          "score": 91.6,
+          "strict": 90.2
+        },
+        "Security": {
+          "score": 100.0,
+          "strict": 100.0
+        },
+        "File health": {
+          "score": 91.4,
+          "strict": 91.4
+        },
+        "Duplication": {
+          "score": 95.7,
+          "strict": 95.5
+        },
+        "Test health": {
+          "score": 55.0,
+          "strict": 47.4
+        },
+        "Abstraction fit": {
+          "score": 81.0,
+          "strict": 81.0
+        },
+        "AI generated debt": {
+          "score": 79.0,
+          "strict": 79.0
+        },
+        "API coherence": {
+          "score": 74.0,
+          "strict": 74.0
+        },
+        "Auth consistency": {
+          "score": 58.0,
+          "strict": 58.0
+        },
+        "Contracts": {
+          "score": 80.0,
+          "strict": 80.0
+        },
+        "Convention drift": {
+          "score": 79.5,
+          "strict": 79.5
+        },
+        "Cross-module arch": {
+          "score": 74.0,
+          "strict": 74.0
+        },
+        "Dep health": {
+          "score": 79.0,
+          "strict": 79.0
+        },
+        "Design coherence": {
+          "score": 73.0,
+          "strict": 73.0
+        },
+        "Error consistency": {
+          "score": 83.0,
+          "strict": 83.0
+        },
+        "High elegance": {
+          "score": 78.0,
+          "strict": 78.0
+        },
+        "Stale migration": {
+          "score": 74.0,
+          "strict": 74.0
+        },
+        "Init coupling": {
+          "score": 74.0,
+          "strict": 74.0
+        },
+        "Logic clarity": {
+          "score": 79.5,
+          "strict": 79.5
+        },
+        "Low elegance": {
+          "score": 84.0,
+          "strict": 84.0
+        },
+        "Mid elegance": {
+          "score": 70.0,
+          "strict": 70.0
+        },
+        "Naming quality": {
+          "score": 88.5,
+          "strict": 88.5
+        },
+        "Structure nav": {
+          "score": 78.0,
+          "strict": 78.0
+        },
+        "Test strategy": {
+          "score": 64.0,
+          "strict": 64.0
         },
         "Type safety": {
           "score": 78.0,
@@ -23968,9 +24439,9 @@
     },
     "files": {},
     "holistic": {
-      "reviewed_at": "2026-10-26T10:22:46+00:00",
+      "reviewed_at": "2026-10-26T10:27:36+00:00",
       "file_count_at_review": 74,
-      "issue_count": 33,
+      "issue_count": 42,
       "reviewed_files_count": 0,
       "full_sweep_included": false
     }
@@ -24601,19 +25072,19 @@
       }
     },
     "Test strategy": {
-      "score": 63.0,
-      "strict": 63.0,
-      "verified_strict_score": 63.0,
+      "score": 64.0,
+      "strict": 64.0,
+      "verified_strict_score": 64.0,
       "checks": 10,
-      "failing": 0,
+      "failing": 9,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.63,
-          "failing": 0,
-          "weighted_failures": 3.7,
-          "assessment_score": 63.0,
+          "pass_rate": 0.64,
+          "failing": 9,
+          "weighted_failures": 3.6,
+          "assessment_score": 64.0,
           "placeholder": false,
           "dimension_key": "test_strategy",
           "configured_weight": 1.0,
@@ -24694,6 +25165,19 @@
     },
     {
       "timestamp": "2026-10-26T10:22:46+00:00",
+      "mode": "trusted_internal",
+      "trusted": true,
+      "reason": "trusted import-run replay from 20261026_101501",
+      "override_used": false,
+      "attested_external": false,
+      "provisional": false,
+      "provisional_count": 0,
+      "attest": "",
+      "import_file": ".desloppify/subagents/runs/20261026_101501/holistic_issues_merged.json",
+      "packet_sha256": "f8f95504f47bcd177c42ff6290377f9974463c24e3985a0c9047ce829c749125"
+    },
+    {
+      "timestamp": "2026-10-26T10:27:36+00:00",
       "mode": "trusted_internal",
       "trusted": true,
       "reason": "trusted import-run replay from 20261026_101501",

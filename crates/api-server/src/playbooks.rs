@@ -7,6 +7,8 @@
 
 use axum::{extract::Path, http::StatusCode, Json};
 use serde_json::Value;
+
+use crate::error::{api_err, ApiError};
 use tracing::warn;
 
 /// Loads every playbook document in `PLAYBOOKS_DIR`, sorted by name.
@@ -36,7 +38,7 @@ fn load_playbooks() -> (Vec<Value>, Vec<String>) {
 
 /// `GET /playbooks` — all playbook documents; unparsable files are logged
 /// instead of being dropped silently.
-pub async fn list_playbooks() -> Result<Json<Value>, (StatusCode, String)> {
+pub async fn list_playbooks() -> Result<Json<Value>, ApiError> {
     let (playbooks, errors) = load_playbooks();
     if !errors.is_empty() {
         warn!(?errors, "playbook parse errors");
@@ -45,7 +47,7 @@ pub async fn list_playbooks() -> Result<Json<Value>, (StatusCode, String)> {
 }
 
 /// `GET /playbooks/:name` — one playbook by `name` or filename stem.
-pub async fn get_playbook(Path(name): Path<String>) -> Result<Json<Value>, (StatusCode, String)> {
+pub async fn get_playbook(Path(name): Path<String>) -> Result<Json<Value>, ApiError> {
     let (playbooks, errors) = load_playbooks();
     if !errors.is_empty() {
         warn!(?errors, "playbook parse errors");
@@ -54,5 +56,5 @@ pub async fn get_playbook(Path(name): Path<String>) -> Result<Json<Value>, (Stat
         .into_iter()
         .find(|p| p["name"].as_str() == Some(name.as_str()))
         .map(Json)
-        .ok_or((StatusCode::NOT_FOUND, format!("playbook {name} not found")))
+        .ok_or(api_err(StatusCode::NOT_FOUND, format!("playbook {name} not found")))
 }

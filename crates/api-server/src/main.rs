@@ -27,6 +27,7 @@
 mod a2a;
 mod acp;
 mod coverage;
+mod error;
 mod kill;
 mod playbooks;
 mod ratelimit;
@@ -55,6 +56,8 @@ use serde_json::{json, Value};
 use sqlx::PgPool;
 use tower_http::cors::CorsLayer;
 use tracing::info;
+
+use crate::error::{api_err, ApiError};
 
 /// Alert index pattern searched by the console.
 const ALERT_INDEX: &str = "wazuh-alerts-*";
@@ -113,7 +116,7 @@ struct AlertsQuery {
 async fn list_alerts(
     State(s): State<Arc<AppState>>,
     Query(q): Query<AlertsQuery>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     let limit = q.limit.unwrap_or(50).min(500);
     let mut must = vec![json!({"range": {"@timestamp": {"gte": "now-24h"}}})];
     if let Some(status) = q.status.filter(|v| !v.is_empty()) {
@@ -127,19 +130,19 @@ async fn list_alerts(
     s.os.query(ALERT_INDEX, "", body)
         .await
         .map(Json)
-        .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))
+        .map_err(|e| api_err(StatusCode::BAD_GATEWAY, e.to_string()))
 }
 
 /// `GET /alerts/:id` — fetch one alert document by `_id`.
 async fn get_alert(
     State(s): State<Arc<AppState>>,
     Path(id): Path<String>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     let body = json!({"size": 1, "query": {"ids": {"values": [id]}}});
     s.os.query(ALERT_INDEX, "", body)
         .await
         .map(Json)
-        .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))
+        .map_err(|e| api_err(StatusCode::BAD_GATEWAY, e.to_string()))
 }
 
 /// TheHive query API helper — one filter through [`ThehiveClient::query`].
@@ -152,22 +155,22 @@ async fn thehive_query(s: &AppState, query: Value) -> Result<Value, anyhow::Erro
 }
 
 /// `GET /cases` — list TheHive cases, newest first.
-async fn list_cases(State(s): State<Arc<AppState>>) -> Result<Json<Value>, (StatusCode, String)> {
+async fn list_cases(State(s): State<Arc<AppState>>) -> Result<Json<Value>, ApiError> {
     thehive_query(&s, json!({"_name": "listCase"}))
         .await
         .map(Json)
-        .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))
+        .map_err(|e| api_err(StatusCode::BAD_GATEWAY, e.to_string()))
 }
 
 /// `GET /cases/:id` — one TheHive case by id/number.
 async fn get_case(
     State(s): State<Arc<AppState>>,
     Path(id): Path<String>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     thehive_query(&s, json!({"_name": "getCase", "idOrName": id}))
         .await
         .map(Json)
-        .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))
+        .map_err(|e| api_err(StatusCode::BAD_GATEWAY, e.to_string()))
 }
 
 /// Query params for `GET /audit`.
@@ -180,18 +183,18 @@ struct AuditQuery {
 /// `GET /audit/verify` — re-walks the hash chain and reports the first break.
 async fn verify_audit(
     State(s): State<Arc<AppState>>,
-) -> Result<Json<audit::ChainReport>, (StatusCode, String)> {
+) -> Result<Json<audit::ChainReport>, ApiError> {
     audit::AuditWriter::verify_chain(&s.pool)
         .await
         .map(Json)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        .map_err(|e| api_err(StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
 }
 
 /// `GET /audit` — newest `audit_log` rows.
 async fn list_audit(
     State(s): State<Arc<AppState>>,
     Query(q): Query<AuditQuery>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     let limit = q.limit.unwrap_or(100).min(1000);
     let rows: Vec<Value> = sqlx::query_scalar(
         "SELECT to_jsonb(t) FROM (
@@ -203,12 +206,12 @@ async fn list_audit(
     .bind(limit)
     .fetch_all(&s.pool)
     .await
-    .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))?;
+    .map_err(|e| api_err(StatusCode::BAD_GATEWAY, e.to_string()))?;
     Ok(Json(json!({"rows": rows})))
 }
 
 /// `GET /metrics` — alerts/hr, verdict mix, MTTD/MTTR from `bas_results`.
-async fn metrics(State(s): State<Arc<AppState>>) -> Result<Json<Value>, (StatusCode, String)> {
+async fn metrics(State(s): State<Arc<AppState>>) -> Result<Json<Value>, ApiError> {
     let alerts_hr =
         s.os.query(
             ALERT_INDEX,
@@ -264,7 +267,7 @@ async fn metrics(State(s): State<Arc<AppState>>) -> Result<Json<Value>, (StatusC
 async fn get_plan(
     State(s): State<Arc<AppState>>,
     Path(case_id): Path<String>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+) -> Result<Json<Value>, ApiError> {
     let mut rows: Vec<Value> = sqlx::query_scalar(
         "SELECT to_jsonb(t) FROM (
              SELECT id, case_id, tool, args, result, rollback_json, ts
@@ -274,7 +277,7 @@ async fn get_plan(
     .bind(&case_id)
     .fetch_all(&s.pool)
     .await
-    .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))?;
+    .map_err(|e| api_err(StatusCode::BAD_GATEWAY, e.to_string()))?;
     for row in &mut rows {
         if row.get("status").is_none() {
             let status = match row.pointer("/result/ok").and_then(Value::as_bool) {
