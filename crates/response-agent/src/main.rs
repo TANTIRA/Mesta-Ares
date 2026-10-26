@@ -211,6 +211,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
     .await;
 
     let mut results: Vec<Value> = Vec::new();
+    let mut halted = false;
     for (idx, action) in plan.iter().enumerate() {
         if kill_switch_engaged() {
             warn!("kill switch engaged mid-plan; stopping");
@@ -219,6 +220,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
                 &ActivityEvent::new(run_id, "response", "kill_switch", "plan halted"),
             )
             .await;
+            halted = true;
             break;
         }
         let step = format!("action_{idx}");
@@ -239,7 +241,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
             correlation_id: run_id,
         };
         let (decision, result) = match deps.gateway.invoke_verdict(&call).await {
-            Ok(v) => (Some(v.decision), v.result),
+            Ok(v) => (v.decision, v.result),
             Err(e) => {
                 warn!(error = %e, tool = %action.tool, "tool invoke failed; stopping plan");
                 let record = json!({
@@ -274,10 +276,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
                 return Ok(());
             }
         };
-        let denied = decision
-            .as_ref()
-            .map(|d| d.kind == DecisionKind::Deny)
-            .unwrap_or(false);
+        let denied = decision.kind == DecisionKind::Deny;
 
         // 3. Post-check on real success; a dry-run performed no side effect,
         // so there is nothing to verify and nothing to roll back.
@@ -290,8 +289,8 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
             "tool": action.tool,
             "args": action.args,
             "ok": result.ok,
-            "decision": decision.as_ref().map(|d| d.kind),
-            "decision_reason": decision.as_ref().map(|d| d.reason.clone()),
+            "decision": decision.kind,
+            "decision_reason": decision.reason,
             "output": result.output,
             "error": result.error,
             "dry_run": result.dry_run,
@@ -330,6 +329,13 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
             .await;
         }
         results.push(record);
+    }
+
+    if halted {
+        // The stream closes on the `kill_switch` step, which run_stream marks
+        // failed; writing a Final checkpoint here would fold it back to
+        // completed.
+        return Ok(());
     }
 
     // 4. Append the run summary to the TheHive case.

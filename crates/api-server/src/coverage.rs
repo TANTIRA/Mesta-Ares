@@ -14,7 +14,7 @@ pub async fn get_coverage() -> Result<impl IntoResponse, (StatusCode, String)> {
     let mut rules = 0usize;
     let mut errors: Vec<String> = Vec::new();
 
-    let dir = crate::paths::dir_from_env("DETECTION_ACTIVE_DIR", "detection-content/active");
+    let dir = agent_protocol::paths::dir_from_env("DETECTION_ACTIVE_DIR", "detection-content/active");
     let (docs, load_errors) = crate::yaml_dir::load(&dir);
     errors.extend(load_errors);
     if docs.is_empty() && !errors.is_empty() {

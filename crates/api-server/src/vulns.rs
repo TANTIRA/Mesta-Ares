@@ -83,10 +83,14 @@ pub async fn get_vuln(
         return Err((StatusCode::BAD_REQUEST, "malformed CVE id".to_string()));
     }
     match s.enricher.enrich_cve(&cve_id).await {
-        Some(rec) => Ok(Json(serde_json::to_value(rec).unwrap_or(Value::Null))),
-        None => Err((
+        Ok(Some(rec)) => Ok(Json(serde_json::to_value(rec).unwrap_or(Value::Null))),
+        Ok(None) => Err((
             StatusCode::NOT_FOUND,
             format!("{cve_id}: no NVD record (unknown, reserved, or rejected)"),
+        )),
+        Err(e) => Err((
+            StatusCode::BAD_GATEWAY,
+            format!("NVD lookup failed for {cve_id}: {e}"),
         )),
     }
 }

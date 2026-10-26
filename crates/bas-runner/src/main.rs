@@ -83,20 +83,17 @@ struct Deps {
 }
 
 /// Runs the scenario command on the fleet, or logs a dry run.
-fn execute(scenario: &Scenario, dry: bool) -> anyhow::Result<()> {
+fn execute(scenario: &Scenario) -> anyhow::Result<()> {
     let (env_var, program, args): (&str, &str, Vec<String>) =
         match scenario.executor.platform.as_str() {
             "winrm" | "windows" => ("BAS_WINRM_TARGET", "winrm", vec!["-r".to_string()]),
             _ => ("BAS_SSH_TARGET", "ssh", Vec::new()),
         };
     let target = std::env::var(env_var).ok();
-    let target = match (target, dry) {
-        (Some(t), false) => t,
-        _ => {
-            info!(scenario = %scenario.id, platform = %scenario.executor.platform,
-                  cmd = %scenario.executor.command, "dry run (no {env_var} or --dry)");
-            return Ok(());
-        }
+    let Some(target) = target else {
+        info!(scenario = %scenario.id, platform = %scenario.executor.platform,
+              cmd = %scenario.executor.command, "no {env_var}; attack not launched");
+        return Ok(());
     };
     let mut full_args = args;
     full_args.push(target.clone());
@@ -201,7 +198,7 @@ async fn run_scenario(deps: &Deps, scenario: &Scenario) -> anyhow::Result<()> {
         info!(scenario = %scenario.id, "dry run: skipping metrics and publish");
         return Ok(());
     }
-    execute(scenario, deps.dry)?;
+    execute(scenario)?;
     let since = chrono::Utc::now();
     let started = Instant::now();
 

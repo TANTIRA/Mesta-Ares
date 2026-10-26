@@ -28,7 +28,6 @@ mod a2a;
 mod acp;
 mod coverage;
 mod kill;
-mod paths;
 mod playbooks;
 mod ratelimit;
 mod run_stream;

@@ -118,23 +118,6 @@ pub(crate) const AGENTS: &[AgentDef] = &[
     },
 ];
 
-/// Activity steps that mean an agent's work on a run is finished, keyed by
-/// `ActivityEvent.agent`. hunt-agent emits no terminal step, so its SSE
-/// streams stay open until the client disconnects.
-pub(crate) fn terminal_step(agent: &str, step: &str) -> bool {
-    match agent {
-        "triage" => matches!(step, "close" | "handoff" | "kill_switch"),
-        "response" => matches!(step, "done" | "kill_switch"),
-        "detection" => matches!(step, "deployed" | "rejected"),
-        _ => false,
-    }
-}
-
-/// Activity steps that end a run as a halt rather than a success.
-pub(crate) fn aborted_step(step: &str) -> bool {
-    matches!(step, "kill_switch" | "rejected")
-}
-
 /// Looks up an agent definition by its `/a2a/{name}` segment.
 pub(crate) fn find_agent(name: &str) -> Option<&'static AgentDef> {
     AGENTS.iter().find(|a| a.name == name)
@@ -235,16 +218,6 @@ pub async fn ensure_schema(pool: &PgPool) -> anyhow::Result<()> {
     .execute(pool)
     .await?;
     Ok(())
-}
-
-/// Publishes `envelope` on `subject`, JetStream-first with plain-publish
-/// fallback (same policy as ingestion-gateway's `NatsSink`).
-pub(crate) async fn publish(
-    s: &AppState,
-    subject: &str,
-    envelope: &Envelope,
-) -> anyhow::Result<()> {
-    s.sink.publish(subject, envelope).await
 }
 
 /// Derives the workflow-run UUID for a task id: the id itself when it is a
@@ -398,7 +371,7 @@ impl TaskBackend for PgBackend<'_> {
             build_payload(def, &task_id, &params.message, &params.metadata),
         );
         env.correlation_id = task_uuid(&task_id);
-        if let Err(e) = publish(self.s, def.subject, &env).await {
+        if let Err(e) = self.s.sink.publish(def.subject, &env).await {
             if let Err(werr) = sqlx::query(
                 "UPDATE a2a_tasks SET state = 'failed', updated_at = now() WHERE id = $1",
             )

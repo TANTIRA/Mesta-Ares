@@ -405,41 +405,48 @@ impl PolicyEngine {
             }
         }
 
-        // (8) Blast radius: hourly cap and per-target cooldown.
+        // (8) Blast radius: hourly cap and per-target cooldown. Counters are
+        // read first and only incremented on allow, so a denied attempt must
+        // not consume the hourly quota.
         if let Some(br) = tool.policy.blast_radius {
             let bucket = Utc::now().format("%Y%m%d%H");
             let key = format!("{}:{bucket}", call.tool);
-            let count = {
-                let mut entry = ctx.counters.entry(key).or_insert(0);
-                *entry += 1;
-                *entry
-            };
+            let count = ctx.counters.get(&key).map(|c| *c).unwrap_or(0);
             if let Some(max) = br.max_per_hour {
-                if count > max {
+                if count >= max {
                     return decide(
                         DecisionKind::Deny,
                         format!(
-                            "blast radius exceeded for `{}`: {count} > {max} calls this hour",
+                            "blast radius exceeded for `{}`: {count} >= {max} calls this hour",
                             call.tool
                         ),
                     );
                 }
             }
-            if let Some(cd) = br.cooldown_minutes {
-                let now_min = (Utc::now().timestamp().max(0) as u64 / 60) as u32;
+            let now_min = (Utc::now().timestamp().max(0) as u64 / 60) as u32;
+            let cooldown_key = br.cooldown_minutes.map(|cd| {
                 let target = extract_targets(&call.args)
                     .into_iter()
                     .next()
                     .unwrap_or_default();
-                let ck = format!("cooldown:{}:{target}", call.tool);
-                if let Some(prev) = ctx.counters.get(&ck) {
-                    if now_min.saturating_sub(*prev) < cd {
+                (format!("cooldown:{}:{target}", call.tool), cd)
+            });
+            if let Some((ck, cd)) = &cooldown_key {
+                if let Some(prev) = ctx.counters.get(ck) {
+                    if now_min.saturating_sub(*prev) < *cd {
                         return decide(
                             DecisionKind::Deny,
-                            format!("cooldown active for `{}` on `{target}` ({cd}m)", call.tool),
+                            format!(
+                                "cooldown active for `{}` on `{ck}` ({cd}m)",
+                                call.tool
+                            ),
                         );
                     }
                 }
+            }
+            // Allowed: record the attempt.
+            ctx.counters.insert(key, count + 1);
+            if let Some((ck, _)) = cooldown_key {
                 ctx.counters.insert(ck, now_min);
             }
         }

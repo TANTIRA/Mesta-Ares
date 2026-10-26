@@ -428,8 +428,10 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
     // 2b. CVEs referenced by the alert get NVD context (cache-backed).
     let mut cve_recs = Vec::new();
     for cve_id in &ioc_set.cve_ids {
-        if let Some(rec) = deps.enricher.enrich_cve(cve_id).await {
-            cve_recs.push(rec);
+        match deps.enricher.enrich_cve(cve_id).await {
+            Ok(Some(rec)) => cve_recs.push(rec),
+            Ok(None) => {}
+            Err(e) => warn!(error = %e, cve = %cve_id, "nvd lookup failed"),
         }
     }
 

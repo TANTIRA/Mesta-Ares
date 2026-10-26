@@ -9,13 +9,16 @@
 use std::convert::Infallible;
 use std::time::Duration;
 
+use agent_protocol::activity::ActivityEvent;
 use axum::response::sse::{Event, KeepAlive, Sse};
 use futures::Stream;
 use serde_json::Value;
 use sqlx::PgPool;
 use tokio::sync::broadcast;
 
-use crate::a2a::{aborted_step, task_uuid, terminal_step};
+use agent_protocol::activity::{aborted_step, terminal_step};
+
+use crate::a2a::task_uuid;
 
 /// Progress reported by `agent_checkpoints` for a non-terminal record.
 pub(crate) enum CheckpointProgress {
@@ -154,18 +157,19 @@ pub(crate) fn activity_stream<R: RunRecord>(
         loop {
             match st.rx.recv().await {
                 Ok(text) => {
-                    let Ok(v) = serde_json::from_str::<Value>(&text) else {
-                        continue;
+                    let event: ActivityEvent = match serde_json::from_str(&text) {
+                        Ok(event) => event,
+                        Err(_) => continue,
                     };
-                    if v.get("workflow_run_id").and_then(Value::as_str) != Some(st.corr.as_str()) {
+                    if event.workflow_run_id.to_string() != st.corr {
                         continue;
                     }
-                    let step = v.get("step").and_then(Value::as_str).unwrap_or_default();
-                    if terminal_step(&st.agent, step) {
-                        R::mark_terminal(&st.pool, &st.id, aborted_step(step)).await;
+                    if terminal_step(&st.agent, &event.step) {
+                        R::mark_terminal(&st.pool, &st.id, aborted_step(&event.step)).await;
                         st.closing = true;
                     }
-                    return Some((Ok(R::activity_event(v)), st));
+                    let value = serde_json::to_value(&event).unwrap_or(Value::Null);
+                    return Some((Ok(R::activity_event(value)), st));
                 }
                 Err(broadcast::error::RecvError::Lagged(_)) => continue,
                 Err(broadcast::error::RecvError::Closed) => return None,

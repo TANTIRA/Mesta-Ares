@@ -245,7 +245,7 @@ async fn dispatch_run(
         a2a::build_payload(def, run_id, &msg, &meta),
     );
     env.correlation_id = a2a::task_uuid(run_id);
-    if let Err(e) = a2a::publish(s, def.subject, &env).await {
+    if let Err(e) = s.sink.publish(def.subject, &env).await {
         if let Err(werr) = sqlx::query(
             "UPDATE acp_runs SET status = 'failed', error = $2, finished_at = now(),
              updated_at = now() WHERE id = $1",

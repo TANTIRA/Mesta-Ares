@@ -83,26 +83,14 @@ impl HttpToolGateway {
             .map_err(AgentError::Http)?;
 
         if !resp.status().is_success() {
+            // No verdict was rendered; callers must treat this as an outage,
+            // never as a policy denial.
             let status = resp.status();
             let body = resp.text().await.unwrap_or_default();
-            return Ok((
-                InvokeResponse {
-                    decision: Decision {
-                        kind: DecisionKind::Deny,
-                        reason: format!("gateway returned {status}: {body}"),
-                        decided_at: chrono::Utc::now(),
-                    },
-                    result: ToolResult {
-                        call_id: call.id,
-                        ok: false,
-                        output: serde_json::Value::Null,
-                        error: Some(format!("gateway returned {status}: {body}")),
-                        dry_run: false,
-                    },
-                    approval_id: None,
-                },
-                false,
-            ));
+            return Err(AgentError::Gateway {
+                status: status.as_u16(),
+                body,
+            });
         }
 
         let parsed = resp.json::<InvokeResponse>().await.map_err(AgentError::Http)?;

@@ -851,6 +851,18 @@ const NVD_INTERVAL_ANON: Duration = Duration::from_millis(6_000);
 const NVD_INTERVAL_KEY: Duration = Duration::from_millis(600);
 const NVD_MAX_RETRIES: u32 = 3;
 
+/// NVD answered with a non-success status after retries.
+#[derive(Debug)]
+pub struct NvdStatusError(pub u16);
+
+impl std::fmt::Display for NvdStatusError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NVD HTTP {}", self.0)
+    }
+}
+
+impl std::error::Error for NvdStatusError {}
+
 /// One CVSS metric assessment as reported by NVD or a CNA.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CvssMetric {
@@ -980,7 +992,7 @@ impl NvdClient {
                         || status.as_u16() == 429
                         || status.is_server_error();
                     if !retryable || attempt >= NVD_MAX_RETRIES {
-                        anyhow::bail!("NVD HTTP {status}");
+                        return Err(anyhow::Error::new(NvdStatusError(status.as_u16())));
                     }
                 }
                 Err(e) => {
@@ -1005,7 +1017,9 @@ impl NvdClient {
             Ok(raw) => raw,
             // NVD answers 404 for ids it does not know; that is a miss, not an
             // outage, so callers can negative-cache it.
-            Err(e) if e.to_string().contains("404") => return Ok(None),
+            Err(e) if e.downcast_ref::<NvdStatusError>().map(|s| s.0) == Some(404) => {
+                return Ok(None);
+            }
             Err(e) => return Err(e),
         };
         let Some(cve) = raw

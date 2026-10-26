@@ -1,0 +1,250 @@
+{
+  "batch": "low_level_elegance",
+  "batch_index": 8,
+  "assessments": {
+    "low_level_elegance": 84.0
+  },
+  "dimension_notes": {
+    "low_level_elegance": {
+      "evidence": [
+        "Function bodies are overwhelmingly small and single-purpose: crates/tool-server/src/executors/mod.rs:25-29 declares a 2-method `Tool` trait and every executor is a ~15-line `execute` with one early `let Some(c) = &self.0 else { return dry_run(args) }` guard; arg access goes through one `arg_str(args, keys)` helper (line 40).",
+        "crates/tool-server/src/idempotency.rs:86-105 is the strongest local-craft pattern in the repo: `next(state, fingerprint) -> Claim` is a pure match over four states, and both backends (claim_pg:229, claim_mem:355) delegate to it instead of re-implementing the transition.",
+        "Early-return guard clauses are the house style for handlers: crates/api-server/src/acp.rs:426-460 (`cancel_run`), crates/api-server/src/vulns.rs:78-90, crates/tool-server/src/main.rs:59-70 all validate-then-return rather than nesting the happy path.",
+        "crates/api-server/src/run_stream.rs:93-185 models SSE as one explicit `StreamState` struct plus an `unfold` that sets `closing`/`done`; state mutation is local to the closure and documented field by field.",
+        "The last two commits left stale shims at half-migrated sites: crates/orchestrator/src/dedupe.rs:81-86 still declares `mod hex { pub fn encode(..) { agent_protocol::hex::hex_lower(..) } }` behind the now-false comment 'Minimal hex encoder to avoid an extra dependency'; crates/api-gateway/src/main.rs:174-177 still hand-builds the limiter that `http_limits::build_limiter` (http-limits/src/lib.rs:462) now provides for the other two edge services.",
+        "Helper adoption is uneven for the same shared function: `agent_protocol::hex::sha256_hex` is used by audit (audit/src/lib.rs:88,109,180) but crates/tool-server/src/idempotency.rs:112-122 and crates/response-agent/src/main.rs:232 still hand-roll `Sha256::new()` + `format!(\"{b:02x}\")`, and hex.rs's module doc claims idempotency is a consumer.",
+        "Duplicated blocks survive in otherwise tidy modules: the 8-line `info!(tool, actor, correlation_id, decision, reason, \"policy decision\")` block appears twice in crates/policy-engine/src/lib.rs:326-338 and 343-355; the activity-filter predicate (parse JSON, compare `workflow_run_id`, `terminal_step`) appears twice in crates/api-server/src/run_stream.rs:60-72 and 155-166.",
+        "crates/policy-engine/src/lib.rs:451-454 keeps `fn kill_switch_engaged(&self, ctx: &EvalCtx) -> bool { ctx.kill_switch }` - a pass-through method that takes an unused `&self` and whose name implies the live env/file check performed by `agent_protocol::kill::kill_switch_engaged`.",
+        "Activity emission is inlined at 20 call sites across crates/triage-agent/src/main.rs:395-495, crates/hunt-agent/src/main.rs:138-186 and crates/response-agent/src/main.rs:193-350 (`publish_activity(&deps.nats, &ActivityEvent::new(run_id, \"<agent>\", step, detail)).await`), even though the same files extract `tool_call`, `typed_iocs`, `open_case` and `save_final_checkpoint` helpers.",
+        "crates/enrichment-lib/src/lib.rs:170 and :448 are orphan doc comments left by removed functions - the first ('Base64-url (unpadded) encoding for VirusTotal URL ids.') is now attached to `fn env`, the second ('Convenience wrapper: enrich one indicator through a shared Enricher.') is attached to `#[cfg(test)] mod tests`.",
+        "crates/audit/src/lib.rs:104-108 and 161-170 rebuild the same `prev_hash|actor|tool|args_sha256|decision|reason|correlation_id|ts` canonical string in two places that must stay byte-identical for the chain to verify.",
+        "crates/connectors/src/lib.rs:620-641 holds the token `MutexGuard` across `send_with_retry` (up to the 15s CALL_BUDGET with jittered sleeps) and the JSON decode, so concurrent Wazuh callers serialize behind a network round-trip; `NvdClient::get` (line 966) similarly holds its throttle guard through the retry sleep and body decode.",
+        "crates/tool-server/src/main.rs:99-113, 155-190 and approvals.rs:232-244 spell the six-field `ToolResult { ok: false, .. }` literal by hand at 7 production sites while the sibling constructor `ToolResult::retryable` (agent-protocol/src/tool.rs:93) exists for the other failure shape."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "low_level_elegance": {
+      "dimension_character": "Function internals are written with real craft: short guard-clause bodies, pure transition functions, explicit state structs for streams, and one helper per repeated arg-parsing need. The unevenness comes from migration residue rather than design - a shared helper lands, but one or two of the old call sites keep their private shim, a doc comment outlives the function it described, and a duplicated block stays behind in an otherwise tidy module.",
+      "score_rationale": "Against the anchors, this sits between 90 ('mostly clean craft with isolated rough edges') and 80 ('regularly encounters local complexity'): a developer opening executors, idempotency, acp/a2a or the agents finds direct, readable code, which pushes the score up. It is pulled down because the residue is recurring and visible (dedupe's `mod hex` shim, api-gateway's hand-built limiter, hand-rolled sha256 hex in two crates, two orphan doc comments, a duplicated audit canonical string), and because one lock is held across a network round-trip in the Wazuh client - the kind of local detail that makes a function harder to reason about than its size suggests."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "api_gateway_handbuilt_limiter",
+      "summary": "api-gateway still hand-builds the rate limiter that http_limits::build_limiter now provides",
+      "related_files": [
+        "crates/api-gateway/src/main.rs",
+        "crates/http-limits/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/api-gateway/src/main.rs:174-177: `let policies_dir = std::env::var(\"POLICIES_DIR\")...; let limits = RateLimits::load(&PathBuf::from(&policies_dir).join(\"rate-limits.yml\")); let rl = Arc::new(RateLimiter::new(limits, classify)); rl.spawn_idle_purge();`",
+        "crates/http-limits/src/lib.rs:462-467 adds `pub fn build_limiter(classify)` doing exactly those four steps, and the same commit (9c765f8) deleted the identical block from crates/api-server/src/ratelimit.rs:13 and crates/ingestion-gateway/src/ratelimit.rs:14."
+      ],
+      "suggestion": "Replace lines 174-177 with `let rl = http_limits::build_limiter(classify);` and drop the now-unused `RateLimits`/`RateLimiter`/`PathBuf` imports.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "shared_helper_not_adopted"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "dedupe_hex_passthrough_module",
+      "summary": "orchestrator dedupe keeps a pass-through `mod hex` shim whose comment is no longer true",
+      "related_files": [
+        "crates/orchestrator/src/dedupe.rs"
+      ],
+      "evidence": [
+        "crates/orchestrator/src/dedupe.rs:81-86: `/// Minimal hex encoder to avoid an extra dependency.` followed by `mod hex { pub fn encode(bytes: impl AsRef<[u8]>) -> String { agent_protocol::hex::hex_lower(bytes.as_ref()) } }` - the module no longer encodes anything, it forwards.",
+        "The single call site is crates/orchestrator/src/dedupe.rs:73 `hex::encode(hasher.finalize())`, inside a function that already imports `sha2::{Digest, Sha256}`.",
+        "The nested module is declared mid-file between `day_bucket` and `mod tests`, so a reader meets a module definition where a function was expected."
+      ],
+      "suggestion": "Delete `mod hex` and hash the four fields into one buffer, then call `agent_protocol::hex::sha256_hex(&buf)` at line 73 - one line, one helper, no shim.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "shared_helper_not_adopted"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "orphan_doc_comments_enrichment",
+      "summary": "Two doc comments in enrichment-lib now document the wrong items after their functions were removed",
+      "related_files": [
+        "crates/enrichment-lib/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/enrichment-lib/src/lib.rs:170 `/// Base64-url (unpadded) encoding for VirusTotal URL ids.` is followed by a blank line and `fn env(key: &str) -> Option<String>` (line 172), so it reads as `env`'s documentation.",
+        "crates/enrichment-lib/src/lib.rs:448 `/// Convenience wrapper: enrich one indicator through a shared Enricher.` sits directly above `#[cfg(test)] mod tests` (line 449); no such wrapper exists in the file."
+      ],
+      "suggestion": "Delete both doc lines (the functions they described are gone); keep `env` undocumented or give it a one-line doc of its own.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "audit_canonical_string_duplicated",
+      "summary": "Audit chain canonical string is built twice and must stay byte-identical",
+      "related_files": [
+        "crates/audit/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/audit/src/lib.rs:104-108 builds `format!(\"{prev_hash}|{actor}|{tool}|{args_sha256}|{decision_label}|{reason}|{correlation_id}|{ts}\")` for the write path.",
+        "crates/audit/src/lib.rs:161-170 rebuilds the same eight fields positionally in `verify_chain`; a field added or reordered in one place silently invalidates every stored hash, and the only detector is the `/audit/verify` endpoint.",
+        "The two versions already differ cosmetically (named vs positional args, `decision_label` vs `row.decision`), which is exactly how the next drift starts."
+      ],
+      "suggestion": "Extract one `fn canonical(prev_hash: &str, actor: &str, tool: &str, args_sha256: &str, decision: &str, reason: &str, correlation_id: Uuid, ts: DateTime<Utc>) -> String` and call it from both `append` and `verify_chain`.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "run_stream_duplicate_activity_filter",
+      "summary": "The activity-filter predicate is written twice in run_stream.rs",
+      "related_files": [
+        "crates/api-server/src/run_stream.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/run_stream.rs:60-72 (inside `wait_for_terminal`) parses the payload, compares `workflow_run_id`, extracts `step`, and tests `terminal_step(agent, step)`.",
+        "crates/api-server/src/run_stream.rs:155-166 (inside the `activity_stream` unfold) repeats the same five steps against `st.corr`/`st.agent`, with the only difference being that one `continue`s and the other returns an event.",
+        "The two copies must agree on the correlation field name and the terminal-step rule; today they do, by inspection only."
+      ],
+      "suggestion": "Extract `fn terminal_activity(text: &str, corr: &str, agent: &str) -> Option<Value>` returning the parsed event when it matches and is terminal, and call it from both loops.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "policy_duplicate_decision_log",
+      "summary": "evaluate and evaluate_approved duplicate the same 8-line decision log block",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/policy-engine/src/lib.rs:324-339 (`evaluate`) and 341-356 (`evaluate_approved`) each run `evaluate_inner` and then repeat the identical `info!(tool, actor, correlation_id, decision = ?decision.kind, reason, \"policy decision\")` call.",
+        "The only difference is the trailing message string (\"policy decision\" vs \"policy decision (approved call)\"), so the two public methods differ by one literal.",
+        "crates/policy-engine/src/lib.rs:451-454 compounds this with `fn kill_switch_engaged(&self, ctx: &EvalCtx) -> bool { ctx.kill_switch }` - a pass-through that ignores `&self` and reads like the live `agent_protocol::kill::kill_switch_engaged` check it is not."
+      ],
+      "suggestion": "Add one private `fn evaluate_logged(&self, call, ctx, approved, label: &str) -> Decision` that calls `evaluate_inner` and emits the log, have both public methods delegate to it, and inline `ctx.kill_switch` at the single call site in `evaluate_inner` instead of the pass-through method.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "wazuh_token_lock_across_io",
+      "summary": "WazuhClient::token holds the token mutex across the authenticate HTTP round-trip",
+      "related_files": [
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/connectors/src/lib.rs:621-641: `let mut guard = self.token.lock().await;` then `send_with_retry(req).await` (which retries with full-jitter sleeps under a 15s `CALL_BUDGET`, lines 88-140) and `json_ok(resp).await` all execute while `guard` is alive; it is only written at line 637.",
+        "Every concurrent `authed()` caller (list_agents line 648, active_response line 660) blocks on that mutex for the duration of the network call, so one slow authenticate stalls the whole client instead of just the callers that need a token.",
+        "crates/connectors/src/lib.rs:966 has the same shape in `NvdClient::get`, where `let _guard = self.throttle().await` stays alive through the retry `sleep` at line 1000 and the response decode."
+      ],
+      "suggestion": "Fetch the token outside the lock (authenticate is idempotent) and only take the mutex to store it: check `self.token.lock().await.clone()`, drop the guard, do the request, then `if guard.is_none() { *guard = Some(token) }`. In `NvdClient::get`, scope the throttle guard to the spacing decision so it is dropped before the send and the backoff sleep.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "inline_activity_emission_agents",
+      "summary": "Activity emission is inlined 20 times across three agents while sibling helpers are extracted",
+      "related_files": [
+        "crates/triage-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/triage-agent/src/main.rs:395,405,422,445,459,471,481,488 each spell `publish_activity(&deps.nats, &ActivityEvent::new(run_id, \"triage\", <step>, <detail>)).await;`, 3-6 lines per step.",
+        "crates/hunt-agent/src/main.rs:138,147,168,179 and crates/response-agent/src/main.rs:193,202,217,225,267,320,326,345 repeat the same shape with \"hunt\"/\"response\".",
+        "The same files do extract helpers for the other repeated shapes (`tool_call` triage:265, `typed_iocs` triage:139, `open_case` triage:277, `save_final_checkpoint` response:365), so the extraction level is inconsistent within a single file.",
+        "In `run_sweep` (hunt-agent:134-192) the four activity calls are longer than the query/score logic they surround, which buries the control flow the function exists to express."
+      ],
+      "suggestion": "Add one per-agent helper `async fn activity(deps: &Deps, run_id: Uuid, step: &str, detail: impl Into<String>)` that fixes the agent name and discards the publish result, and replace the 20 call sites with one line each.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "inline_activity_emission"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "tool_result_failure_literals",
+      "summary": "Seven sites hand-spell the failure ToolResult while its sibling constructor exists",
+      "related_files": [
+        "crates/tool-server/src/main.rs",
+        "crates/tool-server/src/approvals.rs",
+        "crates/agent-protocol/src/tool.rs"
+      ],
+      "evidence": [
+        "crates/agent-protocol/src/tool.rs:93 provides `ToolResult::retryable(call_id, error)` for the retryable failure shape, but there is no constructor for the ordinary failure shape.",
+        "crates/tool-server/src/main.rs:99-113 (deny), 158-166 (no executor), 178-190 (executor error), 203-212 (mismatch) and approvals.rs:232-244 (denied after approval) each write out `ToolResult { call_id, ok: false, output: Value::Null, error: Some(..), dry_run: false }` by hand.",
+        "crates/agent-core/src/gateway.rs:88-100 does the same for the non-2xx upstream case, so the six-field literal is a cross-crate copy pattern."
+      ],
+      "suggestion": "Add `ToolResult::failed(call_id: Uuid, error: impl Into<String>) -> Self` next to `retryable` in agent-protocol/src/tool.rs:93 and use it at the seven sites; each call collapses from six fields to one line.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Shared helpers are introduced by migrating two of N call sites, leaving the remaining site with a private shim (build_limiter, sha256_hex, hex_lower).",
+      "Function-to-`use` conversions during migration were appended at the end of the file instead of the import block, which stranded the old doc comments on the new `use` item.",
+      "Repeated 3-6 line call shapes (activity emission, ToolResult failure, 404 mapping) are tolerated while neighbouring shapes get helpers, so extraction level drifts inside one file.",
+      "Lock guards are taken at function entry for convenience (Wazuh token, NVD throttle), which silently widens their scope to the whole async body."
+    ],
+    "likely_symptoms": [
+      "api_gateway_handbuilt_limiter",
+      "dedupe_hex_passthrough_module",
+      "orphan_doc_comments_enrichment"
+    ],
+    "possible_false_positives": [
+      "inline_activity_emission_agents may be scored under convention_outlier if the per-agent style is judged a deliberate choice rather than a missing helper.",
+      "wazuh_token_lock_across_io could be argued as intentional single-flight authentication; the defect is the scope of the guard, not the single-flight intent."
+    ]
+  },
+  "context_updates": {
+    "low_level_elegance": {
+      "add": [
+        {
+          "header": "Guard-clause handler bodies",
+          "description": "Handlers validate and return early (`let Some(x) = .. else { return .. }`) instead of nesting the happy path, so the success path stays at one indentation level across acp.rs, vulns.rs, executors/mod.rs and tool-server main.rs. This is why individual functions read faster than their file sizes suggest.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Pure transition function for idempotency",
+          "description": "tool-server idempotency puts the four-state claim logic in one pure `next(state, fingerprint) -> Claim` and has both the Postgres and in-memory backends delegate to it, so the two storage paths cannot drift in semantics.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One small executor struct per tool",
+          "description": "Every allowlisted tool is a dedicated struct implementing a 2-method `Tool` trait, with shared `arg_str`/`dry_run`/`env` helpers, which keeps each `execute` body at roughly one screen and makes the registry a flat, greppable list.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Shared helper introduced without retiring the old site",
+          "description": "When a helper lands (build_limiter, sha256_hex, hex_lower, dir_from_env), one or two call sites keep their private copy or pass-through wrapper. The residue is small but repeated, and each leftover keeps a second source of truth alive.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Doc comments outliving their functions",
+          "description": "Migrations that delete or convert a function leave its `///` block attached to whatever follows, so enrichment-lib documents `env` as a base64-url encoder and audit/response-agent carry a doc line on a `use` statement.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

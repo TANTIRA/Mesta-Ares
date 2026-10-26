@@ -19,6 +19,15 @@ pub enum AgentError {
     #[error("serialization error: {0}")]
     Json(#[from] serde_json::Error),
 
+    /// The tool server answered with a non-2xx status (outage, not a verdict).
+    #[error("tool gateway returned {status}: {body}")]
+    Gateway {
+        /// HTTP status code.
+        status: u16,
+        /// Response body, truncated by the server.
+        body: String,
+    },
+
     /// The policy gate denied the call.
     #[error("tool call denied: {0}")]
     Denied(String),

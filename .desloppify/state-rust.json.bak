@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 144,
-    "open": 371,
+    "fixed": 154,
+    "open": 361,
     "triaged_out": 0,
     "wontfix": 1,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 84,
-        "open": 23,
+        "fixed": 90,
+        "open": 17,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 40,
-        "open": 211,
+        "fixed": 44,
+        "open": 207,
         "triaged_out": 0,
         "wontfix": 1
       },
@@ -9759,11 +9759,11 @@
         "reasoning": "",
         "summary_hash": "b83dabc7"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:14:39+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9771,7 +9771,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:14:39+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::abstraction_fitness::connector_config_factory_getters": {
       "id": "review::.::holistic::abstraction_fitness::connector_config_factory_getters",
@@ -10021,11 +10027,11 @@
         "reasoning": "",
         "summary_hash": "109532c7"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:14:39+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10033,7 +10039,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:14:39+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::dependency_health::reqwest_dual_tls_stack": {
       "id": "review::.::holistic::dependency_health::reqwest_dual_tls_stack",
@@ -10440,11 +10452,11 @@
         "reasoning": "",
         "summary_hash": "cb97f971"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:14:37+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10452,7 +10464,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:14:37+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::provider_lookup_repeats_http_chain": {
       "id": "review::.::holistic::low_level_elegance::provider_lookup_repeats_http_chain",
@@ -11029,11 +11047,11 @@
         "reasoning": "",
         "summary_hash": "9f3e4109"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:14:40+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11041,7 +11059,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:14:40+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::mid_level_elegance::kill_switch_two_implementations": {
       "id": "review::.::holistic::mid_level_elegance::kill_switch_two_implementations",
@@ -12588,11 +12612,11 @@
         "reasoning": "",
         "summary_hash": "2acae038"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:14:37+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12600,7 +12624,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:14:37+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::ai_generated_debt::kill-switch-duplicated-divergent": {
       "id": "review::.::holistic::ai_generated_debt::kill-switch-duplicated-divergent",
@@ -13011,11 +13041,11 @@
         "reasoning": "",
         "summary_hash": "a138aa48"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:28+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13023,7 +13053,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:28+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::incomplete_migration::provider_integrations_duplicated": {
       "id": "review::.::holistic::incomplete_migration::provider_integrations_duplicated",
@@ -13489,11 +13525,11 @@
         "reasoning": "",
         "summary_hash": "23ac410a"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:14:36+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13501,7 +13537,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:14:36+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::package_organization::api-server-module-shadows-crate": {
       "id": "review::.::holistic::package_organization::api-server-module-shadows-crate",
@@ -13892,11 +13934,11 @@
         "reasoning": "",
         "summary_hash": "7a3f26cc"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:14:41+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13904,7 +13946,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:14:41+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::initialization_coupling::enricher_new_hidden_env": {
       "id": "review::.::holistic::initialization_coupling::enricher_new_hidden_env",
@@ -13968,11 +14016,11 @@
         "reasoning": "",
         "summary_hash": "22fa1c2c"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:14:41+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13980,7 +14028,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:14:41+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::design_coherence::unwired_agent_core_loop": {
       "id": "review::.::holistic::design_coherence::unwired_agent_core_loop",
@@ -14319,11 +14373,11 @@
         "reasoning": "",
         "summary_hash": "54708eda"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:14:38+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14331,7 +14385,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:14:38+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::design_coherence::cvss_metric_validation_duplicated": {
       "id": "review::.::holistic::design_coherence::cvss_metric_validation_duplicated",
@@ -18165,7 +18225,7 @@
       },
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:52:20+00:00"
+      "stale_since": "2026-10-26T10:14:39+00:00"
     },
     "ai_generated_debt": {
       "score": 79.0,
@@ -18173,7 +18233,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:09:24+00:00"
+      "stale_since": "2026-10-26T10:14:37+00:00"
     },
     "api_surface_coherence": {
       "score": 74.0,
@@ -18229,7 +18289,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:09:25+00:00"
+      "stale_since": "2026-10-26T10:14:38+00:00"
     },
     "error_consistency": {
       "score": 83.0,
@@ -18253,7 +18313,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:52:23+00:00"
+      "stale_since": "2026-10-26T10:09:28+00:00"
     },
     "initialization_coupling": {
       "score": 74.0,
@@ -18261,7 +18321,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:05:34+00:00"
+      "stale_since": "2026-10-26T10:14:41+00:00"
     },
     "logic_clarity": {
       "score": 82.5,
@@ -18277,7 +18337,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:09:13+00:00"
+      "stale_since": "2026-10-26T10:14:37+00:00"
     },
     "mid_level_elegance": {
       "score": 70.0,
@@ -18285,7 +18345,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:09:27+00:00"
+      "stale_since": "2026-10-26T10:14:40+00:00"
     },
     "naming_quality": {
       "score": 88.5,
@@ -18301,7 +18361,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:16:12+00:00"
+      "stale_since": "2026-10-26T10:14:36+00:00"
     },
     "test_strategy": {
       "score": 63.0,
@@ -22784,13 +22844,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 2,
+      "failing": 0,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 2,
+          "failing": 0,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,
@@ -22820,13 +22880,13 @@
       "strict": 79.0,
       "verified_strict_score": 79.0,
       "checks": 10,
-      "failing": 4,
+      "failing": 3,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.79,
-          "failing": 4,
+          "failing": 3,
           "weighted_failures": 2.1,
           "assessment_score": 79.0,
           "placeholder": false,
@@ -22967,13 +23027,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 4,
+      "failing": 3,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 4,
+          "failing": 3,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,
@@ -23030,13 +23090,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 2,
+      "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 2,
+          "failing": 1,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -23051,13 +23111,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 4,
+      "failing": 2,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 4,
+          "failing": 2,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -23093,13 +23153,13 @@
       "strict": 80.0,
       "verified_strict_score": 80.0,
       "checks": 10,
-      "failing": 3,
+      "failing": 2,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.8,
-          "failing": 3,
+          "failing": 2,
           "weighted_failures": 2.0,
           "assessment_score": 80.0,
           "placeholder": false,
@@ -23114,13 +23174,13 @@
       "strict": 70.0,
       "verified_strict_score": 70.0,
       "checks": 10,
-      "failing": 2,
+      "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.7,
-          "failing": 2,
+          "failing": 1,
           "weighted_failures": 3.0,
           "assessment_score": 70.0,
           "placeholder": false,
@@ -23156,13 +23216,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 8,
+          "failing": 7,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,

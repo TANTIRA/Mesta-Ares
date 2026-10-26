@@ -11,7 +11,7 @@ use tracing::warn;
 
 /// Loads every playbook document in `PLAYBOOKS_DIR`, sorted by name.
 fn load_playbooks() -> (Vec<Value>, Vec<String>) {
-    let dir = crate::paths::dir_from_env("PLAYBOOKS_DIR", "playbooks");
+    let dir = agent_protocol::paths::dir_from_env("PLAYBOOKS_DIR", "playbooks");
     let (docs, errors) = crate::yaml_dir::load(&dir);
     let mut playbooks: Vec<Value> = Vec::new();
     let mut errors = errors;

@@ -70,20 +70,12 @@ fn dedupe_key(envelope: &Envelope) -> String {
     hasher.update(rule_id.as_bytes());
     hasher.update(host.as_bytes());
     hasher.update(bucket.as_bytes());
-    hex::encode(hasher.finalize())
+    agent_protocol::hex::hex_lower(&hasher.finalize())
 }
 
 /// Renders the 24h dedupe bucket (`YYYY-MM-DD`) for a timestamp.
 fn day_bucket(ts: DateTime<Utc>) -> String {
     format!("{:04}-{:02}-{:02}", ts.year(), ts.month(), ts.day())
-}
-
-/// Minimal hex encoder to avoid an extra dependency.
-mod hex {
-    /// Encodes bytes as lowercase hex.
-    pub fn encode(bytes: impl AsRef<[u8]>) -> String {
-        agent_protocol::hex::hex_lower(bytes.as_ref())
-    }
 }
 
 #[cfg(test)]

@@ -100,13 +100,25 @@ impl AuditWriter {
                 .await?;
         let prev_hash = prev_hash.unwrap_or_else(|| GENESIS_HASH.to_string());
 
+        // Postgres stores timestamptz at microsecond precision, so hash the
+        // same precision we will read back or verify_chain sees false breaks.
         let ts = Utc::now();
-        let canonical = format!(
-            "{prev_hash}|{actor}|{tool}|{args_sha256}|{decision_label}|{reason}|\
-             {correlation_id}|{ts}",
-            ts = ts.to_rfc3339(),
+        let ts = chrono::DateTime::from_timestamp_micros(ts.timestamp_micros())
+            .unwrap_or(ts)
+            .with_timezone(&Utc);
+        let hash = sha256_hex(
+            canonical_string(
+                &prev_hash,
+                actor,
+                tool,
+                &args_sha256,
+                decision_label,
+                reason,
+                correlation_id,
+                &ts,
+            )
+            .as_bytes(),
         );
-        let hash = sha256_hex(canonical.as_bytes());
 
         let seq: i64 = sqlx::query_scalar(
             "INSERT INTO audit_log \
@@ -158,16 +170,15 @@ impl AuditWriter {
         let mut expected_prev = GENESIS_HASH.to_string();
         let mut verified = 0u64;
         for row in &rows {
-            let canonical = format!(
-                "{}|{}|{}|{}|{}|{}|{}|{}",
-                row.prev_hash,
-                row.actor,
-                row.tool,
-                row.args_sha256,
-                row.decision,
-                row.reason,
+            let canonical = canonical_string(
+                &row.prev_hash,
+                &row.actor,
+                &row.tool,
+                &row.args_sha256,
+                &row.decision,
+                &row.reason,
                 row.correlation_id,
-                row.ts.to_rfc3339(),
+                &row.ts,
             );
             if row.prev_hash != expected_prev {
                 return Ok(ChainReport {
@@ -226,6 +237,23 @@ pub struct ChainReport {
 }
 
 use agent_protocol::hex::sha256_hex;
+
+/// The exact string a row's `hash` covers.
+fn canonical_string(
+    prev_hash: &str,
+    actor: &str,
+    tool: &str,
+    args_sha256: &str,
+    decision: &str,
+    reason: &str,
+    correlation_id: Uuid,
+    ts: &chrono::DateTime<Utc>,
+) -> String {
+    format!(
+        "{prev_hash}|{actor}|{tool}|{args_sha256}|{decision}|{reason}|{correlation_id}|{ts}",
+        ts = ts.to_rfc3339(),
+    )
+}
 
 #[cfg(test)]
 mod tests {

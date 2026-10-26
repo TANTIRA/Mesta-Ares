@@ -154,8 +154,9 @@ fn router(state: Arc<AppState>, auth: auth::AuthState, rl: Arc<RateLimiter>) -> 
         .route("/ingest/{*path}", any(proxy::ingest))
         .route("/tools/{*path}", any(proxy::tools))
         .fallback(|| async { (StatusCode::NOT_FOUND, Json(json!({"error": "no_route"}))) })
-        // Rate limiting outermost so unauthenticated floods are still metered;
-        // authentication then gates everything except the exempt paths.
+        // Authentication outermost so unauthenticated floods are rejected
+        // before they can spend rate-limit budget; the limiter then meters the
+        // authenticated caller.
         .layer(middleware::from_fn_with_state(rl, http_limits::middleware))
         .layer(middleware::from_fn_with_state(auth, auth::middleware))
         .with_state(state)
@@ -171,10 +172,7 @@ async fn main() -> Result<()> {
         .init();
 
     let cfg = Config::parse();
-    let policies_dir = std::env::var("POLICIES_DIR").unwrap_or_else(|_| "policies".to_string());
-    let limits = RateLimits::load(&std::path::PathBuf::from(&policies_dir).join("rate-limits.yml"));
-    let rl = Arc::new(RateLimiter::new(limits, classify));
-    rl.spawn_idle_purge();
+    let rl = http_limits::build_limiter(classify);
 
     let auth = auth::AuthState::from_env();
     if auth.key_count() == 0 {

@@ -1,0 +1,261 @@
+{
+  "batch": "abstraction_fitness",
+  "batch_index": 6,
+  "assessments": {
+    "abstraction_fitness": 81.0
+  },
+  "dimension_notes": {
+    "abstraction_fitness": {
+      "evidence": [
+        "crates/agent-protocol is a real shared-contract crate with many consumers: envelope.rs, tool.rs, severity.rs, hex.rs, kill.rs, activity.rs, paths.rs and the SUBJECT_* constants are imported by 15+ files across agents, orchestrator, tool-server, audit and api-server.",
+        "crates/agent-core/src/nats_sink.rs:19-107 is one publisher with an explicit policy (JetStream-first, plain fallback) shared by ingestion-gateway (main.rs:126), orchestrator (main.rs:168) and api-server (main.rs:361) - it replaced three earlier copies.",
+        "crates/api-server/src/run_stream.rs:82-95 declares RunRecord with exactly two implementations (Task in a2a.rs:510, Run in acp.rs:479), and owns the replay/stream/terminal state machine so the protocol modules keep only wire shapes.",
+        "crates/tool-server/src/executors/mod.rs:25-29 defines trait Tool with ~25 registered implementations (build_registry, lines 570-724); the single DryRun struct is parametrized by name for the 12 unbacked allowlist entries instead of one class per tool.",
+        "crates/agent-core/src/gateway.rs:40-44 (ToolGateway) concentrates tool-server HTTP volatility: full-jitter retry, retryable-marker handling and the allow/deny contract live in one type used by all agents.",
+        "crates/http-limits/src/auth.rs:26-110 and crates/http-limits/src/lib.rs:44-120 own API-key auth and token-bucket rate limiting for both api-server (main.rs:298-301) and ingestion-gateway (main.rs:146-154).",
+        "crates/agent-protocol/src/activity.rs:14 derives Debug/Clone/Serialize only, so no consumer can parse ActivityEvent; run_stream.rs:62-71 and 157-168 filter activity payloads by string-keying serde_json::Value, duplicating the type's field names.",
+        "crates/api-server/src/a2a.rs:124-131 owns the terminal-step vocabulary as a string match on agent/step and returns false for anything unrecognised; hunt-agent emits run/finding/clear/kill_switch (hunt-agent/src/main.rs:140-185), so hunt SSE streams never close (acknowledged at a2a.rs:122-123).",
+        "crates/agent-core/src/lib.rs:30-48 publish_activity serializes and publishes on a raw async_nats::Client, and crates/bas-runner/src/main.rs:180-190 re-implements the same serialize+publish+warn sequence locally, so NatsSink's publish policy is bypassed by 6 of 9 producers.",
+        "crates/api-server/src/paths.rs:9-11 is a byte-identical copy of crates/agent-protocol/src/paths.rs:9-11 while detection-agent/src/pipeline.rs:16,20, bas-runner/src/scenario.rs:12 and http-limits/src/lib.rs:463 import the shared one.",
+        "crates/api-server/src/stream.rs:22 re-declares SUBJECT_ACTIVITY locally although crates/agent-protocol/src/activity.rs:11 defines it and agents import the shared constant.",
+        "crates/api-server/src/a2a.rs:242-248 a2a::publish is a pure forward to s.sink.publish with no policy, translation or logging of its own; callers are a2a.rs:401 and acp.rs:248."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "sub_axes": {
+        "abstraction_leverage": 84.0,
+        "indirection_cost": 86.0,
+        "interface_honesty": 72.0,
+        "delegation_density": 88.0,
+        "definition_directness": 80.0,
+        "type_discipline": 78.0
+      }
+    }
+  },
+  "dimension_judgment": {
+    "abstraction_fitness": {
+      "dimension_character": "Abstractions here are mostly earned: one contract crate, one NATS publisher with a stated policy, one tool trait with ~25 implementations, one ToolGateway carrying the retry/deny contract, one RunRecord trait behind both A2A and ACP streaming. The friction is at the seams rather than the core - the shared activity type is emit-only so consumers string-key raw JSON, the terminal-step vocabulary lives in the API server instead of next to the emitters, and a handful of producers and helpers still duplicate or bypass the shared pieces they were meant to use. A developer would trust the protocol and gateway layers, but would have to read each producer to know whether it actually goes through them.",
+      "score_rationale": "This sits in the 'solid but uneven' band rather than the mixed band because the leverage is systemic: agent-protocol is genuinely the single definition point, NatsSink and ToolGateway enforce real policy, and the only declared traits with one implementation are protocol boundaries with test doubles. What holds it back is interface honesty - ActivityEvent cannot be deserialized by the services that filter on it, terminal step names are an unwritten contract that has already drifted for hunt-agent, and NatsSink is bypassed by publish_activity and bas-runner while a duplicate paths module and a duplicate SUBJECT_ACTIVITY constant survive in api-server. Fixing those five seams is mostly deletion and small moves, which is why the score is above the previous 73.0 but not in the 90s."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "activity_event_not_deserializable",
+      "summary": "ActivityEvent is serialize-only, so every consumer filters activity payloads as untyped JSON",
+      "related_files": [
+        "crates/agent-protocol/src/activity.rs",
+        "crates/api-server/src/run_stream.rs",
+        "crates/api-server/src/stream.rs"
+      ],
+      "evidence": [
+        "crates/agent-protocol/src/activity.rs:14 derives only Debug, Clone and Serialize; there is no Deserialize, so no service can parse the type it is meant to share.",
+        "crates/api-server/src/run_stream.rs:62-71 and 157-168 parse each ares.activity payload into serde_json::Value and compare v.get(\"workflow_run_id\").and_then(Value::as_str) != Some(corr) plus v.get(\"step\"), restating the type's field names in two places.",
+        "crates/api-server/src/stream.rs:37 forwards raw UTF-8 payload text straight to the console SSE feed, so the frontend also depends on the untyped shape.",
+        "ActivityEvent.workflow_run_id is a Uuid and ts a DateTime<Utc>, but consumers compare the serialized string form, so a field rename or type change is invisible to the compiler at every consumer."
+      ],
+      "suggestion": "Add Deserialize to ActivityEvent and replace both Value traversals in run_stream.rs with serde_json::from_str::<ActivityEvent>(&text) followed by typed field access; leave stream.rs forwarding raw text (the console wants the original bytes) but let it import the type for documentation.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "activity-contract-one-directional"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "terminal_step_vocabulary_misplaced",
+      "summary": "Terminal-step registry lives in the API server as magic strings and hunt runs never terminate",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/run_stream.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs:124-131 terminal_step matches only \"triage\", \"response\" and \"detection\" and returns false for every other agent, so hunt-agent's steps (\"run\", \"finding\", \"clear\", \"kill_switch\" at crates/hunt-agent/src/main.rs:140-185) never close an SSE stream; a2a.rs:122-123 documents this as a known gap instead of fixing the contract.",
+        "crates/api-server/src/run_stream.rs:18 imports aborted_step, task_uuid and terminal_step from crate::a2a, so the module documented as shared A2A+ACP machinery depends on one protocol module for the step vocabulary.",
+        "Step names are free string literals at the emit sites (crates/triage-agent/src/main.rs:397-490, crates/detection-agent/src/main.rs:126-202, crates/response-agent/src/main.rs:193-347) with no shared constant, so a renamed step silently stops terminating its run.",
+        "aborted_step (a2a.rs:134-136) encodes a second cross-agent rule (\"kill_switch\" | \"rejected\") in the same API-server module rather than next to the emitters."
+      ],
+      "suggestion": "Move the vocabulary into agent-protocol::activity as an ActivityStep enum (or per-agent const slices) plus ActivityEvent::is_terminal()/is_aborted(), have agents construct steps from it and run_stream call it directly; add hunt's terminal step in the same change so hunt SSE streams close.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "activity-contract-one-directional"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "nats_sink_bypassed_by_producers",
+      "summary": "NatsSink's publish policy is bypassed by publish_activity and by bas-runner's local publish helper",
+      "related_files": [
+        "crates/agent-core/src/lib.rs",
+        "crates/agent-core/src/nats_sink.rs",
+        "crates/bas-runner/src/main.rs",
+        "crates/vuln-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/agent-core/src/lib.rs:30-48 publish_activity serializes an ActivityEvent and publishes on a raw async_nats::Client, so the JetStream-first policy in NatsSink::publish_bytes (crates/agent-core/src/nats_sink.rs:92-107) never applies to activity events.",
+        "crates/bas-runner/src/main.rs:180-190 re-implements serialize + publish + warn for SUBJECT_BAS envelopes on a raw client, so BAS results are the only envelope kind never written to the ARES stream.",
+        "Six services open a raw client only for this path (crates/triage-agent/src/main.rs:506, response-agent/src/main.rs:382, detection-agent/src/main.rs:216, hunt-agent/src/main.rs:201, vuln-agent/src/main.rs:310, bas-runner/src/main.rs:278) while ingestion-gateway, orchestrator and api-server use NatsSink.",
+        "NatsSink's own doc comment (nats_sink.rs:1-4) claims 'one implementation for every producer', which the raw-client call sites contradict."
+      ],
+      "suggestion": "Add NatsSink::publish_activity(&ActivityEvent) (and use publish() for BAS envelopes), have publish_activity take &NatsSink instead of &async_nats::Client, and replace the six raw connects with NatsSink::connect; if activity is deliberately best-effort, say so in one comment on the new method so the two policies are explicit.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "nats-publish-policy-duplicated"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "duplicate_paths_helper_module",
+      "summary": "api-server re-declares agent-protocol's dir_from_env in its own paths module",
+      "related_files": [
+        "crates/api-server/src/paths.rs",
+        "crates/agent-protocol/src/paths.rs",
+        "crates/api-server/src/coverage.rs",
+        "crates/api-server/src/playbooks.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/paths.rs:9-11 is byte-identical to crates/agent-protocol/src/paths.rs:9-11 (same signature, same env-or-default body, same doc line).",
+        "crates/api-server/src/coverage.rs:17 and crates/api-server/src/playbooks.rs:14 call crate::paths::dir_from_env while detection-agent/src/pipeline.rs:16,20, bas-runner/src/scenario.rs:12 and http-limits/src/lib.rs:463 call agent_protocol::paths::dir_from_env.",
+        "api-server already depends on agent-protocol (a2a.rs:24-26, kill.rs:40), so the copy buys nothing."
+      ],
+      "suggestion": "Delete crates/api-server/src/paths.rs (and its mod line at main.rs:31) and import agent_protocol::paths::dir_from_env in coverage.rs and playbooks.rs.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "shared-helper-not-reused"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "duplicate_subject_activity_const",
+      "summary": "api-server re-declares SUBJECT_ACTIVITY locally instead of importing the shared constant",
+      "related_files": [
+        "crates/api-server/src/stream.rs",
+        "crates/agent-protocol/src/activity.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/stream.rs:22 defines const SUBJECT_ACTIVITY: &str = \"ares.activity\"; duplicating crates/agent-protocol/src/activity.rs:11.",
+        "Every other subject now lives once in agent-protocol/src/lib.rs:20-35 and is imported by producers, so this is the single remaining local copy of a subject name.",
+        "A rename or subject change in agent-protocol would leave api-server silently subscribed to a dead subject with no compile error."
+      ],
+      "suggestion": "Import agent_protocol::activity::SUBJECT_ACTIVITY in stream.rs and delete the local const at line 22.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "shared-helper-not-reused"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "a2a_publish_pass_through_wrapper",
+      "summary": "a2a::publish is a pass-through wrapper over NatsSink::publish with no policy of its own",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs:242-248 the body is a single s.sink.publish(subject, envelope).await; it adds no logging, translation or policy, only a doc comment.",
+        "Its doc still claims 'same policy as ingestion-gateway's NatsSink' even though the sink moved to agent-core, so the wrapper's only content is already stale.",
+        "Call sites are a2a.rs:401 and acp.rs:248, both of which already hold &AppState and can reach s.sink directly."
+      ],
+      "suggestion": "Call s.sink.publish(def.subject, &env) directly at both call sites and delete the wrapper, so the publish policy has exactly one definition (agent-core::NatsSink).",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "tool_gateway_bypassed_for_thehive_writes",
+      "summary": "vuln-agent and response-agent write to TheHive through ThehiveClient, bypassing the ToolGateway used for every other side effect",
+      "related_files": [
+        "crates/vuln-agent/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/agent-core/src/gateway.rs",
+        "crates/tool-server/src/executors/mod.rs"
+      ],
+      "evidence": [
+        "crates/vuln-agent/src/main.rs:266 calls hive.create_case(&case) directly although thehive.case.create is a registered policy-gated tool (crates/tool-server/src/executors/mod.rs:79) that triage-agent uses via gateway.invoke_allowed (crates/triage-agent/src/main.rs:310-320).",
+        "crates/response-agent/src/main.rs:339 updates the TheHive case directly for the run summary while every other response side effect goes through deps.gateway.invoke_verdict (main.rs:236).",
+        "ToolGateway (crates/agent-core/src/gateway.rs:41-44) returns a ToolResult whose output is untyped Value, so agents that need a typed case id must re-parse it (crates/triage-agent/src/main.rs:318-321) - the cheap path to typed results is the direct client, which is why the bypass keeps reappearing."
+      ],
+      "suggestion": "Route vuln-agent's case creation through HttpToolGateway::invoke_allowed(\"thehive.case.create\") so kill switch, policy and audit apply uniformly; keep response-agent's summary write only if it is documented as bookkeeping, otherwise add a policy-gated tool for it. If typed returns are the blocker, add a typed helper next to invoke_allowed rather than another direct client.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "side-effects-outside-policy-gate"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "The activity contract was designed as an emit-only event, so the type stopped at Serialize and consumers were left with raw JSON plus string-key filtering.",
+      "Agent-side step vocabulary (terminal/aborted) was never moved with ActivityEvent into agent-protocol, so the API server became the de-facto owner and has already drifted for hunt-agent.",
+      "NatsSink was consolidated for envelope producers but publish_activity and bas-runner's local publish helper were not migrated, leaving two publish policies.",
+      "Small shared helpers (paths, SUBJECT_ACTIVITY, a2a::publish) were copied instead of imported during the multi-service build-out."
+    ],
+    "likely_symptoms": [
+      "hunt-agent SSE streams that stay open until the client disconnects",
+      "activity events that never appear in the ARES JetStream stream / no replay after a restart",
+      "a second 'where does this get published?' answer in api-server",
+      "TheHive cases created without an audit row or kill-switch check from vuln-agent"
+    ],
+    "possible_false_positives": [
+      "Making activity events JetStream-durable may be undesirable (progress noise); the real defect is the duplicated publish policy, not the absence of durability.",
+      "response-agent's TheHive summary write may be intentional bookkeeping rather than a governed action.",
+      "The gateway's separate fail-closed API-key auth (crates/api-gateway/src/auth.rs) differs from http-limits::auth by policy, not by accident, so the duplication there is not reported as an issue."
+    ]
+  },
+  "context_updates": {
+    "abstraction_fitness": {
+      "add": [
+        {
+          "header": "agent-protocol is the single contract crate",
+          "description": "Envelope, ToolCall/Decision/ToolResult, Severity, hex, kill, activity, paths and the SUBJECT_* constants are defined once and imported by 15+ files across agents, orchestrator, tool-server, audit and api-server, so wire shapes cannot drift per service.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One NatsSink with an explicit publish policy",
+          "description": "agent-core::NatsSink (JetStream-first, plain fallback, stream creation) replaced three earlier copies and is used by ingestion-gateway, orchestrator and api-server; the remaining raw-client sites are tracked as a defect rather than a second design.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "RunRecord shares A2A/ACP streaming machinery",
+          "description": "run_stream owns replay, live activity, terminal detection and write-back; Task and Run implement a five-method trait so each protocol module keeps only its wire shape. Two implementations justify the trait.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Tool trait with a parametrized dry-run fallback",
+          "description": "One Tool trait serves ~25 executors, and the 12 allowlist entries without a backend share a single DryRun struct parametrized by name instead of a class per tool; missing_executors turns policy/registry drift into a startup failure.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "ToolGateway concentrates tool-server volatility",
+          "description": "Retry policy (full-jitter, retryable marker, deny-is-terminal) and the allow/deny contract live in HttpToolGateway, so agents carry no HTTP resilience code of their own.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "http-limits owns edge auth and rate-limit policy",
+          "description": "API-key auth and token-bucket tiering are implemented once and layered onto both api-server and ingestion-gateway, keeping each service's module limited to its tier mapping.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Activity contract is emit-only",
+          "description": "ActivityEvent has no Deserialize, so the API server filters activity with string-keyed serde_json::Value; the shared type documents the shape but cannot enforce it at the consumer.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Gateway auth diverges from http-limits auth",
+          "description": "api-gateway keeps its own fail-closed API-key middleware (GATEWAY_API_KEYS, 503 when unset) while api-server/ingestion use the fail-open http-limits one; the differing posture looks deliberate, but the header parsing is now implemented twice.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

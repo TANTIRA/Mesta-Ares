@@ -167,8 +167,6 @@ pub fn composite_score(results: &[EnrichmentResult]) -> u8 {
     (pick("virustotal") * 0.5 + pick("abuseipdb") * 0.3 + misp_bonus).min(100.0) as u8
 }
 
-/// Base64-url (unpadded) encoding for VirusTotal URL ids.
-
 fn env(key: &str) -> Option<String> {
     std::env::var(key).ok().filter(|s| !s.is_empty())
 }
@@ -357,18 +355,18 @@ impl Enricher {
     /// `nvd:cve:{CVE-ID}` for 24h. Misses are negative-cached as `null` for
     /// 1h so rejected/reserved IDs don't hammer the rate limit. NVD errors
     /// return `None` — never fatal to the caller.
-    pub async fn enrich_cve(&self, cve_id: &str) -> Option<CveRecord> {
+    pub async fn enrich_cve(&self, cve_id: &str) -> anyhow::Result<Option<CveRecord>> {
         let cve_id = cve_id.to_uppercase();
         let key = format!("nvd:cve:{cve_id}");
         if let Some(client) = &self.redis {
             if let Ok(mut conn) = client.get_multiplexed_async_connection().await {
                 if let Ok(Some(raw)) = conn.get::<_, Option<String>>(&key).await {
                     if raw == "null" {
-                        return None;
+                        return Ok(None);
                     }
                     if let Ok(rec) = serde_json::from_str::<CveRecord>(&raw) {
                         debug!(cve = %cve_id, "nvd cache hit");
-                        return Some(rec);
+                        return Ok(Some(rec));
                     }
                 }
             }
@@ -383,7 +381,7 @@ impl Enricher {
                         }
                     }
                 }
-                Some(rec)
+                Ok(Some(rec))
             }
             Ok(None) => {
                 if let Some(client) = &self.redis {
@@ -391,11 +389,11 @@ impl Enricher {
                         let _: redis::RedisResult<()> = conn.set_ex(&key, "null", 3600).await;
                     }
                 }
-                None
+                Ok(None)
             }
             Err(e) => {
                 warn!(error = %e, cve = %cve_id, "nvd lookup failed");
-                None
+                Err(e)
             }
         }
     }
@@ -445,7 +443,6 @@ fn cache_key(ioc: &str) -> String {
     format!("enr:{:x}", Sha256::digest(ioc.as_bytes()))
 }
 
-/// Convenience wrapper: enrich one indicator through a shared `Enricher`.
 #[cfg(test)]
 mod tests {
     use super::*;
