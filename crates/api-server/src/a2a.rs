@@ -36,7 +36,6 @@ use chrono::{DateTime, Utc};
 use futures::Stream;
 use serde_json::{json, Value};
 use sqlx::PgPool;
-use tracing::info;
 use uuid::Uuid;
 
 use crate::run_stream::{self, CheckpointProgress, RunRecord};

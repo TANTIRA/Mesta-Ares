@@ -36,7 +36,6 @@ mod vulns;
 
 use std::net::SocketAddr;
 use std::sync::Arc;
-use std::time::Duration;
 
 use agent_core::kill_switch_engaged;
 use anyhow::Context;
@@ -82,7 +81,6 @@ struct Config {
 struct AppState {
     os: OpensearchClient,
     pool: PgPool,
-    http: reqwest::Client,
     nvd: connectors::NvdClient,
     enricher: enrichment_lib::Enricher,
     activity_tx: stream::ActivityTx,
@@ -92,6 +90,8 @@ struct AppState {
     auth_enabled: bool,
     /// Audit writer for control-plane changes; `None` when the DB is down.
     audit: Option<Arc<audit::AuditWriter>>,
+    /// TheHive client for the case read model; `None` without credentials.
+    hive: Option<connectors::ThehiveClient>,
 }
 
 /// Liveness probe.
@@ -141,19 +141,13 @@ async fn get_alert(
         .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))
 }
 
-/// TheHive query API helper — `POST {THEHIVE_URL}/api/v1/query`.
+/// TheHive query API helper — one filter through [`ThehiveClient::query`].
 async fn thehive_query(s: &AppState, query: Value) -> Result<Value, anyhow::Error> {
-    let base = std::env::var("THEHIVE_URL").unwrap_or_else(|_| "http://localhost:9000".to_string());
-    let key = std::env::var("THEHIVE_API_KEY").unwrap_or_default();
-    let resp = s
-        .http
-        .post(format!("{}/api/v1/query", base.trim_end_matches('/')))
-        .bearer_auth(key)
-        .json(&json!({"query": [query]}))
-        .send()
-        .await?
-        .error_for_status()?;
-    Ok(resp.json().await?)
+    let hive = s
+        .hive
+        .as_ref()
+        .context("THEHIVE_URL not configured")?;
+    hive.query(query).await
 }
 
 /// `GET /cases` — list TheHive cases, newest first.
@@ -372,15 +366,13 @@ async fn main() -> anyhow::Result<()> {
             .build_opensearch_client()
             .context("OPENSEARCH_URL not set")?,
         pool,
-        http: reqwest::Client::builder()
-            .timeout(Duration::from_secs(15))
-            .build()?,
         nvd: conn_cfg.build_nvd_client(),
         enricher: enrichment_lib::Enricher::new(),
         activity_tx,
         sink,
         auth_enabled: http_limits::auth::ApiKeys::from_env().is_enabled(),
         audit,
+        hive: conn_cfg.build_thehive_client(),
     });
 
     // Per-key rate limits (peer IP until auth lands). CORS stays outermost

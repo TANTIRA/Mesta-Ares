@@ -63,7 +63,6 @@ struct Deps {
     os: Arc<OpensearchClient>,
     misp: Arc<MispClient>,
     gateway: Arc<HttpToolGateway>,
-    http: reqwest::Client,
     pool: Option<sqlx::PgPool>,
     fp_max: u64,
 }
@@ -192,7 +191,7 @@ async fn run_cycle(deps: &Deps, trigger: &str, correlation_id: Uuid) -> anyhow::
     }
 
     let active = pipeline::promote_and_commit(&pending)?;
-    pipeline::deploy_monitor(&deps.http, title, &lucene).await?;
+    pipeline::deploy_monitor(&deps.os, title, &lucene).await?;
     pipeline::audit_deploy(&deps.gateway, &active, correlation_id).await;
     publish_activity(
         &deps.nats,
@@ -231,7 +230,6 @@ async fn main() -> anyhow::Result<()> {
         ),
         misp: Arc::new(conn_cfg.build_misp_client().context("MISP_URL not set")?),
         gateway: Arc::new(HttpToolGateway::new(config.tool_server_url.clone())),
-        http: reqwest::Client::new(),
         pool,
         fp_max: config.detect_fp_max,
     });

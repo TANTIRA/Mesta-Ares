@@ -198,22 +198,13 @@ pub fn promote_and_commit(pending: &Path) -> anyhow::Result<PathBuf> {
 
 /// Deploys an OpenSearch alerting monitor for the rule.
 ///
-/// Sent as a raw POST to `{OPENSEARCH_URL}/_plugins/_alerting/monitors`
-/// because [`OpensearchClient::query`] only covers searches.
+/// Deployed as an OpenSearch alerting monitor through
+/// [`OpensearchClient::post_json`].
 pub async fn deploy_monitor(
-    http: &reqwest::Client,
+    os: &connectors::OpensearchClient,
     name: &str,
     lucene: &str,
 ) -> anyhow::Result<()> {
-    let base =
-        std::env::var("OPENSEARCH_URL").unwrap_or_else(|_| "http://localhost:9200".to_string());
-    let auth = match (
-        std::env::var("OPENSEARCH_USER"),
-        std::env::var("OPENSEARCH_PASS"),
-    ) {
-        (Ok(u), Ok(p)) => Some((u, p)),
-        _ => None,
-    };
     let monitor = json!({
         "type": "monitor",
         "name": name,
@@ -231,14 +222,9 @@ pub async fn deploy_monitor(
             "condition": {"script": {"source": "ctx.results[0].hits.total.value > 0", "lang": "painless"}},
             "actions": []}]
     });
-    let mut req = http.post(format!(
-        "{}/_plugins/_alerting/monitors",
-        base.trim_end_matches('/')
-    ));
-    if let Some((u, p)) = auth {
-        req = req.basic_auth(u, Some(p));
-    }
-    req.json(&monitor).send().await?.error_for_status()?;
+    os.post_json("/_plugins/_alerting/monitors", &monitor)
+        .await
+        .context("deploy alerting monitor")?;
     Ok(())
 }
 

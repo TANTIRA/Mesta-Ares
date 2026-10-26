@@ -155,6 +155,15 @@ impl OpensearchClient {
         json_ok(send_with_retry(req).await.context("opensearch index_doc")?).await
     }
 
+    /// `POST {base}/{path}` with a JSON body (monitors, plugins, etc.).
+    pub async fn post_json(&self, path: &str, body: &Value) -> Result<Value> {
+        let req = self
+            .auth
+            .apply(self.http.post(join(&self.base, path)))
+            .json(body);
+        json_ok(send_with_retry(req).await.context("opensearch post")?).await
+    }
+
     /// `POST {base}/{index}/_search` with the given query body. `q` is passed
     /// through as the optional URI `?q=` query-string search parameter.
     pub async fn query(&self, index: &str, q: &str, body: Value) -> Result<Value> {
@@ -241,6 +250,15 @@ impl ThehiveClient {
     }
 
     /// `POST /api/v1/case`.
+    /// `POST /api/v1/query` — TheHive's search DSL; `query` is one filter.
+    pub async fn query(&self, query: Value) -> Result<Value> {
+        let req = self
+            .auth
+            .apply(self.http.post(join(&self.base, "/api/v1/query")))
+            .json(&serde_json::json!({ "query": [query] }));
+        json_ok(send_with_retry(req).await.context("thehive query")?).await
+    }
+
     pub async fn create_case(&self, case: &NewCase) -> Result<Case> {
         let req = self
             .auth

@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 130,
-    "open": 385,
+    "fixed": 144,
+    "open": 371,
     "triaged_out": 0,
     "wontfix": 1,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 75,
-        "open": 32,
+        "fixed": 84,
+        "open": 23,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 35,
-        "open": 216,
+        "fixed": 40,
+        "open": 211,
         "triaged_out": 0,
         "wontfix": 1
       },
@@ -9046,11 +9046,11 @@
         "reasoning": "",
         "summary_hash": "a8d93004"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:09+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9058,7 +9058,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:09+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::error_consistency::invoke_client_three_contracts": {
       "id": "review::.::holistic::error_consistency::invoke_client_three_contracts",
@@ -9256,11 +9262,11 @@
         "reasoning": "",
         "summary_hash": "e5c770c6"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:10+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9268,7 +9274,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:10+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::error_consistency::intel_parse_failures_silent": {
       "id": "review::.::holistic::error_consistency::intel_parse_failures_silent",
@@ -10552,11 +10564,11 @@
         "reasoning": "",
         "summary_hash": "acebc431"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:13+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10564,7 +10576,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:13+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::policy_counter_noop_drop": {
       "id": "review::.::holistic::low_level_elegance::policy_counter_noop_drop",
@@ -11096,11 +11114,11 @@
         "reasoning": "",
         "summary_hash": "a70f1dbb"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:27+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11108,7 +11126,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:27+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::mid_level_elegance::decision_label_duplicates_serde": {
       "id": "review::.::holistic::mid_level_elegance::decision_label_duplicates_serde",
@@ -12689,11 +12713,11 @@
         "reasoning": "",
         "summary_hash": "b48335e2"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:15+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12701,7 +12725,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:15+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::ai_generated_debt::jetstream-bootstrap-duplicated": {
       "id": "review::.::holistic::ai_generated_debt::jetstream-bootstrap-duplicated",
@@ -12769,11 +12799,11 @@
         "reasoning": "",
         "summary_hash": "a4a62c8b"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:24+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12781,7 +12811,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:24+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::ai_generated_debt::restating-field-docs": {
       "id": "review::.::holistic::ai_generated_debt::restating-field-docs",
@@ -13721,11 +13757,11 @@
         "reasoning": "",
         "summary_hash": "51fbfa26"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:34+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13733,7 +13769,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:34+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::initialization_coupling::two_config_planes": {
       "id": "review::.::holistic::initialization_coupling::two_config_planes",
@@ -14059,11 +14101,11 @@
         "reasoning": "",
         "summary_hash": "73b58ecb"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:25+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14071,7 +14113,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:25+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::design_coherence::kill_switch_two_implementations": {
       "id": "review::.::holistic::design_coherence::kill_switch_two_implementations",
@@ -14550,11 +14598,11 @@
         "reasoning": "",
         "summary_hash": "2bf33201"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:13+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14562,7 +14610,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:13+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::contract_coherence::registry_startup_abort_doc": {
       "id": "review::.::holistic::contract_coherence::registry_startup_abort_doc",
@@ -14796,11 +14850,11 @@
         "reasoning": "",
         "summary_hash": "cbfcc405"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:09+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14808,7 +14862,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:09+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::logic_clarity::policy-evaluate-async-no-await": {
       "id": "review::.::holistic::logic_clarity::policy-evaluate-async-no-await",
@@ -14918,11 +14978,11 @@
         "reasoning": "",
         "summary_hash": "212654bd"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:26+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14930,7 +14990,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:26+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::logic_clarity::triage-deps-os-dead-field": {
       "id": "review::.::holistic::logic_clarity::triage-deps-os-dead-field",
@@ -15081,11 +15147,11 @@
         "reasoning": "",
         "summary_hash": "43381df6"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:12+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -15093,7 +15159,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:12+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::logic_clarity::a2a-jsonrpc-version-unvalidated": {
       "id": "review::.::holistic::logic_clarity::a2a-jsonrpc-version-unvalidated",
@@ -15248,11 +15320,11 @@
         "reasoning": "",
         "summary_hash": "36ec6fa2"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:10+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -15260,7 +15332,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:10+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::type_safety::llm_verdict_untyped_string": {
       "id": "review::.::holistic::type_safety::llm_verdict_untyped_string",
@@ -15285,11 +15363,11 @@
         "reasoning": "",
         "summary_hash": "5a3c3b9f"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:09:14+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -15297,7 +15375,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually agent-protocol::Severity (parse/rank/from_cvss/Display) is the one severity vocabulary: vuln-agent parses VULN_MIN_SEVERITY strictly (a typo is a boot error, not an escalate-everything), ranks advisories through it, and triage's Verdict carries Severity + a VerdictKind enum (unknown verdicts become suspicious instead of being dropped); out-of-range decision-model levels clamp to Critical/Low instead of downgrading to medium. bas-runner dry runs no longer record MTTD/MTTR rows or republish, and store errors surface instead of being recorded as 'not detected'. Task/run/advisory state writes log failures instead of being dropped, and idem_key no longer round-trips a String through serde_json. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:09:14+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::type_safety::dry_run_ok_masks_no_op": {
       "id": "review::.::holistic::type_safety::dry_run_ok_masks_no_op",
@@ -18089,7 +18173,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:52:18+00:00"
+      "stale_since": "2026-10-26T10:09:24+00:00"
     },
     "api_surface_coherence": {
       "score": 74.0,
@@ -18113,7 +18197,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:47:38+00:00"
+      "stale_since": "2026-10-26T10:09:13+00:00"
     },
     "convention_outlier": {
       "score": 79.5,
@@ -18145,7 +18229,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:21:50+00:00"
+      "stale_since": "2026-10-26T10:09:25+00:00"
     },
     "error_consistency": {
       "score": 83.0,
@@ -18153,7 +18237,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:52:08+00:00"
+      "stale_since": "2026-10-26T10:09:10+00:00"
     },
     "high_level_elegance": {
       "score": 78.0,
@@ -18177,7 +18261,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:40:32+00:00"
+      "stale_since": "2026-10-26T10:05:34+00:00"
     },
     "logic_clarity": {
       "score": 82.5,
@@ -18185,7 +18269,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:47:43+00:00"
+      "stale_since": "2026-10-26T10:09:26+00:00"
     },
     "low_level_elegance": {
       "score": 80.0,
@@ -18193,7 +18277,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:47:39+00:00"
+      "stale_since": "2026-10-26T10:09:13+00:00"
     },
     "mid_level_elegance": {
       "score": 70.0,
@@ -18201,7 +18285,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:52:22+00:00"
+      "stale_since": "2026-10-26T10:09:27+00:00"
     },
     "naming_quality": {
       "score": 88.5,
@@ -18233,7 +18317,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:47:48+00:00"
+      "stale_since": "2026-10-26T10:09:14+00:00"
     }
   },
   "scan_history": [
@@ -22736,13 +22820,13 @@
       "strict": 79.0,
       "verified_strict_score": 79.0,
       "checks": 10,
-      "failing": 6,
+      "failing": 4,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.79,
-          "failing": 6,
+          "failing": 4,
           "weighted_failures": 2.1,
           "assessment_score": 79.0,
           "placeholder": false,
@@ -22799,13 +22883,13 @@
       "strict": 80.0,
       "verified_strict_score": 80.0,
       "checks": 10,
-      "failing": 3,
+      "failing": 2,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.8,
-          "failing": 3,
+          "failing": 2,
           "weighted_failures": 2.0,
           "assessment_score": 80.0,
           "placeholder": false,
@@ -22883,13 +22967,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 5,
+      "failing": 4,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 5,
+          "failing": 4,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,
@@ -22904,13 +22988,13 @@
       "strict": 83.0,
       "verified_strict_score": 83.0,
       "checks": 10,
-      "failing": 3,
+      "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.83,
-          "failing": 3,
+          "failing": 1,
           "weighted_failures": 1.7,
           "assessment_score": 83.0,
           "placeholder": false,
@@ -22967,13 +23051,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 5,
+      "failing": 4,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 5,
+          "failing": 4,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22988,13 +23072,13 @@
       "strict": 82.5,
       "verified_strict_score": 82.5,
       "checks": 10,
-      "failing": 3,
+      "failing": 0,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.825,
-          "failing": 3,
+          "failing": 0,
           "weighted_failures": 1.75,
           "assessment_score": 82.5,
           "placeholder": false,
@@ -23009,13 +23093,13 @@
       "strict": 80.0,
       "verified_strict_score": 80.0,
       "checks": 10,
-      "failing": 4,
+      "failing": 3,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.8,
-          "failing": 4,
+          "failing": 3,
           "weighted_failures": 2.0,
           "assessment_score": 80.0,
           "placeholder": false,
@@ -23030,13 +23114,13 @@
       "strict": 70.0,
       "verified_strict_score": 70.0,
       "checks": 10,
-      "failing": 3,
+      "failing": 2,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.7,
-          "failing": 3,
+          "failing": 2,
           "weighted_failures": 3.0,
           "assessment_score": 70.0,
           "placeholder": false,
@@ -23114,13 +23198,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 5,
+      "failing": 3,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 5,
+          "failing": 3,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,
