@@ -188,6 +188,11 @@ async fn run_sweep(deps: &Deps, run_id: Uuid) -> anyhow::Result<usize> {
             .await;
         }
     }
+    publish_activity(
+        &deps.nats,
+        &ActivityEvent::new(run_id, "hunt", "done", format!("{findings} findings")),
+    )
+    .await;
     Ok(findings)
 }
 

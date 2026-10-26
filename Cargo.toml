@@ -59,7 +59,7 @@ futures = "0.3"
 async-trait = "0.1"
 regex = "1"
 fastrand = "2"
-jsonschema = "0.30"
+jsonschema = { version = "0.30", default-features = false }
 tower-http = { version = "0.6", features = ["cors"] }
 
 [profile.release]

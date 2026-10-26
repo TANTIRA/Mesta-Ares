@@ -9,7 +9,6 @@ rust-version.workspace = true
 connectors = { path = "../connectors" }
 serde.workspace = true
 serde_json.workspace = true
-reqwest.workspace = true
 tracing.workspace = true
 anyhow.workspace = true
 futures.workspace = true

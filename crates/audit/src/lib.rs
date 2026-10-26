@@ -28,10 +28,6 @@ pub enum AuditError {
     #[error("database error: {0}")]
     Db(#[from] sqlx::Error),
 
-    /// HTTP failure shipping an event to OpenSearch.
-    #[error("http error: {0}")]
-    Http(#[from] reqwest::Error),
-
     /// Serialization failure canonicalizing arguments or the event.
     #[error("serialization error: {0}")]
     Json(#[from] serde_json::Error),
