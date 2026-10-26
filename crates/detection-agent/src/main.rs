@@ -24,7 +24,7 @@ use anyhow::Context;
 use clap::Parser;
 use connectors::{ConnectorConfig, MispClient, OpensearchClient};
 use futures::StreamExt;
-use llm_client::{AnthropicProvider, LlmProvider, ModelRouter};
+use llm_client::{AnthropicProvider, LlmProvider};
 use serde_json::{json, Value};
 use tracing::{error, info, warn, Instrument};
 use uuid::Uuid;
@@ -59,7 +59,7 @@ struct Config {
 /// Shared dependencies.
 struct Deps {
     nats: async_nats::Client,
-    router: Arc<ModelRouter>,
+    provider: Arc<dyn LlmProvider>,
     os: Arc<OpensearchClient>,
     misp: Arc<MispClient>,
     gateway: Arc<HttpToolGateway>,
@@ -128,7 +128,7 @@ async fn run_cycle(deps: &Deps, trigger: &str, correlation_id: Uuid) -> anyhow::
     .await;
 
     let context = gather_context(deps).await;
-    let yaml = pipeline::draft_sigma(&deps.router, &context).await?;
+    let yaml = pipeline::draft_sigma(deps.provider.as_ref(), &context).await?;
     publish_activity(
         &deps.nats,
         &ActivityEvent::new(correlation_id, "detection", "draft", "sigma drafted"),
@@ -222,7 +222,7 @@ async fn main() -> anyhow::Result<()> {
     };
     let deps = Arc::new(Deps {
         nats: nats.clone(),
-        router: Arc::new(ModelRouter::new(provider.clone(), provider)),
+        provider: provider.clone(),
         os: Arc::new(
             conn_cfg
                 .build_opensearch_client()

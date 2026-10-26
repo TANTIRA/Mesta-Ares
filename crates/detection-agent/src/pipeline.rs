@@ -6,15 +6,19 @@ use std::process::Command;
 use agent_protocol::tool::ToolCall;
 use anyhow::Context;
 use connectors::OpensearchClient;
-use llm_client::{CompletionRequest, Message, ModelRouter, ModelTier, Role, strong_model};
+use llm_client::{CompletionRequest, LlmProvider, Message, Role, strong_model};
 use serde_json::{json, Value};
 use tracing::{info, warn};
 use uuid::Uuid;
 
 /// Directory for rules awaiting promotion.
-const PENDING_DIR: &str = "detection-content/pending";
+fn pending_dir() -> PathBuf {
+    agent_protocol::paths::dir_from_env("DETECTION_PENDING_DIR", "detection-content/pending")
+}
 /// Directory for active (deployed) rules.
-const ACTIVE_DIR: &str = "detection-content/active";
+fn active_dir() -> PathBuf {
+    agent_protocol::paths::dir_from_env("DETECTION_ACTIVE_DIR", "detection-content/active")
+}
 /// Index holding alert/doc data to backtest against.
 const BACKTEST_INDEX: &str = "wazuh-alerts-*";
 /// Backtest lookback window.
@@ -29,7 +33,7 @@ keys: title, id (uuid), status: experimental, description, logsource
 level."#;
 
 /// Drafts a Sigma rule with the Strong model and returns the YAML text.
-pub async fn draft_sigma(router: &ModelRouter, context: &Value) -> anyhow::Result<String> {
+pub async fn draft_sigma(provider: &dyn LlmProvider, context: &Value) -> anyhow::Result<String> {
     let req = CompletionRequest {
         model: strong_model(),
         system: Some(DRAFT_PROMPT.to_string()),
@@ -40,7 +44,7 @@ pub async fn draft_sigma(router: &ModelRouter, context: &Value) -> anyhow::Resul
         max_tokens: 2048,
         temperature: Some(0.0),
     };
-    let resp = router.complete(ModelTier::Strong, &req).await?;
+    let resp = provider.complete(&req).await?;
     let text = resp
         .text
         .trim()
@@ -89,13 +93,14 @@ pub fn validate_sigma(yaml_text: &str) -> anyhow::Result<Value> {
 
 /// Writes the draft to `detection-content/pending/{slug}.yml`.
 pub fn write_pending(doc: &Value, yaml_text: &str) -> anyhow::Result<PathBuf> {
-    std::fs::create_dir_all(PENDING_DIR)?;
+    let pending_dir = pending_dir();
+    std::fs::create_dir_all(&pending_dir)?;
     let title = doc
         .get("title")
         .and_then(Value::as_str)
         .unwrap_or("untitled-rule");
     let slug = slugify(title);
-    let path = PathBuf::from(PENDING_DIR).join(format!("{slug}.yml"));
+    let path = pending_dir.join(format!("{slug}.yml"));
     std::fs::write(&path, yaml_text)?;
     Ok(path)
 }
@@ -168,8 +173,9 @@ pub async fn backtest(os: &OpensearchClient, lucene: &str) -> anyhow::Result<u64
 
 /// Moves a pending rule to `detection-content/active/` and commits it via git.
 pub fn promote_and_commit(pending: &Path) -> anyhow::Result<PathBuf> {
-    std::fs::create_dir_all(ACTIVE_DIR)?;
-    let active = PathBuf::from(ACTIVE_DIR).join(
+    let active_dir = active_dir();
+    std::fs::create_dir_all(&active_dir)?;
+    let active = active_dir.join(
         pending
             .file_name()
             .ok_or_else(|| anyhow::anyhow!("pending path has no file name"))?,

@@ -39,11 +39,11 @@ const TARGET_KEYS: &[&str] = &[
 
 /// Mutable per-evaluation context shared across calls.
 ///
-/// `asset_classes` maps a host identifier (hostname, agent id, ...) to its
-/// asset class for protected-asset checks. `counters` holds rolling
-/// blast-radius counters keyed `"tool:hour_bucket"` plus cooldown timestamps.
+/// `counters` holds rolling blast-radius counters keyed `"tool:hour_bucket"`
+/// plus cooldown timestamps. Host-class protection is enforced through the
+/// `protected-assets.yml` agent-id and self-service lists until an asset
+/// inventory exists to map targets to classes.
 pub struct EvalCtx {
-    pub asset_classes: HashMap<String, String>,
     pub counters: Arc<DashMap<String, u32>>,
     /// Kill-switch state for this evaluation; callers refresh it from
     /// [`EvalCtx::refresh_kill_switch`] so tests stay deterministic.
@@ -54,7 +54,6 @@ impl EvalCtx {
     /// Create an empty evaluation context with the switch disengaged.
     pub fn new() -> Self {
         Self {
-            asset_classes: HashMap::new(),
             counters: Arc::new(DashMap::new()),
             kill_switch: false,
         }
@@ -226,6 +225,9 @@ impl Cidr {
 
 /// Immutable protected-asset boundary compiled from `protected-assets.yml`.
 struct Protected {
+    /// Parsed for documentation parity; no inventory maps targets to classes
+    /// yet, so the class list is informational.
+    #[allow(dead_code)]
     host_classes: HashSet<String>,
     wazuh_agent_ids: HashSet<String>,
     user_patterns: Vec<Regex>,
@@ -398,7 +400,7 @@ impl PolicyEngine {
         // (7) Protected assets. Per protected-assets.yml, the boundary applies
         // to write/high-impact calls only; read-only lookups are untouched.
         if tool.policy.impact != Impact::Read {
-            if let Some(reason) = self.check_protected(&call.args, ctx) {
+            if let Some(reason) = self.check_protected(&call.args) {
                 return decide(DecisionKind::Deny, format!("protected asset: {reason}"));
             }
         }
@@ -452,18 +454,13 @@ impl PolicyEngine {
     }
 
     /// Match call targets against the protected-asset boundary.
-    fn check_protected(&self, args: &serde_json::Value, ctx: &EvalCtx) -> Option<String> {
+    fn check_protected(&self, args: &serde_json::Value) -> Option<String> {
         for t in extract_targets(args) {
             if self.protected.wazuh_agent_ids.contains(&t) {
                 return Some(format!("wazuh agent id `{t}` is protected"));
             }
             if self.protected.self_services.contains(&t) {
                 return Some(format!("`{t}` is a protected control-plane service"));
-            }
-            if let Some(class) = ctx.asset_classes.get(&t) {
-                if self.protected.host_classes.contains(class) {
-                    return Some(format!("target `{t}` has protected host class `{class}`"));
-                }
             }
             if self.protected.user_patterns.iter().any(|r| r.is_match(&t)) {
                 return Some(format!("target `{t}` matches a protected user pattern"));
@@ -627,23 +624,6 @@ mod tests {
         let d = engine()
             .evaluate(
                 &call("ad.user.disable", json!({"sam_account_name": "svc-agent"})),
-                &mut ctx,
-            );
-        assert!(matches!(&d.kind, DecisionKind::Deny), "got {d:?}");
-        assert!(d.reason.contains("protected"));
-    }
-
-    #[tokio::test]
-    async fn protected_host_class_is_denied() {
-        let mut ctx = EvalCtx::new();
-        ctx.asset_classes
-            .insert("001".to_string(), "domain_controller".to_string());
-        let d = engine()
-            .evaluate(
-                &call(
-                    "wazuh.active_response.isolate_host",
-                    json!({"agent_id": "001"}),
-                ),
                 &mut ctx,
             );
         assert!(matches!(&d.kind, DecisionKind::Deny), "got {d:?}");

@@ -1,10 +1,9 @@
 //! LLM provider abstraction for ARES agents.
 //!
 //! Defines the [`LlmProvider`] trait, the request/response types agents use,
-//! an [`AnthropicProvider`] talking to the Anthropic Messages API, a
-//! [`ModelRouter`] selecting between fast and strong models, a
-//! [`SystemOneClient`] for Ollama's local decision models, and a
-//! [`MockProvider`] for tests.
+//! an [`AnthropicProvider`] talking to the Anthropic Messages API (including
+//! Ollama's compatible endpoint), a [`SystemOneClient`] for Ollama's local
+//! decision models, and a [`MockProvider`] for tests.
 
 #![warn(missing_docs)]
 
@@ -20,9 +19,9 @@ use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
-/// Default model name for the [`ModelTier::Fast`] tier.
+/// Default model for routine steps (`FAST_MODEL` overrides it).
 pub const FAST_MODEL: &str = "claude-haiku-4-5";
-/// Default model name for the [`ModelTier::Strong`] tier.
+/// Default model for hard reasoning steps (`STRONG_MODEL` overrides it).
 pub const STRONG_MODEL: &str = "claude-sonnet-4-6";
 
 /// Fast-tier model, `FAST_MODEL` env overriding the [`FAST_MODEL`] default.
@@ -97,47 +96,6 @@ pub trait LlmProvider: Send + Sync {
 
     /// Static name identifying the provider (for logs and metrics).
     fn name(&self) -> &'static str;
-}
-
-/// Coarse capability tier used to route requests between two providers.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ModelTier {
-    /// Cheap, low-latency model for routine steps.
-    Fast,
-    /// Stronger model for hard reasoning steps.
-    Strong,
-}
-
-/// Routes completion requests to a fast or strong provider by [`ModelTier`].
-pub struct ModelRouter {
-    /// Provider serving [`ModelTier::Fast`] requests.
-    pub fast: Arc<dyn LlmProvider>,
-    /// Provider serving [`ModelTier::Strong`] requests.
-    pub strong: Arc<dyn LlmProvider>,
-}
-
-impl ModelRouter {
-    /// Create a router from a fast and a strong provider.
-    pub fn new(fast: Arc<dyn LlmProvider>, strong: Arc<dyn LlmProvider>) -> Self {
-        Self { fast, strong }
-    }
-
-    /// Return the provider serving `tier`.
-    pub fn route(&self, tier: ModelTier) -> &Arc<dyn LlmProvider> {
-        match tier {
-            ModelTier::Fast => &self.fast,
-            ModelTier::Strong => &self.strong,
-        }
-    }
-
-    /// Complete `req` with the provider serving `tier`.
-    pub async fn complete(
-        &self,
-        tier: ModelTier,
-        req: &CompletionRequest,
-    ) -> Result<CompletionResponse, LlmError> {
-        self.route(tier).complete(req).await
-    }
 }
 
 /// A [`LlmProvider`] that always replies with a fixed string; for tests.

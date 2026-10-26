@@ -12,6 +12,7 @@ pub mod audit;
 pub mod envelope;
 pub mod handoff;
 pub mod kill;
+pub mod paths;
 pub mod severity;
 pub mod tool;
 

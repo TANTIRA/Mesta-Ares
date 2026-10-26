@@ -32,7 +32,7 @@ use clap::Parser;
 use connectors::{ConnectorConfig, ThehiveClient, WazuhClient};
 use futures::StreamExt;
 use llm_client::{
-    AnthropicProvider, CompletionRequest, LlmProvider, Message, ModelRouter, ModelTier, Role,
+    AnthropicProvider, CompletionRequest, LlmProvider, Message, Role,
     strong_model,
 };
 use serde::Deserialize;
@@ -121,7 +121,7 @@ fn rollback_for(action: &PlannedAction) -> Option<Value> {
 }
 
 /// Asks the Strong model for an ordered [`PlannedAction`] list.
-async fn build_plan(router: &ModelRouter, context: &Value) -> anyhow::Result<Vec<PlannedAction>> {
+async fn build_plan(provider: &dyn LlmProvider, context: &Value) -> anyhow::Result<Vec<PlannedAction>> {
     let req = CompletionRequest {
         model: strong_model(),
         system: Some(PLAN_PROMPT.to_string()),
@@ -132,7 +132,7 @@ async fn build_plan(router: &ModelRouter, context: &Value) -> anyhow::Result<Vec
         max_tokens: 2048,
         temperature: Some(0.0),
     };
-    let resp = router.complete(ModelTier::Strong, &req).await?;
+    let resp = provider.complete(&req).await?;
     let text = resp
         .text
         .trim()
@@ -176,7 +176,7 @@ fn case_id_of(handoff: &HandoffPayload) -> String {
 /// Shared dependencies threaded into each spawned task.
 struct Deps {
     nats: async_nats::Client,
-    router: Arc<ModelRouter>,
+    provider: Arc<dyn LlmProvider>,
     gateway: Arc<HttpToolGateway>,
     checkpoints: Arc<PostgresCheckpointer>,
     hive: Arc<ThehiveClient>,
@@ -198,7 +198,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
 
     // 1. Build the plan with the Strong tier.
     let context = json!({"case_id": case_id, "handoff": handoff});
-    let plan = build_plan(&deps.router, &context).await?;
+    let plan = build_plan(deps.provider.as_ref(), &context).await?;
     publish_activity(
         &deps.nats,
         &ActivityEvent::new(
@@ -401,7 +401,7 @@ async fn main() -> anyhow::Result<()> {
     let provider: Arc<dyn LlmProvider> = Arc::new(AnthropicProvider::from_env()?);
     let deps = Arc::new(Deps {
         nats: nats.clone(),
-        router: Arc::new(ModelRouter::new(provider.clone(), provider)),
+        provider: provider.clone(),
         gateway: Arc::new(HttpToolGateway::new(config.tool_server_url.clone())),
         checkpoints: Arc::new(PostgresCheckpointer::new(pool.clone())),
         hive: Arc::new(conn_cfg.build_thehive_client().context("THEHIVE_URL not set")?),

@@ -32,7 +32,7 @@ use connectors::{ConnectorConfig, NewCase, NewObservable, OpensearchClient};
 use enrichment_lib::{composite_score, extract_iocs, Enricher, IocSet};
 use futures::StreamExt;
 use llm_client::{
-    fast_model, AnthropicProvider, CompletionRequest, LlmProvider, Message, ModelRouter, ModelTier,
+    fast_model, AnthropicProvider, CompletionRequest, LlmProvider, Message,
     Role, SystemOneClient,
 };
 use serde::Deserialize;
@@ -139,7 +139,7 @@ fn typed_iocs(set: &IocSet) -> Vec<(&'static str, &String)> {
 }
 
 /// Asks the Fast model for a [`Verdict`] for one alert.
-async fn llm_verdict(router: &ModelRouter, context: &Value) -> anyhow::Result<Verdict> {
+async fn llm_verdict(provider: &dyn LlmProvider, context: &Value) -> anyhow::Result<Verdict> {
     let req = CompletionRequest {
         model: fast_model(),
         system: Some(VERDICT_PROMPT.to_string()),
@@ -150,7 +150,7 @@ async fn llm_verdict(router: &ModelRouter, context: &Value) -> anyhow::Result<Ve
         max_tokens: 512,
         temperature: Some(0.0),
     };
-    let resp = router.complete(ModelTier::Fast, &req).await?;
+    let resp = provider.complete(&req).await?;
     let text = resp
         .text
         .trim()
@@ -252,7 +252,7 @@ async fn verdict(deps: &Deps, context: &Value) -> anyhow::Result<Verdict> {
             Err(e) => warn!(error = %e, "decision-model verdict failed; falling back to LLM"),
         }
     }
-    llm_verdict(&deps.router, context).await
+    llm_verdict(deps.provider.as_ref(), context).await
 }
 
 /// Writes a false-positive verdict document to OpenSearch `ares-verdicts`.
@@ -379,7 +379,7 @@ async fn handoff_respond(
 struct Deps {
     nats: async_nats::Client,
     enricher: Arc<Enricher>,
-    router: Arc<ModelRouter>,
+    provider: Arc<dyn LlmProvider>,
     /// Local decision model used for the verdict when `DECISION_MODEL` is set.
     decision: Option<SystemOneClient>,
     /// Decision-model name (e.g. `tev1:4b`); `None` uses the LLM path.
@@ -509,7 +509,7 @@ async fn main() -> anyhow::Result<()> {
     let deps = Arc::new(Deps {
         nats: nats.clone(),
         enricher: Arc::new(Enricher::new()),
-        router: Arc::new(ModelRouter::new(provider.clone(), provider)),
+        provider: provider.clone(),
         decision: Some(SystemOneClient::from_env()),
         decision_model: std::env::var("DECISION_MODEL")
             .ok()

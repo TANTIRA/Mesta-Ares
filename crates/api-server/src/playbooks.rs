@@ -9,55 +9,22 @@ use axum::{extract::Path, http::StatusCode, Json};
 use serde_json::Value;
 use tracing::warn;
 
-/// Directory scanned for playbook YAML files.
-fn playbooks_dir() -> String {
-    std::env::var("PLAYBOOKS_DIR").unwrap_or_else(|_| "playbooks".to_string())
-}
-
-/// Loads every playbook document in `PLAYBOOKS_DIR`, sorted by `name`.
-/// Unparseable files are skipped and reported in `errors`.
+/// Loads every playbook document in `PLAYBOOKS_DIR`, sorted by name.
 fn load_playbooks() -> (Vec<Value>, Vec<String>) {
-    let dir = playbooks_dir();
+    let dir = crate::paths::dir_from_env("PLAYBOOKS_DIR", "playbooks");
+    let (docs, errors) = crate::yaml_dir::load(&dir);
     let mut playbooks: Vec<Value> = Vec::new();
-    let mut errors: Vec<String> = Vec::new();
-
-    let entries = match std::fs::read_dir(&dir) {
-        Ok(e) => e,
-        Err(e) => {
-            errors.push(format!("cannot read {dir}: {e}"));
-            return (playbooks, errors);
-        }
-    };
-
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if !matches!(
-            path.extension().and_then(|e| e.to_str()),
-            Some("yml") | Some("yaml")
-        ) {
+    let mut errors = errors;
+    for (stem, mut doc) in docs {
+        if !doc.is_object() {
+            errors.push(format!("{stem}: not a mapping"));
             continue;
         }
-        match std::fs::read_to_string(&path)
-            .map_err(anyhow::Error::from)
-            .and_then(|t| serde_yaml_ng::from_str::<Value>(&t).map_err(Into::into))
-        {
-            Ok(mut doc) => {
-                if doc.is_object() {
-                    // Keep the filename stem as a fallback key for lookup.
-                    if doc.get("name").is_none() {
-                        if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
-                            doc["name"] = Value::String(stem.to_string());
-                        }
-                    }
-                    playbooks.push(doc);
-                } else {
-                    errors.push(format!("{}: not a mapping", path.display()));
-                }
-            }
-            Err(e) => errors.push(format!("{}: {e}", path.display())),
+        if doc.get("name").is_none() {
+            doc["name"] = Value::String(stem);
         }
+        playbooks.push(doc);
     }
-
     playbooks.sort_by(|a, b| {
         a["name"]
             .as_str()

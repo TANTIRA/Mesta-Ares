@@ -5,7 +5,12 @@ use serde::Deserialize;
 use std::path::PathBuf;
 
 /// Directory scanned for scenario manifests.
+/// Default scenarios directory; `BAS_SCENARIOS_DIR` overrides it.
 pub const SCENARIOS_DIR: &str = "bas/scenarios";
+
+fn scenarios_dir() -> std::path::PathBuf {
+    agent_protocol::paths::dir_from_env("BAS_SCENARIOS_DIR", SCENARIOS_DIR)
+}
 
 /// A breach-and-attack-simulation scenario manifest.
 #[derive(Debug, Deserialize)]
@@ -37,7 +42,7 @@ pub struct Executor {
 /// Loads every `.yml`/`.yaml` file under [`SCENARIOS_DIR`].
 pub fn load_all() -> anyhow::Result<Vec<(PathBuf, Scenario)>> {
     let mut out = Vec::new();
-    let entries = match std::fs::read_dir(SCENARIOS_DIR) {
+    let entries = match std::fs::read_dir(scenarios_dir()) {
         Ok(e) => e,
         Err(e) => {
             tracing::warn!(error = %e, dir = SCENARIOS_DIR, "scenario dir unreadable");
