@@ -1,0 +1,283 @@
+{
+  "batch": "type_safety",
+  "batch_index": 20,
+  "assessments": {
+    "type_safety": 78.0
+  },
+  "dimension_notes": {
+    "type_safety": {
+      "evidence": [
+        "Protocol crates model closed sets properly: `TaskState` (crates/a2a/src/task.rs:13-66), `RunStatus` (crates/acp/src/lib.rs:135-182), `DecisionKind` (crates/agent-protocol/src/tool.rs:27-36), `EnvelopeKind` (envelope.rs:11-24), and the `#[serde(tag=...)]` enums `Part` (task.rs:82-95), `Step` (agent-core/src/state.rs:9-32) and `Directive` (agent-core/src/agent_loop.rs:25-39) all put legal states under the compiler.",
+        "Domain vocabularies outside the protocol layer stay strings and are re-declared per crate: severity in crates/cvss/src/lib.rs:44,53, crates/connectors/src/lib.rs:825, crates/vuln-agent/src/main.rs:86-94, crates/triage-agent/src/main.rs:66-68,256-261, crates/api-server/src/vulns.rs:36-38; verdict in triage-agent:56-63; IoC type and provider in crates/enrichment-lib/src/lib.rs:127-169.",
+        "Fail-open string matches are the recurring shape: crates/policy-engine/src/lib.rs:537 `_ => false` for unknown forbidden-arg classes, crates/vuln-agent/src/main.rs:92 `_ => 0` for an unrecognised severity, crates/triage-agent/src/main.rs:442 `other => warn!` dropping an unrecognised verdict, crates/acp/src/lib.rs:180 unknown status -> `InProgress`, crates/api-server/src/a2a.rs:316 `TaskState::parse(...).unwrap_or(TaskState::Submitted)`.",
+        "Return types do not always separate outcomes: `dry_run()` returns `Ok` from `Tool::execute` (crates/tool-server/src/executors/mod.rs:35-37) and becomes `ToolResult { ok: true }` (main.rs:193-198); crates/response-agent/src/main.rs:212-226 fabricates `DecisionKind::Deny` for a transport error.",
+        "Parallel type definitions: four `ActivityEvent` structs (triage-agent/src/activity.rs:21 has `step: &'static str`, the other three `step: String`) plus a fifth `json!` shape in vuln-agent/src/main.rs:120-127; the audit decision is written through `decision_label()` (tool-server/src/main.rs:62-69) and the literal \"deny\" (approvals.rs:300).",
+        "Production paths are otherwise panic-free: every `unwrap`/`expect` in crates/ is inside a `#[cfg(test)]` module except the seven `LazyLock<Regex>` initializers (crates/enrichment-lib/src/lib.rs:25-35) and one reqwest builder `expect` (crates/agent-core/src/gateway.rs:59).",
+        "SQL boundaries read protocol enums back from TEXT by hand (api-server/src/a2a.rs:316, acp.rs:155) while writes use raw literals ('working', 'failed', 'canceled', 'completed', 'cancelled') instead of `TaskState::as_str`/`RunStatus::as_str` — deliberate because no sqlx enum mapping is used, but the parse fallbacks are lossy.",
+        "Public API annotations are complete and documented: crates/agent-protocol/src/lib.rs:8, crates/audit/src/lib.rs:12, crates/acp/src/lib.rs:9, crates/a2a/src/lib.rs:8, crates/llm-client/src/lib.rs:9 and crates/agent-core/src/lib.rs:9 all set `#![warn(missing_docs)]`, and no `#[allow(...)]` suppression hides a typing problem (only two `#[allow(dead_code)]` on parsed YAML `version` fields and one on an unused `Deps.os` field)."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "type_safety": {
+      "dimension_character": "Structural typing is genuinely strong: protocol states, message payloads and error kinds are enums with explicit wire conversions, public APIs are documented, and production code almost never short-circuits a typed Option. The weakness is domain vocabulary — severity, verdict, decision, IoC type, provider name and agent step are bare strings re-declared in each crate, matched with `_ =>` fallbacks that fail open, and two return types (`Tool::execute`, `invoke_tool`) cannot express what actually happened. A developer trusts the shapes and the protocol enums immediately, but must read each call site to learn which spelling of a severity or decision it expects.",
+      "score_rationale": "Against the anchors this sits just below 'solid but uneven': the enum discipline in a2a/acp/agent-protocol and the absence of production unwraps would justify 85+, but the repeated string vocabularies and lossy fallbacks (severity rank 0 on a typo, unknown task state read as Submitted, transport error recorded as a policy deny) are recurring friction a developer would hit across modules rather than isolated soft spots. It is well above 60 — annotations are not unreliable and the runtime can be predicted from the types in almost every case — so 78.0 reflects strong structural typing dragged down by untyped domain vocabulary."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "type_safety",
+      "identifier": "policy_forbidden_class_strings",
+      "summary": "forbidden_args classes are raw strings matched with `_ => false`, so a typo silently disables the IP-class check",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs",
+        "policies/tools.yml"
+      ],
+      "evidence": [
+        "crates/policy-engine/src/lib.rs:521-537 dispatches on class name literals (\"RFC1918\", \"loopback\", \"multicast\", \"link_local\", \"unspecified\", \"cgNAT\"/\"shared\") and returns `false` for anything else, so the check passes by default.",
+        "policies/tools.yml:129-130 supplies those names as free-form YAML (`ip: [RFC1918, loopback, multicast]`); `PolicyEngine::load` (lib.rs:268-301) never validates them.",
+        "The same file already types the sibling policy fields as serde enums (`Impact`, `Autonomy` at lib.rs:67-82), so the stricter pattern is right there."
+      ],
+      "suggestion": "Add `#[derive(Deserialize)] #[serde(rename_all = \"...\")] enum IpClass { Rfc1918, Loopback, Multicast, LinkLocal, Unspecified, Cgnat }`, type `forbidden_args: HashMap<String, Vec<IpClass>>`, and match on the enum exhaustively — an unknown class in tools.yml then fails `PolicyEngine::load` instead of quietly allowing the call.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "stringly_typed_domain_vocabularies"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "audit_decision_string_not_enum",
+      "summary": "AuditEvent.decision is a String re-derived from DecisionKind by hand and written with raw literals on the approval path",
+      "related_files": [
+        "crates/agent-protocol/src/audit.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/tool-server/src/approvals.rs",
+        "crates/bas-runner/src/main.rs",
+        "crates/api-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/agent-protocol/src/audit.rs:25 declares `pub decision: String` even though `DecisionKind` (tool.rs:27-36) is the type that owns those values and already serializes snake_case.",
+        "crates/tool-server/src/main.rs:62-69 hand-rolls `decision_label()` to reproduce that serialization; crates/tool-server/src/approvals.rs:300 bypasses it entirely with the literal \"deny\" when a human rejects a call.",
+        "No reader sees a type: crates/bas-runner/src/main.rs:155 filters `decision = 'allow'` in SQL and crates/api-server/src/main.rs:187-198 returns `to_jsonb(t)` rows as `Vec<Value>`."
+      ],
+      "suggestion": "Type the field as `DecisionKind` (or a dedicated `AuditDecision` enum covering the approval/rejection paths), delete `decision_label`, pass `decision.kind` into `AuditWriter::append`, and add a `#[derive(sqlx::FromRow)]` audit row so `GET /audit` returns the enum rather than untyped JSON.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "stringly_typed_domain_vocabularies"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "severity_vocabulary_untyped",
+      "summary": "Severity is a bare string in six modules with two fail-open rank parsers, so a config typo escalates every CVE",
+      "related_files": [
+        "crates/cvss/src/lib.rs",
+        "crates/connectors/src/lib.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/triage-agent/src/main.rs",
+        "crates/api-server/src/vulns.rs"
+      ],
+      "evidence": [
+        "Two spellings of the same band: crates/cvss/src/lib.rs:44,53 yields `severity: &'static str` (\"None\"/\"Low\"/\"Medium\"/\"High\"/\"Critical\") while crates/connectors/src/lib.rs:825 keeps NVD's `Option<String>` (\"HIGH\").",
+        "crates/vuln-agent/src/main.rs:53 types the threshold as `String` and :86-94 maps it with `_ => 0`, so `VULN_MIN_SEVERITY=hgih` makes `severity_rank(&severity) >= min_rank` (:228) true for every CVE with a metric.",
+        "The same rank is written into `NewCase.severity: u8` (:258); an unrecognised band sends TheHive severity 0, outside its 1-4 range.",
+        "crates/triage-agent/src/main.rs:60,66-68,256-261 adds a third mapping (`severity_gte_high`, the `open_case` match with `_ => 2`) and crates/api-server/src/vulns.rs:36-38 accepts `cvss_v4_severity`/`cvss_v3_severity` as free strings that are just uppercased."
+      ],
+      "suggestion": "Define one `Severity` enum (None/Low/Medium/High/Critical) with serde spellings and a `rank()`/`Ord` impl, parse the CLI/env threshold into it with clap `ValueEnum`, and replace `severity_rank`, `severity_gte_high` and the `open_case` match with the enum so invalid input fails at startup instead of becoming rank 0.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "stringly_typed_domain_vocabularies"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "llm_verdict_untyped_string",
+      "summary": "LLM verdict/severity are String fields matched against literals, and an unexpected value silently drops the alert",
+      "related_files": [
+        "crates/triage-agent/src/main.rs",
+        "crates/llm-client/src/systemone.rs"
+      ],
+      "evidence": [
+        "crates/triage-agent/src/main.rs:56-63 deserializes `Verdict { verdict: String, severity: String }` straight from model output, although the prompt at :71-76 defines the closed set `tp|fp|suspicious` and `low|medium|high|critical`.",
+        "crates/triage-agent/src/main.rs:415-445 matches `verdict.verdict.as_str()`: `fp` writes the verdict doc, `tp`/`suspicious` open a case, and any other value hits `other => warn!(\"unrecognized verdict; logging only\")` — the alert is dropped with no case.",
+        "The decision-model path (:175-192) copies `Choice.choice: String` (llm-client/src/systemone.rs:165-167) verbatim without checking it is one of `VERDICT_LABELS`."
+      ],
+      "suggestion": "Deserialize into `enum Verdict { Tp, Fp, Suspicious }` and `enum Severity` with `#[serde(rename_all = \"lowercase\")]`; a hallucinated label then fails `serde_json::from_str` at :125 with the raw model output in the error instead of falling through a match arm.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "stringly_typed_domain_vocabularies"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "dry_run_ok_masks_no_op",
+      "summary": "`Tool::execute -> Result<Value>` returns Ok for a dry run, so an unconfigured backend reads as a successful action",
+      "related_files": [
+        "crates/tool-server/src/executors/mod.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/executors/mod.rs:35-37 `dry_run()` returns `Ok(json!({\"dry_run\": true, \"args\": args}))`, and every executor falls back to it when its credential is missing (:88-91, :110-113, :145-148, :170-173, :211-214, :377-383, :408-410).",
+        "crates/tool-server/src/main.rs:193-198 maps any `Ok` to `ToolResult { ok: true, error: None }`, so the gateway (agent-core/src/gateway.rs:93-95) and the agent loop see an ordinary success.",
+        "crates/response-agent/src/main.rs:290-313 then runs `post_check` and records a rollback entry for an action that never happened."
+      ],
+      "suggestion": "Return an enum from `Tool::execute`, e.g. `enum ExecOutcome { Performed(Value), DryRun { args: Value } }`, and map `DryRun` to a non-success `ToolResult` (or an explicit `skipped` field) so callers cannot mistake 'backend not configured' for 'action performed'.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "activity_event_parallel_types",
+      "summary": "Four copies of ActivityEvent (one with a different field type) plus a json! variant, consumed as untyped Value",
+      "related_files": [
+        "crates/triage-agent/src/activity.rs",
+        "crates/detection-agent/src/activity.rs",
+        "crates/hunt-agent/src/activity.rs",
+        "crates/response-agent/src/activity.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/api-server/src/a2a.rs"
+      ],
+      "evidence": [
+        "crates/triage-agent/src/activity.rs:21 declares `pub step: &'static str` while detection/hunt/response agents declare `pub step: String` — identical JSON, incompatible Rust types, so a shared helper cannot be reused.",
+        "crates/vuln-agent/src/main.rs:120-127 publishes the same event shape from an ad-hoc `json!` block, a fifth definition.",
+        "The consumer never deserializes it: crates/api-server/src/a2a.rs:598-610 and acp.rs:201,559 walk `Value` with `v.get(\"workflow_run_id\").and_then(Value::as_str)` and `v.get(\"step\")`, and crates/api-server/src/stream.rs:26 relays raw `String` payloads through the broadcast channel."
+      ],
+      "suggestion": "Move a single `ActivityEvent` into `agent-protocol` (with `step: String` or a `Step` enum), use it in all five producers, and deserialize it in api-server so `terminal_step` and the SSE filter match typed fields instead of string keys.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "parallel_type_definitions"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "gateway_fabricates_deny_decision",
+      "summary": "A transport/parse failure on /invoke is synthesized as DecisionKind::Deny and persisted as a policy verdict",
+      "related_files": [
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/response-agent/src/main.rs:212-226 builds a fake `InvokeResponse` with `Decision { kind: DecisionKind::Deny, reason: \"invoke transport: …\" }` for both send errors (:230) and response-parse errors (:228).",
+        ":290 treats that as `denied`, :298-307 persists `\"decision\": invoke.decision.kind` into `response_actions.result`, and :326-330 emits \"denied by policy; recorded\" to the activity feed."
+      ],
+      "suggestion": "Keep transport failure out of `Decision`: have `invoke_tool` return `enum InvokeOutcome { Answered(InvokeResponse), Failed { error: String } }` and record `decision: null` plus a `transport_error` field, so incident records never claim a policy denial that policy never issued.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "cvss_metric_fields_default_not_option",
+      "summary": "CvssMetric fields are non-Option but parse_cve fills them with \"\"/0.0, and 0.0 is itself a valid CVSS score",
+      "related_files": [
+        "crates/connectors/src/lib.rs",
+        "crates/vuln-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/connectors/src/lib.rs:813-826 declares `version: String, source: String, kind: String, vector: String, base_score: f64` with no `Option`, promising fields the NVD payload may omit.",
+        "crates/connectors/src/lib.rs:1056-1063 fills them with `unwrap_or(\"\")` / `unwrap_or(0.0)`, so 'absent' and 'empty'/'0.0' are indistinguishable at the type level.",
+        "crates/vuln-agent/src/main.rs:100 filters `m.base_score > 0.0`, which drops a genuine CVSS 0.0 (severity None) record and cannot distinguish it from a parse default."
+      ],
+      "suggestion": "Type the genuinely optional parts as `Option<String>`/`Option<f64>` (or have `parse_cve` skip a metric when `cvssData` is missing) and let callers decide the policy for an absent score instead of encoding absence as 0.0.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "persisted_state_bypasses_enums",
+      "summary": "a2a/acp write protocol states as SQL literals and re-parse with lossy fallbacks instead of using the enums",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/a2a/src/task.rs",
+        "crates/acp/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs writes `'working'` (:418), `'failed'` (:442), `'canceled'` (:486-487) and `'completed'` (:337, :617) while `TaskState::as_str()` (a2a/src/task.rs:44-53) is the canonical mapping and is only used for display (:441 in acp.rs, run_event).",
+        "crates/api-server/src/a2a.rs:316 reads back with `TaskState::parse(&row.state).unwrap_or(TaskState::Submitted)`, so an unrecognised stored value becomes a live 'submitted' task that a client can re-drive.",
+        "crates/acp/src/lib.rs:172-182 maps every unknown status to `InProgress` (a completed run could be resurrected), and crates/api-server/src/acp.rs:85,452 keeps the same literals in the DDL and the cancel UPDATE."
+      ],
+      "suggestion": "Bind `TaskState::as_str()`/`RunStatus::as_str()` in the SQL statements, propagate parse failure instead of defaulting (`?` on the `Option` or `BackendError::Internal`), and add a CHECK constraint listing the enum's values so the TEXT column cannot drift from the enum.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "stringly_typed_domain_vocabularies"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "rollback_plan_untyped_json",
+      "summary": "Rollback plans are untyped JSON naming tools that are absent from the allowlist and never validated or executed",
+      "related_files": [
+        "crates/response-agent/src/main.rs",
+        "policies/tools.yml"
+      ],
+      "evidence": [
+        "crates/response-agent/src/main.rs:104-129 returns `Option<Value>` built with `json!({\"tool\": …, \"args\": …})`, naming `blocklist.ip.remove`, `wazuh.active_response.unisolate_host`, `entra.user.enable`, `ad.user.enable`, `firewall.rule.remove`, `o365.email.release`, `misp.ioc.unblock`.",
+        "None of those names appears in policies/tools.yml (the allowlist ends at `siem.index.delete`), so the recorded rollback could never pass policy.",
+        "The value is written to `rollback_json` (:315-323) and no code path reads it back, so neither a type nor a test can catch the mismatch."
+      ],
+      "suggestion": "Introduce `struct RollbackCall { tool: ToolName, args: Value }` (or reuse `ToolCall`) built only from allowlisted names, and assert at startup that every rollback target is in `PolicyEngine::tool_names()`; if rollback execution is not planned, drop the column instead of recording unusable plans.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Domain vocabularies (severity, verdict, decision, IoC type, provider, agent step) were never promoted from string constants to enums, so each crate declares its own copy and each consumer re-parses by hand.",
+      "Types live where they were first needed rather than in agent-protocol, producing four ActivityEvent definitions and a fifth json! shape for one wire contract.",
+      "Fallback arms (`_ =>`, `unwrap_or`, fabricated defaults) were chosen to keep boot and request handling non-fatal, which turns configuration typos into silent fail-open behaviour instead of load-time errors."
+    ],
+    "likely_symptoms": [
+      "severity_vocabulary_untyped",
+      "llm_verdict_untyped_string",
+      "activity_event_parallel_types",
+      "persisted_state_bypasses_enums"
+    ],
+    "possible_false_positives": [
+      "Treating `Tool::execute(&Value) -> Result<Value>` as missing typing would be wrong: the args are LLM-authored and policies/tools.yml args_schema is the real contract.",
+      "The four ActivityEvent copies may read as duplication rather than type_safety; the defect is the divergent `step` type and the untyped consumer, not the repetition itself."
+    ]
+  },
+  "context_updates": {
+    "type_safety": {
+      "add": [
+        {
+          "header": "Protocol enums carry explicit wire conversions",
+          "description": "a2a's `TaskState` and acp's `RunStatus` pair a serde enum with `as_str`/`parse`, and `Part`/`Step`/`Directive` are `#[serde(tag=...)]` enums, so legal states and payload shape are compiler-checked rather than convention-checked. This is why protocol-layer work feels safe while domain vocabulary does not.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "No unwrap/expect in production paths",
+          "description": "Every `unwrap`/`expect` in crates/ sits inside a `#[cfg(test)]` module except seven `LazyLock<Regex>` initializers and one reqwest builder call, so typed Options are not routinely short-circuited and a reader can trust `?`-based flows.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Per-crate thiserror error enums",
+          "description": "LlmError, CvssError, AuditError, AgentError and BackendError are exhaustive enums with `#[from]` conversions, so callers match variants instead of inspecting strings and failure modes stay typed at each boundary.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Tool arguments are deliberately untyped JSON",
+          "description": "`Tool::execute(&Value) -> Result<Value>` takes free-form args because the caller is an LLM; the actual contract is the per-tool `args_schema` in policies/tools.yml, compiled and enforced by the policy engine. The dynamism is a tradeoff, not an oversight.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "SQL rows re-parse enums from TEXT by hand",
+          "description": "Protocol state columns are TEXT, so api-server re-parses with `TaskState::parse`/`RunStatus::parse`; the pattern is intentional (no sqlx enum mapping is wired) but a2a returns `Option` and acp silently defaults, so the same job has two different contracts.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

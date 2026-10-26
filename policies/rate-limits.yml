@@ -1,0 +1,9 @@
+# Per-key HTTP rate limits for api-server (:8080) and ingestion-gateway
+# (:8091). Keys are the peer IP until authentication lands — API-key tiers
+# replace them then. Missing keys fall back to the built-in defaults in
+# crates/http-limits (same values as below). Semantics: docs/services.md.
+general:            { per_second: 60,  burst: 120 }
+expensive:          { per_second: 10,  burst: 20  }
+kill_switch:        { per_second: 1,   burst: 5   }
+ingest:             { per_second: 100, burst: 500 }
+sse_max_concurrent: 20

@@ -1,0 +1,108 @@
+openapi: 3.0.3
+info:
+  title: Ares Ingestion Gateway
+  version: 0.1.0
+  description: |
+    Alert intake. Wraps the incoming payload in an `Envelope`, publishes it to
+    `ares.alerts` (JetStream-first, plain NATS fallback), and answers `202`.
+    `502` means the publish failed — the caller must retry, since Wazuh's
+    integratord does not.
+
+    Fronted by `api-gateway` under `/ingest/*`.
+servers:
+  - url: http://localhost:8091
+    description: Direct
+  - url: http://localhost:8082/ingest
+    description: Through the API gateway (prefix stripped)
+
+paths:
+  /health:
+    get:
+      summary: Liveness probe
+      responses:
+        '200':
+          description: Up
+
+  /webhook/wazuh:
+    post:
+      summary: Wazuh integratord webhook
+      description: |
+        Body is the integratord JSON (`{"id","rule","agent","data",...}`).
+        Published to `ares.alerts` as an `Envelope` with kind `Alert`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '202':
+          description: Envelope published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Accepted'
+        '502':
+          description: Publish failed; retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rejected'
+
+  /webhook/generic:
+    post:
+      summary: Generic JSON webhook
+      description: |
+        Same pipeline as the Wazuh webhook. `source` in the body selects the
+        envelope source label (default `generic`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source:
+                  type: string
+                  default: generic
+              additionalProperties: true
+      responses:
+        '202':
+          description: Envelope published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Accepted'
+        '502':
+          description: Publish failed; retry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rejected'
+
+components:
+  schemas:
+    Accepted:
+      type: object
+      required: [id, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Envelope id.
+        status:
+          type: string
+          enum: [accepted]
+
+    Rejected:
+      type: object
+      required: [id, status, error]
+      properties:
+        id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [error]
+        error: { type: string }
+
+security: []

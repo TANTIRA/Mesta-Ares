@@ -1,0 +1,259 @@
+openapi: 3.0.3
+info:
+  title: Ares Tool Server
+  version: 0.1.0
+  description: |
+    The only process holding side-effect credentials. Every call runs through
+    the policy engine (kill switch → allowlist → autonomy → args schema →
+    forbidden args → protected assets → blast radius), is audited, and only
+    then dispatched to an executor.
+
+    `POST /invoke` always answers **HTTP 200**: the verdict lives in the body's
+    `decision` field, not the status code. Calls flagged `approval_required`
+    are parked and returned with an `approval_id` for the human queue.
+
+    Fronted by `api-gateway` under `/tools/*`.
+servers:
+  - url: http://localhost:8090
+    description: Direct
+  - url: http://localhost:8082/tools
+    description: Through the API gateway (prefix stripped)
+
+tags:
+  - name: Invoke
+  - name: Approvals
+  - name: Meta
+
+paths:
+  /health:
+    get:
+      tags: [Meta]
+      summary: Liveness probe
+      responses:
+        '200':
+          description: Up
+
+  /tools:
+    get:
+      tags: [Meta]
+      summary: Effective allowlist
+      description: 'Sorted tool names from `policies/tools.yml` (including `autonomy: deny` entries).'
+      responses:
+        '200':
+          description: Tool names
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: string, example: misp.attribute.search }
+
+  /invoke:
+    post:
+      tags: [Invoke]
+      summary: Invoke a tool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToolCall'
+      responses:
+        '200':
+          description: Verdict plus execution result (also for denials)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvokeResponse'
+        '422':
+          description: Malformed `ToolCall` (axum deserialization failure)
+          content:
+            text/plain:
+              schema: { type: string }
+
+  /approvals:
+    get:
+      tags: [Approvals]
+      summary: Approval queue, newest first
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected, expired]
+      responses:
+        '200':
+          description: Approvals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Approval'
+
+  /approvals/{id}/approve:
+    post:
+      tags: [Approvals]
+      summary: Approve and execute a parked call
+      description: |
+        Re-runs policy with the autonomy gate satisfied (`evaluate_approved`):
+        the kill switch, args schema, forbidden args, protected assets and
+        blast radius checks still apply. Execution uses the idempotency path.
+      parameters:
+        - $ref: '#/components/parameters/ApprovalId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecideBody'
+      responses:
+        '200':
+          description: Settled approval with the fresh decision and result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalOutcome'
+        '404':
+          $ref: '#/components/responses/PlainError'
+        '409':
+          description: Already approved, rejected or expired
+          content:
+            text/plain:
+              schema: { type: string }
+
+  /approvals/{id}/reject:
+    post:
+      tags: [Approvals]
+      summary: Reject a parked call (never executes)
+      parameters:
+        - $ref: '#/components/parameters/ApprovalId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecideBody'
+      responses:
+        '200':
+          description: Settled approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalOutcome'
+        '404':
+          $ref: '#/components/responses/PlainError'
+        '409':
+          description: Already decided
+          content:
+            text/plain:
+              schema: { type: string }
+
+components:
+  parameters:
+    ApprovalId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    PlainError:
+      description: Error message
+      content:
+        text/plain:
+          schema: { type: string }
+
+  schemas:
+    ToolCall:
+      type: object
+      required: [id, tool, args, actor, idempotency_key, correlation_id]
+      properties:
+        id: { type: string, format: uuid }
+        tool: { type: string, example: misp.sighting.add }
+        args:
+          type: object
+          description: Validated against the tool's `args_schema` in `policies/tools.yml`.
+        actor: { type: string, example: response-agent }
+        idempotency_key:
+          type: string
+          description: Replays of the same key return the first result. Empty = no dedupe.
+        correlation_id: { type: string, format: uuid }
+
+    Decision:
+      type: object
+      required: [kind, reason, decided_at]
+      properties:
+        kind:
+          type: string
+          enum: [allow, deny, approval_required]
+        reason: { type: string }
+        decided_at: { type: string, format: date-time }
+
+    ToolResult:
+      type: object
+      required: [call_id, ok, output]
+      properties:
+        call_id: { type: string, format: uuid }
+        ok: { type: boolean }
+        output:
+          type: object
+          description: 'Tool output, or `{"retryable": true}` on transient failure.'
+        error:
+          type: string
+          nullable: true
+        dry_run:
+          type: boolean
+          description: True when no backend credential was configured and the call was not executed.
+
+    InvokeResponse:
+      type: object
+      required: [decision, result]
+      properties:
+        decision:
+          $ref: '#/components/schemas/Decision'
+        result:
+          $ref: '#/components/schemas/ToolResult'
+        approval_id:
+          type: string
+          format: uuid
+          description: Present when `decision.kind == approval_required`.
+
+    Approval:
+      type: object
+      required: [id, call, reason, status, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        call:
+          $ref: '#/components/schemas/ToolCall'
+        reason: { type: string }
+        status:
+          type: string
+          enum: [pending, approved, rejected, expired]
+        created_at: { type: string, format: date-time }
+        decided_at: { type: string, format: date-time, nullable: true }
+        decided_by: { type: string, nullable: true }
+        result:
+          $ref: '#/components/schemas/ToolResult'
+
+    DecideBody:
+      type: object
+      properties:
+        approver:
+          type: string
+          default: operator
+        reason:
+          type: string
+          description: Free-text note recorded on reject.
+
+    ApprovalOutcome:
+      type: object
+      required: [approval]
+      properties:
+        approval:
+          $ref: '#/components/schemas/Approval'
+        decision:
+          $ref: '#/components/schemas/Decision'
+        result:
+          $ref: '#/components/schemas/ToolResult'
+
+security: []

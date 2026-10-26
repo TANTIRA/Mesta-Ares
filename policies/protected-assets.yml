@@ -1,0 +1,19 @@
+# Protected assets: hard boundary for autonomous action.
+# Anything listed here can NEVER be the target of a write/high-impact tool call,
+# regardless of autonomy config. Changing this file requires a repo commit —
+# it is not runtime-configurable by the agent or by an environment flag.
+version: 1
+
+protected:
+  # Identity: domain controllers / IdP roots
+  host_classes: [domain_controller, pki_ca, siem_node, soar_control]
+  wazuh_agent_ids: [] # specific agent ids protected even if not in a class
+  users:
+    # Tier-0 accounts the agent may never disable or touch
+    patterns: ["Administrator", "krbtgt", "^svc-agent$", "^svc-siem$", "root$"]
+  networks:
+    # Never write firewall blocks for these CIDRs
+    cidrs: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "169.254.0.0/16"]
+  self:
+    # The control plane protects itself
+    services: [tool-server, orchestrator, api-server, policy-engine, wazuh-manager]

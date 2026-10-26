@@ -1,0 +1,229 @@
+{
+  "batch": "contract_coherence",
+  "batch_index": 18,
+  "assessments": {"contract_coherence": 80.0},
+  "dimension_notes": {
+    "contract_coherence": {
+      "evidence": [
+        "Honest docstrings are the norm: Budgets documents that `max_cost_usd` is carried but not enforced by the loop (crates/agent-core/src/budget.rs:9-23), approvals documents that pending records die on restart (crates/tool-server/src/approvals.rs:10-12), a2a cancel documents that in-flight agents never observe the flag (crates/api-server/src/a2a.rs:483-484), acp resume documents that it always rejects (crates/api-server/src/acp.rs:421-422)",
+        "Contract crates keep types and behavior aligned: a2a::rpc dispatch emits exactly the documented error codes (INVALID_PARAMS/TASK_NOT_FOUND/METHOD_NOT_FOUND) and BackendError::code maps 1:1 to its doc (crates/a2a/src/rpc.rs:101-118,157-209); ToolResult::is_retryable and ToolResult::retryable share one RETRYABLE_FIELD constant (crates/agent-protocol/src/tool.rs:62-88) and HttpToolGateway honors that marker (crates/agent-core/src/gateway.rs:91-95)",
+        "idempotency.rs states its three-state claim table and both backends implement it exactly, including the Stripe-style `failed` reclaim and the expiry-ignores-fingerprint rule (crates/tool-server/src/idempotency.rs:1-16, 88-104, 214-318)",
+        "http-limits documents the header trio, 429 body and Retry-After contract and emits exactly that (crates/http-limits/src/lib.rs:13-16, 238-256)",
+        "Contracts that are stated in one crate and broken by another: response-agent synthesizes `DecisionKind::Deny` for transport failures, so `decision.kind == deny` no longer means 'policy denied' (crates/response-agent/src/main.rs:212-231, 290, 328-331) — already reported as api_surface_coherence/response_agent_fake_deny",
+        "Kill switch contract is implemented twice with different file semantics: agent-core requires a non-empty file by size (crates/agent-core/src/kill.rs:28-34) while policy-engine trims and ignores whitespace-only files (crates/policy-engine/src/lib.rs:443-456) — already reported as error_consistency/kill_switch_duplicated_fail_open",
+        "Terminal activity step names are an implicit contract: api-server hardcodes 'close'/'handoff'/'kill_switch'/'done'/'deployed'/'rejected' (crates/api-server/src/a2a.rs:127-137) against step strings emitted from four separate agent crates with no shared constant"
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "contract_coherence": {
+      "dimension_character": "Contract hygiene is the codebase's strongest habit at the type level — traits, wire types and documented invariants match their implementations almost everywhere, and modules routinely document their own limits and known gaps instead of pretending completeness. The friction is at the seams: contracts stated in one crate are broken by a sibling (rollback tools that policy forbids, `sync` mode that returns before terminal, `Ok(None)` for a 404), and a handful of docstrings promise clamping, aborting or reporting that the code does not perform. A developer can trust the shapes and most behaviors, but must verify the aspirational half of the documentation.",
+      "score_rationale": "This sits at solid-but-uneven (80): the shared contract crates (agent-protocol, a2a, acp, http-limits, idempotency) are exemplary, and honest 'known gap' docs are a real strength, which pushes the score up. It is held below 90 by ten recurring divergences — a task marked `completed` on a kill-switch step, `Status::Approved` for calls that never executed, a documented 404-to-`None` mapping that returns `Err`, and a rollback path the allowlist makes unreachable — each a case where a developer reading the contract would be wrong."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "contract_coherence",
+      "identifier": "rollback_targets_not_allowlisted",
+      "summary": "response-agent records rollback calls for tools the policy allowlist rejects, so 'reversible' actions are not reversible",
+      "related_files": ["crates/response-agent/src/main.rs", "policies/tools.yml"],
+      "evidence": [
+        "Module doc promises 'Reversible actions record a rollback entry in Postgres `response_actions`' (crates/response-agent/src/main.rs:8-10)",
+        "rollback_for() returns blocklist.ip.remove, blocklist.domain.remove, wazuh.active_response.unisolate_host, entra.user.enable, ad.user.enable, firewall.rule.remove, o365.email.release, misp.ioc.unblock (crates/response-agent/src/main.rs:104-133)",
+        "None of those names appear in policies/tools.yml (only the forward tools blocklist.ip.add, wazuh.active_response.isolate_host, entra.user.disable, ad.user.disable, firewall.rule.add, o365.email.quarantine, misp.ioc.block are listed), and the engine is deny-by-default (crates/policy-engine/src/lib.rs:350-356)"
+      ],
+      "suggestion": "Either add the `*.remove`/`*.enable`/`*.unisolate_host`/`*.release`/`*.unblock` tools to policies/tools.yml (with impact/autonomy/blast-radius entries) plus executors, or stop writing a rollback_json that policy can never execute — restrict rollback_for() to pairs where both halves are allowlisted and document the rest as non-reversible.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "nvd_get_cve_404_contract",
+      "summary": "NvdClient::get_cve documents `Ok(None)` for a 404 but returns `Err`, so the documented negative cache never covers 404s",
+      "related_files": ["crates/connectors/src/lib.rs", "crates/enrichment-lib/src/lib.rs"],
+      "evidence": [
+        "Doc: '`GET /rest/json/cves/2.0?cveId=` — one CVE by ID, `None` when NVD has no record (unknown, reserved-and-unpublished, or rejected IDs may 404 or return an empty list)' (crates/connectors/src/lib.rs:954-957)",
+        "The shared `get` only retries 403/429/5xx and bails on anything else with `anyhow::bail!(\"NVD HTTP {status}\")`, so a 404 becomes `Err` before get_cve can return None (crates/connectors/src/lib.rs:919-941)",
+        "Enricher::enrich_cve negative-caches only the `Ok(None)` arm for 1h (crates/enrichment-lib/src/lib.rs:459-466); the 404 path takes the `Err` arm (467-471) and is not cached, contradicting the doc's 'so rejected/reserved IDs don't hammer the rate limit'"
+      ],
+      "suggestion": "Map a 404 response in NvdClient::get_cve to `Ok(None)` (match on the status in `get` or add a 404-tolerant variant) so the documented contract and the 1h negative cache both hold; leave other 4xx as errors.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "audit_chain_fork_race",
+      "summary": "The 'hash-chained' audit log reads prev_hash then inserts without a lock, so concurrent appends fork the chain",
+      "related_files": ["crates/audit/src/lib.rs", "crates/tool-server/src/main.rs"],
+      "evidence": [
+        "Module doc: 'writes a hash-chained AuditEvent ... forming a tamper-evident chain in audit_log' (crates/audit/src/lib.rs:1-11); append documents 'reads the previous event's hash ... chains hash = sha256(prev_hash || canonical fields), inserts the row' (53-57)",
+        "The read (`SELECT hash FROM audit_log ORDER BY seq DESC LIMIT 1`) and the insert are separate statements with no transaction, advisory lock or serializable isolation (crates/audit/src/lib.rs:70-101)",
+        "Callers append per request with no mutual exclusion — every `POST /invoke` audits independently (crates/tool-server/src/main.rs:82-99) — so two concurrent decisions can both chain onto the same prev_hash and produce two children"
+      ],
+      "suggestion": "Take a transaction-scoped lock around the read+insert (e.g. `SELECT pg_advisory_xact_lock(...)` in the same tx as the INSERT, or a single INSERT ... SELECT that derives prev_hash from the last row) so the chain stays linear; note the single-writer assumption in the docstring otherwise.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "a2a_terminal_step_marks_completed",
+      "summary": "A2A SSE writes task state 'completed' for every terminal step, including kill-switch halts and rejected detections",
+      "related_files": ["crates/api-server/src/a2a.rs"],
+      "evidence": [
+        "terminal_step() treats triage/response 'kill_switch' and detection 'rejected' as work finished (crates/api-server/src/a2a.rs:127-137)",
+        "On any such step the SSE generator unconditionally runs `UPDATE a2a_tasks SET state = 'completed'` (crates/api-server/src/a2a.rs:615-623)",
+        "TaskState::Completed is documented as 'The task finished successfully' and Canceled as 'The task was canceled before completion' (crates/a2a/src/task.rs:24-31); a kill-switch halt or a noisy-rule rejection is neither, so tasks/get then reports success for a run that was stopped"
+      ],
+      "suggestion": "Map the terminal step to the right TaskState (kill_switch → canceled/failed, rejected → failed) or write 'completed' only for the genuine success steps ('deployed', 'close', 'done'), keeping the SSE close behavior unchanged.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "approvals_approved_means_executed",
+      "summary": "Status::Approved is documented as 'approved and the call was executed' but is set before the post-approval policy re-check",
+      "related_files": ["crates/tool-server/src/approvals.rs"],
+      "evidence": [
+        "Status::Approved doc: 'A human approved and the call was executed' (crates/tool-server/src/approvals.rs:39-40)",
+        "approve() settles the record to Approved first (218-227) and only then re-evaluates policy (230-233); when the re-check returns Deny the result is a failure stub and nothing executes (235-243)",
+        "The record keeps status Approved with an error result, so `GET /approvals?status=approved` lists calls that were never performed"
+      ],
+      "suggestion": "Either add a distinct terminal status for 'approved but blocked by re-check' (or set Rejected/Failed when the re-check denies), or soften the doc to 'a human approved and execution was attempted'.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "triage_severity_clamp_downgrade",
+      "summary": "severity_from_level documents clamping out-of-range levels but silently downgrades them to 'medium'",
+      "related_files": ["crates/triage-agent/src/main.rs"],
+      "evidence": [
+        "Doc: 'Maps a decision-model severity level (0–3, probability-weighted) to the verdict severity label, clamping out-of-range values' (crates/triage-agent/src/main.rs:147-149)",
+        "Implementation clamps only the low end (`level.round().max(0.0)`) and falls back to \"medium\" when the index is out of range (149-155), so a level of 4.0 yields 'medium' instead of the top band",
+        "The downgrade is behavioral: severity_gte_high() then suppresses the handoff to response-agent for an alert the model scored at maximum severity (66-68, 439-447)"
+      ],
+      "suggestion": "Clamp both ends — `SEVERITY_LEVELS.get(level.round().clamp(0.0, 3.0) as usize)` — so an out-of-range high level resolves to 'critical', matching the docstring.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "registry_startup_abort_doc",
+      "summary": "The registry test claims startup aborts on a missing executor, but main only logs a warning",
+      "related_files": ["crates/tool-server/src/executors/mod.rs", "crates/tool-server/src/main.rs"],
+      "evidence": [
+        "Test doc: 'Every tool named in `policies/tools.yml` must have an executor, or startup aborts (`missing_executors` in main)' (crates/tool-server/src/executors/mod.rs:803-805)",
+        "main() computes missing_executors and only `warn!(?missing, \"allowlisted tools have no executor\")` before serving (crates/tool-server/src/main.rs:231-234)",
+        "missing_executors' own doc calls itself a 'startup sanity check' (crates/tool-server/src/executors/mod.rs:787-797), reinforcing the abort expectation"
+      ],
+      "suggestion": "Pick one contract: either fail boot on a non-empty missing list (`anyhow::ensure!`) or reword the test doc and missing_executors doc to say the check is advisory and logged.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "acp_sync_mode_timeout",
+      "summary": "RunMode::Sync promises to block until a terminal state, but api-server returns after 120s with a non-terminal run and HTTP 200",
+      "related_files": ["crates/acp/src/lib.rs", "crates/api-server/src/acp.rs"],
+      "evidence": [
+        "RunMode::Sync doc: 'Block until the run reaches a terminal state' (crates/acp/src/lib.rs:186-190)",
+        "api-server wraps the wait in `tokio::time::timeout(SYNC_TIMEOUT, ...)` and ignores the elapsed result, then returns whatever state the row is in with StatusCode::OK (crates/api-server/src/acp.rs:47-48, 185-218, 390-395)",
+        "A client following the type contract cannot distinguish 'finished' from 'still running' without re-reading `status`"
+      ],
+      "suggestion": "Document the timeout in the RunMode::Sync contract (e.g. 'blocks until terminal or SYNC_TIMEOUT, returning the live run') or return 202 instead of 200 when the timeout elapses so the wire response matches the promised semantics.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "jsonrpc_version_unvalidated",
+      "summary": "JsonRpcRequest.jsonrpc is documented as always \"2.0\" and INVALID_REQUEST is documented, but neither is ever enforced or emitted",
+      "related_files": ["crates/a2a/src/rpc.rs", "crates/api-server/src/a2a.rs"],
+      "evidence": [
+        "`pub jsonrpc: String` is documented as 'The JSON-RPC version string (`\"2.0\"`)' (crates/a2a/src/rpc.rs:33-37) yet dispatch() never reads it (157-209)",
+        "INVALID_REQUEST is a documented public constant — 'the payload is not a well-formed JSON-RPC request' (crates/a2a/src/rpc.rs:22-23) — with no producer anywhere in the workspace; a request with `jsonrpc: \"1.0\"` is accepted and answered as 2.0"
+      ],
+      "suggestion": "Validate `req.jsonrpc == \"2.0\"` in dispatch and return INVALID_REQUEST when it is not, or drop the constant and reword the field doc so the API does not advertise an unenforced contract.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "playbooks_errors_discarded",
+      "summary": "load_playbooks documents that unparseable files are 'reported in errors', but both handlers discard the list",
+      "related_files": ["crates/api-server/src/playbooks.rs"],
+      "evidence": [
+        "Doc: 'Unparseable files are skipped and reported in `errors`' (crates/api-server/src/playbooks.rs:16-18), and the function accumulates them (52-57)",
+        "Both public handlers bind the result to `_errors` and return only the array (69-73) or a single document (75-83), so the reporting never reaches a caller",
+        "Coverage's sibling endpoint surfaces its equivalent list under `errors` (crates/api-server/src/coverage.rs:57-61), which makes the playbook silence look like an oversight rather than a choice"
+      ],
+      "suggestion": "Return `{\"playbooks\": [...], \"errors\": [...]}` from list_playbooks (matching coverage.rs) or delete the errors vec and its doc line so the function contract matches what it delivers.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Docs written aspirationally in the same commit as a partial implementation: rollback targets, `sync` blocking, startup aborts and dry-run markers are all described as done but only half-wired",
+      "Shared contracts live in leaf crates, but enforcement points (allowlist, policy engine, audit table) live in services, so a promise made in one place is not checked where it must hold",
+      "Cross-crate couplings are expressed as string/name conventions (terminal step names, rollback tool names, CVE 404 semantics) instead of shared constants or types, so the two halves can drift silently"
+    ],
+    "likely_symptoms": [
+      "rollback_targets_not_allowlisted",
+      "nvd_get_cve_404_contract",
+      "a2a_terminal_step_marks_completed",
+      "triage_severity_clamp_downgrade"
+    ],
+    "possible_false_positives": [
+      "audit_chain_fork_race — if the deployment is effectively single-writer for /invoke the fork cannot occur in practice",
+      "acp_sync_mode_timeout — a 120s safety valve may be considered the intended semantics rather than a contract break"
+    ]
+  },
+  "context_updates": {
+    "contract_coherence": {
+      "add": [
+        {
+          "header": "Known-gap docstrings instead of silence",
+          "description": "Modules routinely state what they deliberately do not do (unpriced max_cost_usd, in-memory approvals lost on restart, cancel not observed by in-flight agents, resume always rejecting). This makes the boundary of each contract visible without reading implementations, and is why the defects that remain stand out.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Wire types documented against their spec",
+          "description": "a2a/task.rs and acp/lib.rs document the exact spec JSON spelling (`sessionId`, `kind`, kebab-case statuses) and the tests assert the serialized shape, so the wire contract is verifiable rather than implied.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Shared constants back shared contracts",
+          "description": "ToolResult's retryable marker (RETRYABLE_FIELD) and the a2a JSON-RPC error codes are single constants consumed by both producer and consumer, which is why those contracts cannot drift.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Terminal step names are an implicit contract",
+          "description": "api-server's terminal_step hardcodes step strings ('close', 'handoff', 'kill_switch', 'done', 'deployed', 'rejected') emitted by four agent crates that each define their own ActivityEvent; a rename on either side silently stops SSE streams from closing and blocks the task-state write-back.",
+          "settled": false
+        },
+        {
+          "header": "Per-crate ActivityEvent copies",
+          "description": "Each agent crate defines its own ActivityEvent; three are identical and triage's differs in field type (`step: &'static str` vs String). The wire shape matches today, but there is no shared type enforcing it.",
+          "settled": false
+        }
+      ]
+    }
+  }
+}

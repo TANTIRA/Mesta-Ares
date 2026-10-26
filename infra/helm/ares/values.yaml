@@ -1,0 +1,112 @@
+# Mesta-Ares umbrella values — sane dev/prod starting skeleton.
+
+global:
+  imageRegistry: ghcr.io/your-org   # images pushed as ares-<service>:<tag>
+  imageTag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+# Non-secret env shared by every pod, rendered into the ares-env ConfigMap.
+# Secrets (API keys, DB creds, tokens) come from a Secret named
+# `ares-secrets` — create it out-of-band:
+#   kubectl create secret generic ares-secrets --from-env-file=.env
+# Expected keys: DATABASE_URL, ANTHROPIC_API_KEY, VIRUSTOTAL_API_KEY,
+# SHODAN_API_KEY, ABUSEIPDB_API_KEY, GREYNOISE_API_KEY, MISP_API_KEY,
+# THEHIVE_API_KEY, WAZUH_API_USER, WAZUH_API_PASS, SHUFFLE_API_KEY,
+# POSTGRES_PASSWORD (also consumed by the postgres manifest below),
+# GATEWAY_API_KEYS (comma-separated; required by api-gateway).
+env:
+  RUST_LOG: info
+  NATS_URL: nats://ares-nats:4222
+  REDIS_URL: redis://ares-redis:6379
+  # DATABASE_URL lives in ares-secrets (contains the password).
+  TOOL_SERVER_URL: http://ares-tool-server:8090
+  OPENSEARCH_URL: http://opensearch.example:9200   # external or a subchart later
+  THEHIVE_URL: http://thehive.example:9000
+  CORTEX_URL: http://cortex.example:9001
+  MISP_URL: https://misp.example
+  WAZUH_API_URL: https://wazuh-manager.example:55000
+  SHUFFLE_URL: http://shuffle-backend.example:5001
+
+# The 9 Rust binaries + console. `port` also creates a Service; omit for
+# workers that only consume NATS.
+services:
+  tool-server:
+    port: 8090
+    env: {POLICIES_DIR: /policies, BIND_ADDR: 0.0.0.0:8090}
+    configVolumes:
+      - name: policies
+        mountPath: /policies
+        readOnly: true
+        configMap: ares-policies   # render policies/*.yml into this CM out-of-band
+  api-server:
+    port: 8080
+    env: {BIND_ADDR: 0.0.0.0:8080}
+  ingestion-gateway:
+    port: 8091
+    env: {BIND_ADDR: 0.0.0.0:8091}
+  orchestrator: {}
+  triage-agent: {}
+  vuln-agent:
+    env: {VULN_WATCHLIST: /policies/vuln-watchlist.yml}
+    configVolumes:
+      - name: policies
+        mountPath: /policies
+        readOnly: true
+        configMap: ares-policies
+  response-agent: {}
+  detection-agent:
+    env: {DETECTION_CONTENT_DIR: /detection-content}
+    configVolumes:
+      - name: detection-content
+        mountPath: /detection-content
+        readOnly: true
+        configMap: ares-detection-content
+  hunt-agent: {}
+  bas-runner:
+    env: {BAS_SCENARIOS_DIR: /bas}
+    configVolumes:
+      - name: bas
+        mountPath: /bas
+        readOnly: true
+        configMap: ares-bas-scenarios
+  api-gateway:
+    port: 8082
+    env:
+      GATEWAY_BIND: 0.0.0.0:8082
+      GATEWAY_API_UPSTREAMS: http://ares-api-server:8080
+      GATEWAY_INGEST_UPSTREAMS: http://ares-ingestion-gateway:8091
+      GATEWAY_TOOLS_UPSTREAMS: http://ares-tool-server:8090
+      POLICIES_DIR: /policies
+    configVolumes:
+      - name: policies
+        mountPath: /policies
+        readOnly: true
+        configMap: ares-policies
+  console:
+    port: 3000
+    env: {NEXT_PUBLIC_API_URL: http://ares-api-server:8080}
+
+# In-cluster datastores (prod should point at managed equivalents instead).
+postgres:
+  image: pgvector/pgvector:pg16
+  port: 5432
+  storage: 10Gi
+  env:
+    POSTGRES_USER: ares
+    POSTGRES_DB: ares
+    # POSTGRES_PASSWORD from ares-secrets
+
+redis:
+  image: redis:7-alpine
+  port: 6379
+
+nats:
+  image: nats:2.11-alpine
+  port: 4222
+  monitorPort: 8222
+  storage: 5Gi
+
+# Applied to every app pod unless overridden per service.
+resources:
+  requests: {cpu: 100m, memory: 128Mi}
+  limits: {cpu: "1", memory: 512Mi}

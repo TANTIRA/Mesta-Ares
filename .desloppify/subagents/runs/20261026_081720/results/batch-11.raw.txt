@@ -1,0 +1,313 @@
+{
+  "batch": "api_surface_coherence",
+  "batch_index": 11,
+  "assessments": {
+    "api_surface_coherence": 74.0
+  },
+  "dimension_notes": {
+    "api_surface_coherence": {
+      "evidence": [
+        "Three error-body conventions coexist in one axum service: `Result<Json<Value>, (StatusCode, String)>` (crates/api-server/src/main.rs:111,132,156,167,185,202,258; vulns.rs:49,80,98,114,133; playbooks.rs:70,76), `Result<Json<AcpError>, (StatusCode, Json<AcpError>)>` via the `acp_err` helper (crates/api-server/src/acp.rs:51-56, used by all 8 ACP handlers), and a bare `StatusCode` with an empty body (crates/api-server/src/a2a.rs:508-511).",
+        "docs/services.md:37 declares the platform error contract as `JSON {error: string}`; only kill.rs (crates/api-server/src/kill.rs:66-70) emits an `error` key, and ACP emits `{code, message, data}` instead. Plain-text bodies dominate.",
+        "The `/invoke` wire shape is redefined three times: crates/tool-server/src/main.rs:36 (server, includes `approval_id`), crates/agent-core/src/gateway.rs:29, crates/response-agent/src/main.rs:190 (client copies, both drop `approval_id` so a parked-for-approval call is invisible to the caller).",
+        "Only agent-core's gateway honors the documented `retryable` marker; response-agent re-implements the call without retry (crates/response-agent/src/main.rs:210-232) and detection-agent only inspects the HTTP status (crates/detection-agent/src/pipeline.rs:264-268), logging 'audited' for a denied call even though tool-server documents 'the `decision` field is the contract, not the status code' (crates/tool-server/src/main.rs:5-7).",
+        "Tool argument contract exists twice and disagrees: JSON Schemas with `additionalProperties: false` in policies/tools.yml:32-38,42-47,81-116,122-167 vs alias lists in the executors (`arg_str(args, &[\"value\", \"ioc\", \"query\"])` crates/tool-server/src/executors/mod.rs:190, `&[\"case_id\", \"id\"]` :126, `&[\"q\", \"query_string\"]` :97). The aliases are unreachable for schema-guarded tools and undocumented for the rest.",
+        "The `Tool` trait (crates/tool-server/src/executors/mod.rs:36-38) exposes only `name()` and `execute(&Value)`; `GET /tools` returns `Json<Vec<String>>` (crates/tool-server/src/main.rs:208) so the 17 args_schema definitions are not discoverable through any API.",
+        "Sibling protocol fronts disagree on discovery envelopes: `GET /a2a/agents` returns an untyped bare array (`Json<Value>`, crates/api-server/src/a2a.rs:498) while `GET /acp/agents` returns `{agents: [...]}` (crates/api-server/src/acp.rs:300).",
+        "Rate-limit tiers classify `/a2a/` POSTs as `Tier::Expensive` and `/a2a/tasks/*/events` as `Tier::Stream` but never match `/acp/`, so the ACP twins of the same LLM-backed runs fall through to `Tier::General` (crates/api-server/src/ratelimit.rs:36-40).",
+        "`PolicyEngine::evaluate` / `evaluate_approved` are declared `async` (crates/policy-engine/src/lib.rs:314,331) but delegate to the fully synchronous `evaluate_inner` (:344); every caller must `.await` and therefore holds `tokio::sync::Mutex<EvalCtx>` across an await point (crates/tool-server/src/main.rs:84-87, approvals.rs:242-245).",
+        "Closed vocabularies surface as `String` at agent boundaries: `LoopOutcome.stop_reason` (crates/agent-core/src/agent_loop.rs:49) is compared with string literals in `budget_exceeded` (:57), and `Verdict { verdict: String, severity: String }` (crates/triage-agent/src/main.rs:56-60) is matched by `severity_gte_high(&str)` (:69) — while a2a/acp model the same kind of state with enums (`TaskState`, `RunStatus`).",
+        "Operational surface is uneven: 9 of 10 binaries parse a clap `Config` with `#[arg(env = ...)]` (api-server/src/main.rs:65, triage-agent:48, response-agent:49, detection-agent:41, hunt-agent:37, vuln-agent:34, orchestrator:38, ingestion-gateway:43, bas-runner:62) while tool-server reads raw env vars and offers no flags or `--help` (crates/tool-server/src/main.rs:255-266).",
+        "Positive counter-evidence: the ACP crate models errors as a single typed `acp::Error {code, message, data}` with named code constants (crates/acp/src/lib.rs:20-42) and every handler goes through one `acp_err` helper; the A2A dispatcher centralizes JSON-RPC codes and backend-error mapping (crates/a2a/src/rpc.rs:17-30,96-108,155-215) with tests for each code path.",
+        "Positive counter-evidence: every connector client shares the same constructor shape `new(base_url, auth)` and one `send_with_retry` transient policy with a documented 15s budget (crates/connectors/src/lib.rs:1-8,63-125); trait boundaries (`Tool`, `ToolGateway`, `CheckpointStore`, `LlmProvider`, `TaskBackend`) are async, `Result`-typed and documented."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "api_surface_coherence": {
+      "dimension_character": "The protocol and library layers are unusually coherent for a workspace this young: ACP and A2A each have one typed error model, one dispatcher, and enums for every state machine, and the connector clients share a single constructor and retry contract. The incoherence sits exactly where services talk to each other: three different HTTP error-body shapes in one axum app, three independent copies of the `/invoke` wire contract interpreted three different ways, and a tool-argument contract that is defined once in policy YAML and again (with different names) in executor code. A developer can predict a crate's API from reading one sibling, but cannot predict a service's HTTP or tool-call behavior from one example.",
+      "score_rationale": "Strong single-purpose crates (acp, a2a, llm-client, http-limits, cvss) and consistent trait boundaries pull the score up toward the 80 anchor. What pulls it down is recurring, load-bearing irregularity on the platform's busiest boundary: a documented `{error: string}` contract that most endpoints ignore, `/invoke` clients that disagree on what the response means (one fabricates a policy denial from a transport error, one ignores the verdict entirely), and no discoverable tool schema. That is the '80 = solid but uneven' band shading toward 70, so the score lands in the mid-70s."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "http_error_body_conventions",
+      "summary": "api-server returns three different error-body shapes (plain text, typed ACP error, empty) despite one documented contract",
+      "related_files": [
+        "crates/api-server/src/main.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/api-server/src/kill.rs",
+        "crates/api-server/src/coverage.rs",
+        "docs/services.md"
+      ],
+      "evidence": [
+        "docs/services.md:37 states the contract: 'Errors: JSON `{error: string}`; 4xx = caller fixable, 5xx = retryable.'",
+        "Console/vuln/playbook handlers return `(StatusCode, String)` -> `text/plain` bodies (crates/api-server/src/main.rs:111-137, vulns.rs:49-121, playbooks.rs:70-82).",
+        "ACP handlers return `(StatusCode, Json<AcpError>)` with `{code, message, data}` (crates/api-server/src/acp.rs:51-56).",
+        "`GET /a2a/{agent}/.well-known/agent.json` returns a bare `StatusCode::NOT_FOUND` with no body (crates/api-server/src/a2a.rs:508-511).",
+        "`GET /coverage` returns HTTP 200 with a `note` field when the content directory is unreadable (crates/api-server/src/coverage.rs:22-28), so failures are indistinguishable from empty coverage without key sniffing.",
+        "Only the kill-switch handler emits an `error` key (crates/api-server/src/kill.rs:66-70), and it adds a `path` field no other endpoint has."
+      ],
+      "suggestion": "Add one `ApiError` type to api-server (e.g. `(StatusCode, Json<ApiError{error: String}>)` with `impl IntoResponse`) and make every handler, including a2a's `agent_card` and `coverage`, return it; keep ACP's `{code,message,data}` only behind the `/acp` prefix where the spec requires it, and convert coverage's 'cannot read' case into a 500.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "no_shared_http_error_type"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "invoke_contract_duplicated",
+      "summary": "The tool-server /invoke response shape is defined three times and each client interprets it differently",
+      "related_files": [
+        "crates/tool-server/src/main.rs",
+        "crates/agent-core/src/gateway.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs"
+      ],
+      "evidence": [
+        "Server definition with three fields: `struct InvokeResponse { decision, result, approval_id }` (crates/tool-server/src/main.rs:36-42).",
+        "Client copy A: `struct InvokeResponse { decision, result }` in agent-core (crates/agent-core/src/gateway.rs:29-32), used only inside agent-core.",
+        "Client copy B: identical duplicate in response-agent (crates/response-agent/src/main.rs:190-196) that bypasses the gateway and has no retry path.",
+        "Client C: detection-agent posts a raw `ToolCall` and treats any 2xx as success, ignoring the `decision` field (crates/detection-agent/src/pipeline.rs:248-271), contradicting the server's own header comment that 'the `decision` field is the contract, not the status code' (crates/tool-server/src/main.rs:5-7).",
+        "Because both client copies omit `approval_id`, an agent cannot tell that its call was parked for human approval instead of executed."
+      ],
+      "suggestion": "Move `InvokeResponse` into `agent_protocol::tool` (next to `ToolCall`/`ToolResult`, including `approval_id`) and delete both private copies; have response-agent and detection-agent call `agent_core::HttpToolGateway` instead of hand-rolling the POST so retry and verdict handling live in one place.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "invoke_wire_contract"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "response_agent_fake_deny",
+      "summary": "response-agent fabricates a policy Deny decision when the tool server is unreachable",
+      "related_files": [
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "`invoke_tool` builds a fallback `Decision { kind: DecisionKind::Deny, reason: e, decided_at: Utc::now() }` for both transport and JSON-decode failures (crates/response-agent/src/main.rs:208-232).",
+        "That fabricated decision is then persisted into the plan (`\"decision\": invoke.decision.kind`, `\"decision_reason\"`, :300-304) and drives `denied = invoke.decision.kind == DecisionKind::Deny` (:290), so a network outage is recorded and acted on as an operator/policy denial.",
+        "The same 200-only contract means a real 5xx from tool-server would also be reported as a deny rather than as an unavailable dependency."
+      ],
+      "suggestion": "Return `Result<InvokeResponse, _>` from `invoke_tool` and record an `error`/`unavailable` status in the plan step instead of inventing a `Decision`; reserve `DecisionKind::Deny` for decisions the policy engine actually rendered.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "invoke_wire_contract"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "tool_args_two_sources_of_truth",
+      "summary": "Tool arguments are specified twice — JSON Schema in policies/tools.yml and alias lists in executors — and no schema is exposed by the API",
+      "related_files": [
+        "crates/tool-server/src/executors/mod.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/policy-engine/src/lib.rs",
+        "policies/tools.yml"
+      ],
+      "evidence": [
+        "17 tools carry `args_schema` with `additionalProperties: false` (policies/tools.yml:32-38,42-47,81-116,122-167), so only the canonical key names can ever reach an executor.",
+        "Executors nonetheless accept undocumented aliases: `arg_str(args, &[\"value\", \"ioc\", \"query\"])` (executors/mod.rs:190), `&[\"case_id\", \"id\"]` (:126), `&[\"q\", \"query_string\"]` (:97), `&[\"cve_id\", \"id\", \"cve\"]` (:583), plus shape polymorphism ('`{case_id, observable}` or flat fields', :131-136) and `values` vs `value` fallbacks (:280-296).",
+        "The trait exposes no schema: `fn name()` + `async fn execute(&self, args: &Value)` (executors/mod.rs:36-38).",
+        "`GET /tools` returns names only (`Json<Vec<String>>`, crates/tool-server/src/main.rs:208), and `PolicyEngine` keeps validators private, exposing only `tool_names()` (crates/policy-engine/src/lib.rs:305)."
+      ],
+      "suggestion": "Add `fn schema(&self) -> Option<&serde_json::Value>` to the `Tool` trait (or have tool-server serve the policy's `args_schema`), return `[{name, schema}]` from `GET /tools`, and drop the alias lists from the executors so policy YAML is the single arg contract.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "tool_arg_contract_split"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "acp_missing_from_rate_limit_tiers",
+      "summary": "Rate-limit classifier covers /a2a twins but never matches /acp, so ACP runs fall into the general tier",
+      "related_files": [
+        "crates/api-server/src/ratelimit.rs"
+      ],
+      "evidence": [
+        "`classify` maps `POST /cvss/score` and `path.starts_with(\"/a2a/\")` to `Tier::Expensive` and `/a2a/tasks/*/events` to `Tier::Stream` (crates/api-server/src/ratelimit.rs:30,38).",
+        "No branch matches `/acp/`, so `POST /acp/runs` (same agents, same NATS publish, same LLM cost) and `GET /acp/runs/{id}/events` (a long-lived SSE) are metered as `Tier::General` (defaults 60/s, burst 120) instead of `expensive`/`stream`.",
+        "The router mounts both families in one table (crates/api-server/src/main.rs:326-338), so adding a protocol front silently inherits the wrong limits."
+      ],
+      "suggestion": "Classify by prefix once — e.g. match `/a2a/` and `/acp/` together for `Expensive` and both `.../events` suffixes for `Stream` — and add an `/acp/runs` assertion to the existing `classify_maps_paths_to_tiers` test.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "policy_evaluate_async_without_await",
+      "summary": "PolicyEngine::evaluate and evaluate_approved are async but perform no async work, forcing callers to hold a mutex across an await",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/tool-server/src/approvals.rs"
+      ],
+      "evidence": [
+        "`pub async fn evaluate(&self, call: &ToolCall, ctx: &mut EvalCtx) -> Decision` (crates/policy-engine/src/lib.rs:314) and `evaluate_approved` (:331) both delegate to the synchronous `fn evaluate_inner(...)` (:344) with no `.await` anywhere in the chain.",
+        "Callers therefore wrap the context in `tokio::sync::Mutex<EvalCtx>` and hold the guard across the await: `let mut ctx = state.eval_ctx.lock().await; state.engine.evaluate(&call, &mut ctx).await` (crates/tool-server/src/main.rs:84-87, repeated in approvals.rs:242-245).",
+        "`EvalCtx` already holds `Arc<DashMap<String, u32>>` counters (crates/policy-engine/src/lib.rs:46-48), so the outer mutex is the only reason evaluations serialize."
+      ],
+      "suggestion": "Make `evaluate`/`evaluate_approved` synchronous (`fn evaluate(&self, call, ctx) -> Decision`), drop the `.await` at both call sites, and remove `Mutex<EvalCtx>` from `AppState` so concurrent invokes stop serializing on policy evaluation.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "audit_append_positional_sprawl",
+      "summary": "AuditWriter::append takes six positional parameters, four of them adjacent &str, and takes the decision as a string",
+      "related_files": [
+        "crates/audit/src/lib.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/tool-server/src/approvals.rs"
+      ],
+      "evidence": [
+        "`pub async fn append(&self, actor: &str, tool: &str, args: &Value, decision: &str, reason: &str, correlation_id: Uuid)` (crates/audit/src/lib.rs:59-67) — six parameters, with `actor`/`tool`/`decision`/`reason` all plain `&str`.",
+        "Callers must pre-convert the domain enum: `decision_label(&decision.kind)` at crates/tool-server/src/main.rs:90-98, and the reject path hardcodes the literal `\"deny\"` (crates/tool-server/src/approvals.rs:349).",
+        "Transposing `decision` and `reason` compiles silently and corrupts the hash-chained row; the audit table is the tamper-evident record, so a mis-order is unrecoverable."
+      ],
+      "suggestion": "Replace the parameter list with one struct — `AuditEntry { actor, tool, args, decision: DecisionKind, reason, correlation_id }` — so the compiler enforces field names and the enum, and delete `decision_label` from the call sites.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "kill_switch_body_and_shape",
+      "summary": "POST /controls/kill-switch silently engages on a malformed body and returns different fields than the GET",
+      "related_files": [
+        "crates/api-server/src/kill.rs"
+      ],
+      "evidence": [
+        "`serde_json::from_slice::<KillBody>(&body).map(|b| b.engaged).unwrap_or(true)` (crates/api-server/src/kill.rs:41-46) — any malformed or misspelled payload engages the kill switch instead of returning 400.",
+        "GET returns `{\"engaged\": bool}` (crates/api-server/src/kill.rs:37-39) while POST returns `{\"state\": \"engaged\"|\"disengaged\", \"engaged\": bool}` (:62-64), so a client that round-trips the same resource must handle two shapes.",
+        "The error branch returns `{\"error\", \"path\"}` (:66-70), a fourth body shape in the same file."
+      ],
+      "suggestion": "Return `400 {error}` when a non-empty body fails to parse, and have GET and POST emit the identical `{engaged, state}` object.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "enrich_duplicate_entry_points",
+      "summary": "Two public enrichment entry points with conflicting error contracts; the Result-returning one can never fail and has no callers",
+      "related_files": [
+        "crates/enrichment-lib/src/lib.rs",
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "`Enricher::enrich(&self, ioc: &str) -> Vec<EnrichmentResult>` is infallible: provider errors are logged and skipped, so an all-providers-down run is indistinguishable from a clean miss (crates/enrichment-lib/src/lib.rs:231-259).",
+        "`pub async fn enrich(enricher: &Enricher, ioc: &str) -> Result<Vec<EnrichmentResult>>` wraps it as `Ok(...)` unconditionally (crates/enrichment-lib/src/lib.rs:520-522), advertising a failure mode that cannot occur.",
+        "The free function has no callers — triage-agent calls the method directly (crates/triage-agent/src/main.rs:279)."
+      ],
+      "suggestion": "Delete the free `enrich` wrapper, and either return `Result<Vec<EnrichmentResult>>` from the method or add an explicit `partial: bool`/`failed_providers` field to the result so callers can tell 'no intel' from 'no providers reachable'.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "misp_search_silent_row_drop",
+      "summary": "MispClient search methods silently discard rows that fail to deserialize, so malformed data looks like 'no results'",
+      "related_files": [
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "`search` drops any event whose payload does not deserialize: `if let Ok(e) = serde_json::from_value::<Event>(ev.clone())` (crates/connectors/src/lib.rs:468-472).",
+        "`search_attributes` does the same via `filter_map(|r| serde_json::from_value(r.clone()).ok())` (:509-514).",
+        "Both return `Result<Vec<_>>`, so the signature promises the error channel exists while the implementation swallows the exact failure it would report; callers such as the `misp.search` executor (crates/tool-server/src/executors/mod.rs:184-192) get an empty vector and report a clean 'no intel' answer."
+      ],
+      "suggestion": "Use `serde_json::from_value::<Event>(...)?` (or `collect::<Result<Vec<_>,_>>()`) so a schema mismatch surfaces as an error, or log-and-count skipped rows into a returned struct.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "No shared HTTP error type in api-server, so each handler module returns whatever tuple is convenient and docs/services.md drifts from the code.",
+      "The tool-server /invoke response shape was never lifted into agent-protocol, so every consumer re-declares it and re-interprets the verdict.",
+      "Tool arguments are owned by two layers (policy YAML JSON Schema for validation, executor code for extraction) with no single accessor that publishes the contract.",
+      "Protocol crates (a2a, acp) are modeled carefully with enums and typed errors, but service-level surfaces were added per feature without a matching house style."
+    ],
+    "likely_symptoms": [
+      "console/vulns/playbook plain-text error bodies",
+      "a2a agent_card 404 with empty body",
+      "coverage 200-with-note",
+      "response-agent deny-on-transport-error rows in response_actions",
+      "detection-agent 'audited' log lines for denied deploys",
+      "acp runs metered at the general tier"
+    ],
+    "possible_false_positives": [
+      "ACP's {code,message,data} body is spec-mandated, not drift — only its coexistence with the console shapes is a defect",
+      "The 200-always contract of /invoke is a documented deliberate tradeoff; the defect is the duplicated/differently-interpreted client copies, not the 200 itself"
+    ]
+  },
+  "context_updates": {
+    "api_surface_coherence": {
+      "add": [
+        {
+          "header": "ACP surface is the house-style reference",
+          "description": "acp crate defines one typed Error{code,message,data} with named code constants and every /acp handler routes through a single acp_err helper, so the ACP surface is predictable from one example. Copying this shape for the rest of api-server is the cheapest path to coherence.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "JSON-RPC error codes centralized in a2a::rpc",
+          "description": "All A2A error codes live as constants with a BackendError->code mapping and a single dispatch entry, each path covered by tests. Adding a method cannot invent a new error shape.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Uniform connector constructor and retry contract",
+          "description": "Every external-system client is new(base_url, auth) with one shared send_with_retry (429/502/503/504 + connect/timeout, 15s budget), so a developer learns the retry semantics once for all seven integrations.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Async Result-typed trait boundaries",
+          "description": "Tool, ToolGateway, CheckpointStore, LlmProvider and TaskBackend all declare async methods returning Result with documented failure modes, so the pluggable seams are honest even where the concrete services are not.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Registry keyed by policy allowlist with startup check",
+          "description": "build_registry keys executors by allowlist name and missing_executors plus a test guarantees every policies/tools.yml entry resolves, so tool-name drift fails loudly instead of silently at invoke time.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Closed vocabularies as String at agent boundaries",
+          "description": "LoopOutcome.stop_reason and the triage Verdict fields are free-form Strings matched with literals, while a2a/acp model equivalent state with enums. Likely a consequence of parsing LLM JSON quickly; unifying them would remove the stringly-typed comparisons but touches every agent.",
+          "settled": false,
+          "positive": false
+        },
+        {
+          "header": "Three Message types across protocol crates",
+          "description": "llm_client::Message (role enum + content), a2a::Message (Role + Part list, text() -> Option<String>) and acp::Message (string role + parts, text() -> String) coexist. Each mirrors a different wire spec, but the shared name and divergent text() return type make cross-protocol code read ambiguously.",
+          "settled": false,
+          "positive": false
+        },
+        {
+          "header": "Tool executors take untyped JSON args by design",
+          "description": "The single Tool trait signature execute(&Value) keeps the registry homogeneous across 25+ tools at the cost of per-tool key guessing; that tradeoff is reasonable, but it needs the policy args_schema to be the published contract.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Always-200 /invoke contract",
+          "description": "tool-server deliberately answers 200 with the verdict in the body so callers never parse status codes for policy outcomes; documented in the service header and docs/services.md. The remaining defect is that consumers do not all honor it.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

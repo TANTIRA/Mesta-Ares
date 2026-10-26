@@ -1,0 +1,21 @@
+name: contain-host
+description: Isolate a compromised endpoint and block its IOCs
+trigger: severity>=high endpoint
+nodes:
+  - id: start
+    kind: trigger
+    label: Alert escalated
+  - id: isolate
+    kind: action
+    tool: wazuh.active_response.isolate_host
+    args: {agent_id: "${alert.agent.id}", duration_minutes: 60}
+  - id: block_ip
+    kind: action
+    tool: blocklist.ip.add
+    args: {ip: "${alert.src.ip}", duration_minutes: 60}
+  - id: done
+    kind: end
+edges:
+  - {from: start, to: isolate}
+  - {from: isolate, to: block_ip}
+  - {from: block_ip, to: done}

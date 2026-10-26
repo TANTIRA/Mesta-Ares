@@ -1,0 +1,980 @@
+openapi: 3.0.3
+info:
+  title: Ares API Server
+  version: 0.1.0
+  description: |
+    Read models and control API for the Ares console, plus the A2A and ACP
+    agent-interop surfaces. Fronted by `api-gateway` under `/api/*`.
+
+    **Error bodies**: this service returns `text/plain` messages for its own
+    failures (`(StatusCode, String)` in axum). Only the rate limiter emits JSON
+    (`{"error": "rate_limit_exceeded"}`). See `docs/openapi/README.md` for the
+    planned migration to the structured error envelope.
+  x-versioning: |
+    Paths are unversioned today (no `/v1` prefix).
+servers:
+  - url: http://localhost:8080
+    description: Direct
+  - url: http://localhost:8082/api
+    description: Through the API gateway (prefix stripped)
+
+tags:
+  - name: Read models
+  - name: Control
+  - name: Streams
+  - name: Vulnerabilities
+  - name: A2A
+  - name: ACP
+
+paths:
+  /health:
+    get:
+      tags: [Read models]
+      summary: Liveness probe
+      responses:
+        '200':
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  service: { type: string, example: api-server }
+
+  /alerts:
+    get:
+      tags: [Read models]
+      summary: Recent alerts from OpenSearch
+      parameters:
+        - name: limit
+          in: query
+          description: Max documents (default 50, cap 500).
+          schema: { type: integer, default: 50, maximum: 500 }
+        - name: status
+          in: query
+          description: Filter on `status.keyword`.
+          schema: { type: string, example: open }
+      responses:
+        '200':
+          description: OpenSearch hits, last 24h
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hits:
+                    type: array
+                    items: { type: object, additionalProperties: true }
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /alerts/{id}:
+    get:
+      tags: [Read models]
+      summary: One alert by OpenSearch `_id`
+      parameters:
+        - $ref: '#/components/parameters/AlertId'
+      responses:
+        '200':
+          description: Alert document
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /cases:
+    get:
+      tags: [Read models]
+      summary: TheHive case list
+      responses:
+        '200':
+          description: TheHive query response
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /cases/{id}:
+    get:
+      tags: [Read models]
+      summary: One TheHive case
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Case document
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /audit:
+    get:
+      tags: [Read models]
+      summary: Hash-chained audit log, newest first
+      parameters:
+        - name: limit
+          in: query
+          description: Max rows (default 100, cap 1000).
+          schema: { type: integer, default: 100, maximum: 1000 }
+      responses:
+        '200':
+          description: Audit rows
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [rows]
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditRow'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /audit/verify:
+    get:
+      tags: [Read models]
+      summary: Re-walk the audit hash chain and report the first break
+      responses:
+        '200':
+          description: Chain verification report
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [rows, verified]
+                properties:
+                  rows: { type: integer, description: Rows inspected. }
+                  verified: { type: integer, description: Rows verified before any break. }
+                  broken_at: { type: integer, nullable: true, description: seq of the first broken row. }
+                  reason: { type: string, nullable: true, description: Why that row failed. }
+        '500':
+          $ref: '#/components/responses/UpstreamError'
+
+  /metrics:
+    get:
+      tags: [Read models]
+      summary: Console KPIs (alerts/hr, verdict mix, MTTD/MTTR)
+      responses:
+        '200':
+          description: KPI payload
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /coverage:
+    get:
+      tags: [Read models]
+      summary: ATT&CK techniques covered by active detection content
+      description: Scans `detection-content/active/*.yml` relative to the working directory.
+      responses:
+        '200':
+          description: Technique list
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /playbooks:
+    get:
+      tags: [Read models]
+      summary: Playbooks on disk
+      responses:
+        '200':
+          description: Playbook summaries
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /playbooks/{name}:
+    get:
+      tags: [Read models]
+      summary: One playbook
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Playbook document
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /plans/{case_id}:
+    get:
+      tags: [Read models]
+      summary: Response actions recorded for a case
+      parameters:
+        - name: case_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Plan rows
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /controls/kill-switch:
+    get:
+      tags: [Control]
+      summary: Current kill-switch state
+      responses:
+        '200':
+          description: State
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [engaged]
+                properties:
+                  engaged: { type: boolean }
+    post:
+      tags: [Control]
+      summary: Engage or disengage the kill switch
+      description: |
+        Writes or removes `$POLICIES_DIR/kill`. An empty body engages the switch.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                engaged:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: New state
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  engaged: { type: boolean }
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /stream/activity:
+    get:
+      tags: [Streams]
+      summary: SSE feed of `ares.activity`
+      description: |
+        Server-sent events, one per agent activity step:
+        `{workflow_run_id, agent, step, detail, ts}`. Keep-alive comment every
+        15s. Concurrency-capped by the rate limiter rather than request-counted.
+      responses:
+        '200':
+          description: Event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /vulns:
+    get:
+      tags: [Vulnerabilities]
+      summary: CVEs published in a window (NVD API 2.0)
+      parameters:
+        - name: days
+          in: query
+          description: Lookback window in days (default 1, clamped 1–120).
+          schema: { type: integer, default: 1, minimum: 1, maximum: 120 }
+        - name: keyword
+          in: query
+          description: NVD `keywordSearch`.
+          schema: { type: string }
+        - name: cvssV3Severity
+          in: query
+          schema: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+        - name: cvssV4Severity
+          in: query
+          schema: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL] }
+        - name: hasKev
+          in: query
+          description: Only CVEs in CISA's KEV catalog.
+          schema: { type: boolean }
+        - name: startIndex
+          in: query
+          description: NVD pagination offset.
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200':
+          description: One page of CVE records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvePage'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /vulns/advisories:
+    get:
+      tags: [Vulnerabilities]
+      summary: Advisories persisted by vuln-agent
+      parameters:
+        - name: limit
+          in: query
+          description: Max rows (default 100, cap 1000).
+          schema: { type: integer, default: 100, maximum: 1000 }
+      responses:
+        '200':
+          description: Advisory rows, newest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Advisory'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /vulns/{cve_id}:
+    get:
+      tags: [Vulnerabilities]
+      summary: One CVE record (Redis-cached)
+      parameters:
+        - $ref: '#/components/parameters/CveId'
+      responses:
+        '200':
+          description: Normalized NVD record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CveRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: No NVD record (unknown, reserved or rejected CVE id)
+          content:
+            text/plain:
+              schema: { type: string }
+
+  /vulns/{cve_id}/history:
+    get:
+      tags: [Vulnerabilities]
+      summary: NVD change history for a CVE
+      parameters:
+        - $ref: '#/components/parameters/CveId'
+      responses:
+        '200':
+          description: Raw NVD change events
+          content:
+            application/json:
+              schema: { type: object, additionalProperties: true }
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /cvss/score:
+    post:
+      tags: [Vulnerabilities]
+      summary: Score a CVSS v3.1 or v4.0 vector locally
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vector]
+              properties:
+                vector:
+                  type: string
+                  example: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+      responses:
+        '200':
+          description: Parsed vector and scores
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvssScore'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /.well-known/agent.json:
+    get:
+      tags: [A2A]
+      summary: Platform A2A agent card
+      responses:
+        '200':
+          description: Agent card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentCard'
+
+  /a2a/agents:
+    get:
+      tags: [A2A]
+      summary: Cards for every invocable agent
+      responses:
+        '200':
+          description: Agent cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentCard'
+
+  /a2a/{agent}/.well-known/agent.json:
+    get:
+      tags: [A2A]
+      summary: One agent's card
+      parameters:
+        - $ref: '#/components/parameters/AgentName'
+      responses:
+        '200':
+          description: Agent card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentCard'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /a2a/{agent}:
+    post:
+      tags: [A2A]
+      summary: JSON-RPC 2.0 endpoint (`tasks/send|get|cancel|sendSubscribe`)
+      parameters:
+        - $ref: '#/components/parameters/AgentName'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JsonRpcRequest'
+      responses:
+        '200':
+          description: JSON-RPC response (errors are also HTTP 200)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcResponse'
+
+  /a2a/tasks/{id}/events:
+    get:
+      tags: [A2A]
+      summary: Per-task SSE stream
+      description: Replays the stored task, then streams activity events for its run.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Event stream (`task`, `activity`)
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /.well-known/agent.yml:
+    get:
+      tags: [ACP]
+      summary: Platform ACP manifest (YAML)
+      responses:
+        '200':
+          description: Agent manifest
+          content:
+            application/yaml:
+              schema:
+                type: string
+
+  /acp/ping:
+    get:
+      tags: [ACP]
+      summary: ACP liveness
+      responses:
+        '200':
+          description: Empty object
+          content:
+            application/json:
+              schema: { type: object }
+
+  /acp/agents:
+    get:
+      tags: [ACP]
+      summary: Agent manifests
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: offset
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Manifests
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [agents]
+                properties:
+                  agents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AcpAgentManifest'
+
+  /acp/agents/{name}:
+    get:
+      tags: [ACP]
+      summary: One manifest
+      parameters:
+        - $ref: '#/components/parameters/AcpAgentName'
+      responses:
+        '200':
+          description: Manifest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcpAgentManifest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /acp/runs:
+    post:
+      tags: [ACP]
+      summary: Create a run (`async` 202, `sync` 200, `stream` SSE)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcpRunCreateRequest'
+      responses:
+        '200':
+          description: 'Completed run (`mode: sync`) or event stream (`mode: stream`)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcpRun'
+            text/event-stream:
+              schema: { type: string }
+        '202':
+          description: 'Run accepted (`mode: async`)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcpRun'
+        '400':
+          $ref: '#/components/responses/AcpError'
+        '404':
+          $ref: '#/components/responses/AcpError'
+
+  /acp/runs/{run_id}:
+    parameters:
+      - $ref: '#/components/parameters/AcpRunId'
+    get:
+      tags: [ACP]
+      summary: Run status and output
+      responses:
+        '200':
+          description: Run
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcpRun'
+        '404':
+          $ref: '#/components/responses/AcpError'
+    post:
+      tags: [ACP]
+      summary: Resume an awaiting run
+      description: Ares agents never emit `awaiting`, so this answers `invalid_input`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [run_id, await_resume, mode]
+              properties:
+                run_id: { type: string, format: uuid }
+                await_resume: { type: object }
+                mode: { type: string, enum: [sync, async, stream] }
+      responses:
+        '400':
+          $ref: '#/components/responses/AcpError'
+
+  /acp/runs/{run_id}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/AcpRunId'
+    post:
+      tags: [ACP]
+      summary: Cancel a run
+      responses:
+        '202':
+          description: Cancelled (or already terminal)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcpRun'
+        '404':
+          $ref: '#/components/responses/AcpError'
+
+  /acp/runs/{run_id}/events:
+    parameters:
+      - $ref: '#/components/parameters/AcpRunId'
+    get:
+      tags: [ACP]
+      summary: Per-run SSE stream
+      responses:
+        '200':
+          description: 'Events: `run.<status>` and `generic`'
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '404':
+          $ref: '#/components/responses/AcpError'
+
+  /acp/session/{session_id}:
+    get:
+      tags: [ACP]
+      summary: Session history URLs
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcpSession'
+        '404':
+          $ref: '#/components/responses/AcpError'
+
+components:
+  parameters:
+    AlertId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+    CveId:
+      name: cve_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^CVE-[0-9]{4}-[0-9]{4,7}$'
+    AgentName:
+      name: agent
+      in: path
+      required: true
+      schema: { type: string, example: triage-agent }
+    AcpAgentName:
+      name: name
+      in: path
+      required: true
+      schema: { type: string, example: triage-agent }
+    AcpRunId:
+      name: run_id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    BadRequest:
+      description: Invalid input
+      content:
+        text/plain:
+          schema: { type: string }
+    NotFound:
+      description: Resource not found
+      content:
+        text/plain:
+          schema: { type: string }
+    ServerError:
+      description: Internal failure
+      content:
+        text/plain:
+          schema: { type: string }
+    UpstreamError:
+      description: Upstream dependency failed (OpenSearch, NVD, TheHive, Postgres)
+      content:
+        text/plain:
+          schema: { type: string }
+    AcpError:
+      description: Structured ACP error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AcpError'
+
+  schemas:
+    AuditRow:
+      type: object
+      properties:
+        seq: { type: integer }
+        ts: { type: string, format: date-time }
+        actor: { type: string }
+        tool: { type: string }
+        args_sha256: { type: string }
+        decision: { type: string, enum: [allow, deny, approval_required] }
+        reason: { type: string }
+        correlation_id: { type: string, format: uuid }
+        prev_hash: { type: string }
+        hash: { type: string }
+
+    CvePage:
+      type: object
+      required: [total_results, start_index, results_per_page, cves]
+      properties:
+        total_results: { type: integer }
+        start_index: { type: integer }
+        results_per_page: { type: integer }
+        cves:
+          type: array
+          items:
+            $ref: '#/components/schemas/CveRecord'
+
+    CveRecord:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string, example: CVE-2024-3094 }
+        source_identifier:
+          type: string
+          description: Assigning CNA.
+          example: secalert@redhat.com
+        published: { type: string, format: date-time }
+        last_modified: { type: string, format: date-time }
+        vuln_status: { type: string, example: Modified }
+        description: { type: string }
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/CvssMetric'
+        weaknesses:
+          type: array
+          items: { type: string, example: CWE-506 }
+        configurations:
+          type: object
+          description: Raw CPE applicability tree.
+        references:
+          type: array
+          items:
+            type: object
+            properties:
+              url: { type: string, format: uri }
+              source: { type: string }
+              tags: { type: array, items: { type: string } }
+        has_kev: { type: boolean }
+        raw:
+          type: object
+          description: Original NVD JSON.
+
+    CvssMetric:
+      type: object
+      required: [version, source, type, vector, base_score]
+      properties:
+        version: { type: string, example: '3.1' }
+        source: { type: string, example: nvd@nist.gov }
+        type: { type: string, enum: [Primary, Secondary] }
+        vector: { type: string }
+        base_score: { type: number, format: float }
+        severity: { type: string, enum: [NONE, LOW, MEDIUM, HIGH, CRITICAL] }
+
+    CvssScore:
+      type: object
+      description: Local scoring result for a v3.1 or v4.0 vector.
+      additionalProperties: true
+
+    Advisory:
+      type: object
+      properties:
+        cve_id: { type: string }
+        first_seen: { type: string, format: date-time }
+        last_checked: { type: string, format: date-time }
+        severity: { type: string }
+        score: { type: number }
+        kev: { type: boolean }
+        summary: { type: string }
+        watchlist_match: { type: string }
+        case_id: { type: string }
+        status: { type: string }
+
+    AgentCard:
+      type: object
+      required: [name, description, url, version]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        url: { type: string }
+        version: { type: string }
+        defaultInputModes: { type: array, items: { type: string } }
+        defaultOutputModes: { type: array, items: { type: string } }
+        capabilities:
+          type: object
+          properties:
+            streaming: { type: boolean }
+            pushNotifications: { type: boolean }
+            stateTransitionHistory: { type: boolean }
+        authentication:
+          type: object
+          properties:
+            schemes: { type: array, items: { type: string } }
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              description: { type: string }
+              tags: { type: array, items: { type: string } }
+              examples: { type: array, items: { type: string } }
+
+    JsonRpcRequest:
+      type: object
+      required: [jsonrpc, method]
+      properties:
+        jsonrpc: { type: string, enum: ['2.0'] }
+        id:
+          description: Request id (string or number; `null` for notifications).
+          oneOf: [{ type: string }, { type: integer }]
+        method:
+          type: string
+          enum: [tasks/send, tasks/get, tasks/cancel, tasks/sendSubscribe]
+        params: { type: object }
+
+    JsonRpcResponse:
+      type: object
+      required: [jsonrpc]
+      properties:
+        jsonrpc: { type: string, enum: ['2.0'] }
+        id:
+          description: Request id (string or number; `null` for notifications).
+          oneOf: [{ type: string }, { type: integer }]
+        result: { type: object }
+        error:
+          type: object
+          properties:
+            code: { type: integer }
+            message: { type: string }
+
+    AcpAgentManifest:
+      type: object
+      required: [name, description, input_content_types, output_content_types]
+      properties:
+        name: { type: string, pattern: '^[a-z0-9]([-a-z0-9]*[a-z0-9])?$' }
+        description: { type: string }
+        input_content_types: { type: array, items: { type: string } }
+        output_content_types: { type: array, items: { type: string } }
+        metadata: { type: object }
+
+    AcpRunCreateRequest:
+      type: object
+      required: [agent_name, input]
+      properties:
+        agent_name: { type: string }
+        session_id: { type: string, format: uuid }
+        session:
+          $ref: '#/components/schemas/AcpSession'
+        input:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/AcpMessage'
+        mode:
+          type: string
+          enum: [sync, async, stream]
+          default: async
+
+    AcpMessage:
+      type: object
+      required: [role, parts]
+      properties:
+        role: { type: string, example: user }
+        parts:
+          type: array
+          items:
+            type: object
+            required: [content_type]
+            properties:
+              name: { type: string }
+              content_type: { type: string, default: text/plain }
+              content: { type: string }
+              content_encoding: { type: string, enum: [plain, base64] }
+              content_url: { type: string, format: uri }
+              metadata: { type: object }
+        created_at: { type: string, format: date-time }
+        completed_at: { type: string, format: date-time }
+
+    AcpRun:
+      type: object
+      required: [agent_name, run_id, status, output, created_at]
+      properties:
+        agent_name: { type: string }
+        session_id: { type: string, format: uuid }
+        run_id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [created, in-progress, awaiting, cancelling, cancelled, completed, failed]
+        await_request: { type: object, nullable: true }
+        output:
+          type: array
+          items:
+            $ref: '#/components/schemas/AcpMessage'
+        error:
+          $ref: '#/components/schemas/AcpError'
+        created_at: { type: string, format: date-time }
+        finished_at: { type: string, format: date-time }
+
+    AcpSession:
+      type: object
+      required: [id, history]
+      properties:
+        id: { type: string, format: uuid }
+        history:
+          type: array
+          items: { type: string, format: uri }
+        state: { type: string, format: uri }
+
+    AcpError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [server_error, invalid_input, not_found]
+        message: { type: string }
+        data: { type: object, nullable: true }
+
+security: []

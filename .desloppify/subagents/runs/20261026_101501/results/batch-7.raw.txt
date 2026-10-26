@@ -1,0 +1,256 @@
+{
+  "batch": "dependency_health",
+  "batch_index": 7,
+  "assessments": {
+    "dependency_health": 79.0
+  },
+  "dimension_notes": {
+    "dependency_health": {
+      "evidence": [
+        "Cargo.toml:31-63 pins every third-party version once in [workspace.dependencies]; all 22 crate manifests consume them as `workspace = true` (only exception is the dev-dependency `tower = { version = \"0.5\" }` in crates/http-limits/Cargo.toml:19).",
+        "Cargo.lock is committed and .github/workflows/ci.yml runs `cargo clippy --workspace --all-targets --locked`, `cargo test --workspace --locked` and `cargo check --workspace --locked`, so CI cannot silently re-resolve; a `supply-chain` job runs rustsec/audit-check.",
+        "Single TLS stack confirmed: `cargo tree -e features -i reqwest` shows only rustls-tls/__rustls-ring, sqlx uses runtime-tokio-rustls, async-nats uses rustls; no native-tls/openssl-sys in Cargo.lock. Three root-cert sources remain (webpki-roots 0.26 via sqlx-core, webpki-roots 1.0 via hyper-rustls/reqwest, rustls-native-certs via async-nats) but all are rustls.",
+        "One library per concern on the direct-dependency level: serde_yaml_ng everywhere (no serde_yaml package left in Cargo.lock), serde_json only, reqwest only, axum only, tracing only.",
+        "Internal crate graph is acyclic: agent-protocol/connectors/llm-client are leaves; api-server and tool-server are the only wide consumers (9 and 6 path deps). No cycles detected across the 22 workspace members.",
+        "Content-only crates keep tiny dep sets: crates/cvss = serde + thiserror; crates/acp = serde/serde_json/chrono/schemars; crates/a2a adds only async-trait.",
+        "15 dependency declarations have zero references in their crate (grep for `\\b<ident>\\b` over src/ + tests/): api-gateway serde+futures, api-server reqwest, audit sha2, detection-agent serde+chrono+reqwest, enrichment-lib reqwest+anyhow, hunt-agent serde+chrono, ingestion-gateway async-nats, response-agent chrono+reqwest, triage-agent reqwest.",
+        "crates/audit/Cargo.toml:12 declares reqwest, but the only reference is `AuditError::Http(#[from] reqwest::Error)` at crates/audit/src/lib.rs:33; the writer performs no HTTP at all, and the crate description still advertises 'OpenSearch shipping'.",
+        "jsonschema 0.30 default features are [\"resolve-http\", \"resolve-file\"]; `resolve-http` enables reqwest with the `blocking` and `json` features. policy-engine (crates/policy-engine/src/lib.rs:292) only calls `jsonschema::validator_for` on a schema built from YAML, so the resolver, reqwest-blocking and fancy-regex (a second regex engine next to the direct `regex` dep) are dead weight.",
+        "Workspace tokio features list `signal` and `fs` (Cargo.toml:33) but nothing in the workspace uses `tokio::signal` or `tokio::fs` (0 occurrences; all file IO is std::fs). tracing-subscriber enables `json` (Cargo.toml:50) yet all 11 binaries call plain `fmt().with_env_filter(..).init()` with no `.json()`.",
+        "redis 0.27 defaults (acl, streams, geospatial, script, keep-alive) stay on in Cargo.toml:41 while enrichment-lib only issues `set_ex`/`get` for the IOC cache (crates/enrichment-lib/src/lib.rs:244,381).",
+        "Transitive duplicate versions in Cargo.lock are all upstream-driven, not caused by the workspace pins: base64 0.22.1 (async-nats/sqlx/jsonschema) + 0.23.1 (hyper-util), rand 0.8.8 + 0.10.3, webpki-roots 0.26.11 + 1.0.11, syn 2 + 3, getrandom 0.2/0.3/0.4.",
+        "apps/console/package.json ships two icon libraries: @hugeicons/react + @hugeicons/core-free-icons used across ~20 components, and lucide-react used in exactly one file (apps/console/app/(console)/playbooks/page.tsx:20).",
+        "apps/console commits package-lock.json (npm) while .github/workflows/ci.yml runs `pnpm -C apps/console install --frozen-lockfile=false`; there is no pnpm-lock.yaml, so the console build resolves fresh versions on every CI run.",
+        "infra/docker-compose.yml pins most images by version but leaves 8 services on mutable tags: thehiveproject/thehive:latest, ghcr.io/misp/misp-docker/misp-core:latest, misp-modules:latest, ghcr.io/shuffle/shuffle-{backend,frontend,orborus}:latest and ghcr.io/nvidia/openshell/gateway:latest (x2).",
+        "No mechanical dependency concern signals were present in the blind packet (holistic_context.dependencies is empty), so there was nothing to adjudicate as dismissed."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "dependency_health": {
+      "dimension_character": "The Rust workspace is deliberately centralized: every third-party version lives once in [workspace.dependencies], Cargo.lock is committed and enforced by --locked CI with a rustsec job, TLS is rustls-only end to end, and there is exactly one library per concern (serde_yaml_ng, serde_json, reqwest, axum) over an acyclic 22-crate graph. The drag sits at the edges rather than in the structure: 15 dependency declarations in 9 crates no longer have a caller (several left behind by the last few refactors), a few crates inherit heavy default feature sets (jsonschema's HTTP resolver, redis's unused feature set) or workspace features nobody uses, and the Next.js console has its own weaker hygiene — an npm lockfile that the pnpm CI ignores plus a second icon library used in one file.",
+      "score_rationale": "Against the anchors this sits just below 'solid but uneven': the pinning, lockfile enforcement, single TLS stack and per-concern library choices are systemic strengths a developer can rely on, but 9 of 22 crates carry at least one provably unused dependency and audit keeps reqwest for an error variant it can never construct, which is exactly the kind of rot that makes a manifest unreliable as documentation. Everything found is cheap to fix (manifest lines, one feature flag, one lockfile), which keeps it out of 'significant drag' territory, but the sheer spread of unused declarations prevents a score in the mid-80s."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "dependency_health",
+      "identifier": "unused_dep_declarations",
+      "summary": "15 dependency declarations across 9 crates have no reference in their crate's source",
+      "related_files": [
+        "crates/api-gateway/Cargo.toml",
+        "crates/api-server/Cargo.toml",
+        "crates/audit/Cargo.toml",
+        "crates/detection-agent/Cargo.toml",
+        "crates/enrichment-lib/Cargo.toml",
+        "crates/hunt-agent/Cargo.toml",
+        "crates/ingestion-gateway/Cargo.toml",
+        "crates/response-agent/Cargo.toml",
+        "crates/triage-agent/Cargo.toml"
+      ],
+      "evidence": [
+        "crates/api-gateway/Cargo.toml declares serde and futures; neither identifier appears anywhere in crates/api-gateway/src (0 matches, no Serialize/Deserialize derive either).",
+        "crates/api-server/Cargo.toml:24 declares reqwest; `grep -rn reqwest crates/api-server/` matches only the manifest line.",
+        "crates/audit/Cargo.toml declares sha2, but the crate now hashes through `agent_protocol::hex::sha256_hex` (crates/audit/src/lib.rs:228) after commit 9c765f8 moved the helper.",
+        "crates/detection-agent declares serde, chrono and reqwest; crates/hunt-agent declares serde and chrono; crates/response-agent declares chrono and reqwest; crates/triage-agent declares reqwest — none of those identifiers occur in the respective src trees.",
+        "crates/enrichment-lib declares reqwest and anyhow; HTTP now goes through the connectors crate and errors are a local type, so both names are absent from src.",
+        "crates/ingestion-gateway declares async-nats but publishes through `agent_core::NatsSink` (crates/ingestion-gateway/src/main.rs:126); the crate name never appears."
+      ],
+      "suggestion": "Delete the 15 dead declarations (api-gateway: serde, futures; api-server: reqwest; audit: sha2; detection-agent: serde, chrono, reqwest; enrichment-lib: reqwest, anyhow; hunt-agent: serde, chrono; ingestion-gateway: async-nats; response-agent: chrono, reqwest; triage-agent: reqwest), then add `unused_crate_dependencies = \"warn\"` to a shared `[workspace.lints.rust]` table so the next refactor cannot leave a manifest lying again.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "refactor_leftovers"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "audit_reqwest_dead_error_variant",
+      "summary": "audit keeps the full reqwest stack only for an error variant it can never construct, and its description still claims OpenSearch shipping",
+      "related_files": [
+        "crates/audit/Cargo.toml",
+        "crates/audit/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/audit/src/lib.rs:30-33 defines `AuditError::Http(#[from] reqwest::Error)` documented as 'HTTP failure shipping an event to OpenSearch'.",
+        "No other reqwest reference exists in crates/audit/src; AuditWriter holds only a PgPool (crates/audit/src/lib.rs:43-46) and performs zero HTTP, so the variant is unreachable and the `#[from]` conversion is dead.",
+        "crates/audit/Cargo.toml:6 still describes the crate as 'Hash-chained Postgres audit log with OpenSearch shipping for ARES', which no longer matches the code.",
+        "This is the only reason reqwest is a dependency of audit, so the crate pays for a manifest entry whose only consumer is an impossible error path."
+      ],
+      "suggestion": "Drop the `Http` variant and the reqwest dependency from crates/audit, and correct the crate description to 'Hash-chained Postgres audit log for ARES'. If OpenSearch shipping is still planned, land it in connectors (where the OpenSearch client already lives) rather than reserving an error variant for it.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "refactor_leftovers"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "jsonschema_default_features",
+      "summary": "policy-engine inherits jsonschema's HTTP resolver, reqwest-blocking and fancy-regex for in-memory schema validation",
+      "related_files": [
+        "Cargo.toml",
+        "crates/policy-engine/Cargo.toml",
+        "crates/policy-engine/src/lib.rs"
+      ],
+      "evidence": [
+        "jsonschema 0.30's default features are [\"resolve-http\", \"resolve-file\"]; `resolve-http` turns on the optional reqwest dependency with the `blocking` and `json` features (verified in the crate manifest and in `cargo tree -e features -i reqwest`, which shows `reqwest feature \"blocking\"` reached from `jsonschema feature \"default\"`).",
+        "policy-engine only builds validators from an in-memory schema value: crates/policy-engine/src/lib.rs:288-292 does `serde_json::to_value(schema)` then `jsonschema::validator_for(&json_schema)` — no $ref resolution, no file or URL retrieval.",
+        "The default feature set also pulls fancy-regex (a second regex engine alongside policy-engine's direct `regex` dependency), email_address, idna, uuid-simd, bytecount and fraction into every binary that links policy-engine (tool-server, api-server).",
+        "The workspace pin at Cargo.toml:63 (`jsonschema = \"0.30\"`) does not disable default features, so the cost is paid by default for every consumer."
+      ],
+      "suggestion": "Pin `jsonschema = { version = \"0.30\", default-features = false }` in [workspace.dependencies] (crates/policy-engine/Cargo.toml:18 already uses `workspace = true`, so no per-crate change is needed). `validator_for` needs no feature, so this removes reqwest-blocking and fancy-regex from the tree without touching call sites.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "default_features_left_on"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "unused_workspace_features",
+      "summary": "Workspace feature lists enable tokio signal/fs, tracing-subscriber json and redis's default feature set that no code uses",
+      "related_files": [
+        "Cargo.toml",
+        "crates/enrichment-lib/src/lib.rs"
+      ],
+      "evidence": [
+        "Cargo.toml:33 enables tokio features [\"rt-multi-thread\", \"macros\", \"net\", \"time\", \"sync\", \"signal\", \"process\", \"io-util\", \"fs\"]; `tokio::signal` and `tokio::fs` have 0 occurrences workspace-wide (all file IO is std::fs), while `process` is used once in crates/tool-server/src/executors/openshell.rs:37.",
+        "Cargo.toml:50 enables tracing-subscriber [\"env-filter\", \"json\"], but all 11 binaries initialize with plain `tracing_subscriber::fmt().with_env_filter(..).init()` (e.g. crates/api-server/src/main.rs:351-353) and nothing calls `.json()`, so the json feature (tracing-serde) is dead.",
+        "Cargo.toml:41 pins `redis = { version = \"0.27\", features = [\"tokio-comp\"] }` without default-features = false; redis defaults are acl, streams, geospatial, script, keep-alive, yet enrichment-lib only calls `set_ex` and `get` for the IOC cache (crates/enrichment-lib/src/lib.rs:244,381).",
+        "Cargo.toml:43 enables schemars features [\"chrono\", \"uuid1\"] although no code emits a schema and UUID v1 is never used (uuid v4/v5 only)."
+      ],
+      "suggestion": "Trim the workspace feature lists to what the code actually calls: drop `signal` and `fs` from tokio, drop `json` from tracing-subscriber (keep env-filter), set `redis = { version = \"0.27\", default-features = false, features = [\"tokio-comp\"] }`, and reduce schemars to `features = [\"chrono\"]`. Each change is one line in Cargo.toml and cannot break callers, because the removed APIs are unreferenced.",
+      "confidence": "medium",
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "default_features_left_on"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "console_lockfile_ignored_by_ci",
+      "summary": "Console commits an npm package-lock.json while CI installs with pnpm and --frozen-lockfile=false",
+      "related_files": [
+        "apps/console/package.json",
+        "apps/console/package-lock.json",
+        ".github/workflows/ci.yml"
+      ],
+      "evidence": [
+        "apps/console/package-lock.json (234 KB, npm) is tracked in git; there is no pnpm-lock.yaml in the repo.",
+        ".github/workflows/ci.yml console job runs `pnpm -C apps/console install --frozen-lockfile=false`, so pnpm neither reads the npm lockfile nor is constrained by any lockfile — dependency versions can drift between CI runs and between developers.",
+        "The same job also uses `corepack enable` without a pinned `packageManager` field in apps/console/package.json, so the pnpm major version itself is whatever corepack resolves."
+      ],
+      "suggestion": "Pick one package manager, commit its lockfile and enforce it: add `\"packageManager\": \"pnpm@<version>\"` to apps/console/package.json, generate and commit pnpm-lock.yaml, delete package-lock.json, and change the CI step to `pnpm -C apps/console install --frozen-lockfile`.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "unpinned_toolchain"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "console_duplicate_icon_libraries",
+      "summary": "Console ships two icon libraries; lucide-react is used in exactly one file",
+      "related_files": [
+        "apps/console/package.json",
+        "apps/console/app/(console)/playbooks/page.tsx"
+      ],
+      "evidence": [
+        "apps/console/package.json depends on @hugeicons/react, @hugeicons/core-free-icons and lucide-react.",
+        "@hugeicons is the established convention: it is imported in ~20 components under components/blocks/ and app/(console)/page.tsx, app/(console)/alerts/[id]/page.tsx.",
+        "lucide-react appears only at apps/console/app/(console)/playbooks/page.tsx:20 (`import { Zap, Wrench, GitFork, Flag } from \"lucide-react\"`), so an entire icon package (plus its transitive icon data) ships for four glyphs in one screen."
+      ],
+      "suggestion": "Replace the four lucide-react icons in app/(console)/playbooks/page.tsx with their @hugeicons equivalents and remove lucide-react from package.json, leaving one icon system for the whole console.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "duplicate_purpose_libraries"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "compose_latest_tags",
+      "summary": "Eight infra services run on mutable :latest image tags, so compose stacks are not reproducible",
+      "related_files": [
+        "infra/docker-compose.yml"
+      ],
+      "evidence": [
+        "infra/docker-compose.yml pins several images by version (opensearch:2.17.1, wazuh/wazuh-manager:4.9.2, cortex:3.2.1-1, nats:2.11-alpine, redis:7-alpine) but leaves thehiveproject/thehive:latest (line 168), ghcr.io/misp/misp-docker/misp-core:latest (201), misp-modules:latest (257), shuffle-backend/frontend/orborus:latest (265/282/290) and ghcr.io/nvidia/openshell/gateway:latest (478, 491).",
+        "The shuffle and openshell lines carry inline comments ('verify tag on first pull', 'verify tag'), which acknowledges the tags are unverified.",
+        "Because the CI docker job only runs `docker compose config -q`, an upstream :latest push changes the deployed stack without any diff in this repository."
+      ],
+      "suggestion": "Pin the eight remaining services to concrete tags or digests (e.g. `thehiveproject/thehive:4.1.24`, `ghcr.io/nvidia/openshell/gateway@sha256:...`) the same way opensearch and wazuh already are, and resolve the 'verify tag' comments at the same time.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "unpinned_toolchain"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Dependency removal is not part of the refactor checklist: when code moves into a shared helper or crate (hex helper, NatsSink, connectors HTTP client), the now-empty manifest entries stay behind, and nothing in CI fails because unused_crate_dependencies is allow-by-default.",
+      "Workspace-level pins fixed version drift but not feature drift: entries like jsonschema, redis, tracing-subscriber and schemars keep their upstream default features, so 'one pinned version' still means 'every default feature'.",
+      "The console is a parallel workstream with its own toolchain: an npm lockfile and a pnpm CI step coexist, and a second icon library entered through a copied page rather than through the design system."
+    ],
+    "likely_symptoms": [
+      "Slow clean builds attributed to 'sqlx/async-nats being big' when jsonschema's HTTP resolver and redis's feature set are also on the critical path.",
+      "Reviewers trusting a crate's Cargo.toml to describe what it links (audit 'OpenSearch shipping', detection-agent 'reqwest') and being wrong."
+    ],
+    "possible_false_positives": [
+      "Duplicate lockfile versions (base64 0.22/0.23, rand 0.8/0.10, webpki-roots 0.26/1.0, syn 2/3, getrandom 0.2/0.3/0.4) are all pulled by upstream crates; they are not caused by the workspace pins and cannot be removed without waiting for upstream bumps.",
+      "schemars derives on the protocol types emit no schema today, but that may be a deliberate contract-ahead-of-consumer decision rather than dead weight."
+    ]
+  },
+  "context_updates": {
+    "dependency_health": {
+      "add": [
+        {
+          "header": "Single workspace dependency table",
+          "description": "Every third-party version is declared once in [workspace.dependencies] and consumed with `workspace = true`, so a version bump is one edit and crates cannot drift apart; the only literal version left is a dev-dependency (tower 0.5 in http-limits).",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Lockfile enforced in CI",
+          "description": "Cargo.lock is committed and every CI cargo invocation uses --locked, with a rustsec/audit-check job alongside, so resolution cannot change silently between a local build and CI.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Rustls-only TLS stack",
+          "description": "reqwest is pinned with default-features = false + rustls-tls, sqlx uses runtime-tokio-rustls and async-nats uses rustls, so no native-tls/openssl-sys is compiled; the remaining root-cert duplication (webpki-roots 0.26 and 1.0, rustls-native-certs) is upstream-driven and stays inside rustls.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One library per concern",
+          "description": "serde_yaml_ng fully replaced serde_yaml (no serde_yaml package in Cargo.lock), and JSON, HTTP client, HTTP server and tracing each have exactly one crate, so there are no moment/dayjs-style parallel stacks on the direct-dependency level.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Acyclic internal crate graph",
+          "description": "agent-protocol, connectors and llm-client are leaves and the 22 members form a DAG with api-server/tool-server as the only wide consumers, so dependency cycles cannot appear through the path dependencies.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Manifests lag behind refactors",
+          "description": "15 dependency declarations in 9 crates have zero references because moving code into agent-protocol::hex, NatsSink and connectors removed the last callers; unused_crate_dependencies is allow-by-default so CI never notices.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Upstream default features left enabled",
+          "description": "Workspace pins control versions but not features: jsonschema keeps its HTTP resolver (reqwest blocking + fancy-regex), redis keeps acl/streams/geospatial/script, and tracing-subscriber keeps json, so several crates compile capability nothing calls.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Console toolchain diverges from repo",
+          "description": "apps/console tracks an npm package-lock.json while CI installs with pnpm --frozen-lockfile=false and no pnpm-lock.yaml, so the frontend has no enforced resolution even though the Rust side does.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

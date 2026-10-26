@@ -1,0 +1,13 @@
+# Atomic Red Team T1547.001 — "Reg Key Run" persistence simulation
+id: bas-003
+name: Registry Run-key persistence (HKCU)
+techniques: [T1547.001]
+target: windows-endpoint
+executor:
+  platform: windows
+  # Writes a calc.exe autostart entry, then removes it — self-cleaning.
+  command: >-
+    cmd.exe /c "reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+    /v AresBAS /t REG_SZ /d C:\Windows\System32\calc.exe /f &&
+    timeout /t 5 /nobreak >nul &&
+    reg delete HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v AresBAS /f"

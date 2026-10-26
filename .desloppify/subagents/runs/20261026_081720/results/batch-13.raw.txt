@@ -1,0 +1,315 @@
+{
+  "batch": "ai_generated_debt",
+  "batch_index": 13,
+  "assessments": {
+    "ai_generated_debt": 79.0
+  },
+  "dimension_notes": {
+    "ai_generated_debt": {
+      "evidence": [
+        "No nosy logging: only 5 `debug!` calls in the whole workspace (enrichment-lib:237,441; llm-client/anthropic.rs:128; ingestion-gateway/pollers.rs:54,92) and no entry/exit logging; `info!`/`warn!` sit at real decision points (policy-engine/src/lib.rs:316, tool-server/src/main.rs:82-99).",
+        "Comments overwhelmingly explain WHY (policy-engine/src/lib.rs:1-7 'order of checks is load-bearing'; tool-server/src/idempotency.rs:27-29 TTL vs DLQ window; connectors/src/lib.rs:63-72 retry budget), not WHAT.",
+        "Copy-paste scaffolding is the dominant debt: `ActivityEvent` is duplicated in 5 crates (detection/hunt/response/triage/vuln `activity.rs`, 41-44 LOC each) and `emit()` is byte-identical in 4 agent mains (detection-agent/src/main.rs:72, hunt-agent:55, response-agent:86, triage-agent:79).",
+        "The copy already drifted: vuln-agent/src/main.rs:120-135 builds an ad-hoc `json!` without `workflow_run_id`, so its activity events can never match the SSE filters at api-server/src/a2a.rs:610 and acp.rs:559; triage's copy declares `step: &'static str` while the other four take `String`.",
+        "crates/agent-core is mostly speculative: `AgentLoop` (agent_loop.rs, 273 LOC), `HttpToolGateway` (gateway.rs, 134 LOC), `CheckpointStore`/`PostgresCheckpointer`/`InMemoryCheckpointer` (checkpoint.rs, 84 LOC) and `Budgets` (budget.rs, 54 LOC) have no consumer outside the crate (only `kill_switch_engaged`, `AgentState`, `Step` are imported by api-server/triage/response/vuln).",
+        "Because nothing calls `PostgresCheckpointer::save`, no production code writes `agent_checkpoints`; the 'fold in checkpoint progress' paths in a2a.rs:319-347 and acp.rs:158-180 are unreachable, and the retry/jitter contract in gateway.rs is not in effect (response-agent/src/main.rs:210 `invoke_tool` has no retry).",
+        "Micro-helpers are re-implemented per crate: lowercase-hex encoders in audit/src/lib.rs:140, response-agent/src/main.rs:367, tool-server/src/idempotency.rs:117 and a dedicated `mod hex` at orchestrator/src/dedupe.rs:82 ('Minimal hex encoder to avoid an extra dependency'); an identical 20-line `b64url` at enrichment-lib/src/lib.rs:172 and tool-server/src/executors/mod.rs:54; `fn env()` at connectors/src/lib.rs:42, enrichment-lib:194, executors/mod.rs:31.",
+        "1279 `///` lines across 14,394 LOC (~9%), most of them one-line restatements forced by `#![warn(missing_docs)]` in six crates: `/// Agent name.` on `name: String` (a2a/src/card.rs:47, acp.rs:107), `/// The plan text.` on `text` (agent-core/src/state.rs:14), `/// Create a router from a fast and a strong provider.` on `new(fast, strong)` (llm-client/src/lib.rs:120).",
+        "Ceremony on infallible conversions: `idem_key` round-trips a `String` through `serde_json::to_value` (tool-server/src/main.rs:56-60); `serde_json::to_string(&task).unwrap_or_default()` guards a derived `Serialize` in SSE data (a2a.rs:592,598) and `serde_yaml::to_string(&manifest).unwrap_or_default()` returns an empty 200 body (acp.rs:342).",
+        "Kill-switch rule implemented twice with divergent file semantics: policy-engine/src/lib.rs:443-456 engages on `!s.trim().is_empty()`, agent-core/src/kill.rs:11-33 requires `is_file() && len() > 0`, so a whitespace-only `policies/kill` denies tool calls while `kill_switch_engaged()` reports disengaged.",
+        "Genuine strengths that keep this out of the 60s: dry-run is one shared helper (`executors/mod.rs:35`) instead of per-call null checks, degraded boot paths are deliberate and logged (tool-server/src/main.rs:236-263), and the security-critical cores (policy-engine, idempotency, approvals) read as hand-written, purpose-driven code."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "ai_generated_debt": {
+      "dimension_character": "The codebase reads as purpose-driven where it matters: security-critical modules (policy-engine, idempotency, approvals, connectors) carry WHY comments, deliberate degraded-mode helpers, and no entry/exit logging. Around that core, generation-shaped ceremony accumulates in the seams: five agent binaries each carry their own ActivityEvent/emit/main scaffold, an entire unused agent-core framework sits waiting for a caller, and every public item is fronted by a doc line that restates its own name. A newcomer would follow the triage or tool-server flow in 30 seconds, then lose that confidence when they hit agent-core or the vuln-agent activity shape and cannot tell which of the parallel implementations is live.",
+      "score_rationale": "Strong anchors push up: comments explain constraints rather than narrate code, defensive checks cluster at real trust boundaries (env, HTTP, Postgres), and duplicated retry/backoff logic is at least bounded and documented. What pulls the score below the 'solid but uneven' line is volume of formulaic duplication \u2014 5 activity-event copies (one already drifted), 4 hex encoders, 2 base64url encoders, 2 JetStream bootstraps, 2 SSE state machines, 2 kill-switch implementations with different semantics \u2014 plus ~545 LOC of never-instantiated framework in agent-core that makes real read paths unreachable. These are small individually but recur across crates, so a developer meets 'why is this different here?' repeatedly."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "activity-event-copied-per-agent",
+      "summary": "ActivityEvent + emit() copy-pasted into five agent crates, and the copy has already drifted",
+      "related_files": [
+        "crates/detection-agent/src/activity.rs",
+        "crates/hunt-agent/src/activity.rs",
+        "crates/response-agent/src/activity.rs",
+        "crates/triage-agent/src/activity.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/detection-agent/src/main.rs",
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "Five near-identical `activity.rs` files (detection 41, hunt 41, response 41, triage 44 LOC) declare the same `SUBJECT_ACTIVITY` const and the same `ActivityEvent { workflow_run_id, agent, step, detail, ts }` struct.",
+        "`async fn emit(client, event)` is byte-identical in detection-agent/src/main.rs:72-84, hunt-agent/src/main.rs:55-67, response-agent/src/main.rs:86-98 and triage-agent/src/main.rs:79-91.",
+        "Drift: triage-agent/src/activity.rs:22 declares `step: &'static str` while the other four take `String`; triage adds a module comment defending the duplication ('The shape is defined locally here').",
+        "Worse drift: vuln-agent/src/main.rs:120-135 hand-builds `json!({agent, step, detail, ts})` with no `workflow_run_id`, so its events can never match the filter `v.get(\"workflow_run_id\") != Some(run_id)` at api-server/src/a2a.rs:610 and acp.rs:559 \u2014 vuln progress silently never reaches the console SSE.",
+        "Each agent's `while let Some(msg) = sub.next().await { tokio::spawn(...) }` + `info_span!` + envelope-parse block is also copy-pasted (detection:258-278, hunt:222-246, response:409-427, triage main loop)."
+      ],
+      "suggestion": "Move `ActivityEvent`, `SUBJECT_ACTIVITY` and the `publish_activity(nats, &event)` helper into agent-core (already a dependency of triage, response, vuln) and delete the five copies; give vuln-agent the shared event so its `workflow_run_id` is populated. Do not add a new crate for this.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "agent-scaffold-copied-per-crate"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "agent-core-unused-framework",
+      "summary": "agent-core ships ~545 LOC of framework (AgentLoop, HttpToolGateway, CheckpointStore, Budgets) that no binary instantiates",
+      "related_files": [
+        "crates/agent-core/src/agent_loop.rs",
+        "crates/agent-core/src/gateway.rs",
+        "crates/agent-core/src/checkpoint.rs",
+        "crates/agent-core/src/budget.rs",
+        "crates/agent-core/src/lib.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs"
+      ],
+      "evidence": [
+        "grep for `agent_core::` outside the crate returns only `kill_switch_engaged` (api-server/main.rs:39, kill.rs:9, response-agent:22, triage-agent:24, vuln-agent:18) and the `AgentState`/`Step` types read by api-server (a2a.rs:320-329, acp.rs:159-167).",
+        "`AgentLoop` (agent_loop.rs:93), `HttpToolGateway` (gateway.rs:57), `CheckpointStore`/`PostgresCheckpointer`/`InMemoryCheckpointer` (checkpoint.rs) and `Budgets` are exported from lib.rs but never constructed by any service; each agent hand-rolls its own loop instead.",
+        "Nothing writes `agent_checkpoints` in production: the only INSERT is checkpoint.rs:62-72 inside the unused `PostgresCheckpointer`, while api-server creates and reads the table (a2a.rs:222, 321; acp.rs:160), so the `Step::Final` folding at a2a.rs:328-346 and acp.rs:167-179 can never fire.",
+        "The documented retry contract in gateway.rs:1-90 (MAX_RETRIES, full-jitter backoff, retryable hint) is not in effect: response-agent/src/main.rs:210-232 posts to `/invoke` with no retry and its own duplicated `InvokeResponse { decision, result }` struct (response-agent:190 vs gateway.rs:27)."
+      ],
+      "suggestion": "Either wire the agents through `AgentLoop`/`HttpToolGateway` (making checkpoints real and deleting the per-agent invoke code), or delete agent_loop.rs, gateway.rs, checkpoint.rs and budget.rs and keep agent-core to kill.rs + state.rs. The middle state \u2014 published framework nothing calls, plus read paths that can never fire \u2014 is the expensive one.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "speculative-agent-core"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "micro-helpers-reimplemented-per-crate",
+      "summary": "hex, base64url and env helpers are re-implemented in 2-4 crates each instead of shared",
+      "related_files": [
+        "crates/orchestrator/src/dedupe.rs",
+        "crates/audit/src/lib.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/tool-server/src/idempotency.rs",
+        "crates/enrichment-lib/src/lib.rs",
+        "crates/tool-server/src/executors/mod.rs",
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "Lowercase-hex encoding appears four times: audit/src/lib.rs:140-145 `sha256_hex`, response-agent/src/main.rs:367-369 `fn hex`, tool-server/src/idempotency.rs:117-121 inline, and a whole `mod hex` at orchestrator/src/dedupe.rs:82-87 annotated 'Minimal hex encoder to avoid an extra dependency'.",
+        "The 20-line unpadded base64url encoder is duplicated verbatim (same table literal, same chunk loop) at enrichment-lib/src/lib.rs:172-192 and tool-server/src/executors/mod.rs:54-74; only enrichment-lib has a test for it.",
+        "`fn env(key: &str) -> Option<String> { std::env::var(key).ok().filter(|s| !s.is_empty()) }` is identical at connectors/src/lib.rs:42, enrichment-lib/src/lib.rs:194 and tool-server/src/executors/mod.rs:31.",
+        "Same pattern one level up: `ratelimit::build()` is byte-identical in api-server/src/ratelimit.rs:12-18 and ingestion-gateway/src/ratelimit.rs:12-18."
+      ],
+      "suggestion": "Export `env` and `b64url` from connectors (both crates already depend on it) and one `hex_encode` from agent-protocol; delete the other copies and the `mod hex` shim. Four hand-rolled hex encoders is more code than one shared helper plus its import.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "micro-helper-reimplemented"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "kill-switch-duplicated-divergent",
+      "summary": "Kill-switch rule implemented twice with different file semantics, so the two copies disagree on whitespace-only kill files",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs",
+        "crates/agent-core/src/kill.rs",
+        "crates/api-server/src/kill.rs"
+      ],
+      "evidence": [
+        "policy-engine/src/lib.rs:443-456: env `ARES_KILL_SWITCH` truthy, else `std::fs::read_to_string(dir/kill)` engaged when `!s.trim().is_empty()`.",
+        "agent-core/src/kill.rs:11-33: same env rule (with its own `is_truthy`), else `metadata(kill).map(|m| m.is_file() && m.len() > 0)`.",
+        "Divergence: a kill file containing only whitespace engages the policy engine but reads as disengaged to `agent_core::kill_switch_engaged()`, which is what `GET /controls/kill-switch` reports (api-server/src/kill.rs:36-38) and what response/triage/vuln agents check before acting.",
+        "The truthiness list `\"1\" | \"true\" | \"yes\" | \"on\"` is written out twice (policy-engine:445-448, agent-core:20-23)."
+      ],
+      "suggestion": "Have policy-engine call `agent_core::kill_switch_engaged()` (or move that one function into agent-protocol and call it from both) and delete the duplicate env parsing and file check, so the console and the enforcement point cannot disagree.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "micro-helper-reimplemented"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "cvss-identity-match-ceremony",
+      "summary": "Identity `match` arms (`\"AV\" => \"AV\", _ => \"metric\"`) paper over a `&'static str` error field in CVSS scoring",
+      "related_files": [
+        "crates/cvss/src/v31.rs",
+        "crates/cvss/src/v40.rs",
+        "crates/cvss/src/lib.rs"
+      ],
+      "evidence": [
+        "cvss/src/v31.rs:11-27: `num()` returns `CvssError::MissingMetric(match key { \"AV\" => \"AV\", \"AC\" => \"AC\", \"PR\" => \"PR\", \"UI\" => \"UI\", \"S\" => \"S\", \"C\" => \"C\", \"I\" => \"I\", \"A\" => \"A\", _ => \"metric\" })` \u2014 every arm maps a key to itself.",
+        "cvss/src/v40.rs:226-230 repeats the shape: `CvssError::MissingMetric(match *req { \"AV\" => \"AV\", _ => \"base metric\" })`.",
+        "The ceremony exists only because `CvssError::MissingMetric(&'static str)` (lib.rs:19) cannot hold the runtime `key`; the mapping degrades every non-AV metric to the literal \"metric\"/\"base metric\" in the error message."
+      ],
+      "suggestion": "Change the variant to `MissingMetric(String)` and pass `key.to_string()`; delete both identity matches. The error then names the actual missing metric instead of \"metric\".",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "idem-key-serde-roundtrip",
+      "summary": "idem_key round-trips a String through serde_json::to_value to re-extract the same string",
+      "related_files": [
+        "crates/tool-server/src/main.rs"
+      ],
+      "evidence": [
+        "tool-server/src/main.rs:56-60: `fn idem_key(call: &ToolCall) -> Option<String> { serde_json::to_value(&call.idempotency_key).ok().and_then(|v| v.as_str().filter(|s| !s.is_empty()).map(str::to_string)) }`.",
+        "`serde_json::to_value` on a `&String` cannot fail and cannot produce a non-string, so the `.ok()`/`as_str()` guard is defensive scaffolding around a pure expression.",
+        "The only real logic is the emptiness check, and the function allocates twice to express it."
+      ],
+      "suggestion": "Replace with `fn idem_key(call: &ToolCall) -> Option<&str> { (!call.idempotency_key.is_empty()).then_some(call.idempotency_key.as_str()) }`.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "jetstream-bootstrap-duplicated",
+      "summary": "ARES JetStream stream bootstrap and publish-fallback duplicated between ingestion-gateway and api-server",
+      "related_files": [
+        "crates/ingestion-gateway/src/nats_sink.rs",
+        "crates/api-server/src/a2a.rs"
+      ],
+      "evidence": [
+        "`STREAM_NAME = \"ARES\"` is declared in both files (nats_sink.rs:9, a2a.rs:48) with the same 'mirrors ingestion-gateway' comment at a2a.rs:47.",
+        "`NatsSink::ensure_stream` (nats_sink.rs:42-63) and `a2a::ensure_jetstream` (a2a.rs:235-257) both `get_stream` then `create_stream` with `subjects: vec![\"ares.>\"]` and identical warn-and-degrade text.",
+        "The publish fallback is duplicated too: nats_sink.rs:66-82 `publish` and a2a.rs:261-276 `publish` differ only in error type; a2a.rs:260 even documents it as 'same policy as ingestion-gateway's NatsSink'."
+      ],
+      "suggestion": "Move `NatsSink` (stream name, ensure_stream, publish) into agent-protocol or a shared module both binaries already depend on, and let api-server hold a `NatsSink` in `AppState` instead of `nats` + `jetstream` + a local publish.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "agent-scaffold-copied-per-crate"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "sse-unfold-duplicated",
+      "summary": "The per-run SSE state machine is copy-pasted between a2a.rs and acp.rs, differing only in event shape",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs"
+      ],
+      "evidence": [
+        "`struct St { rx, pool, <id>, corr/run_id, agent, replay, closing, done }` appears twice with identical field-by-field doc comments that restate the names (a2a.rs:553-570, acp.rs:506-523).",
+        "`futures::stream::unfold(st, |mut st| async move { if st.done \u2026; if let Some(x) = st.replay.take() \u2026; if st.closing \u2026; loop { match st.rx.recv().await { Ok(text) => \u2026, Err(Lagged(_)) => continue, Err(Closed) => return None } } })` is the same code at a2a.rs:583-630 and acp.rs:536-577.",
+        "Both end with `Sse::new(stream).keep_alive(KeepAlive::new().interval(Duration::from_secs(15)).text(\"ping\"))` (a2a.rs:632-636, acp.rs:579-583), and both repeat the `serde_json::from_str::<Value>` + `workflow_run_id` filter + `terminal_step` check."
+      ],
+      "suggestion": "Extract one `activity_sse(rx, pool, run_id, agent, replay, to_event)` helper parameterised by a closure that maps the replayed item and activity JSON to an `Event`, and call it from both handlers. Two protocols should not need two copies of the same unfold loop.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "agent-scaffold-copied-per-crate"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "restating-field-docs",
+      "summary": "~9% of all lines are doc comments, most restating the identifier they document",
+      "related_files": [
+        "crates/a2a/src/card.rs",
+        "crates/a2a/src/task.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/agent-core/src/state.rs",
+        "crates/llm-client/src/lib.rs",
+        "crates/tool-server/src/approvals.rs"
+      ],
+      "evidence": [
+        "`#![warn(missing_docs)]` in six crates (agent-protocol/lib.rs:8, a2a/lib.rs:8, llm-client/lib.rs:8, audit/lib.rs:12, agent-core/lib.rs:9, acp/lib.rs:9) forces a doc line on every public item, including struct fields.",
+        "Result: `/// Agent name.` above `pub name: String` (a2a/src/card.rs:47, acp.rs:107), `/// The plan text.` above `text` (agent-core/src/state.rs:14), `/// The observation text.` (:24), `/// The final answer text.` (:29), `/// The text payload.` (a2a/src/task.rs:87), `/// Optional session id.` (acp.rs:109), `/// Terminal time.` (acp.rs:119).",
+        "Trivial constructors get prose: `/// Create a router from a fast and a strong provider.` on `new(fast, strong)` (llm-client/src/lib.rs:120), `/// Empty queue.` on `Store::new` (approvals.rs:74), `/// Create a writer bound to `pool`.` on `AuditWriter::new` (audit/src/lib.rs:48).",
+        "1279 `///` lines total against 14,394 LOC; the comments that do add value (policy order, TTL rationale, retry budget) are a small minority."
+      ],
+      "suggestion": "Drop `#![warn(missing_docs)]` to module/type level (or keep it for public APIs but not fields) and delete the restating one-liners. Keep the docs that carry a constraint \u2014 the order of policy checks, the 72h TTL rationale, the dry-run contract.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "missing-docs-lint-doc-bloat"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "unwrap-or-default-on-infallible-serde",
+      "summary": "Infallible serialization is guarded with unwrap_or_default, turning bugs into empty 200 bodies and empty SSE data",
+      "related_files": [
+        "crates/api-server/src/acp.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/stream.rs"
+      ],
+      "evidence": [
+        "acp.rs:342: `serde_yaml::to_string(&manifest).unwrap_or_default()` \u2014 `AgentManifest` derives `Serialize`, so failure is impossible; if it ever happened the endpoint would answer 200 with an empty YAML body.",
+        "a2a.rs:592 and a2a.rs:598: `serde_json::to_string(&task).unwrap_or_default()` \u2014 same derived-`Serialize` situation, producing an empty `task` SSE frame.",
+        "a2a.rs:379 and acp.rs:229 use the same `unwrap_or_default()` shape when serializing a message that always serializes.",
+        "27 `unwrap_or_default()` call sites in the workspace; the ones above are the defensive subset guarding pure expressions rather than genuine `Option`/parse boundaries."
+      ],
+      "suggestion": "Serialize these infallible values once at the top of the handler (or use `serde_json::to_string(&x).expect(\"Task is Serialize\")`) so a failure is loud, instead of emitting an empty body that looks like a valid empty response.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "There is no shared agent-runtime crate in use, so each agent binary re-derives ActivityEvent, emit, the NATS subscribe loop and the LLM fence-stripping block; the crate that was meant to hold this (agent-core) is published but never instantiated.",
+      "Micro-helpers (hex, base64url, env, truthiness parsing) are re-rolled per crate because no small-utility home exists and 'avoid an extra dependency' was preferred over reuse.",
+      "`#![warn(missing_docs)]` at crate level on six libraries mechanically produces one restating doc line per public item, which is why ~9% of lines are comments that add no information."
+    ],
+    "likely_symptoms": [
+      "vuln-agent activity events never appear in the console SSE (missing workflow_run_id) \u2014 looks like a stream bug, is duplication drift",
+      "GET /controls/kill-switch reporting disengaged while policy-engine denies (whitespace-only kill file)",
+      "agent_checkpoints reads in a2a/acp never resolving to Step::Final because nothing writes the table"
+    ],
+    "possible_false_positives": [
+      "The repeated `let Some(c) = &self.0 else { return dry_run(args) };` in executors/mod.rs (15 sites) is the deliberate dry-run contract, not copy-paste debt",
+      "The `SIMPLIFICATION:` / `NOTE:` comments in hunt-agent:71, detection pipeline:108 and pollers.rs document real shortcuts and should be kept",
+      "The `DryRun` executors for `autonomy: deny` tools are a registry-coverage decision, not dead stubs"
+    ]
+  },
+  "context_updates": {
+    "ai_generated_debt": {
+      "add": [
+        {
+          "header": "Comments carry constraints, not narration",
+          "description": "Inline comments record load-bearing facts a reader cannot infer: the fixed order of policy checks (policy-engine/src/lib.rs:311-313), the 72h idempotency TTL being longer than the DLQ replay window (idempotency.rs:27-29), and the 15s retry budget (connectors/src/lib.rs:63-72). This is why the comment ratio is high without being noise in the security core.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Degraded mode expressed once, not per call",
+          "description": "Missing credentials resolve through a single `dry_run(args)` helper (executors/mod.rs:35) and audit failure degrades to one log line (tool-server/src/main.rs:82-99) instead of per-executor null checks. This keeps the executor file free of defensive sprawl.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "No entry/exit or object-dump logging",
+          "description": "The workspace has 5 `debug!` calls total, all on cache-hit or poller-skip paths; `info!`/`warn!` mark decisions and degraded paths. Logging adds signal rather than ceremony.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Bounded retry logic is documented in place",
+          "description": "connectors/src/lib.rs:65-123 and agent-core/src/gateway.rs:1-90 spell out MAX_RETRIES, the jitter formula and the per-call budget, so the resilience behaviour is reviewable without reading the loop.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "missing_docs lint drives field-level doc bloat",
+          "description": "`#![warn(missing_docs)]` in agent-protocol, a2a, acp, agent-core, llm-client and audit forces a doc line on every public item, producing restatements like `/// Agent name.` above `name: String`. The bloat is a lint artifact, not an authorship style, so it is cheap to fix at the source.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Agent scaffolding duplicated per binary",
+          "description": "Five agent binaries each carry their own ActivityEvent, emit helper and NATS subscribe loop; the copies have already diverged (triage's `&'static str` step, vuln-agent's event without workflow_run_id). New agent features must be applied in five places until this is shared.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "agent-core is speculative infrastructure",
+          "description": "AgentLoop, HttpToolGateway, CheckpointStore and Budgets are exported but never constructed outside the crate; only kill_switch_engaged and the AgentState types are consumed. This leaves the checkpoint read paths in api-server unreachable and the gateway retry contract unenforced.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

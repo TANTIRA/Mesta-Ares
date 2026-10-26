@@ -1,0 +1,21 @@
+name: identity-lockout
+description: Disable a compromised account and revoke its active sessions
+trigger: severity>=high identity
+nodes:
+  - id: start
+    kind: trigger
+    label: Identity alert escalated
+  - id: disable_user
+    kind: action
+    tool: identity.user.disable
+    args: {user: "${alert.user.name}", duration_minutes: 60}
+  - id: revoke_sessions
+    kind: action
+    tool: identity.sessions.revoke_all
+    args: {user: "${alert.user.name}"}
+  - id: done
+    kind: end
+edges:
+  - {from: start, to: disable_user}
+  - {from: disable_user, to: revoke_sessions}
+  - {from: revoke_sessions, to: done}

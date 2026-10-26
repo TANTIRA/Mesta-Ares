@@ -1,0 +1,237 @@
+{
+  "batch": "high_level_elegance",
+  "batch_index": 2,
+  "assessments": {
+    "high_level_elegance": 78.0
+  },
+  "dimension_notes": {
+    "high_level_elegance": {
+      "evidence": [
+        "Crate map is domain-aligned: 21 workspace members each name a capability (triage/response/detection/hunt/vuln-agent, policy-engine, connectors, audit, cvss, http-limits, enrichment-lib, a2a, acp); there is no util/misc/god crate (Cargo.toml:2-24)",
+        "Spec types are separated from transport: crates/a2a owns card/task types plus a transport-agnostic rpc::dispatch and the TaskBackend trait (crates/a2a/src/rpc.rs:135-157) implemented by api-server; the embedding service owns HTTP + persistence",
+        "README.md:35-36 states 'tool-server is the only path to side effects: every tool call passes the policy gate', but triage-agent writes TheHive cases and OpenSearch verdict docs directly (crates/triage-agent/src/main.rs:131-162), hunt-agent opens findings cases directly (crates/hunt-agent/src/main.rs:103), vuln-agent opens cases directly (crates/vuln-agent/src/main.rs:192), detection-agent POSTs OpenSearch alerting monitors directly (crates/detection-agent/src/pipeline.rs:203-243), and `thehive.case.create` is simultaneously a registered gated tool (crates/tool-server/src/executors/mod.rs:660)",
+        "agent-core advertises the agent runtime (crates/agent-core/src/lib.rs:1-7 and its Cargo.toml description 'Agent control loop, checkpointing, tool gateway and kill switch') but no binary constructs AgentLoop, HttpToolGateway, PostgresCheckpointer, Budgets or CheckpointStore; the only exports with production consumers are kill_switch_engaged and the AgentState type (api-server/a2a.rs:320, api-server/acp.rs:159)",
+        "The system's most safety-critical control has two implementations with divergent semantics: crates/agent-core/src/kill.rs:41-46 engages when the kill file is non-empty by byte length, crates/policy-engine/src/lib.rs:426-441 engages when the trimmed content is non-empty — a file containing only a newline engages the agents but not the policy gate",
+        "Reference docs no longer match the runtime inventory: docs/services.md:8-18 maps 9 services with no vuln-agent row and no ACP surface, while crates/api-server/src/main.rs:312-324 mounts 8 /acp routes; README.md:87 lists 11 of 21 crates and README.md:90 lists 2 of the 4 files in policies/ (rate-limits.yml and vuln-watchlist.yml are unlisted)",
+        "Top-level project contract contradicts itself: Cargo.toml:29 sets workspace license = \"MIT\" while LICENSE is the Apache-2.0 text",
+        "A new protocol subsystem did not localize its change: crates/api-server/src/ratelimit.rs:37-45 tiers POST /a2a/* as Expensive but has no /acp branch, so LLM-bearing POST /acp/runs is metered at the general read tier; docs/services.md:94-101 has no ACP row",
+        "The agent roster is defined three times and is already incomplete: crates/api-server/src/a2a.rs:76-124 hardcodes subject+kind+activity_name for 4 agents, duplicating orchestrator::route_subject (crates/orchestrator/src/main.rs:49-58) and the agent-protocol subject constants; vuln-agent never entered the roster, so it is not A2A-addressable",
+        "Positive: a single uniform binary skeleton (clap Config with env-backed args, tracing_subscriber init, Deps struct, subscribe-or-cron loop, module header listing routes/subjects) across triage/response/detection/hunt/bas-runner/orchestrator/ingestion-gateway",
+        "Positive: tool dispatch is one consistent pattern — a Tool trait keyed by the allowlist name, build_registry covering policies/tools.yml, and a missing_executors startup check that keeps the policy file and the dispatch table in sync (crates/tool-server/src/executors/mod.rs:744-786)"
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "high_level_elegance": {
+      "dimension_character": "The crate-level decomposition is genuinely legible: every top-level package names a security-operations capability, protocol types are separated from transport, and a newcomer can sketch the 21-crate map in minutes. The blur sits one layer up, in ownership claims that the runtime does not honour — README's 'tool-server is the only path to side effects', agent-core's advertised agent runtime that nothing instantiates, one kill switch implemented twice with different semantics, and a service/agent inventory that has already fallen two subsystems behind (ACP, vuln-agent). A developer therefore learns the structure quickly but learns the *responsibilities* wrongly, and pays for it the first time they touch a write path, the safety control, or the agent roster.",
+      "score_rationale": "The decomposition, naming and pattern consistency alone sit near the 90 anchor (clear ownership, only minor boundary blur). It is pulled down to the high 70s because four of the first questions a new engineer asks have wrong or missing answers in code: who owns writes (duplicated between connectors and gated tools), where the agent runtime lives (a dead crate), which kill-switch semantics apply (two implementations), and which services exist (docs list 9 of 10, README 11 of 21 crates). The defects are structural but concentrated in contract ownership rather than in the crate graph, so 78.0."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "agent_core_role_unfilled",
+      "summary": "agent-core promises the agent runtime but has no role in the running system, so 'where does an agent live?' has no answer",
+      "related_files": [
+        "crates/agent-core/src/lib.rs",
+        "crates/agent-core/src/agent_loop.rs",
+        "crates/agent-core/src/gateway.rs",
+        "crates/agent-core/src/checkpoint.rs",
+        "crates/agent-core/Cargo.toml"
+      ],
+      "evidence": [
+        "crates/agent-core/src/lib.rs:1-7 and Cargo.toml describe the crate as 'Agent control loop, checkpointing, tool gateway and kill switch for ARES'",
+        "AgentLoop::new has zero non-test callers; HttpToolGateway, PostgresCheckpointer, Budgets, CheckpointStore, AgentError and LoopOutcome appear nowhere outside crates/agent-core (grep over crates/)",
+        "The only exports reaching production code are kill_switch_engaged (api-server/kill.rs, triage/response/vuln-agent) and the AgentState/Step types read as a DB column in api-server/src/a2a.rs:320 and api-server/src/acp.rs:159",
+        "Each of the five agents instead hand-rolls its own subscribe/spawn/LLM/tool-invoke body in main.rs (triage 413 LOC, response 429, detection 280+293, hunt 248, vuln 322)"
+      ],
+      "suggestion": "Pick one owner for agent execution and make the crate honest about it: either wire AgentLoop/HttpToolGateway/PostgresCheckpointer into the agents (which also gives one resilience policy for /invoke), or delete agent_loop.rs, gateway.rs, budget.rs and checkpoint.rs and move AgentState/Step into agent-protocol next to Envelope, leaving agent-core as the kill-switch module or removing the crate. Do not leave a capability crate whose entire surface is unimported.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "architectural_change"
+    },
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "side_effect_boundary_untrue",
+      "summary": "README's core ownership claim ('tool-server is the only path to side effects') is false; agents write to TheHive/OpenSearch directly while gated tools for the same actions exist",
+      "related_files": [
+        "README.md",
+        "crates/triage-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/tool-server/src/executors/mod.rs"
+      ],
+      "evidence": [
+        "README.md:35-36: '`tool-server` is the only path to side effects: every tool call passes the policy gate before execution'",
+        "triage-agent creates TheHive cases/observables through connectors::ThehiveClient and writes the verdict doc with a raw POST to {OPENSEARCH_URL}/ares-verdicts/_doc (crates/triage-agent/src/main.rs:131-162)",
+        "hunt-agent opens findings cases directly (crates/hunt-agent/src/main.rs:103), vuln-agent opens CVE cases directly (crates/vuln-agent/src/main.rs:192), detection-agent deploys alerting monitors directly (crates/detection-agent/src/pipeline.rs:203-243) and then posts a detection.sigma.deploy ToolCall only for the audit trail — that executor is a DryRun stub (crates/tool-server/src/executors/mod.rs:730-733)",
+        "The gated equivalents exist: thehive.case.create (executors/mod.rs:660), thehive.observable.add, opensearch.query — so one capability has two owners, one policy-gated and one not",
+        "api-server also bypasses the tool layer for TheHive (crates/api-server/src/main.rs:141-153 raw POST /api/v1/query)"
+      ],
+      "suggestion": "Decide and document the real boundary. Either route the agent write paths through the registry (the tools already exist; triage/hunt/vuln would call /invoke instead of connectors), or restate the contract in README and docs/services.md as 'response actions are policy-gated; agents hold direct read clients plus TheHive/OpenSearch write clients' and name the exceptions. A central architecture claim that is only half-true is worse than an accurate narrow one.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change"
+    },
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "kill_switch_two_implementations",
+      "summary": "The global kill switch has two owners with divergent semantics: byte-length check in agent-core vs trimmed-content check in policy-engine",
+      "related_files": [
+        "crates/agent-core/src/kill.rs",
+        "crates/policy-engine/src/lib.rs",
+        "crates/api-server/src/kill.rs"
+      ],
+      "evidence": [
+        "crates/agent-core/src/kill.rs:41-46 engages on `m.is_file() && m.len() > 0` under $POLICIES_DIR",
+        "crates/policy-engine/src/lib.rs:426-441 re-implements the same control and engages on `!read_to_string(dir/kill).trim().is_empty()` under its own self.dir",
+        "A kill file containing only \"\\n\" is engaged for every agent (agent-core) and not engaged for the policy gate (policy-engine) — the safety control disagrees with itself at the exact boundary it guards",
+        "api-server reads state through agent-core (crates/api-server/src/kill.rs:9,34) while tool-server gates through policy-engine, so the console can display 'engaged' while the gate still allows calls"
+      ],
+      "suggestion": "Keep one implementation: move kill_switch_engaged into agent-protocol (both crates already depend on it), delete crates/agent-core/src/kill.rs and policy-engine's private copy, and have api-server and tool-server call the single function. Then a whitespace-only file has exactly one meaning.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "docs_inventory_drift",
+      "summary": "README and docs/services.md no longer describe the system's real inventory (crates, services, protocols, policies) and contradict the license file",
+      "related_files": [
+        "README.md",
+        "docs/services.md",
+        "Cargo.toml",
+        "LICENSE"
+      ],
+      "evidence": [
+        "README.md:87 lists 11 crates for a 21-crate workspace: vuln-agent, a2a, acp, agent-core, agent-protocol, audit, connectors, cvss, enrichment-lib, http-limits, llm-client and policy-engine are unmentioned",
+        "README.md:90 describes policies/ as 'Tool allowlist + protected assets' but the directory also holds rate-limits.yml (owned by http-limits) and vuln-watchlist.yml (owned by vuln-agent) — four policy inputs, three owners, one name",
+        "docs/services.md:8-18 has no vuln-agent row, and no ACP endpoints although api-server mounts 8 of them (crates/api-server/src/main.rs:312-324); docs/services.md:45 claims an 'LLM provider (response/detection/hunt)' resilience row while hunt-agent has no llm-client dependency at all",
+        "docs/services.md:133 already records its own drift ('console calls a nonexistent POST /hunt', 'doc promises 503 but code returns 502') — the doc admits the route table is not generated from code",
+        "Cargo.toml:29 declares license = \"MIT\" while LICENSE is Apache-2.0"
+      ],
+      "suggestion": "Regenerate the two tables from the code instead of by hand: derive the crate list from the workspace members and each binary's module header, and the service/route table from api_router(). Add vuln-agent and the ACP surface, drop the hunt LLM row, list all four policies with their owning crate, and fix Cargo.toml's license (or the LICENSE file).",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "acp_subsystem_did_not_localize",
+      "summary": "ACP landed as a second 634-line protocol front-end in api-server with no matching change to the sibling crate's shape, the rate-limit tiers, or the docs",
+      "related_files": [
+        "crates/api-server/src/acp.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/acp/src/lib.rs",
+        "crates/a2a/src/rpc.rs",
+        "crates/api-server/src/ratelimit.rs"
+      ],
+      "evidence": [
+        "The two protocol crates have asymmetric responsibilities: a2a owns the dispatcher and the TaskBackend seam (crates/a2a/src/rpc.rs:135-157), acp owns wire types only (crates/acp/src/lib.rs:1-11), so all ACP lifecycle logic (ensure_schema, load_run, wait_terminal, SSE, cancel) sits in api-server/src/acp.rs",
+        "acp.rs reaches into a2a internals (crate::a2a::AgentDef, task_uuid, terminal_step, build_payload) rather than through a shared abstraction, so the second protocol is a sibling module of the first rather than a peer",
+        "Adding ACP required no update to crates/api-server/src/ratelimit.rs:37-45 — POST /a2a/* is Expensive but /acp/runs falls through to Tier::General, under-metering the LLM-backed run path that the rate table was written to protect (docs/services.md:97)",
+        "docs/services.md rate and contract sections gained no ACP rows (docs/services.md:94-101)"
+      ],
+      "suggestion": "Make the two protocols peers: give acp the same shape as a2a (a transport-agnostic dispatcher + a backend trait in the acp crate, implemented by api-server) so both crates own their protocol and api-server owns only transport/persistence. Extend classify() with the ACP run/SSE routes in the same edit that adds a route, or drive tiers from the router table so the next protocol cannot skip them.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "agent_roster_duplicated",
+      "summary": "The agent roster (name, subject, envelope kind, activity name) is declared in three places and is already incomplete — vuln-agent is not in it",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/orchestrator/src/main.rs",
+        "crates/agent-protocol/src/lib.rs",
+        "crates/vuln-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs:76-124 hardcodes AGENTS with subject + EnvelopeKind + activity_name + skills for exactly four agents ('The four invocable Ares agents')",
+        "crates/orchestrator/src/main.rs:49-58 separately encodes the same EnvelopeKind -> subject mapping (route_subject), so routing knowledge has two owners that can disagree silently",
+        "crates/agent-protocol/src/lib.rs:16-26 holds the subject constants but not the roster, and vuln-agent declares its own subjects locally (crates/vuln-agent/src/main.rs:27-29)",
+        "vuln-agent is a full pipeline agent (322 LOC, publishes advisories, opens cases) that never entered AGENTS, so it is invisible to /a2a/agents, /acp/agents and the well-known cards"
+      ],
+      "suggestion": "Put the roster in agent-protocol next to the subject constants (name, subject, kind, activity name, description) and have both api-server's cards and orchestrator's route_subject read from it; then adding an agent is one entry, and the compiler forces the router and the interop surface to agree. Add vuln-agent as part of that move.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Contract and documentation layers were written ahead of the runtime wiring (agent-core's loop, the agent_checkpoints ownership, 'tool-server is the only path to side effects') and never reconciled once the binaries took a different shape",
+      "New subsystems (ACP, vuln-agent) were added beside existing ones instead of through the shared contract crate, so the roster, subject list, docs inventory and rate-limit tiers each lagged by one subsystem",
+      "Safety-relevant logic (kill switch) was copied rather than shared because the two consumers sit in crates that do not depend on each other"
+    ],
+    "likely_symptoms": [
+      "activity_contract_fragmented",
+      "vuln_off_contract_publish",
+      "table_ownership_doc_drift",
+      "agent_runtime_duplicated"
+    ],
+    "possible_false_positives": [
+      "connectors as one 1116-LOC adapter crate is a deliberate single seam to the external stack, not a god module — splitting it per vendor would add crates without removing knowledge",
+      "enrichment-lib's '-lib' suffix is a naming nit with no effect on role clarity; the crate owns enrichment orchestration (fan-out + Redis cache) on top of connectors"
+    ]
+  },
+  "context_updates": {
+    "high_level_elegance": {
+      "add": [
+        {
+          "header": "Crate-per-domain-capability layout",
+          "description": "Each of the 21 workspace members names a security-operations capability (per-role agents, policy-engine, connectors, audit, cvss, http-limits, enrichment-lib, protocol crates); there is no util/misc/god crate, so the top level reads as the domain map rather than as history.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Spec types separated from transport",
+          "description": "a2a/acp hold wire types and (for a2a) the transport-agnostic dispatcher plus a TaskBackend trait, while api-server owns HTTP and persistence; agent-protocol holds the internal contract. A reader can tell which crate is allowed to know about HTTP.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Uniform service binary skeleton",
+          "description": "Six binaries share one shape — clap Config with env-backed args, tracing init, a Deps struct, a subscribe-or-cron loop — and each module header lists its routes or subjects, so moving between services costs almost nothing.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Allowlist-keyed tool registry",
+          "description": "The Tool trait is keyed by the policies/tools.yml name, build_registry covers the whole allowlist, and missing_executors is a startup sanity check — the policy file and the dispatch table cannot drift apart silently.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Repo root mirrors the domain",
+          "description": "Top-level directories (crates, apps/console, policies, detection-content, bas, playbooks, evals, infra, scripts) each own one kind of artifact, so 'where does this belong?' is answered by the tree.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Declared per-service table ownership",
+          "description": "docs/services.md:20-23 names the owner of each Postgres table — a deliberate bounded-context rule. Treat it as intent, not fact: api-server's read model currently joins four tables it does not own.",
+          "settled": false,
+          "positive": false
+        },
+        {
+          "header": "connectors is the single adapter seam",
+          "description": "Seven upstream clients (OpenSearch, TheHive, Cortex, MISP, Wazuh, Shuffle, NVD) plus one retry/auth helper live in one 1116-LOC crate, so a consumer that needs one client links all seven; the tradeoff buys uniform retry and auth behaviour across every integration.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "policies/ mixes four unrelated inputs",
+          "description": "tools.yml and protected-assets.yml belong to policy-engine, rate-limits.yml to http-limits, vuln-watchlist.yml to vuln-agent — one directory, three owners, and README documents only the first two.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

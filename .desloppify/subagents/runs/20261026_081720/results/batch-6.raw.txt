@@ -1,0 +1,303 @@
+{
+  "batch": "abstraction_fitness",
+  "batch_index": 6,
+  "assessments": {"abstraction_fitness": 73.0},
+  "dimension_notes": {
+    "abstraction_fitness": {
+      "evidence": [
+        "agent-core ships a full control-loop stack (AgentLoop 273 LOC, ToolGateway/HttpToolGateway 134 LOC, CheckpointStore + both checkpointers 84 LOC, Budgets 54 LOC) but grep finds zero references outside crates/agent-core itself: no binary constructs AgentLoop, HttpToolGateway, PostgresCheckpointer or Budgets",
+        "The documented gateway resilience contract (3 retries, full-jitter backoff, retryable-verdict handling, agent-core/src/gateway.rs:14-31) is bypassed by the only production caller: response-agent defines its own InvokeResponse and invoke_tool with a single POST and no retry (crates/response-agent/src/main.rs:188-231); detection-agent posts raw too (crates/detection-agent/src/pipeline.rs:246-273)",
+        "Nothing writes agent_checkpoints: INSERT INTO agent_checkpoints exists only in PostgresCheckpointer::save, yet docs/services.md assigns the table to agent-core and both api-server/src/a2a.rs:320 and acp.rs:159 read it to infer run completion",
+        "ActivityEvent + SUBJECT_ACTIVITY exist in four near-identical copies (triage/detection/response/hunt activity.rs; diff is only doc comments and step: &'static str vs String) plus a fifth ad-hoc json!({agent,step,detail,ts}) in vuln-agent/src/main.rs:120-135 that omits workflow_run_id, so its events can never join a run in the a2a/acp SSE filters",
+        "ModelRouter is always constructed with one provider in both slots (response-agent:398, detection-agent:225, triage-agent:379: ModelRouter::new(provider.clone(), provider)) and every call site passes a single fixed tier (Strong in detection/response, Fast in triage), so the two-slot routing and the tier parameter never route anything",
+        "ConnectorConfig is a 15-field Option<String> bag whose *_client() methods construct a new client with a fresh reqwest::Client each call; build_registry invokes misp_client() 7x, thehive_client() 3x, wazuh_client() 3x (crates/tool-server/src/executors/mod.rs:674-700), i.e. 13+ independent connection pools at boot, while NvdClient is correctly shared via one Arc",
+        "triage-agent bypasses the OpenSearch client entirely: it reads conn_cfg.opensearch_url directly and re-reads OPENSEARCH_USER/PASS at call time (crates/triage-agent/src/main.rs:131-155), losing the shared retry policy, as its own module doc admits",
+        "The same four threat-intel provider calls (VirusTotal/AbuseIPDB/Shodan/GreyNoise) are implemented twice: enrichment-lib Enricher::{virustotal,abuseipdb,shodan,greynoise} (with scoring) and tool-server ProviderLookup::execute (raw passthrough); b64url is copied verbatim in both files (enrichment-lib/src/lib.rs:172, tool-server/src/executors/mod.rs:63)",
+        "JetStream-first publishing is implemented twice with the same STREAM_NAME=\"ARES\" constant (ingestion-gateway/src/nats_sink.rs:10,52-75 and api-server/src/a2a.rs:47,207-270), a third wrapper NatsBus (orchestrator/src/nats_bus.rs) only forwards subscribe/publish and adds flush, and bas-runner has a fourth plain publish helper (main.rs:171)",
+        "A2A got a transport-agnostic seam (a2a crate: rpc::dispatch + TaskBackend trait, 2 impls) while its sibling ACP surface has none: api-server/src/acp.rs (634 LOC) hand-rolls schema, load, cancel SQL and a replay→activity-filter→terminal-write-back SSE unfold that mirrors a2a.rs:528-610 almost line for line, with a different state vocabulary ('in-progress'/'cancelled' vs 'working'/'canceled')",
+        "rollback_for (crates/response-agent/src/main.rs:104-133) maps actions to blocklist.ip.remove / blocklist.domain.remove / wazuh.active_response.unisolate_host / entra.user.enable / ad.user.enable / firewall.rule.remove / o365.email.release / misp.ioc.unblock; none of these names exist in policies/tools.yml or in the executor registry, so a rollback call would be denied as 'not in allowlist', and no code ever dispatches rollback_json",
+        "EvalCtx.asset_classes (policy-engine/src/lib.rs:46) is written only by a unit test (lib.rs:630); tool-server builds EvalCtx::new() once and only bumps counters, so the protected host-class branch at lib.rs:450 is unreachable even though policies/protected-assets.yml declares host_classes — and the whole context sits behind AppState's Mutex<EvalCtx> (tool-server/src/main.rs:37), serializing every policy evaluation for a field nothing writes",
+        "Contrast with abstractions that do pay: idempotency::Store shares one pure next() transition across Pg and Mem backends (tool-server/src/idempotency.rs:97-118,180-190); http_limits::RateLimiter owns buckets/headers/429 and takes only a classify fn pointer (crates/http-limits/src/lib.rs:164-175); the Tool trait has 20+ impls behind a name-keyed registry plus a startup coverage test (tool-server/src/executors/mod.rs:24-28,674,795)",
+        "agent-protocol is a genuinely shared contract crate: Envelope/ToolCall/Decision/ToolResult/HandoffPayload plus the SUBJECT_* constants, with envelope.rs imported by 13 modules and tool.rs by 9"
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "confidence": "high",
+      "sub_axes": {
+        "abstraction_leverage": 55.0,
+        "indirection_cost": 78.0,
+        "interface_honesty": 62.0,
+        "delegation_density": 85.0,
+        "definition_directness": 79.0,
+        "type_discipline": 78.0
+      }
+    }
+  },
+  "dimension_judgment": {
+    "abstraction_fitness": {
+      "dimension_character": "The load-bearing abstractions are excellent and boring in the right way: agent-protocol is the single shared contract, the Tool trait carries 20+ executors behind one registry, the idempotency store shares a pure state machine across two backends, and the rate limiter takes policy as a fn pointer. The failures are all of one kind — abstractions that exist but are not wired: agent-core's entire agent loop, gateway and checkpointer have no production caller, ModelRouter routes between two identical providers, and the activity-event contract was copied per service instead of living in agent-protocol. A developer would trust the protocol/policy/tool layer immediately and then repeatedly discover that the orchestration layer they were told to use is bypassed by every binary.",
+      "score_rationale": "Strong, honest seams in the contract and tool layers pull the score up, and most code is direct rather than layered (no pass-through chains, only one pure forwarder, five traits of which four have two real impls). It lands in the 70s because the friction is systemic rather than isolated: an unused control-loop crate, four-to-five copies of one wire type, getters that silently construct clients, a rollback map pointing at tools that policy forbids, and a policy context field nothing populates — each one a 'why is this different / why does this exist?' moment for the next developer."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "unused_agent_loop_and_gateway",
+      "summary": "agent-core's control loop, tool gateway and checkpoint store have zero production callers; agents hand-roll the same POST /invoke",
+      "related_files": [
+        "crates/agent-core/src/agent_loop.rs",
+        "crates/agent-core/src/gateway.rs",
+        "crates/agent-core/src/checkpoint.rs",
+        "crates/agent-core/src/lib.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs"
+      ],
+      "evidence": [
+        "AgentLoop, HttpToolGateway, CheckpointStore/InMemoryCheckpointer/PostgresCheckpointer and Budgets are exported from crates/agent-core/src/lib.rs:17-24 but referenced nowhere outside the crate (grep across crates returns only agent-core's own tests)",
+        "response-agent re-declares the private InvokeResponse shape and its own invoke_tool with one POST and no retry (crates/response-agent/src/main.rs:188-231), dropping the 3-retry full-jitter contract documented in agent-core/src/gateway.rs:14-31",
+        "detection-agent posts ToolCall JSON by hand and only logs failures (crates/detection-agent/src/pipeline.rs:246-273)",
+        "No service ever writes agent_checkpoints (INSERT exists only in PostgresCheckpointer::save), while docs/services.md assigns that table to agent-core and api-server reads it as run-completion evidence (crates/api-server/src/a2a.rs:320, acp.rs:159)"
+      ],
+      "suggestion": "Pick one owner: either adopt agent-core in the agents (replace response-agent/detection-agent's hand-rolled POST with HttpToolGateway and have triage/response write checkpoints through PostgresCheckpointer), or delete agent_loop.rs, gateway.rs and checkpoint.rs and keep agent-core as kill-switch + AgentState/Step only. Adopting HttpToolGateway alone removes ~45 duplicated lines and restores the documented retry policy.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "root_cause_cluster": "designed-but-unwired_control_plane"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "activity_event_contract_copied",
+      "summary": "ActivityEvent is defined four times per agent and a fifth time inline without workflow_run_id",
+      "related_files": [
+        "crates/triage-agent/src/activity.rs",
+        "crates/detection-agent/src/activity.rs",
+        "crates/response-agent/src/activity.rs",
+        "crates/hunt-agent/src/activity.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/agent-protocol/src/lib.rs"
+      ],
+      "evidence": [
+        "The four activity.rs files differ only in doc comments and in `step: &'static str` (triage) vs `step: String` (the other three); each also re-declares SUBJECT_ACTIVITY = \"ares.activity\" and an identical emit() helper in main.rs",
+        "vuln-agent emits a bare json!({agent, step, detail, ts}) (crates/vuln-agent/src/main.rs:120-135) with no workflow_run_id, while docs/services.md specifies {workflow_run_id, agent, step, detail, ts} and both SSE filters key on workflow_run_id (api-server/src/a2a.rs:600, acp.rs:560)",
+        "agent-protocol already owns the other NATS subjects (SUBJECT_ALERTS..SUBJECT_BAS) but not SUBJECT_ACTIVITY, so the console contract has no single definition"
+      ],
+      "suggestion": "Move ActivityEvent and SUBJECT_ACTIVITY into agent-protocol (next to the other subjects), delete the four activity.rs copies and the five emit() helpers, and have vuln-agent construct the same struct so its events carry workflow_run_id.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "wire_contract_copied_per_service"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "model_router_never_routes",
+      "summary": "ModelRouter's two-provider tiering is constructed with one provider and called with one fixed tier at every site",
+      "related_files": [
+        "crates/llm-client/src/lib.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/detection-agent/src/main.rs",
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "All three construction sites pass the same provider twice: ModelRouter::new(provider.clone(), provider) (response-agent/src/main.rs:398, detection-agent/src/main.rs:225, triage-agent/src/main.rs:379)",
+        "Each call site hardcodes one tier: router.complete(ModelTier::Strong, ..) in detection/pipeline.rs:43 and response-agent/main.rs:147; router.complete(ModelTier::Fast, ..) in triage-agent/main.rs:116",
+        "route() (llm-client/src/lib.rs:137) is only reachable through complete(), so the fast/strong fields and the ModelTier parameter never select anything different"
+      ],
+      "suggestion": "Replace `router: Arc<ModelRouter>` with `Arc<dyn LlmProvider>` in the three agents and call provider.complete(&req) directly; keep fast_model()/strong_model() as the tier signal since they already pick the model name. Re-introduce a router only when a genuinely different provider backs a tier.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "designed-but-unwired_control_plane"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "connector_config_factory_getters",
+      "summary": "ConnectorConfig is a flat 15-field env bag whose *_client() getters construct new clients on every call",
+      "related_files": [
+        "crates/connectors/src/lib.rs",
+        "crates/tool-server/src/executors/mod.rs",
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "15 public Option<String> fields (connectors/src/lib.rs:683-699) expose per-service credentials flatly, hiding which fields belong to which client",
+        "Each *_client() builds a fresh client that owns a new reqwest::Client (OpensearchClient::new, MispClient::new, ... all call Client::new()); build_registry calls misp_client() 7x, thehive_client() 3x, wazuh_client() 3x (tool-server/src/executors/mod.rs:679-700)",
+        "NvdClient is the one exception — Arc::new(cfg.nvd_client()) is shared across the three nvd tools — which shows the intended pattern exists but was applied once",
+        "triage-agent reads conn_cfg.opensearch_url directly and re-reads OPENSEARCH_USER/PASS in write_fp_verdict (crates/triage-agent/src/main.rs:131-155), bypassing the client and its retry policy"
+      ],
+      "suggestion": "Make ConnectorConfig hold constructed clients (or have build_registry construct each once and pass Arc clones to every executor) and rename the remaining constructors to connect_*/build_* so a getter never allocates. Add an OpensearchClient::index_doc method so triage stops hand-rolling the _doc POST.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "config_bag_and_factory_getters"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "duplicate_threat_intel_providers",
+      "summary": "VirusTotal/AbuseIPDB/Shodan/GreyNoise integrations are implemented twice, with b64url copied verbatim",
+      "related_files": [
+        "crates/enrichment-lib/src/lib.rs",
+        "crates/tool-server/src/executors/mod.rs"
+      ],
+      "evidence": [
+        "Enricher::{virustotal,abuseipdb,shodan,greynoise} (enrichment-lib/src/lib.rs:300-410) and ProviderLookup::execute (tool-server/src/executors/mod.rs:398-470) issue the same URLs, headers and query parameters for the same four providers",
+        "The two copies diverge in behaviour: Enricher normalizes to EnrichmentResult with a score, ProviderLookup returns the raw provider body, so scoring logic cannot be reused by tool callers",
+        "b64url is duplicated byte-for-byte (enrichment-lib/src/lib.rs:172-192 and tool-server/src/executors/mod.rs:63-83), flagged by the exact-dupe detector"
+      ],
+      "suggestion": "Add one thin per-provider client (or a single `threat_intel` module in connectors returning raw Value keyed by provider) and have both Enricher and ProviderLookup call it; delete the second b64url copy.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "duplicate_external_integrations"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "nats_publish_wrappers_triplicated",
+      "summary": "Three NATS publish wrappers plus a fourth inline helper, with JetStream bootstrap duplicated",
+      "related_files": [
+        "crates/ingestion-gateway/src/nats_sink.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/orchestrator/src/nats_bus.rs",
+        "crates/bas-runner/src/main.rs"
+      ],
+      "evidence": [
+        "NatsSink::connect/ensure_stream/publish (ingestion-gateway/src/nats_sink.rs:27-75) and a2a::ensure_jetstream/publish (api-server/src/a2a.rs:207-270) implement the same 'JetStream if the ARES stream exists, else plain publish' policy with STREAM_NAME=\"ARES\" declared in both files",
+        "NatsBus (orchestrator/src/nats_bus.rs) is a three-method forwarder: subscribe and publish_envelope delegate to the client, publish_raw adds only flush()",
+        "bas-runner has its own publish helper that always uses plain NATS (crates/bas-runner/src/main.rs:171-183), so envelope transport differs per service"
+      ],
+      "suggestion": "Keep one JetStream-first publisher (move NatsSink into agent-protocol or a small nats-support crate) and have api-server, orchestrator and bas-runner use it; delete NatsBus and the bas-runner helper.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "duplicate_transport_wrappers"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "acp_duplicates_a2a_run_machinery",
+      "summary": "ACP re-implements the run store, state machine and SSE loop that A2A already factored behind TaskBackend",
+      "related_files": [
+        "crates/api-server/src/acp.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/a2a/src/rpc.rs"
+      ],
+      "evidence": [
+        "a2a got a transport-agnostic dispatcher plus TaskBackend trait in its own crate (a2a/src/rpc.rs:120-135, 152-212); acp (api-server/src/acp.rs, 634 LOC) has no seam and calls sqlx directly from handlers",
+        "The SSE generators are near-identical: replay → filter ares.activity by correlation id → terminal-step write-back → keep-alive 15s (acp.rs:500-580 run_stream vs a2a.rs:528-610 task_events), including the same St struct fields and closing/done flags",
+        "Cancellation is the same UPDATE ... WHERE status NOT IN (terminal) pattern twice, with different vocabularies ('canceled' in a2a_tasks, 'cancelled' in acp_runs) and different default-on-unknown parsing",
+        "The boundary translation is lossy and ad hoc: ACP flattens all message parts to text (input_to_text, acp.rs:221-233) before wrapping them in a2a::task::Message::user_text"
+      ],
+      "suggestion": "Give ACP the same treatment A2A already has: generalize TaskBackend over a run record (or implement ACP runs on top of the A2A task store) so one implementation owns schema, terminal-state folding and the activity SSE stream, and share one state vocabulary.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "architectural_change",
+      "root_cause_cluster": "asymmetric_protocol_seams"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "rollback_tools_never_exist",
+      "summary": "rollback_for names inverse tools that neither policy nor the registry defines, and nothing dispatches rollback_json",
+      "related_files": [
+        "crates/response-agent/src/main.rs",
+        "policies/tools.yml",
+        "crates/tool-server/src/executors/mod.rs",
+        "docs/services.md"
+      ],
+      "evidence": [
+        "rollback_for maps to blocklist.ip.remove, blocklist.domain.remove, wazuh.active_response.unisolate_host, entra.user.enable, ad.user.enable, firewall.rule.remove, o365.email.release, misp.ioc.unblock (crates/response-agent/src/main.rs:104-133)",
+        "policies/tools.yml contains only the .add variants (blocklist.ip.add, blocklist.domain.add, misp.ioc.block, ...) and the registry has no executor for any inverse name, so any such call would be denied as 'tool not in allowlist'",
+        "rollback_json is only written (response-agent/src/main.rs:309-323) and read back for display by GET /plans/{case_id} (api-server/src/main.rs:261); no code ever submits a rollback ToolCall",
+        "docs/services.md still promises 'a rollback tool call inverts it (isolate→unisolate, block→unblock)'"
+      ],
+      "suggestion": "Either make compensation real (add the inverse tools to policies/tools.yml, register their executors, and dispatch rollback_json when a later plan step fails) or delete rollback_for and the column and correct docs/services.md. A rollback map that cannot execute is a promise the code cannot keep.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "designed-but-unwired_control_plane"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "eval_ctx_unpopulated_asset_classes",
+      "summary": "EvalCtx.asset_classes is a public field no production code fills, making the protected host-class check unreachable",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs",
+        "crates/tool-server/src/main.rs",
+        "policies/protected-assets.yml"
+      ],
+      "evidence": [
+        "EvalCtx.asset_classes is a pub HashMap<String,String> (policy-engine/src/lib.rs:46); its only writer in the repo is the unit test at lib.rs:630",
+        "tool-server constructs EvalCtx::new() once and never inserts into asset_classes (tool-server/src/main.rs:99-102), so the branch at lib.rs:450 (`host_classes.contains(class)`) can never match, even though policies/protected-assets.yml declares host_classes: [domain_controller, pki_ca, siem_node, soar_control]",
+        "The whole context sits behind AppState's Mutex<EvalCtx> (tool-server/src/main.rs:37), serializing every policy evaluation so that a single-threaded map can be mutated by callers that do not exist"
+      ],
+      "suggestion": "Drop asset_classes from EvalCtx and resolve host classes inside PolicyEngine::load from protected-assets.yml (or a loaded asset inventory), so the check works without a context field. Then EvalCtx holds only the Arc<DashMap> counters and the outer Mutex can go.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "config_bag_and_factory_getters"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "A control-plane layer (agent loop, gateway, checkpoint store, model router) was designed up front and never adopted by the agent binaries, leaving documented resilience and resume contracts with no implementation in the running system",
+      "Wire contracts that more than one service speaks (activity events, JetStream publish, threat-intel provider calls) were copied per service instead of being placed in agent-protocol or connectors",
+      "Configuration is read from the environment at call sites, so 'getters' double as factories and each call site can drift into its own client, retry policy or URL handling"
+    ],
+    "likely_symptoms": [
+      "rollback_tools_never_exist",
+      "eval_ctx_unpopulated_asset_classes",
+      "model_router_never_routes"
+    ],
+    "possible_false_positives": [
+      "structural large-file findings for policy-engine/src/lib.rs, tool-server/src/executors/mod.rs, api-server/src/a2a.rs and enrichment-lib/src/lib.rs — each is a cohesive single-purpose surface (one policy engine, one executor registry, one protocol, one enricher); file size is not indirection and should not be counted as an abstraction defect",
+      "The Tool trait's name-discriminated structs (ProviderLookup, NvdTool, EntraUser, DryRun) look like a stringly-typed dispatch smell but are a deliberate tradeoff that keeps one impl per provider family and one registry entry per allowlist name"
+    ]
+  },
+  "context_updates": {
+    "abstraction_fitness": {
+      "add": [
+        {
+          "header": "agent-protocol is the one shared contract crate",
+          "description": "Envelope/EnvelopeKind, ToolCall/Decision/ToolResult, HandoffPayload and the SUBJECT_* constants live in one crate imported by 13 modules, so services exchange one message type instead of per-service copies. This is why cross-service changes stay local.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Tool trait pays for itself across 20+ executors",
+          "description": "One dispatch seam (name + execute) behind a name-keyed registry, with a startup test asserting registry coverage of policies/tools.yml and a missing_executors sanity check. Adding a tool is one impl plus one put() call.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Idempotency shares one pure state machine",
+          "description": "idempotency::next() is a pure KeyState->Claim transition used by both the Postgres and DashMap backends, so the three-state policy (absent/in_flight/complete/failed) is written once and the enum Store only dispatches storage.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Rate limiter takes policy as a function pointer",
+          "description": "http_limits owns buckets, headers, 429 shaping and the stream semaphore; api-server and ingestion-gateway supply only a classify fn, so the two edge surfaces cannot drift on limit semantics.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "PolicyEngine is concrete, not a trait",
+          "description": "A single PolicyEngine type with one evaluate() boundary and a documented, load-bearing check order. No interface ceremony around the authorization gate, which keeps the security path auditable.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Name-discriminated executors inside the Tool trait",
+          "description": "ProviderLookup, NvdTool, EntraUser, MispAttribute, WazuhActiveResponse, ShuffleWorkflow and DryRun each carry a name (or command) field and switch on it inside execute(), so one impl serves several allowlist names. Tradeoff: fewer types and registry entries, at the cost of string dispatch and a five-branch execute in ProviderLookup.",
+          "settled": false
+        },
+        {
+          "header": "api-server AppState is a wide dependency bag",
+          "description": "Eight heterogeneous fields (opensearch, pool, http, nvd, enricher, activity_tx, nats, jetstream) threaded through axum State. Standard for the framework, so the coupling cost is local to handlers rather than a layering problem.",
+          "settled": false
+        },
+        {
+          "header": "Two protocol type families coexist",
+          "description": "a2a (Task/Message/Part) and acp (Run/Message/MessagePart) model the same 'run an agent with messages' concept separately, and ACP converts to A2A messages at the boundary. Deliberate spec-fidelity choice, but it doubles the lifecycle code.",
+          "settled": false
+        }
+      ]
+    }
+  }
+}

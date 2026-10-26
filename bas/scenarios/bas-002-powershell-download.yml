@@ -1,0 +1,11 @@
+# Atomic Red Team T1059.001 — "PowerShell Invoke-DownloadCradle" (encoded form)
+id: bas-002
+name: Encoded PowerShell download cradle
+techniques: [T1059.001]
+target: windows-endpoint
+executor:
+  platform: windows
+  # base64 of "whoami /priv" — download-shaped encoded command, harmless payload
+  command: >-
+    powershell.exe -NoProfile -enc
+    dwBoAG8AYQBtAGkAIAAvAHAAcgBpAHYA

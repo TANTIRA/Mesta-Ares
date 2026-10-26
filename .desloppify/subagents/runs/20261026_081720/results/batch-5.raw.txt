@@ -1,0 +1,250 @@
+{
+  "batch": "naming_quality",
+  "batch_index": 5,
+  "assessments": {"naming_quality": 88.5},
+  "dimension_notes": {
+    "naming_quality": {
+      "evidence": [
+        "Contract crates name types after the role they play and the payload they carry: Envelope/EnvelopeKind, ToolCall/Decision/DecisionKind::ApprovalRequired, ToolResult::is_retryable/retryable, HandoffPayload{goal,constraints,artifacts,open_questions}, AuditEvent{prev_hash,hash} — a developer predicts the shape from the name before reading the definition",
+        "The detection pipeline reads as its own order of operations: draft_sigma -> validate_sigma -> write_pending -> to_lucene -> backtest -> promote_and_commit -> deploy_monitor -> audit_deploy (crates/detection-agent/src/pipeline.rs)",
+        "Predicates use honest boolean names: is_retryable (agent-protocol/src/tool.rs:69), is_terminal (a2a/src/task.rs:36, acp/src/lib.rs:154), is_truthy (agent-core/src/kill.rs:21), is_uninteresting (enrichment-lib/src/lib.rs:58), budget_exceeded (agent-core/src/agent_loop.rs:54)",
+        "Idempotency vocabulary is precise and documented as a state machine: KeyState::{Absent,InFlight,Complete,Failed}, Claim::{Execute,Replay,Mismatch,InFlight}, next(), fingerprint(), claim()/finish() (tool-server/src/idempotency.rs:47-209)",
+        "Rate limiter names expose the algorithm: Tier/TierSpec{per_second,burst}, Bucket{tokens,last_seen}, Outcome::Allowed{remaining,reset}/Limited{retry_after,reset}, purge_idle, limited_response (http-limits/src/lib.rs)",
+        "CVSS helpers keep the FIRST spec's own abbreviations (av/ac/pr/ui/cia, m, roundup, max_composed, macro_vector) so a reader of the spec maps them instantly (crates/cvss/src/v31.rs, v40.rs)",
+        "Acronyms are consistently camel-cased as single words across the workspace: ThehiveClient, OpensearchClient, MispClient, NvdClient, CveRecord, CvssMetric, IocSet — no mixed TheHiveClient/CVE spellings",
+        "workflow_run_id is a deliberate, documented wire alias for Envelope.correlation_id (docs/services.md:81; consumed by the console SSE feed), not vocabulary drift",
+        "Generic verbs are rare but land at the top of the call graph where they cost most: `process` handles an entire triage/response envelope (triage-agent/src/main.rs:253, response-agent/src/main.rs:235) while sibling binaries call the same concept run_cycle (detection-agent:138), run_sweep (hunt-agent:131), handle_message (orchestrator:61)",
+        "tool-server inverts its two execution verbs: `execute()` (main.rs:109) only claims/replays idempotency records and delegates, while `run_tool()` (main.rs:151) is the function that actually runs the tool",
+        "Two local SSE state structs are named `St` and carry seven fields each (api-server/src/a2a.rs:553, api-server/src/acp.rs:506), so the reader must decode the abbreviation and then the fields",
+        "policy-engine's Impact enum mixes axes: Read/Write are access kinds, High is an intensity; the guard reads `if tool.policy.impact != Impact::Read` (lib.rs:375) and the variant is set from the YAML value `high` (lib.rs:69-73)",
+        "cvss v31 `fn num()` returns a metric's letter value (`num(&map, \"C\")` -> \"H\"), not a number, and errors when the metric is missing (v31.rs:11-25, used at v31.rs:151+)",
+        "Insert-and-report helpers use opposite boolean polarities: DedupeStore::check_and_mark returns true for duplicate (orchestrator/src/dedupe.rs:33) while record_advisory returns true for newly inserted (vuln-agent/src/main.rs:161)",
+        "Executor type names drift from the tool names they serve and from each other: NvdTool/CvssScoreTool carry a `Tool` suffix that the other ~18 executors omit (MispSearch, ThehiveCase, WazuhAgents), and DryRun names a returned payload rather than the stub executor (tool-server/src/executors/mod.rs:103,183,564,633,649)"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "Names are precise almost everywhere; the remaining friction is a handful of generic verbs at the top of each service (process, execute, handle_message), one opaque St struct duplicated twice, and two choices that read against the surrounding vocabulary (Impact::High, boolean polarity in the two insert-and-report helpers)."
+    }
+  },
+  "dimension_judgment": {
+    "naming_quality": {
+      "dimension_character": "Naming is a genuine strength of this codebase: protocol types, pipeline stages, state machines and predicates are named for the role they play, and nearly every module opens with a doc header that fixes its vocabulary before the code uses it. The defects are localized and shallow — a few generic verbs sitting exactly where a newcomer enters (the per-envelope handler, the tool dispatch path), one opaque `St`, and a couple of variant/polarity choices that read against the neighbouring names. Nothing systemic: the same developer who trips on `execute`/`run_tool` in tool-server will read `draft_sigma`/`promote_and_commit` and know the pipeline order without opening the file.",
+      "score_rationale": "The codebase sits at the 90 anchor — names are mostly precise and a handful require a second look — with the second look concentrated in tool-server's execute/run_tool inversion and the two `process` handlers, which is why it lands slightly below. It is clearly above the 80 anchor: I found no case of routine ambiguity, and generic verbs (process, execute, handle) appear in single digits across 13.7k LOC. The positives are structural rather than cosmetic — vocabulary is defined per module and held consistently across five agent binaries, so the isolated defects do not undermine the pattern."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "naming_quality",
+      "identifier": "tool_server_execute_verb_inversion",
+      "summary": "tool-server's `execute()` does not execute the tool; `run_tool()` does — the two verbs are inverted",
+      "related_files": [
+        "crates/tool-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/main.rs:109 `async fn execute(state, call)` never calls `tool.execute`; it resolves `idem_key`, calls `state.idem.claim`, and returns a stored/replayed ToolResult or delegates",
+        "crates/tool-server/src/main.rs:151 `async fn run_tool(state, call)` is the function that looks up the executor and calls `tool.execute(&call.args)`",
+        "crates/tool-server/src/main.rs:91 the dispatch site reads `DecisionKind::Allow => execute(&state, &call).await`, so the reader expects the tool to run there"
+      ],
+      "suggestion": "Rename `execute` to `execute_idempotent` (it is the claim/replay wrapper) and rename `run_tool` to `execute`, so the name matches the work at each level and the call at main.rs:91 reads as the execution it performs.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "generic_verb_handlers"
+    },
+    {
+      "dimension": "naming_quality",
+      "identifier": "generic_process_envelope_handlers",
+      "summary": "`process` names the whole per-envelope handler in two agents while three sibling binaries use distinct, descriptive verbs",
+      "related_files": [
+        "crates/triage-agent/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/detection-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/orchestrator/src/main.rs"
+      ],
+      "evidence": [
+        "crates/triage-agent/src/main.rs:253 `async fn process(deps: &Deps, envelope: &Envelope)` runs IOC extraction, enrichment, the LLM verdict, case creation and handoff",
+        "crates/response-agent/src/main.rs:235 `async fn process(deps: &Deps, envelope: &Envelope)` builds a plan and executes every action",
+        "Siblings name the same concept concretely: `run_cycle` (crates/detection-agent/src/main.rs:138), `run_sweep` (crates/hunt-agent/src/main.rs:131), `handle_message` (crates/orchestrator/src/main.rs:61)",
+        "The triage call site reads `process(&deps, &envelope).instrument(span).await` (main.rs:404), giving no hint of what is processed or into what"
+      ],
+      "suggestion": "Rename both to `handle_envelope` (or `triage_envelope` / `respond_to_envelope`) and use one verb for the per-envelope entry point across the five binaries, so a reader moving between agent crates finds the same name for the same role.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "generic_verb_handlers"
+    },
+    {
+      "dimension": "naming_quality",
+      "identifier": "sse_state_struct_st",
+      "summary": "`struct St` is the name of the seven-field SSE stream state in two files",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs:553 `struct St { rx, pool, task_id, agent, run_id, replay, closing, done }`",
+        "crates/api-server/src/acp.rs:506 the same `struct St` with a near-identical field set for ACP runs",
+        "Both are read throughout their `futures::stream::unfold` bodies (`st.replay`, `st.closing`, `st.done`), so the abbreviation is the only handle the reader gets for the stream's state machine"
+      ],
+      "suggestion": "Rename to `TaskStreamState` (a2a.rs) and `RunStreamState` (acp.rs); if the two converge, hoist one shared `ActivityStreamState` next to `ActivityTx` in api-server/src/stream.rs rather than keeping two copies.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "naming_quality",
+      "identifier": "impact_enum_mixed_axes",
+      "summary": "`Impact::{Read, Write, High}` mixes an access kind with an intensity, so `Impact::High` reads wrong at every guard",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/policy-engine/src/lib.rs:69-73 `pub enum Impact { Read, Write, High }` — two variants classify access, the third classifies severity",
+        "crates/policy-engine/src/lib.rs:375 `if tool.policy.impact != Impact::Read` reads as \"not read\" but means \"write or high impact\"",
+        "The YAML vocabulary in policies/tools.yml uses `high` alongside `read`/`write`, so the wire value is fixed even if the Rust variant is clarified"
+      ],
+      "suggestion": "Rename the variant to `HighImpact` (keeping `#[serde(rename = \"high\")]` so policies/tools.yml is unchanged) so the enum reads as one axis: Read, Write, HighImpact.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "naming_quality",
+      "identifier": "cvss_required_metric_named_num",
+      "summary": "cvss v31 `fn num()` returns a metric's letter value, not a number",
+      "related_files": [
+        "crates/cvss/src/v31.rs"
+      ],
+      "evidence": [
+        "crates/cvss/src/v31.rs:11 `fn num<'a>(map, key) -> Result<&'a str, CvssError>` returns the raw metric value such as \"H\" and errors with MissingMetric when absent",
+        "Call sites read `num(&map, \"C\")?`, `num(&map, \"AV\")?` (v31.rs:151-170), suggesting a numeric lookup that does not exist",
+        "The v40 sibling does the same job without the misleading name, via a direct map lookup plus an explicit MissingMetric error (v40.rs:252-258)"
+      ],
+      "suggestion": "Rename `num` to `required_metric` (and drop the identity `match key { \"AV\" => \"AV\", ... }` arms while there) so the v31 helper names the guarantee it provides, matching the v40 path.",
+      "confidence": "medium",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "naming_quality",
+      "identifier": "insert_helper_boolean_polarity",
+      "summary": "Two insert-and-report helpers return bools with opposite meanings (true = duplicate vs true = newly inserted)",
+      "related_files": [
+        "crates/orchestrator/src/dedupe.rs",
+        "crates/vuln-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/orchestrator/src/dedupe.rs:33-41 `check_and_mark` inserts the key and returns `Ok(res.rows_affected() == 0)`, i.e. true means already seen",
+        "crates/vuln-agent/src/main.rs:161-185 `record_advisory` inserts the advisory and returns `Ok(inserted.is_some())`, i.e. true means new",
+        "The orchestrator call site needs the doc comment to disambiguate: `Ok(true) => { info!(\"duplicate alert; skipped\") }` (orchestrator/src/main.rs:94-98)"
+      ],
+      "suggestion": "Put the polarity in the name: `mark_seen_and_report_duplicate` in dedupe.rs (still true = duplicate) and `insert_advisory_if_new` in vuln-agent, so both call sites read correctly without consulting the docstring.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "naming_quality",
+      "identifier": "executor_type_name_drift",
+      "summary": "Executor structs drift from the tool names they serve, and only 2 of ~20 carry a `Tool` suffix",
+      "related_files": [
+        "crates/tool-server/src/executors/mod.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/executors/mod.rs:564 `struct NvdTool` and :633 `struct CvssScoreTool` are the only two executor types with a `Tool` suffix; the rest are MispSearch (:183), ThehiveCase (:103), WazuhAgents (:314), SlackNotify (:532)",
+        "crates/tool-server/src/executors/mod.rs:649 `struct DryRun` is the stub executor for tools with no backend; its name describes the JSON payload it returns (`dry_run(args)` at :35) rather than the executor",
+        "crates/tool-server/src/executors/mod.rs:103 `ThehiveCase` serves the tool name `thehive.case.create` (returned at :108), so the type name and the tool name diverge",
+        "The registry at :668-779 pairs each type with a different tool name in some cases (MispAttribute serves both `misp.attribute.add` and `misp.ioc.block`)"
+      ],
+      "suggestion": "Drop the suffix (`NvdLookup`, `CvssScore`) so all executors follow the verb/noun pattern of their neighbours, rename `DryRun` to `StubExecutor`, and make each struct name a readable contraction of the tool it registers (`ThehiveCaseCreate`).",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "naming_quality",
+      "identifier": "tool_arg_alias_vocabulary",
+      "summary": "Tool argument names drift per executor and are masked by alias lists of two to six keys",
+      "related_files": [
+        "crates/tool-server/src/executors/mod.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/executors/mod.rs:194 and :241 the MISP search tools accept `[\"value\", \"ioc\", \"query\"]` for the same argument",
+        "crates/tool-server/src/executors/mod.rs:398 ProviderLookup accepts `[\"ioc\", \"value\", \"ip\", \"domain\", \"hash\", \"url\"]` — six names for one input",
+        "crates/tool-server/src/executors/mod.rs:177 CortexAnalyzer accepts `[\"data\", \"observable\"]` and :131 accepts `[\"case_id\", \"id\"]`, so no single canonical name exists per concept"
+      ],
+      "suggestion": "Declare one canonical argument name per concept in each executor's doc comment (`ioc`, `case_id`, `data`) and trim the alias lists to canonical + at most one legacy spelling, so a developer or planner prompt has a single name to target.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Generic verbs cluster at the top of each service (process/execute/handle) because those entry points were named by role-in-the-service rather than by the work performed",
+      "Executor and argument naming grew per-connector instead of from a shared tool-name vocabulary, which is why alias lists accumulated",
+      "Two SSE handlers were written independently (a2a, acp), so each grew its own ad-hoc `St` state struct instead of reusing one named type"
+    ],
+    "likely_symptoms": [
+      "process (triage/response mains)",
+      "execute / run_tool (tool-server)",
+      "St (a2a, acp)",
+      "num (cvss v31)",
+      "DryRun (executors)"
+    ],
+    "possible_false_positives": [
+      "workflow_run_id looks like drift from correlation_id but is a documented wire alias (docs/services.md:81) consumed by the console",
+      "`os`, `pg`, `Deps`, `idem` are terse but used consistently across five binaries, so they read as conventions rather than outliers"
+    ]
+  },
+  "context_updates": {
+    "naming_quality": {
+      "add": [
+        {
+          "header": "Protocol types named after their contract role",
+          "description": "Envelope/EnvelopeKind, ToolCall/Decision/DecisionKind, ToolResult, HandoffPayload and AuditEvent mirror the docs and each field carries a doc comment, so a developer predicts the payload shape from the type name alone. This is why cross-crate work needs little code reading.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Pipeline functions named as ordered stages",
+          "description": "detection-agent's draft_sigma -> validate_sigma -> write_pending -> to_lucene -> backtest -> promote_and_commit -> deploy_monitor sequence reads as the pipeline itself, so the order is legible from call sites instead of from comments.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Honest predicate names",
+          "description": "is_retryable, is_terminal, is_truthy, is_uninteresting and budget_exceeded return exactly what their names claim and are used consistently, so boolean conditions read correctly without checking bodies.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Domain-standard abbreviations preserved",
+          "description": "cvss keeps the FIRST spec's own tokens (av/ac/pr/ui/cia/m, macro_vector, max_composed) and connectors keeps NVD field names, so anyone holding the spec can map the code immediately; renaming them would break that link.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "workflow_run_id is a documented wire alias",
+          "description": "Activity events rename Envelope.correlation_id to workflow_run_id, and docs/services.md:81 defines the mapping while the console SSE feed consumes the wire name. The two names are a deliberate external contract, not vocabulary drift.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Acronyms camel-cased as single words",
+          "description": "ThehiveClient, OpensearchClient, MispClient, NvdClient, CveRecord, CvssMetric and IocSet all treat acronyms the same way, so the workspace has one spelling rule rather than mixed TheHive/CVE variants.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Terse dependency structs are a shared convention",
+          "description": "Every agent binary carries a `Deps` struct with fields like `os`, `pg`, `idem`, `hive`, `misp`; the shape repeats across five crates and the client type is declared on the field, so the brevity aids scanning rather than hiding meaning.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

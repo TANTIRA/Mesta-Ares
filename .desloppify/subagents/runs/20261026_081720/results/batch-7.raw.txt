@@ -1,0 +1,249 @@
+{
+  "batch": "dependency_health",
+  "batch_index": 7,
+  "assessments": {"dependency_health": 78.0},
+  "dimension_notes": {
+    "dependency_health": {
+      "evidence": [
+        "Dependency set is small and cohesive: 21 workspace members, 22 external deps declared once in [workspace.dependencies] (Cargo.toml:32-59), 367 packages in Cargo.lock for ~12.7k LOC; one async runtime (tokio), one HTTP client (reqwest), one JSON codec (serde_json), one date lib (chrono), one hash (sha2) - no competing alternatives of the moment/dayjs or axios/fetch kind",
+        "reqwest is built with BOTH TLS stacks: workspace spec is `reqwest = { version = \"0.12\", features = [\"json\", \"rustls-tls\"] }` (Cargo.toml:36) without `default-features = false`, so reqwest's default `default-tls` stays on; `cargo tree -p api-server -i reqwest -e features` shows `default-tls` and `rustls-tls` enabled together and Cargo.lock pins native-tls 0.2.18 (:1749), openssl 0.10.81 (:1912), hyper-tls 0.6.0 (:1345) next to rustls 0.23.46 (:2510) and hyper-rustls 0.27.10 (:1329)",
+        "infra/Dockerfile.rust-service:9-11 installs pkg-config + libssl-dev only because openssl-sys is in the graph - the duplicate TLS backend has a real build cost",
+        "serde_yaml resolves to 0.9.34+deprecated (Cargo.lock:2736) - upstream is archived/unmaintained - yet it parses every YAML config and detection artifact in six crates (policy-engine/src/lib.rs:271,293; http-limits/src/lib.rs:101; api-server/src/coverage.rs:42, playbooks.rs:41, acp.rs:342; bas-runner/src/scenario.rs:58; detection-agent/src/pipeline.rs:62; vuln-agent/src/main.rs:75)",
+        "Nine declared [dependencies] entries are never referenced by any token in their crate's src: crates/a2a/Cargo.toml:12 uuid, crates/acp/Cargo.toml:12 uuid, crates/agent-protocol/Cargo.toml:15 async-trait, crates/audit/Cargo.toml:11 serde + :22 async-trait, crates/cvss/Cargo.toml:11 serde_json, crates/enrichment-lib/Cargo.toml:13 tokio, crates/ingestion-gateway/Cargo.toml:12 serde, crates/orchestrator/Cargo.toml:10 serde",
+        "Cargo.toml:46 declares `pgvector = { version = \"0.4\", features = [\"sqlx\"] }` but no crate consumes it and the package is absent from Cargo.lock; the workspace sqlx spec (Cargo.toml:45) contains no `pgvector` feature, so the justification comments at crates/agent-core/Cargo.toml:18-19 and crates/audit/Cargo.toml:13-14 describe a problem that no longer exists, leaving three independent sqlx pins",
+        "tokio is inherited as `features = [\"full\"]` by every member (Cargo.toml:34) although library crates use a sliver of it - crates/connectors/src/lib.rs:16-17 imports only tokio::sync::Mutex and tokio::time::sleep, and crates/enrichment-lib declares tokio without using it at all; redis keeps its default features (acl, streams, geospatial, script, keep-alive) although enrichment-lib/src/lib.rs:218-275 only calls Client::open + set_ex",
+        "Version pinning is split: 10 of 21 crates declare at least one external dep inline (async-trait = \"0.1\" in 7 manifests, regex = \"1\" in 2, fastrand = \"2\" in 2, jsonschema = \"0.30\" in 1) while the other 10 inherit everything from [workspace.dependencies]",
+        "rust-version = \"1.80\" is set once (Cargo.toml:30) but only 11 of 21 crates inherit it; CI uses dtolnay/rust-toolchain@stable (.github/workflows/ci.yml:12) and the release image uses RUST_VERSION 1.82 (infra/Dockerfile.rust-service:4), so nothing ever compiles at the declared MSRV",
+        "No supply-chain gate exists: cargo build/clippy/test run without --locked (infra/Dockerfile.rust-service:13, .github/workflows/ci.yml:18-19) and there is no cargo audit / cargo deny / cargo machete / cargo udeps step anywhere",
+        "Transitive duplication is modest and mostly upstream-driven: base64 0.22/0.23, hashbrown 0.14/0.15/0.17, rand 0.8/0.10, syn 2/3, webpki-roots 0.26/1.0, getrandom 0.2/0.3/0.4 - this is what the existing clippy::multiple_crate_versions hit on crates/connectors/src/lib.rs is reporting",
+        "Internal dependency graph is a DAG by construction: every internal edge is a path dep pointing down the layer stack (agent-protocol -> llm-client -> agent-core -> agent crates; tool-server -> policy-engine/cvss/audit/connectors), and no dev-dependency cycle exists (only a2a/llm-client/policy-engine dev-depend on tokio, http-limits on tower)",
+        "Dev-dependencies are deliberately thin - tokio for #[tokio::test] and tower for ServiceExt in http-limits tests - so test tooling adds no production weight"
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "dependency_health": {
+      "dimension_character": "The dependency set is small, acyclic and mostly purposeful: one runtime, one HTTP client, one JSON/date/hash library each, workspace-inherited versions, and a thin dev-dependency surface. The drift that does exist is concentrated and very visible - reqwest links both OpenSSL and rustls, an archived YAML parser sits on every config path, nine declared dependencies are never referenced, and a dead pgvector entry coexists with two crates that bypass workspace inheritance for a reason their comments no longer support. A developer would trust the shape of the set but hit recurring 'why is this declared?' and 'why is this compiled twice?' moments.",
+      "score_rationale": "The rubric's 80 anchor is exactly 'duplicate libraries for the same purpose, heavy deps for light use, or other signs the dependency set has drifted', and this codebase shows both textbook symptoms (dual TLS backends from an un-disabled default feature; tokio 'full' inherited by crates that need two modules) plus an unmaintained parser on the config path and nine unused declarations. What keeps it above 60 is the underlying discipline: single library per concern, one workspace spec per dependency, a lockfile that resolves offline, and no cycles or conflicting pins inside the workspace. The friction is real but each item is a small, local edit rather than a structural blocker."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "dependency_health",
+      "identifier": "reqwest_dual_tls_stack",
+      "summary": "reqwest compiles and links both OpenSSL (native-tls) and rustls because the workspace spec keeps default features on",
+      "related_files": ["Cargo.toml", "Cargo.lock", "infra/Dockerfile.rust-service"],
+      "evidence": [
+        "Cargo.toml:36 `reqwest = { version = \"0.12\", features = [\"json\", \"rustls-tls\"] }` - no `default-features = false`, so reqwest's default `default-tls` feature stays enabled",
+        "`cargo tree -p api-server --offline -i reqwest -e features` lists both `default-tls` and `rustls-tls` (via rustls-tls-webpki-roots) enabled in the same build",
+        "Cargo.lock pins the consequence: native-tls 0.2.18 (:1749), openssl 0.10.81 (:1912), hyper-tls 0.6.0 (:1345) alongside rustls 0.23.46 (:2510) and hyper-rustls 0.27.10 (:1329)",
+        "infra/Dockerfile.rust-service:9-11 must install pkg-config and libssl-dev in the builder stage because openssl-sys is in the graph"
+      ],
+      "suggestion": "Change the single workspace line to `reqwest = { version = \"0.12\", default-features = false, features = [\"json\", \"rustls-tls\", \"http2\", \"charset\"] }`, then drop pkg-config/libssl-dev from infra/Dockerfile.rust-service and verify with `cargo tree -i openssl` (should report nothing).",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "dependency_policy_not_automated"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "serde_yaml_deprecated",
+      "summary": "serde_yaml 0.9.34+deprecated (archived upstream) parses every YAML config and detection artifact in six crates",
+      "related_files": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "crates/policy-engine/src/lib.rs",
+        "crates/http-limits/src/lib.rs",
+        "crates/api-server/src/coverage.rs",
+        "crates/bas-runner/src/scenario.rs",
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/vuln-agent/src/main.rs"
+      ],
+      "evidence": [
+        "Cargo.toml:40 `serde_yaml = \"0.9\"` resolves to `serde_yaml 0.9.34+deprecated` (Cargo.lock:2736); upstream is archived, so no parser or security fixes will land",
+        "Call sites: crates/policy-engine/src/lib.rs:271 and :293 parse tools.yml and protected-assets.yml, crates/http-limits/src/lib.rs:101 parses rate-limits.yml, crates/api-server/src/coverage.rs:42 and playbooks.rs:41 walk detection content, crates/api-server/src/acp.rs:342 serialises manifests, crates/bas-runner/src/scenario.rs:58 parses BAS scenarios, crates/detection-agent/src/pipeline.rs:62 parses Sigma drafts, crates/vuln-agent/src/main.rs:75 parses the watchlist",
+        "The parser sits on every startup path, so a future YAML edge case (duplicate keys, tag handling) cannot be fixed by the upstream maintainer"
+      ],
+      "suggestion": "Keep all call sites untouched by re-pointing the one workspace line at a maintained fork: `serde_yaml = { package = \"serde_yaml_ng\", version = \"0.10\" }` (or serde_norway). The API is a drop-in, so `serde_yaml::from_str` keeps compiling and only Cargo.toml changes.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "dependency_policy_not_automated"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "unused_direct_dependencies",
+      "summary": "Nine declared [dependencies] entries are never referenced anywhere in their crate",
+      "related_files": [
+        "crates/a2a/Cargo.toml",
+        "crates/acp/Cargo.toml",
+        "crates/agent-protocol/Cargo.toml",
+        "crates/audit/Cargo.toml",
+        "crates/cvss/Cargo.toml",
+        "crates/enrichment-lib/Cargo.toml",
+        "crates/ingestion-gateway/Cargo.toml",
+        "crates/orchestrator/Cargo.toml"
+      ],
+      "evidence": [
+        "crates/a2a/Cargo.toml:12 and crates/acp/Cargo.toml:12 declare `uuid` - no `uuid` or `Uuid` token appears in crates/a2a/src or crates/acp/src",
+        "crates/agent-protocol/Cargo.toml:15 and crates/audit/Cargo.toml:22 declare `async-trait` - neither crate mentions async_trait; agent-protocol has no internal deps at all",
+        "crates/audit/Cargo.toml:11 declares `serde` - audit/src only touches serde_json (lib.rs:38,63,68)",
+        "crates/cvss/Cargo.toml:11 declares `serde_json` - cvss/src never mentions it (only serde + thiserror are used)",
+        "crates/enrichment-lib/Cargo.toml:13 declares `tokio` - enrichment-lib/src uses async fns but no tokio item",
+        "crates/ingestion-gateway/Cargo.toml:12 and crates/orchestrator/Cargo.toml:10 declare `serde` - both crates only use serde_json"
+      ],
+      "suggestion": "Delete those nine lines, then add `cargo machete` (or `cargo +nightly udeps`) as a CI step so the manifest keeps matching the code.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "dependency_policy_not_automated"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "dead_pgvector_and_sqlx_bypass",
+      "summary": "Unused pgvector workspace entry plus two crates that re-declare sqlx citing a problem that no longer exists",
+      "related_files": ["Cargo.toml", "crates/agent-core/Cargo.toml", "crates/audit/Cargo.toml"],
+      "evidence": [
+        "Cargo.toml:46 declares `pgvector = { version = \"0.4\", features = [\"sqlx\"] }`; no crate uses `pgvector.workspace = true` and no pgvector package appears in Cargo.lock",
+        "Cargo.toml:45's sqlx spec (`runtime-tokio-rustls, postgres, uuid, chrono, json`) contains no `pgvector` feature, so nothing about the workspace spec forces the workaround described in the comments",
+        "crates/agent-core/Cargo.toml:18-20 and crates/audit/Cargo.toml:13-15 each carry the comment 'the workspace sqlx spec requests a nonexistent pgvector feature' plus a byte-identical copy of the workspace sqlx spec - `cargo check -p orchestrator` and `cargo tree -i sqlx -e features` confirm the inherited spec resolves cleanly",
+        "Result is three independent sqlx version pins, so a future sqlx 0.9 bump would silently leave agent-core and audit on 0.8"
+      ],
+      "suggestion": "Delete Cargo.toml:46, replace both direct sqlx declarations with `sqlx.workspace = true`, and delete the two stale comments so one spec governs all eight sqlx consumers.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "tokio_full_for_library_crates",
+      "summary": "tokio is inherited with features=[\"full\"] by all 21 crates, including libraries that use two modules",
+      "related_files": ["Cargo.toml", "crates/connectors/src/lib.rs", "crates/enrichment-lib/Cargo.toml", "crates/http-limits/Cargo.toml"],
+      "evidence": [
+        "Cargo.toml:34 `tokio = { version = \"1\", features = [\"full\"] }` is inherited via `tokio.workspace = true` by every service and library member",
+        "crates/connectors/src/lib.rs:16-17 imports only `tokio::sync::Mutex` and `tokio::time::sleep`; crates/http-limits is a pure axum middleware library with the same inheritance",
+        "`full` additionally enables process, signal, fs, io-std and rt-multi-thread everywhere, so library-only builds pull in functionality no call site uses",
+        "Same pattern one level down: redis keeps default features (acl, streams, geospatial, script, keep-alive per redis-0.27.6 Cargo.toml:432-438) although crates/enrichment-lib/src/lib.rs:218-275 only calls Client::open and set_ex"
+      ],
+      "suggestion": "Narrow the workspace line to `tokio = { version = \"1\", features = [\"rt-multi-thread\", \"macros\", \"net\", \"time\", \"sync\"] }` and let the binaries that need signal/process/fs opt in per manifest; set `redis = { version = \"0.27\", default-features = false, features = [\"tokio-comp\"] }`.",
+      "confidence": "medium",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "inline_version_pins_bypass_workspace",
+      "summary": "Ten crates declare external deps inline instead of inheriting them, so pins can drift from the workspace",
+      "related_files": [
+        "crates/a2a/Cargo.toml",
+        "crates/agent-core/Cargo.toml",
+        "crates/agent-protocol/Cargo.toml",
+        "crates/api-server/Cargo.toml",
+        "crates/audit/Cargo.toml",
+        "crates/connectors/Cargo.toml",
+        "crates/enrichment-lib/Cargo.toml",
+        "crates/llm-client/Cargo.toml",
+        "crates/policy-engine/Cargo.toml",
+        "crates/tool-server/Cargo.toml"
+      ],
+      "evidence": [
+        "`async-trait = \"0.1\"` is written inline in seven manifests (crates/a2a/Cargo.toml:15, agent-core:24, agent-protocol:15, api-server:32, audit:22, llm-client:14, tool-server:26) while the other 15 external deps are workspace-inherited",
+        "`regex = \"1\"` at crates/enrichment-lib/Cargo.toml:19 and crates/policy-engine/Cargo.toml:18; `fastrand = \"2\"` at crates/agent-core/Cargo.toml:17 and crates/connectors/Cargo.toml:15; `jsonschema = \"0.30\"` at crates/policy-engine/Cargo.toml:19",
+        "10 of 21 crates therefore have at least one external version requirement the workspace cannot update, which is how the sqlx duplication in agent-core/audit happened"
+      ],
+      "suggestion": "Add `async-trait = \"0.1\"`, `regex = \"1\"` and `fastrand = \"2\"` to [workspace.dependencies] and switch the eleven inline call sites to `<dep>.workspace = true`; leave jsonschema inline only if policy-engine is meant to stay its sole consumer.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "no_dependency_policy_gate",
+      "summary": "MSRV is declared but half the crates omit it, and no job verifies MSRV, advisories, unused deps, or lockfile drift",
+      "related_files": ["Cargo.toml", ".github/workflows/ci.yml", "infra/Dockerfile.rust-service"],
+      "evidence": [
+        "Cargo.toml:30 sets `rust-version = \"1.80\"`, but 10 of 21 crates omit `rust-version.workspace = true` (api-server, bas-runner, detection-agent, http-limits, hunt-agent, ingestion-gateway, orchestrator, response-agent, triage-agent, vuln-agent)",
+        "CI builds with `dtolnay/rust-toolchain@stable` (.github/workflows/ci.yml:12) and the release image uses RUST_VERSION 1.82 (infra/Dockerfile.rust-service:4), so the declared 1.80 floor is never exercised and can silently rot",
+        "`cargo clippy --workspace --all-targets -- -D warnings` (.github/workflows/ci.yml:18) and `cargo build --release` (infra/Dockerfile.rust-service:13) run without `--locked`, so a manifest edit can rewrite Cargo.lock during a release build instead of failing",
+        "No `cargo audit`, `cargo deny`, `cargo machete` or `cargo udeps` step exists in .github/ or infra/, which is why the nine unused deps and the deprecated serde_yaml went unnoticed"
+      ],
+      "suggestion": "Add `rust-version.workspace = true` to the ten manifests, add a CI job running `cargo +1.80 check --workspace --locked` and `cargo deny check advisories bans`, pass `--locked` in infra/Dockerfile.rust-service:13, and gate unused deps with `cargo machete`.",
+      "confidence": "medium",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "dependency_policy_not_automated"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Dependencies were added crate-by-crate as features landed, and no automated check (machete/udeps/deny) ever ran, so unused declarations and one dead workspace entry accumulated unnoticed",
+      "Workspace inheritance was adopted after the first manifests were written, leaving async-trait, regex, fastrand and a copied sqlx spec inline; the copy then carried a comment whose premise was never re-verified",
+      "Feature flags were set to the widest convenient value (tokio full, reqwest defaults, redis defaults) once, at workspace level, and never narrowed per consumer"
+    ],
+    "likely_symptoms": [
+      "reqwest_dual_tls_stack",
+      "unused_direct_dependencies",
+      "tokio_full_for_library_crates",
+      "inline_version_pins_bypass_workspace"
+    ],
+    "possible_false_positives": [
+      "Transitive duplicate versions (syn 2/3, hashbrown 0.14/0.15/0.17, rand 0.8/0.10, webpki-roots 0.26/1.0) are upstream-driven and not reported as a finding",
+      "jsonschema 0.30 is heavy but is the only validator in the workspace and confined to policy-engine, so it is not reported as bloat"
+    ]
+  },
+  "context_updates": {
+    "dependency_health": {
+      "add": [
+        {
+          "header": "Workspace dependency inheritance as the default",
+          "description": "All 22 external dependencies are declared once in [workspace.dependencies] (Cargo.toml:32-59) and consumed with `.workspace = true`, so a version bump is normally a one-line edit and the members cannot disagree about a shared crate. This is what keeps an otherwise drifting set coherent.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One library per concern across the whole workspace",
+          "description": "tokio is the only runtime, reqwest the only HTTP client, serde_json the only JSON codec, chrono the only date library, sha2 the only hash, dashmap the only concurrent map. There are no moment/dayjs-style pairs for a developer to choose between, and fastrand is deliberately used for jitter instead of pulling rand.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Acyclic internal dependency graph enforced by Cargo",
+          "description": "Every internal edge is a path dependency pointing down the layer stack (agent-protocol -> llm-client -> agent-core -> agent crates; tool-server -> policy-engine/cvss/audit/connectors) and there are no dev-dependency cycles, so Cargo itself guarantees no import cycle can appear.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Small lock-backed dependency closure",
+          "description": "367 packages for 21 crates and ~12.7k LOC, Cargo.lock resolves offline against the manifests, and every requirement is a caret range with no git or wildcard specs. Transitive duplication (syn, hashbrown, rand, webpki-roots) is upstream-driven rather than self-inflicted.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Thin dev-dependency surface",
+          "description": "Only tokio (for #[tokio::test]) in a2a, llm-client and policy-engine and tower (for ServiceExt) in http-limits. No mock or assertion framework is pulled in, so test tooling adds no production weight.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Two protocol crates with overlapping type shapes",
+          "description": "a2a and acp each own a serde/schemars type set because they model different wire protocols (Agent2Agent vs Agent Communication Protocol); the overlap is intentional, not duplicated dependency purpose.",
+          "settled": false
+        },
+        {
+          "header": "MSRV declared once at workspace level",
+          "description": "rust-version = \"1.80\" lives in [workspace.package] (Cargo.toml:30) rather than being repeated per crate; 11 of 21 members inherit it, the rest omit the field entirely (see the no_dependency_policy_gate finding).",
+          "settled": true
+        },
+        {
+          "header": "Heavy validator confined to one crate",
+          "description": "jsonschema 0.30 (the heaviest single addition, with referencing/fancy-regex/fraction) is used only by policy-engine at lib.rs:255,281 to validate tool argument schemas, so its cost does not propagate to the other 20 crates.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

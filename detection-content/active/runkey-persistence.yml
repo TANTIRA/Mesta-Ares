@@ -1,0 +1,32 @@
+title: Persistence via Registry Run Key
+id: b81e4c62-5d7f-4a93-8e2b-0f6a9d3c7156
+status: stable
+description: >-
+  Detects writes to HKLM/HKCU Run and RunOnce keys — a common persistence and
+  privilege-execution mechanism.
+author: Mesta-Ares
+date: 2025/01/01
+logsource:
+  product: windows
+  category: registry_set      # Sysmon Event ID 13
+detection:
+  selection:
+    TargetObject|contains:
+      - '\Software\Microsoft\Windows\CurrentVersion\Run'
+      - '\Software\Microsoft\Windows\CurrentVersion\RunOnce'
+      - '\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run'
+  filter_onedrive:
+    Details|contains: '\OneDrive.exe'
+  filter_teams:
+    Details|contains: '\Teams.exe'
+  filter_security_health:
+    Details|contains: 'SecurityHealthSystray.exe'
+  condition: selection and not 1 of filter_*
+falsepositives:
+  - Legitimate installers and first-party autostart entries
+  - Enterprise login scripts
+level: medium
+tags:
+  - attack.persistence
+  - attack.privilege_escalation
+  - attack.t1547.001

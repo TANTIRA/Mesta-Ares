@@ -1,0 +1,322 @@
+{
+  "batch": "test_strategy",
+  "batch_index": 10,
+  "assessments": {
+    "test_strategy": 63.0
+  },
+  "dimension_notes": {
+    "test_strategy": {
+      "evidence": [
+        "68 test functions across 13,894 LOC in 63 Rust files; only 19 of 63 files contain a #[cfg(test)] module (53.6% of LOC lives in tested files, but the untested remainder includes every service binary).",
+        "There is no integration-test surface at all: no crates/*/tests/ directory exists anywhere in the workspace, so cargo test runs only inline unit tests plus one ignored doc-test (crates/http-limits/src/lib.rs:260).",
+        "`cargo test --workspace` is green: 68 passed, 0 failed. The tests that exist are not broken or flaky.",
+        "Highest-risk composition has no test: crates/tool-server/src/main.rs:60 (`invoke`) chains policy evaluation -> audit append -> idempotency claim -> executor dispatch, yet the file has zero tests. Its two ingredients are tested in isolation (policy-engine 11 tests, idempotency 9 tests), so the wiring between them is unverified.",
+        "Every agent binary has zero tests: triage-agent/src/main.rs (413 LOC, `process` at line 253), response-agent/src/main.rs (429 LOC, `rollback_for` at 104, `case_id_of` at 175), detection-agent/src/main.rs, hunt-agent/src/main.rs, vuln-agent/src/main.rs, orchestrator/src/main.rs, ingestion-gateway/src/main.rs.",
+        "crates/connectors/src/lib.rs is 1,189 LOC with only 3 parser tests (lines 1141-1188: MISP attribute parsing, warning-list matching). The retry/backoff/call-budget path (`retry_sleep` line 67, `call` loop lines 84-120), per-client throttling (line 913) and error mapping for 6 HTTP clients are untested.",
+        "crates/detection-agent/src/pipeline.rs has zero tests despite pure, side-effect-free logic: `validate_sigma` (line 60), `to_lucene` (111), `naive_lucene` (131), `slugify` (283) plus the file-mutating `write_pending` (91) and `promote_and_commit` (170, which renames into detection-content/active and runs `git commit`).",
+        "crates/orchestrator/src/dedupe.rs `dedupe_key` (line 49) and `day_bucket` (line 77) are pure and untested; a key mistake silently suppresses or duplicates alerts in the Postgres `seen_alerts` table.",
+        "crates/api-server/src/a2a.rs (640 LOC) and crates/api-server/src/acp.rs (634 LOC) contain zero tests; the only api-server test is crates/api-server/src/main.rs:387, which merely builds the router to prove path syntax is well-formed. Pure helpers such as `card_for` (a2a.rs:145), `orchestrator_card` (176), `manifest_for` (acp.rs:60) and `input_to_text` (acp.rs:221) are trivially testable and untested, as is `valid_cve_id` (vulns.rs:18) — a hand-rolled index-based CVE-id validator at a trust boundary.",
+        "evals/policy_tests.md documents a 19-row negative matrix for the policy gate, but only ~10 rows have assertions in crates/policy-engine/src/lib.rs:536-723. Rows for protected CIDR via firewall.rule.add (row 8), enum violation (9), control-plane self.services (15), missing required arg (16), rule_path pattern (17), CVE-id pattern (18) and CVSS vector pattern (19) have no test; `firewall.rule.add`, `nvd.lookup_cve`, `cvss.score`, `detection.sigma.deploy` and `wazuh.active_response.kill_process` appear only in executors/bas-runner code, never in an assertion.",
+        "The documented protected-user patterns in policies/protected-assets.yml (\"Administrator\", \"krbtgt\", \"^svc-siem$\", \"root$\") are untested; `protected_user_is_denied` only exercises \"svc-agent\".",
+        "Policy tests read ambient process state: `PolicyEngine::kill_switch_engaged` (policy-engine/src/lib.rs:426) consults `ARES_KILL_SWITCH`, and no test clears it, so a developer shell or CI job with that variable exported turns 9 of 11 policy tests red with misleading 'deny' assertions.",
+        "Positive: tests are behaviour-focused with real seams rather than mocks — a2a/src/rpc.rs:214 `Stub` implements `TaskBackend`, agent-core/src/agent_loop.rs:210 `EchoGateway` implements `ToolGateway`, `MockProvider`/`InMemoryCheckpointer` are used, and http-limits tests inject `now: Instant` (lib.rs:353, 378) so no sleeps or wall-clock races exist.",
+        "Positive: zero snapshot/golden-file assertions anywhere; every assertion is an explicit value or match, and the tool-server/openshell tests assert exact argv vectors including shell-metacharacter rejection (executors/openshell.rs:189-215).",
+        "evals/run.sh only validates that golden-set JSONL lines parse and carry a tp/fp label, then prints 'TODO: replay golden sets through triage-agent and score precision/recall'; evals/README.md calls the real harness a TODO."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "test_strategy": {
+      "dimension_character": "Test craft is genuinely strong where it exists — deterministic clock injection, stub backends behind traits, security-focused assertions on the shell allowlist and idempotency state machine, and reference-vector CVSS checks — and the suite is green with no snapshot overuse or timing races. But the portfolio is concentrated in library crates: every service binary, all of the api-server HTTP surface, the connectors HTTP layer, the detection pipeline, and the tool-server policy->audit->idempotency->execute composition have zero direct tests, and there is no integration-test surface at all. A developer would trust the units they can see and be blind exactly where autonomy and side effects live.",
+      "score_rationale": "The dimension sits below the 70 'mixed' anchor and near 60 'significant drag': 68 tests over ~13.9k LOC with 44 of 63 files untested means meaningful risk is unvalidated in the paths that matter most (tool invocation, agent verdict/plan routing, alert dedupe, webhook ingestion). What pulls it above 60 is the reliability and intent of the tests that do exist — explicit assertions, injectable time, trait-based stubs, and a real policy-gate suite that encodes the deny-by-default contract — plus a documented 19-row policy matrix and a golden-set directory that show the strategy is understood even where it is unfinished."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "test_strategy",
+      "identifier": "tool_invoke_path_untested",
+      "summary": "The policy->audit->idempotency->execute composition in tool-server /invoke has no test",
+      "related_files": [
+        "crates/tool-server/src/main.rs",
+        "crates/policy-engine/src/lib.rs",
+        "crates/tool-server/src/idempotency.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/main.rs:60 `invoke` is the only path to side effects in the system; the file contains no #[cfg(test)] module.",
+        "`execute` (line 109) and `run_tool` (line 151) decide whether a denied call can still reach an executor and whether an idempotency replay returns the stored result; both are unexercised.",
+        "The two halves are tested separately (policy-engine 11 tests, idempotency 9 tests), so nothing verifies the contract that a Deny decision never calls `run_tool`, or that an audit-writer failure degrades to a log line instead of failing the request.",
+        "The only tool-server test touching the registry is executors/mod.rs:800 `registry_covers_policy_tools`, which asserts allowlist/executor name parity, not behaviour."
+      ],
+      "suggestion": "Add a #[cfg(test)] module in crates/tool-server/src/main.rs that builds `AppState` with the real PolicyEngine over `../../policies`, a `Store::mem()` and `audit: None`, then calls `invoke` through `Router::oneshot` with three calls: an allowlisted tool (assert decision allow + result.ok), `host.shutdown` (assert deny + result.error starts with 'denied:' + no executor invoked), and the same idempotency key twice (assert second response replays the first result).",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "service-binaries-untested",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "test_coverage::crates/tool-server/src/main.rs::untested_module"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "agent_decision_logic_untested",
+      "summary": "All agent binaries (triage, response, detection, hunt, vuln) have zero tests for their decision logic",
+      "related_files": [
+        "crates/triage-agent/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/detection-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/triage-agent/src/main.rs:253 `process` routes an LLM verdict to `write_fp_verdict`, `open_case` or `handoff_respond` and is gated by the kill switch; the crate reports 0 tests (`running 0 tests` in cargo test).",
+        "Pure helpers in the same file are untested and trivially testable: `severity_gte_high` (line 66) and `typed_iocs` (line 94).",
+        "crates/response-agent/src/main.rs:104 `rollback_for` maps each side-effecting tool to its inverse (blocklist.ip.remove, wazuh unisolate_host, ad.user.enable, ...) and `case_id_of` (line 175) parses the handoff; both untested, so a wrong rollback mapping would ship silently into the `response_actions` table.",
+        "crates/detection-agent/src/main.rs, hunt-agent/src/main.rs and vuln-agent/src/main.rs also report 0 tests.",
+        "The codebase already has the seams for this (`MockProvider` in llm-client, `ToolGateway`/`CheckpointStore` traits used by agent-core tests), so the gap is not technical impossibility."
+      ],
+      "suggestion": "Extract the per-alert decision into a testable function and cover it: in triage-agent add `#[cfg(test)]` tests for `severity_gte_high` (high/critical vs medium) and `typed_iocs` type mapping; in response-agent add a table test asserting `rollback_for` returns the inverse tool for all 8 reversible tools and `None` for read-only ones. Both are single-file additions in main.rs following the existing inline-module convention.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "service-binaries-untested",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "test_coverage::crates/triage-agent/src/main.rs::untested_critical"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "connectors_http_layer_untested",
+      "summary": "connectors (1,189 LOC, 6 HTTP clients) tests only JSON parsing; retry, budget and throttle logic is unverified",
+      "related_files": [
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "The 3 tests at crates/connectors/src/lib.rs:1141-1188 cover MISP attribute deserialization and warning-list matching only.",
+        "`retry_sleep` (line 67) and the `call` retry loop with `CALL_BUDGET` (lines 84-120) implement backoff and deadline handling; a regression here means either hammering a SOAR API or timing out silently, and nothing asserts the schedule or the give-up path.",
+        "Per-client throttling at line 913 (`sleep(self.min_interval - elapsed)`) and the 1<<attempt backoff at line 950 are untested.",
+        "The clients are concrete structs (OpensearchClient:130, ThehiveClient:214, CortexClient:277, MispClient:429, WazuhClient:562, NvdClient:885) with no trait seam, which is also why triage/response/detection `process()` cannot be tested without network access."
+      ],
+      "suggestion": "Make `retry_sleep` and the throttle delay computation pure and assert them (`retry_sleep(0, 1s) == 250ms`, capped by `remaining`, exponential growth), and route the clients' HTTP call through a small `HttpTransport` trait implemented by reqwest in prod and by a scripted fake in tests so `call` can be tested for 429-then-success and deadline-exceeded cases.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "concrete-io-clients-no-seam",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "test_coverage::crates/connectors/src/lib.rs::untested_critical"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "detection_pipeline_untested",
+      "summary": "detection-agent pipeline has zero tests for Sigma validation, Lucene conversion and rule promotion",
+      "related_files": [
+        "crates/detection-agent/src/pipeline.rs"
+      ],
+      "evidence": [
+        "crates/detection-agent/src/pipeline.rs has no #[cfg(test)] module despite containing pure functions: `validate_sigma` (line 60) enforces required keys, `to_lucene` (111) and `naive_lucene` (131) convert Sigma to a query, `slugify` (283) builds file names.",
+        "`write_pending` (line 91) writes agent-generated YAML into detection-content/pending and `promote_and_commit` (line 170) renames into detection-content/active and shells out to `git add`/`git commit` — the detection-as-code promotion path, entirely unverified.",
+        "`validate_sigma`'s fallback branch (no `sigma` binary on PATH) is the branch CI actually exercises, and it is untested.",
+        "Agent output is LLM-authored, so validation is the only guard between a malformed draft and an active rule."
+      ],
+      "suggestion": "Add `#[cfg(test)] mod tests` in pipeline.rs covering: `validate_sigma` rejects YAML missing `detection`/`logsource` and accepts a minimal valid rule; `naive_lucene` maps a two-key selection to 'a:1 AND b:2' and errors on a non-scalar-only selection; `slugify(\"LSASS Access! (v2)\") == \"lsass-access-v2\"`; `write_pending` + `promote_and_commit` run against a tempdir (parameterize the two dir consts).",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "test_coverage::crates/detection-agent/src/pipeline.rs::untested_module"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "dedupe_key_untested",
+      "summary": "orchestrator dedupe key/day-bucket logic is untested; a wrong key silently drops or duplicates alerts",
+      "related_files": [
+        "crates/orchestrator/src/dedupe.rs"
+      ],
+      "evidence": [
+        "`dedupe_key` (crates/orchestrator/src/dedupe.rs:49) hashes source + rule.id + host + 24h bucket; `day_bucket` (line 77) renders YYYY-MM-DD. Neither has a test and the file has no #[cfg(test)] module.",
+        "The key falls back to `envelope.payload['host']` when `agent.name` is absent (lines 61-67) and to an empty string when `rule.id` is missing — both silent-degradation branches with no assertion.",
+        "A key collision suppresses a real alert (dedupe returns true); a key split duplicates work. Both failure modes are invisible in the current suite."
+      ],
+      "suggestion": "Add tests in dedupe.rs: same envelope yields a stable 64-char hex key; changing only `ts` within the same day keeps the key; crossing midnight changes it; missing `rule.id` or `agent.name` still produces a deterministic key (assert equality across two calls rather than the exact hash).",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "test_coverage::crates/orchestrator/src/dedupe.rs::untested_module"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "api_server_surface_untested",
+      "summary": "api-server A2A/ACP endpoints and input validators have no behavioural tests; only router construction is asserted",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/api-server/src/vulns.rs",
+        "crates/api-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs (640 LOC) and crates/api-server/src/acp.rs (634 LOC) contain no tests; the single api-server test (main.rs:387) only calls `api_router()` to prove route path syntax compiles.",
+        "Pure, deterministic helpers are untested: `card_for` (a2a.rs:145), `orchestrator_card` (a2a.rs:176), `manifest_for` (acp.rs:60), `input_to_text` (acp.rs:221), `run_event` (acp.rs:487).",
+        "`valid_cve_id` (vulns.rs:18) is a hand-rolled byte-index validator (len >= 13, `id[8] == '-'`, all digits after 9) guarding outbound NVD calls; it has no test, and neither does the `days` clamp in `list_vulns` (vulns.rs:52).",
+        "JSON-RPC dispatch itself is well covered in a2a/src/rpc.rs (5 tests), so the missing coverage is the HTTP/axum layer that wraps it."
+      ],
+      "suggestion": "Add one axum-level test module in api-server (using `api_router().oneshot(...)` as http-limits already does) asserting: unknown agent name -> 404 on `/a2a/agents/{name}`, `POST /a2a/triage-agent` with a malformed JSON-RPC body -> INVALID_PARAMS, and `/vulns/not-a-cve` -> 400. Then unit-test `valid_cve_id` against 'CVE-2024-1234' (true), 'CVE-24-1234' (false), 'cve-2024-1234' (false).",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "test_coverage::crates/api-server/src/a2a.rs::transitive_only"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "policy_matrix_rows_unasserted",
+      "summary": "The 19-row documented policy denial matrix has ~9 rows with no assertion in the policy-engine tests",
+      "related_files": [
+        "evals/policy_tests.md",
+        "crates/policy-engine/src/lib.rs",
+        "policies/protected-assets.yml"
+      ],
+      "evidence": [
+        "evals/policy_tests.md rows 8 (protected CIDR via `firewall.rule.add`), 9 (enum violation), 15 (control-plane `self.services`), 16 (missing required arg on `kill_process`), 17 (`rule_path` pattern), 18 (CVE-id pattern) and 19 (CVSS vector pattern) have no corresponding test in crates/policy-engine/src/lib.rs:536-723.",
+        "`firewall.rule.add`, `nvd.lookup_cve`, `cvss.score`, `detection.sigma.deploy` and `wazuh.active_response.kill_process` never appear in any test assertion — only in executors and the bas-runner allowlist.",
+        "Protected-user patterns from policies/protected-assets.yml (\"Administrator\", \"krbtgt\", \"^svc-siem$\", \"root$\") are untested; `protected_user_is_denied` only asserts \"svc-agent\".",
+        "Rows that are covered (1, 2, 5, 7, 10, 13, 14, approval, kill switch) show the pattern is established, so the gap is mechanical rather than conceptual."
+      ],
+      "suggestion": "Add one `#[tokio::test]` per missing matrix row in policy-engine's test module (each is 5 lines: build a ToolCall, evaluate, assert DecisionKind::Deny and a reason substring), or better, drive the table from evals/policy_tests.md by parsing it in a test so the spec and the suite cannot drift.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "concern_verdict": "confirmed"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "no_integration_test_surface",
+      "summary": "No cross-module or end-to-end tests exist; the eval harness is a documented TODO",
+      "related_files": [
+        "evals/run.sh",
+        "evals/README.md",
+        ".github/workflows/ci.yml"
+      ],
+      "evidence": [
+        "No `crates/*/tests/` directory exists in the workspace; `cargo test --workspace` therefore only runs inline unit tests.",
+        "The seams that carry real risk — NATS subjects between orchestrator/agents, Postgres `response_actions` and `seen_alerts`, tool-server HTTP contract `{decision, result}` — are never exercised together by any test.",
+        "evals/run.sh validates only that each golden-set line parses and has a legal `tp`/`fp` label, then prints 'TODO: replay golden sets through triage-agent and score precision/recall'; evals/README.md labels the real harness a TODO.",
+        "CI (.github/workflows/ci.yml) runs `cargo test --workspace` and the format-only eval script, so a green build says nothing about agent behaviour on the labeled corpus."
+      ],
+      "suggestion": "Add `crates/api-server/tests/` (or a new `crates/integration-tests` member) with two or three tests that spin the axum routers in-process against in-memory fakes (no NATS/Postgres), asserting the full request->policy->response shape for one allow and one deny. In parallel, implement the `evals/run.sh` TODO for the existing triage_seed.jsonl using MockProvider so precision/recall becomes a CI signal.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "concern_verdict": "confirmed"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "policy_tests_read_ambient_env",
+      "summary": "Policy-engine tests inherit ARES_KILL_SWITCH from the environment, turning 9 of 11 red when it is set",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs"
+      ],
+      "evidence": [
+        "`PolicyEngine::kill_switch_engaged` (crates/policy-engine/src/lib.rs:426) returns true when `ARES_KILL_SWITCH` is truthy, and `evaluate_inner` checks it first (line 329).",
+        "No test clears or sets the variable, so the 9 tests asserting Allow/ApprovalRequired outcomes fail with 'kill switch engaged' in any shell or CI runner that exports it.",
+        "The sibling helper crates/agent-core/src/kill.rs isolates this properly by testing only the pure `is_truthy` function, which shows the safer pattern already exists in the codebase."
+      ],
+      "suggestion": "Make the kill-switch source explicit in the engine (an `EvalCtx` field or a `kill_switch: bool` parameter set from env only in `main`) and have tests pass `false`; if that is too invasive, have each test set `ARES_KILL_SWITCH=0` via a shared guard helper rather than reading ambient state.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "concern_verdict": "confirmed"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "cvss_lookup_table_flagged",
+      "summary": "Flagged missing tests for the generated CVSS v4 lookup table are not a real gap",
+      "related_files": [
+        "crates/cvss/src/lookup_table.rs",
+        "crates/cvss/src/v40.rs"
+      ],
+      "evidence": [
+        "crates/cvss/src/lookup_table.rs line 1 states it is generated from the FIRST cvss-v4-calculator (BSD-2-Clause); it is a pure 6-digit-macrovector -> score match table.",
+        "Its behaviour is covered end-to-end by v40.rs tests: 8 reference-vector scores plus nomenclature and rejection cases all route through `lookup`.",
+        "Writing table tests would duplicate the upstream reference implementation rather than validate this codebase's logic."
+      ],
+      "suggestion": "No action; leave the table untested and, if desired, note the generated provenance in a file-level comment so future coverage tooling skips it.",
+      "confidence": "high",
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "concern_verdict": "dismissed",
+      "concern_fingerprint": "test_coverage::crates/cvss/src/lookup_table.rs::transitive_only",
+      "reasoning": "Generated table from the FIRST reference implementation, fully exercised through the v40 reference-vector tests; direct tests would only duplicate upstream data."
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Tests were written where logic lives in a library crate (policy-engine, idempotency, http-limits, cvss) and skipped where logic lives in `main.rs` binaries, so the service entrypoints and their composition have no coverage.",
+      "The HTTP clients in connectors are concrete structs without a trait seam, which makes agent `process()` functions untestable without live SOAR/SIEM endpoints.",
+      "The test strategy was specified (evals/policy_tests.md, golden sets) but the execution layer (evals/run.sh replay, integration harness) was deferred, leaving the spec ahead of the suite."
+    ],
+    "likely_symptoms": [
+      "test_coverage::crates/agent-core/src/error.rs::transitive_only",
+      "test_coverage::crates/agent-protocol/src/tool.rs::transitive_only",
+      "test_coverage::crates/triage-agent/src/activity.rs::untested_module",
+      "test_coverage::crates/response-agent/src/activity.rs::untested_module",
+      "test_coverage::crates/hunt-agent/src/activity.rs::untested_module",
+      "test_coverage::crates/detection-agent/src/activity.rs::untested_module"
+    ],
+    "possible_false_positives": [
+      "The four `activity.rs` findings: ~41 LOC each, an ActivityEvent constructor plus a subject const — data-only, not worth direct tests.",
+      "agent-protocol `tool.rs`/`envelope.rs`/`handoff.rs`, a2a `card.rs`, llm-client `error.rs`, agent-core `state.rs`/`budget.rs`: serde data shapes exercised by every consumer test.",
+      "api-server `coverage.rs`/`playbooks.rs`/`stream.rs` and bas-runner `scenario.rs`: thin filesystem/YAML glue for CLI endpoints; low blast radius."
+    ]
+  },
+  "context_updates": {
+    "test_strategy": {
+      "add": [
+        {
+          "header": "Trait-based stub seams in unit tests",
+          "description": "a2a and agent-core tests inject in-memory implementations (`Stub: TaskBackend`, `EchoGateway: ToolGateway`, `InMemoryCheckpointer`, `MockProvider`) instead of mocking HTTP, so agent-loop and JSON-RPC tests assert behaviour and stay stable when transports change. This is why the 68 existing tests are cheap to maintain.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Injectable clock in rate limiter",
+          "description": "http-limits takes `now: Instant` as a parameter (lib.rs:195, 353) so burst, refill and idle-purge tests are deterministic without sleeps. The only genuinely timing-sensitive subsystem is therefore tested without timing risk.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "No snapshot or golden-file assertions",
+          "description": "Every assertion compares an explicit value or pattern match (e.g. exact argv vectors in executors/openshell.rs, reference CVSS scores in cvss/v40.rs). There is no snapshot overuse to unwind, so test failures point at behaviour rather than at formatting churn.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Policy gate tested against real policy data",
+          "description": "policy-engine tests load `../../policies` and assert deny-by-default, forbidden CIDRs, protected assets, blast radius, cooldown, approval and the kill file. The YAML is treated as the contract, so editing the security policy intentionally requires touching the tests.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Coverage concentrated in library crates, not binaries",
+          "description": "All 19 tested files are `lib.rs` modules or helper modules; every service `main.rs` (triage, response, detection, hunt, vuln, orchestrator, ingestion-gateway, bas-runner) has zero tests. New logic added to a binary therefore lands outside the suite by default.",
+          "settled": true
+        },
+        {
+          "header": "Concrete HTTP clients block agent tests",
+          "description": "connectors exposes concrete clients (Opensearch, TheHive, Cortex, MISP, Wazuh, NVD) with no trait, so triage/response/detection `process()` cannot be exercised without network. The trait seams that exist (LlmProvider, ToolGateway, CheckpointStore, TaskBackend, Tool) stop at the connector boundary.",
+          "settled": true
+        },
+        {
+          "header": "Policy test suite reads ambient environment",
+          "description": "policy-engine's tests inherit `ARES_KILL_SWITCH` through `kill_switch_engaged`, so an exported variable in the developer shell or CI turns nine passing assertions into failures with misleading reasons.",
+          "settled": false
+        },
+        {
+          "header": "Test strategy documented ahead of implementation",
+          "description": "evals/policy_tests.md specifies 19 denial rows and evals/README.md specifies precision/recall replay, but run.sh only validates JSONL format. The intent is captured; the executable half is missing, which is why coverage gaps read as unfinished work rather than unknown requirements.",
+          "settled": true
+        }
+      ]
+    }
+  }
+}

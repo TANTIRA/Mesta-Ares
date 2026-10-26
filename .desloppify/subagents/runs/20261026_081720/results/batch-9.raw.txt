@@ -1,0 +1,289 @@
+{
+  "batch": "mid_level_elegance",
+  "batch_index": 9,
+  "assessments": {
+    "mid_level_elegance": 70.0
+  },
+  "dimension_notes": {
+    "mid_level_elegance": {
+      "evidence": [
+        "The message contract itself is centralized: agent-protocol defines Envelope, ToolCall, Decision, ToolResult, HandoffPayload and the ares.* subject constants (crates/agent-protocol/src/lib.rs:12-23), and envelope.rs is the most-imported file in the workspace (13 importers).",
+        "The adapters around that contract are not centralized: POST /invoke is written three times (crates/agent-core/src/gateway.rs:100-133 with retries, crates/response-agent/src/main.rs:210-232 without retries, crates/detection-agent/src/pipeline.rs:263-270 ignoring the verdict), each with its own copy of the {decision, result} wire struct (gateway.rs:28-32, tool-server/src/main.rs:29-33, response-agent/src/main.rs:189-195).",
+        "Envelope publishing is written six times with divergent durability: JetStream-first in crates/ingestion-gateway/src/nats_sink.rs:71-91, duplicated verbatim in crates/api-server/src/a2a.rs:235-276, plain publish+flush in crates/orchestrator/src/nats_bus.rs:28-38, and inline plain publishes in crates/bas-runner/src/main.rs:171-183 and crates/triage-agent/src/main.rs:225-235.",
+        "The ares.activity event type exists four times as a module (crates/{triage,response,hunt,detection}-agent/src/activity.rs) with a silent type drift (triage uses step: &'static str, the others String), plus a fifth hand-rolled json! producer in crates/vuln-agent/src/main.rs:120-126 that omits workflow_run_id entirely; the consumer in crates/api-server/src/a2a.rs:610 filters on that missing field.",
+        "The declared seam abstractions are not the ones production code uses: ToolGateway (agent-core/src/gateway.rs:36-39) and CheckpointStore (agent-core/src/checkpoint.rs:10-18) are never called outside agent-core, while api-server reads the agent-core-owned agent_checkpoints table with raw SQL (a2a.rs:320-326, acp.rs:159-165) and re-creates it (a2a.rs:221-229).",
+        "Cross-agent payload translation happens by string convention: triage encodes the case id only inside ref_uri = \"thehive://case/{id}\" (triage-agent/src/main.rs:218-223) and response-agent strips that prefix back out with unwrap_or_else(\"unknown\") (response-agent/src/main.rs:175-186), which then lands in response_actions.case_id and hive.update_case.",
+        "Operator control state has two readers with different semantics: agent-core/src/kill.rs:31-35 treats any non-empty file as engaged, policy-engine/src/lib.rs:426-439 re-implements the check and treats a whitespace-only file as disengaged, and api-server/src/kill.rs:34-52 is the writer.",
+        "One boundary check is dead because its data is never supplied: EvalCtx.asset_classes (policy-engine/src/lib.rs:45-48) is only ever constructed empty (tool-server/src/main.rs:239), so the host-class branch at lib.rs:450-454 can never fire.",
+        "Where the team did consolidate, the result is clean: api-server/src/acp.rs:16,262-265 reuses a2a::find_agent/build_payload/publish instead of duplicating dispatch, and the idempotency seam (tool-server/src/idempotency.rs:1-19, gateway.rs:93-95) has one explicit, fail-closed protocol."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "mid_level_elegance": {
+      "dimension_character": "The shared vocabulary is genuinely shared - envelope, tool call, decision and handoff types all live in agent-protocol and every service speaks them - but the adapters around that vocabulary are rebuilt per service, so the same three handoffs (invoke a tool, publish an envelope, report activity) exist in three to six variants with subtly different semantics. A new team member can read the message types in 30 seconds and still be wrong about how a message actually crosses a boundary, because the real contracts are conventions (HTTP 200 carries a deny, the retryable flag hides in result.output, the case id lives inside a thehive:// URI, activity events may omit workflow_run_id) that live in whichever caller happens to implement them. The library-shaped abstractions in agent-core (ToolGateway, CheckpointStore, AgentLoop) are well composed but bypassed by the binaries, which is the clearest symptom of the seam problem rather than a separate one.",
+      "score_rationale": "Upward: the protocol crate is disciplined and single-sourced, several seams are documented at the point of definition, the idempotency and retry contracts are explicit and fail-closed, and ACP demonstrably reuses the A2A dispatch path instead of copying it. Downward: the recurring pattern is that each new service re-derives the transport seam, which has already produced a policy denial being logged as success (detection-agent), a transport error being recorded as a policy denial (response-agent), an unenforced protected-asset rule, and an orchestrator DLQ that feeds itself; that is more than isolated friction and sits below the 80 anchor, where a developer 'mostly' trusts patterns seen elsewhere. The score lands at 70 - mixed: individual seams are small and well commented, but a cross-module change still requires knowing which of several variants the caller in front of you chose."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "tool_invoke_boundary_reimplemented",
+      "summary": "POST /invoke is implemented three times with divergent verdict handling; agent-core's ToolGateway is never used",
+      "related_files": [
+        "crates/agent-core/src/gateway.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/tool-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/agent-core/src/gateway.rs:36-39 declares ToolGateway with retry- and idempotency-aware invoke, but no crate outside agent-core ever constructs HttpToolGateway, even though response-agent and triage-agent already depend on agent-core.",
+        "crates/response-agent/src/main.rs:210-232 re-implements the call as invoke_tool with no retry, and synthesizes DecisionKind::Deny when the transport fails (lines 212-224), so an unreachable tool server is stored in response_actions as a policy denial and emitted as 'denied by policy' (line 290, 327-332).",
+        "crates/detection-agent/src/pipeline.rs:263-270 treats any HTTP 2xx as success and never reads the decision field, so a policy denial - which tool-server returns as HTTP 200 with a deny verdict per crates/tool-server/src/main.rs:5-6 - is logged as 'detection.sigma.deploy audited'.",
+        "The {decision, result} wire struct is declared three times: crates/tool-server/src/main.rs:29-33, crates/agent-core/src/gateway.rs:28-32, crates/response-agent/src/main.rs:189-195, so a shape change requires three coordinated edits with no compiler help.",
+        "The retry hint travels out of band inside ToolResult.output under a magic key (crates/agent-protocol/src/tool.rs:65-79), which only the unused gateway reads."
+      ],
+      "suggestion": "Move the {decision, result} envelope and one invoke(call) -> InvokeOutcome helper into agent-protocol (or agent-core) and have response-agent and detection-agent call it; model transport failure as its own outcome variant instead of fabricating a Deny verdict, and promote the retryable flag to a real field on ToolResult.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "transport seam has no shared home"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "activity_event_contract_fragmented",
+      "summary": "ActivityEvent is declared four times plus one hand-rolled producer, and its subject constant five times",
+      "related_files": [
+        "crates/triage-agent/src/activity.rs",
+        "crates/response-agent/src/activity.rs",
+        "crates/hunt-agent/src/activity.rs",
+        "crates/detection-agent/src/activity.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/api-server/src/stream.rs"
+      ],
+      "evidence": [
+        "Four near-identical copies of ActivityEvent live in crates/triage-agent/src/activity.rs, crates/response-agent/src/activity.rs, crates/hunt-agent/src/activity.rs and crates/detection-agent/src/activity.rs; they have already drifted - triage's step is &'static str (triage-agent/src/activity.rs:22) while the other three use String (response-agent/src/activity.rs:20).",
+        "crates/vuln-agent/src/main.rs:120-126 publishes a fifth, hand-written json!({agent, step, detail, ts}) with no workflow_run_id, so its events can never be joined to a task by the consumer filter at crates/api-server/src/a2a.rs:610.",
+        "SUBJECT_ACTIVITY = \"ares.activity\" is redeclared in five files (four activity.rs modules plus crates/api-server/src/stream.rs:23) and is absent from crates/agent-protocol/src/lib.rs:12-23, where every other ares.* subject is defined.",
+        "The consumer has to defend against the drift by making every field optional: apps/console/lib/api.ts:165-171 declares workflow_run_id/agent/step/detail/ts all optional with defaults.",
+        "crates/api-server/src/a2a.rs:130-137 encodes agent lifecycle in a hardcoded terminal_step(agent, step) string table, a second place that must change when an agent adds a step."
+      ],
+      "suggestion": "Define ActivityEvent and SUBJECT_ACTIVITY once in agent-protocol next to the other subjects, delete the four module copies, and make vuln-agent construct the type so an omitted correlation id becomes a compile error.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "event types re-declared per service"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "envelope_publish_paths_fragmented",
+      "summary": "Envelope publish is re-implemented in six services, so message durability depends on which service produced it",
+      "related_files": [
+        "crates/ingestion-gateway/src/nats_sink.rs",
+        "crates/api-server/src/a2a.rs",
+        "crates/orchestrator/src/nats_bus.rs",
+        "crates/bas-runner/src/main.rs",
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/ingestion-gateway/src/nats_sink.rs:71-91 implements the JetStream-first publish with plain fallback; crates/api-server/src/a2a.rs:235-276 duplicates the stream creation and the same publish policy, with a comment admitting 'same policy as ingestion-gateway's NatsSink'.",
+        "crates/orchestrator/src/nats_bus.rs:28-38 wraps plain publish + flush, crates/bas-runner/src/main.rs:171-183 serializes and publishes inline, and crates/triage-agent/src/main.rs:225-235 does the same for the triage->response handoff.",
+        "Only the two JetStream copies persist messages, so an alert routed by the orchestrator or a handoff published by triage is not covered by the ARES stream that ingestion-gateway creates over ares.>.",
+        "Each copy repeats the same serialize/publish/warn shape, so a change to subject policy or logging has to be applied in six places."
+      ],
+      "suggestion": "Add publish(subject, &Envelope) (JetStream-first with fallback) to agent-protocol beside the Envelope type, then delete NatsBus, a2a::publish, bas-runner's publish and the inline publishes in favour of it.",
+      "confidence": "medium",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "transport seam has no shared home"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "case_id_encoded_in_uri_string",
+      "summary": "Triage passes the case id to response only inside a thehive:// URI; the receiver defaults the id to \"unknown\"",
+      "related_files": [
+        "crates/triage-agent/src/main.rs",
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "Producer: crates/triage-agent/src/main.rs:218-223 carries the case id only as ref_uri: format!(\"thehive://case/{case_id}\") with kind: \"case\"; no field on Artifact or HandoffPayload holds an identifier.",
+        "Consumer: crates/response-agent/src/main.rs:175-186 recovers it with find(|a| a.kind == \"case\").strip_prefix(\"thehive://case/\")...unwrap_or_else(|| \"unknown\"), so any producer that changes the URI scheme silently degrades to the literal \"unknown\".",
+        "That literal then becomes response_actions.case_id (response-agent/src/main.rs:319) and the TheHive case patched at line 347, so a mismatch writes plan data under a case that does not exist."
+      ],
+      "suggestion": "Add a typed case identifier (or a CaseRef struct) to HandoffPayload/Artifact so the id crosses the boundary as data; keep ref_uri purely for retrieval.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "orchestrator_dlq_self_feed",
+      "summary": "The orchestrator subscribes to ares.* which includes its own DLQ subject, so unparseable messages republish forever",
+      "related_files": [
+        "crates/orchestrator/src/main.rs"
+      ],
+      "evidence": [
+        "crates/orchestrator/src/main.rs:133 subscribes to \"ares.*\", and SUBJECT_DLQ is \"ares.dlq\" (main.rs:35), which the wildcard matches.",
+        "On a parse failure main.rs:79-83 publishes the raw payload to SUBJECT_DLQ; the orchestrator receives its own publish, delivery_count() returns 1 when no Nats-Delivery-Count header is present (main.rs:120-128), the payload still fails to parse, and it is published again - an unbounded loop with no delay.",
+        "ares.activity messages are ActivityEvent JSON, never Envelope JSON, so every activity event in the pipeline takes that path (producers: crates/triage-agent/src/main.rs:79-91 and the other four agents)."
+      ],
+      "suggestion": "Subscribe to the concrete routed subjects instead of ares.*, or exclude the dlq/activity subjects explicitly, and move the DLQ outside the subscribed namespace (e.g. ares.dlq.>) with a hop counter so a redelivered poison message terminates.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "subject namespace not partitioned"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "evalctx_asset_classes_unwired",
+      "summary": "EvalCtx.asset_classes is never populated, so the protected host-class rule is dead; the &mut signature also forces a global mutex",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs",
+        "crates/tool-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/policy-engine/src/lib.rs:45-48 declares asset_classes as the input for protected-host-class matching, and lib.rs:450-454 denies only when ctx.asset_classes.get(&t) returns a class.",
+        "The only construction site in the workspace is crates/tool-server/src/main.rs:239 EvalCtx::new(), which leaves the map empty; nothing ever inserts into it, so a host with a protected class is allowed through.",
+        "lib.rs:314 takes ctx: &mut EvalCtx, which forces crates/tool-server/src/main.rs:41 to hold a Mutex<EvalCtx> and lock it around every /invoke (main.rs:66-69), although all mutation goes through the Arc<DashMap> counters (lib.rs:47) and asset_classes is read-only."
+      ],
+      "suggestion": "Populate asset classes where the policy set is loaded (PolicyEngine::load) or accept them on the engine, change evaluate to take &EvalCtx, and drop the tool-server mutex so tool calls stop serializing on a read-only map.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "kill_switch_two_implementations",
+      "summary": "Kill-switch state is read by two implementations whose file semantics disagree",
+      "related_files": [
+        "crates/agent-core/src/kill.rs",
+        "crates/policy-engine/src/lib.rs",
+        "crates/api-server/src/kill.rs"
+      ],
+      "evidence": [
+        "crates/agent-core/src/kill.rs:31-35 reports engaged when the path is a file with len > 0, so a whitespace-only kill file engages the switch.",
+        "crates/policy-engine/src/lib.rs:426-439 re-implements the same check and reports engaged only when read_to_string(...).trim() is non-empty, so the same file disengages the policy engine.",
+        "crates/api-server/src/kill.rs:34-52 is the writer for that file and reports the state through agent_core::kill_switch_engaged(), so the console can show 'engaged' while tool-server evaluates calls as allowed.",
+        "policy-engine cannot depend on agent-core (no such dependency in crates/policy-engine/Cargo.toml), which is why the logic was copied instead of shared."
+      ],
+      "suggestion": "Move the single kill-switch read into agent-protocol (both crates already depend on it) and delete the policy-engine copy so the two layers cannot disagree.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "connector_surface_gaps_pushed_to_callers",
+      "summary": "Connector clients expose only some verbs, so three callers hand-roll HTTP with their own credential reads",
+      "related_files": [
+        "crates/connectors/src/lib.rs",
+        "crates/api-server/src/main.rs",
+        "crates/triage-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs"
+      ],
+      "evidence": [
+        "OpensearchClient exposes only query (crates/connectors/src/lib.rs:147-157), so crates/triage-agent/src/main.rs:146-157 and crates/detection-agent/src/pipeline.rs:234-241 each POST raw with their own OPENSEARCH_URL/USER/PASS reads.",
+        "ThehiveClient has no query method (connectors/src/lib.rs:230-276), so crates/api-server/src/main.rs:139-152 rebuilds the client inline from THEHIVE_URL and THEHIVE_API_KEY.",
+        "These paths bypass the shared auth and retry helper (send_with_retry, connectors/src/lib.rs:79-123), so the documented 15s resilience contract holds only for calls that go through the connector.",
+        "Both modules document the gap in comments instead of closing it, so the workaround is now the established pattern."
+      ],
+      "suggestion": "Add index_doc to OpensearchClient and query to ThehiveClient (returning Value) and route the three call sites through them, so auth, retry and error mapping stay in one place.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "decision_label_duplicates_serde",
+      "summary": "DecisionKind to string is hand-written in tool-server and re-typed as SQL literals in two other crates",
+      "related_files": [
+        "crates/tool-server/src/main.rs",
+        "crates/agent-protocol/src/tool.rs",
+        "crates/bas-runner/src/main.rs",
+        "crates/api-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/main.rs:52-58 hand-maps DecisionKind to \"allow\"/\"deny\"/\"approval_required\" even though crates/agent-protocol/src/tool.rs:30-32 already serializes exactly those labels via rename_all = \"snake_case\".",
+        "crates/bas-runner/src/main.rs:154-156 matches the stored text with WHERE decision = 'allow', and crates/api-server/src/main.rs:186-192 returns the same column to the console, so the vocabulary is fixed in three unrelated places.",
+        "Adding a DecisionKind variant compiles everywhere while the SQL literals silently stop matching."
+      ],
+      "suggestion": "Serialize DecisionKind with serde instead of a hand-written label, and document the stored column as the serde value so the three sites agree by construction.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "agent-protocol ships message types but not their transport adapters, so every service re-derives publish/invoke glue from the same types.",
+      "agent-core's seams are library-shaped (traits plus a composition root) while the agents are standalone binaries, so the binaries reach past the abstractions into raw SQL and raw HTTP.",
+      "Subjects and event types are added per service rather than to the shared protocol crate, so the ares.* namespace has no owner and the activity feed sits outside the envelope contract."
+    ],
+    "likely_symptoms": [
+      "activity_event_contract_fragmented and envelope_publish_paths_fragmented are symptoms of one missing transport module, not two independent defects.",
+      "decision_label_duplicates_serde and kill_switch_two_implementations both look like naming/dupe findings but are boundary-translation gaps.",
+      "evalctx_asset_classes_unwired may be reported elsewhere as an authorization coverage gap; the seam framing is that no caller owns populating the boundary data."
+    ],
+    "possible_false_positives": [
+      "detection-agent not depending on agent-core makes its hand-rolled /invoke partly a dependency-direction decision rather than pure glue entropy.",
+      "The duplicate ActivityEvent modules are small and stable, so a reviewer may judge them harmless; the drift in step typing and the missing workflow_run_id in vuln-agent argue otherwise."
+    ]
+  },
+  "context_updates": {
+    "mid_level_elegance": {
+      "add": [
+        {
+          "header": "agent-protocol single-sources the message contract",
+          "description": "Envelope, ToolCall, Decision, ToolResult, HandoffPayload and every ares.* subject except activity live in one crate, and envelope.rs is the most-imported file in the workspace (13 importers). This is why the wire shapes agree even where the adapters do not.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "ACP reuses the A2A dispatch seam",
+          "description": "crates/api-server/src/acp.rs:262-265 calls a2a::build_payload/publish/task_uuid and shares the a2a::AGENTS registry instead of copying dispatch, showing the team consolidates a seam once it is named.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Tool-invoke idempotency is an explicit, fail-closed seam",
+          "description": "The three-state claim protocol is documented as a table (tool-server/src/idempotency.rs:1-19), the gateway retries only allow-verdict retryable results (agent-core/src/gateway.rs:93-95), and store errors fail closed rather than double-executing.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Boundary contracts are documented where they are defined",
+          "description": "The 'HTTP 200 carries the verdict' rule (tool-server/src/main.rs:5-6), the retry/backoff budget (agent-core/src/gateway.rs:10-17) and the load-bearing policy check order (policy-engine/src/lib.rs:311-313) are stated at the seam, so the intent is recoverable even when a caller ignores it.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Transport adapters are deliberately outside the protocol crate",
+          "description": "agent-protocol carries message types only, so each service writes its own publish and invoke glue. This is the structural reason the same seam appears three to six times.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "agent-core seams are library-shaped and bypassed by the binaries",
+          "description": "ToolGateway, CheckpointStore and AgentLoop are only used inside agent-core; api-server reads agent_checkpoints with raw SQL and re-creates the table that checkpoint.rs documents as its own, so the declared seam and the real one diverge.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Connectors are intentionally thin",
+          "description": "connectors/src/lib.rs:1-7 states that caching and semantic retries are the caller's job, which explains why callers reach for raw HTTP when a verb is missing rather than extending the client.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Subject namespace has no single owner",
+          "description": "ares.activity is redeclared per agent and outside agent-protocol, so the orchestrator's ares.* wildcard overlaps subjects it does not own and cannot distinguish envelope traffic from event traffic.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

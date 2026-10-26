@@ -1,0 +1,29 @@
+#!/bin/sh
+# Wazuh integratord forwarder: posts the JSON alert file ($1) to hook_url ($3).
+# integratord invokes: <script> <alert_file> <api_key_or_debug> <hook_url>
+ALERT_FILE="$1"
+HOOK_URL="${3:-http://ingestion-gateway:8091/webhook/wazuh}"
+
+PY=/var/ossec/framework/python/bin/python3
+[ -x "$PY" ] || PY=python3
+
+"$PY" - "$ALERT_FILE" "$HOOK_URL" <<'EOF'
+import json, sys, urllib.request
+
+alert_file, hook_url = sys.argv[1], sys.argv[2]
+with open(alert_file) as fh:
+    payload = fh.read().encode()
+
+# alert file may contain a single JSON object or the raw alert blob
+req = urllib.request.Request(
+    hook_url,
+    data=payload,
+    headers={"Content-Type": "application/json"},
+    method="POST",
+)
+try:
+    urllib.request.urlopen(req, timeout=5)
+except Exception as exc:  # never let a webhook failure kill integratord
+    print(f"custom-ares-webhook: POST failed: {exc}", file=sys.stderr)
+EOF
+exit 0

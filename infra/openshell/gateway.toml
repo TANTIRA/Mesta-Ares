@@ -1,0 +1,38 @@
+# Minimal OpenShell gateway config for the `sandbox` compose profile.
+# Adapted from NVIDIA/OpenShell deploy/docker/gateway.toml — same dev posture
+# (no TLS, unauthenticated user calls) but bound on the compose network so the
+# tool-server container can reach it at openshell-gateway:8080.
+# Never expose this outside local dev.
+
+[openshell]
+version = 2
+
+[openshell.gateway]
+bind_address        = "0.0.0.0:8080"
+health_bind_address = "0.0.0.0:8081"
+log_level           = "info"
+compute_driver      = "docker"
+disable_tls         = true
+
+[openshell.gateway.auth]
+allow_unauthenticated_users = true
+
+# Written by the openshell-gateway-init service.
+[openshell.gateway.gateway_jwt]
+signing_key_path = "/var/lib/openshell/tls/jwt/signing.pem"
+public_key_path  = "/var/lib/openshell/tls/jwt/public.pem"
+kid_path         = "/var/lib/openshell/tls/jwt/kid"
+gateway_id       = "openshell-ares"
+
+[openshell.drivers.docker]
+# Default image pulled for `openshell sandbox create` without --from.
+default_image         = "nvcr.io/nvidia/base/ubuntu:24.04"
+# Runtime image the openshell-sandbox binary is extracted from.
+sandbox_runtime_image = "ghcr.io/nvidia/openshell/sandbox:latest"
+# Image containing the external supervisor process.
+supervisor_image      = "ghcr.io/nvidia/openshell/supervisor:latest"
+image_pull_policy     = "if_not_present"
+sandbox_label         = "openshell"
+# Explicit supervisor-compatible Docker default. Set RuntimeDefault or
+# Localhost/<profile> only when the daemon host has AppArmor available.
+app_armor_profile     = "Unconfined"

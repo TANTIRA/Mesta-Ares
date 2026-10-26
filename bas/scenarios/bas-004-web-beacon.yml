@@ -1,0 +1,14 @@
+# Atomic Red Team T1071.001 — "DNS/HTTP C2 beacon" style periodic egress
+id: bas-004
+name: HTTP C2 beacon simulation
+techniques: [T1071.001]
+target: linux-endpoint
+executor:
+  platform: linux
+  # 5 requests at a fixed interval to the lab sink (never a real domain).
+  # Point bas-c2.lab.local at a listener you control, e.g. a capture container.
+  command: >-
+    sh -c 'for i in 1 2 3 4 5; do
+      curl -s -o /dev/null -m 3 "http://bas-c2.lab.local/beacon/$i" || true;
+      sleep 30;
+    done'

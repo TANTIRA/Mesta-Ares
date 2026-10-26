@@ -1,0 +1,247 @@
+{
+  "batch": "initialization_coupling",
+  "batch_index": 16,
+  "assessments": {
+    "initialization_coupling": 74.0
+  },
+  "dimension_notes": {
+    "initialization_coupling": {
+      "evidence": [
+        "No mutable module-scope state anywhere in the workspace: `grep` for `static mut`, `lazy_static`, `once_cell`, `thread_local` returns nothing, and Cargo.toml has no `ctor`/`inventory`/build.rs. The only module-level statics are two pure lazy values: `static RE_*: LazyLock<Regex>` (crates/enrichment-lib/src/lib.rs:24-35) and a function-local `static CLIENT: OnceLock<reqwest::Client>` (crates/tool-server/src/executors/mod.rs:44-51). Neither has an ordering dependency or import-time I/O.",
+        "All shared runtime state is constructed in `main` and passed explicitly: `AppState` (crates/api-server/src/main.rs:80-91, crates/tool-server/src/main.rs:44-52, crates/ingestion-gateway/src/main.rs:62-64) and `Deps` (crates/detection-agent/src/main.rs:57-66, crates/triage-agent/src/main.rs, crates/hunt-agent/src/main.rs, crates/response-agent/src/main.rs) are handed to handlers/tasks as `Arc`, so no service relies on a global singleton being initialized first.",
+        "Boot sequence is uniform and explicit in every binary: tracing init -> `Config::parse()` (clap, env-backed) -> connect NATS/PG -> ensure schema -> build state -> routes -> bind (e.g. crates/api-server/src/main.rs:327-377, crates/tool-server/src/main.rs:217-291, crates/orchestrator/src/main.rs:129-146).",
+        "Env reads are deferred to call-time getters rather than captured at import: `llm_client::fast_model()`/`strong_model()` (crates/llm-client/src/lib.rs:31-39) are used by every consumer (crates/triage-agent/src/main.rs:107, crates/detection-agent/src/pipeline.rs:34, crates/agent-core/src/agent_loop.rs:122, crates/response-agent/src/main.rs:138); only a unit test references the `FAST_MODEL` const snapshot (crates/llm-client/src/lib.rs:183,194).",
+        "Two divergent implementations of the kill-switch predicate exist: `agent_core::kill::kill_switch_engaged` (crates/agent-core/src/kill.rs:11-34) resolves `$POLICIES_DIR` live and treats a file with `len() > 0` as engaged, while `PolicyEngine::kill_switch_engaged` (crates/policy-engine/src/lib.rs:443-456) uses the directory captured at `PolicyEngine::load` and treats only non-whitespace content as engaged. A whitespace-only `policies/kill` engages the agents but not the tool server.",
+        "`PolicyEngine.dir` exists only to re-read the kill file (crates/policy-engine/src/lib.rs:452 is the sole `self.dir` use), so the engine carries a boot-time path snapshot purely for a safety check that agent-core resolves dynamically.",
+        "`PolicyEngine::evaluate` reads `ARES_KILL_SWITCH` from the ambient process env on every call (crates/policy-engine/src/lib.rs:346, 443-448) with no injection point; the tests that assert Allow/ApprovalRequired (crates/policy-engine/src/lib.rs:680-733) therefore fail if a developer or CI shell exports `ARES_KILL_SWITCH=1`.",
+        "Config is resolved in two planes with different semantics: `ConnectorConfig::from_env()` runs once at boot and filters empty strings (crates/connectors/src/lib.rs:42-44, 704-722), but raw-HTTP paths re-read the same keys per request with `env::var(..).unwrap_or_default()` - crates/api-server/src/main.rs:142-143 (`THEHIVE_URL`, `THEHIVE_API_KEY`) sends `Authorization: Bearer ` when the key is unset, whereas `conn_cfg.thehive_client()` would send no header.",
+        "Same duplication in the agents: `write_fp_verdict` re-reads `OPENSEARCH_USER`/`OPENSEARCH_PASS` per verdict (crates/triage-agent/src/main.rs:233-238) while `deps.os` was built from boot config; `deploy_monitor` re-reads `OPENSEARCH_URL`/`USER`/`PASS` per deploy (crates/detection-agent/src/pipeline.rs:208-216); tool-server executors read API keys per call (`env(\"VIRUSTOTAL_API_KEY\")`, `env(self.env_key)` at crates/tool-server/src/executors/mod.rs:378, 388) so dry-run vs real execution is decided at request time, not boot.",
+        "`Enricher::new()` (crates/enrichment-lib/src/lib.rs:213-230) hides a full env read - including `ConnectorConfig::from_env()` - inside a plain constructor with no alternative injection point, and silently discards an unparsable `REDIS_URL` (`.ok()`). llm-client shows the better convention it violates: `AnthropicProvider::new(key)` + `from_env()` (crates/llm-client/src/anthropic.rs:23-42).",
+        "Table creation is spread across seven service files as inline `CREATE TABLE IF NOT EXISTS` at boot (api-server/src/a2a.rs:209,222; acp.rs:81; bas-runner/src/main.rs:271; tool-server/src/idempotency.rs:125; response-agent/src/main.rs:381; vuln-agent/src/main.rs:140; orchestrator/src/dedupe.rs:21), while docs/services.md:21-23 assigns each table to an owning crate.",
+        "api-server creates `agent_checkpoints` (crates/api-server/src/a2a.rs:222) although the contract is documented in crates/agent-core/src/checkpoint.rs:45-48; `audit_log` is documented as owned by `crates/audit` (crates/audit/src/lib.rs:6-11) but no code, .sql file, compose or helm template ever creates it, so tool-server's audit append fails at runtime (crates/tool-server/src/main.rs:82-96).",
+        "api-server also reads tables owned by other services - `bas_results` (crates/api-server/src/main.rs:236), `response_actions` (crates/api-server/src/main.rs:262), `vuln_advisories` (crates/api-server/src/vulns.rs:139), `agent_checkpoints` (crates/api-server/src/a2a.rs:321, acp.rs:160) - so `GET /plans/:case_id` returns 502 unless response-agent booted first, and `GET /metrics` silently degrades to null.",
+        "Repo-relative path constants are resolved against the process CWD with no canonicalization or boot check: `ACTIVE_DIR = \"detection-content/active\"` is duplicated in crates/api-server/src/coverage.rs:12 and crates/detection-agent/src/pipeline.rs:17, `SCENARIOS_DIR = \"bas/scenarios\"` in crates/bas-runner/src/scenario.rs:8, and the `policies`/`playbooks` defaults in four call sites; a service launched from another directory silently reports zero coverage or zero scenarios.",
+        "`EvalCtx` is a process-global singleton (`eval_ctx: Mutex<EvalCtx>` at crates/tool-server/src/main.rs:52, created empty at :271) whose `asset_classes` map is never populated outside a test (only crates/policy-engine/src/lib.rs:647 sets it), so check (7) at crates/policy-engine/src/lib.rs:467 can never fire in a deployed tool-server.",
+        "crates/api-server/src/main.rs:341 warms the kill switch with `let _ = kill_switch_engaged(); // warm the check path at boot`, which is a no-op because the predicate caches nothing - a boot ritual implying initialization that does not exist."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "initialization_coupling": {
+      "dimension_character": "Structurally this is a clean Rust workspace: there is no mutable module-scope state at all, the only statics are two lazily initialized pure values, and every service builds its state in `main` and injects it as `Arc<AppState>`/`Arc<Deps>`, so a developer can import any crate without worrying about import-time side effects or boot ordering. The fragility sits one layer up, at the seam between boot and runtime: configuration is resolved in two competing planes (boot-time `ConnectorConfig` versus per-call `env::var` with different empty-string semantics), the safety-critical kill switch has two implementations that disagree on edge cases, and table/schema ownership is documented per crate but implemented inside service binaries - including an `audit_log` table that nothing ever creates.",
+      "score_rationale": "The absence of global singletons and the uniform explicit-initialization pattern push this well above the 60 'boot behavior is routinely fragile' anchor and above a naive reading of the per-call env reads. It lands in the mixed 70s because the remaining defects are reproducible and not merely stylistic: an exported `ARES_KILL_SWITCH=1` flips the policy-engine test suite, a whitespace-only `policies/kill` engages the agents but not the tool server, api-server's TheHive helper sends an empty bearer token that the connector path would never send, and `audit_log` - read by api-server and bas-runner, written by tool-server - has no initializer anywhere in the repo, so tool decisions fail to audit at runtime."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "dual_kill_switch_predicate",
+      "summary": "Two kill-switch implementations disagree on edge cases and on when the policy dir is resolved",
+      "related_files": [
+        "crates/agent-core/src/kill.rs",
+        "crates/policy-engine/src/lib.rs",
+        "crates/api-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/agent-core/src/kill.rs:11-34 resolves `$POLICIES_DIR` at call time and engages when `metadata().len() > 0`.",
+        "crates/policy-engine/src/lib.rs:443-456 re-implements the same predicate against `self.dir` (captured at `PolicyEngine::load`) and engages only when `read_to_string(..).trim()` is non-empty.",
+        "A whitespace-only `policies/kill` therefore engages every agent but leaves the tool-server policy gate open; the two also diverge if `POLICIES_DIR` changes after boot.",
+        "crates/api-server/src/main.rs:341 `let _ = kill_switch_engaged(); // warm the check path at boot` shows the predicate was assumed to have cached init state that does not exist."
+      ],
+      "suggestion": "Move the predicate (env parse + file check) into `agent-protocol`, which both crates already depend on, as `kill_switch_engaged(policies_dir: &Path)`; have agent-core pass the env-resolved dir and policy-engine pass its loaded dir, then delete the duplicate in crates/policy-engine/src/lib.rs:443-456. If policy-engine no longer needs `dir`, drop the field.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "ambient_env_in_policy_evaluate",
+      "summary": "PolicyEngine reads ARES_KILL_SWITCH from ambient env per evaluation, making its test suite environment-dependent",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs",
+        "crates/tool-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/policy-engine/src/lib.rs:346 calls `self.kill_switch_engaged()` inside `evaluate_inner`, which reads `std::env::var(\"ARES_KILL_SWITCH\")` at :444 on every call.",
+        "Tests asserting Allow/ApprovalRequired - `blast_radius_cap_is_enforced` (:671), `cooldown_blocks_repeat_same_target` (:696), `allowlisted_tool_is_allowed` (:716), `misp_writes_require_approval` (:731) - fail if the developer or CI environment exports `ARES_KILL_SWITCH=1`.",
+        "No injection seam exists: `PolicyEngine::load(dir)` takes only a path, and the tool server passes nothing else (crates/tool-server/src/main.rs:225-226)."
+      ],
+      "suggestion": "Capture the switch state in the engine at construction (e.g. `PolicyEngine::load(dir)` records the env flag, or add `with_kill_switch(bool)`) and let the per-evaluation file check stay; tests then construct the engine with `kill_switch: false` and stop depending on process env.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "two_config_planes",
+      "summary": "Boot-time ConnectorConfig and per-call env::var resolve the same keys with different semantics",
+      "related_files": [
+        "crates/api-server/src/main.rs",
+        "crates/triage-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/tool-server/src/executors/mod.rs",
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/connectors/src/lib.rs:42-44 filters empty env values, so `ConnectorConfig` maps an empty `THEHIVE_API_KEY` to `Auth::None`; crates/api-server/src/main.rs:142-143 uses `env::var(\"THEHIVE_API_KEY\").unwrap_or_default()` and always calls `.bearer_auth(key)`, sending an empty bearer token.",
+        "crates/triage-agent/src/main.rs:233-238 re-reads `OPENSEARCH_USER`/`OPENSEARCH_PASS` per verdict write while `deps.os` was built from `ConnectorConfig` at boot (main.rs:461-470), so the raw write path and the client path can authenticate differently.",
+        "crates/detection-agent/src/pipeline.rs:208-216 re-reads `OPENSEARCH_URL`/`USER`/`PASS` per monitor deploy, duplicating the boot-resolved `deps.os` config.",
+        "crates/tool-server/src/executors/mod.rs:378 and :388 decide dry-run vs real execution from `env(..)` inside `execute`, so credentials are resolved at request time while connector clients were resolved at boot in `build_registry` (:674)."
+      ],
+      "suggestion": "Resolve every credential once at boot and carry it: store `conn_cfg` in `AppState`/`Deps` and pass the resolved base URL and `Auth` into `thehive_query`, `write_fp_verdict`, `deploy_monitor`, and the executor structs (as `Option<String>` fields set in `build_registry`) instead of calling `env::var` inside handlers and `execute`.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "ddl_ownership_split_from_owner_crate",
+      "summary": "Schema DDL lives in service mains instead of owner crates; audit_log has no initializer at all",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/agent-core/src/checkpoint.rs",
+        "crates/audit/src/lib.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/bas-runner/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/orchestrator/src/dedupe.rs"
+      ],
+      "evidence": [
+        "docs/services.md:21-23 assigns each table to an owning crate (`agent_checkpoints`->agent-core, `audit_log`->audit), but the DDL sits in binaries: crates/response-agent/src/main.rs:381, crates/bas-runner/src/main.rs:271, crates/orchestrator/src/dedupe.rs:21.",
+        "`agent_checkpoints` is created by api-server, not by its owner: crates/api-server/src/a2a.rs:222 emits the DDL while crates/agent-core/src/checkpoint.rs:45-48 only documents it.",
+        "`audit_log` has no `CREATE TABLE` anywhere in the repo (no .sql files, no compose/helm init); tool-server writes it (crates/audit/src/lib.rs:85 via crates/tool-server/src/main.rs:82-96) and api-server/bas-runner read it, so every audit append errors until an operator creates the table by hand.",
+        "Readers depend on writers having booted first: `GET /plans/:case_id` selects from `response_actions` (crates/api-server/src/main.rs:262) and returns 502 when response-agent never ran."
+      ],
+      "suggestion": "Put each table's DDL next to its owner crate as a `pub const DDL` + `ensure_schema(pool)` (the pattern already used at crates/tool-server/src/idempotency.rs:125-129), have each service call the owner's `ensure_schema` for the tables it needs, and add an `audit::ensure_schema` for `audit_log`. Delete the duplicate DDL in crates/api-server/src/a2a.rs:222.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "cwd_relative_path_constants",
+      "summary": "Repo-relative data paths are resolved against process CWD with no boot validation, and one path is duplicated across crates",
+      "related_files": [
+        "crates/api-server/src/coverage.rs",
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/bas-runner/src/scenario.rs",
+        "crates/api-server/src/playbooks.rs"
+      ],
+      "evidence": [
+        "`ACTIVE_DIR = \"detection-content/active\"` is declared twice - crates/api-server/src/coverage.rs:12 and crates/detection-agent/src/pipeline.rs:17 - with no shared owner, so writer and reader are coupled only by a string literal.",
+        "`SCENARIOS_DIR = \"bas/scenarios\"` (crates/bas-runner/src/scenario.rs:8) and the `policies`/`playbooks` defaults (crates/api-server/src/playbooks.rs:12-14, crates/api-server/src/kill.rs:28) are CWD-relative with no canonicalization.",
+        "Failure is silent: crates/api-server/src/coverage.rs:23-29 returns an empty technique list with a note, and crates/bas-runner/src/scenario.rs:40-44 returns an empty scenario list, so a service started from the wrong directory looks healthy."
+      ],
+      "suggestion": "Add one `data_dir`-style field to each service's clap `Config` (env-backed, defaulting to the repo root paths), resolve it once at boot with `canonicalize()`, and fail fast when it is missing; define the active-content path once and have api-server take it from config instead of a second const.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "enricher_new_hidden_env",
+      "summary": "Enricher::new() reads env and builds ConnectorConfig internally with no injection point",
+      "related_files": [
+        "crates/enrichment-lib/src/lib.rs",
+        "crates/llm-client/src/anthropic.rs",
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/enrichment-lib/src/lib.rs:213-230 reads `REDIS_URL`, `VIRUSTOTAL_API_KEY`, `ABUSEIPDB_API_KEY`, `SHODAN_API_KEY`, `GREYNOISE_API_KEY` and calls `ConnectorConfig::from_env()` inside `new()`, so construction silently depends on ambient process state.",
+        "There is no constructor taking explicit config, and no test constructs an `Enricher` (crates/enrichment-lib/src/lib.rs:525-579 covers only pure helpers), so the env-dependent construction is untestable.",
+        "`redis::Client::open(u).ok()` at :218 silently drops a malformed `REDIS_URL`, leaving caching disabled with no log.",
+        "The codebase's own convention is the opposite: `AnthropicProvider::new(api_key)` plus a separate `from_env()` (crates/llm-client/src/anthropic.rs:23-42)."
+      ],
+      "suggestion": "Split into `Enricher::new(cfg: EnricherConfig)` (explicit keys and redis URL) plus `Enricher::from_env()`, and call `from_env()` only from the service `main` functions that build `Deps`/`AppState`; log instead of dropping an unparsable `REDIS_URL`.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "initialization_coupling",
+      "identifier": "eval_ctx_singleton_never_initialized",
+      "summary": "Process-global EvalCtx is created empty at boot and its asset_classes are never loaded, disabling the protected-host-class rule",
+      "related_files": [
+        "crates/tool-server/src/main.rs",
+        "crates/policy-engine/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/main.rs:52 holds `eval_ctx: Mutex<EvalCtx>` and :271 constructs it with `EvalCtx::new()`, which starts with an empty `asset_classes` map (crates/policy-engine/src/lib.rs:52-56).",
+        "Nothing populates `asset_classes` in production code - the only writer is a test at crates/policy-engine/src/lib.rs:647 - so the check at :467 can never match and a protected host class never denies a call.",
+        "The same singleton is mutated under a mutex per invoke (crates/tool-server/src/main.rs:78-80), coupling all requests through one global context."
+      ],
+      "suggestion": "Load host->asset-class mappings at boot (from `protected-assets.yml` or the Wazuh inventory) into `AppState` alongside the engine and seed `EvalCtx` from it; if no source exists, delete the field and the unreachable branch instead of shipping a global that can never be satisfied.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Configuration has no single owner: `ConnectorConfig` is the intended boot-time source, but raw-HTTP helper paths and executor `execute` bodies kept their original ad-hoc `env::var` reads, so two resolution planes coexist with different empty-string and timing semantics.",
+      "Schema ownership is documented per crate but implemented in binaries, so libraries (agent-core, audit) are not self-initializing and one table (audit_log) was never given an initializer at all.",
+      "The kill switch was implemented twice from the same doc comment (once in agent-core for agents, once in policy-engine for the tool server) and never consolidated, so its path resolution and file semantics drifted."
+    ],
+    "likely_symptoms": [
+      "audit append failed logged by tool-server while /invoke keeps returning 200",
+      "GET /plans/:case_id returning 502 on a fresh deployment",
+      "GET /coverage returning rule_count 0 when api-server is launched outside the repo root",
+      "policy-engine tests failing only on machines with ARES_KILL_SWITCH exported"
+    ],
+    "possible_false_positives": [
+      "module_level_io hits on doc comments and `pub async fn connect(...)` signatures in crates/agent-core/src/kill.rs, crates/ingestion-gateway/src/nats_sink.rs, crates/orchestrator/src/dedupe.rs and crates/orchestrator/src/nats_bus.rs - these are call-time constructors, not module-scope I/O",
+      "apps/console/lib/api.ts:3-4 reads `process.env.NEXT_PUBLIC_API_URL` at module scope, but that is Next.js build-time inlining, i.e. framework bootstrap"
+    ]
+  },
+  "context_updates": {
+    "initialization_coupling": {
+      "add": [
+        {
+          "header": "Zero mutable module-scope state",
+          "description": "The workspace has no `static mut`, `lazy_static`, `once_cell`, `thread_local`, build.rs or ctor hooks; the only two module-level statics are a lazily compiled regex set and a lazily built HTTP client, both pure and order-independent. A developer can import any crate with no import-time side effects.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Explicit state injection via AppState and Deps",
+          "description": "Every service builds its state in `main` and passes `Arc<AppState>`/`Arc<Deps>` into handlers and spawned tasks, so there is no global singleton whose creation order matters across modules - the reason this dimension has no boot-order races.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Env reads deferred to call-time getters",
+          "description": "`llm_client::fast_model()`/`strong_model()` keep the default model as a documented const and read the override when called; all four consumers call the getters and only a unit test touches the const, so no stale import-time snapshot is propagated.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Live kill-switch re-read is intentional",
+          "description": "The kill switch is deliberately re-evaluated from env plus the kill file on every check instead of being snapshotted at boot, which is the correct behaviour for an operator safety control - the defect is the duplicated implementation, not the freshness.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Two config resolution planes",
+          "description": "Boot-time `ConnectorConfig::from_env()` (empty-string filtering) coexists with per-request `env::var` reads in raw-HTTP helpers and executor bodies, so the same credential can resolve differently and be re-read at request time.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Schema DDL lives in service binaries",
+          "description": "Seven inline `CREATE TABLE IF NOT EXISTS` blocks sit in service mains rather than owner crates, api-server creates agent-core's `agent_checkpoints`, and `audit_log` has no initializer anywhere - making cross-service boot order an implicit deployment prerequisite.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Process CWD is an implicit boot input",
+          "description": "`detection-content/active`, `bas/scenarios`, `policies` and `playbooks` are repo-relative constants resolved against the working directory with silent empty-result fallbacks, so services only behave correctly when launched from the repository root.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

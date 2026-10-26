@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Mesta-Ares SOC console design tokens.
+ * Monochrome, dense 13px base. React Bits Pro App UI blocks read the
+ * --rb-* ladder injected by @reactbits-pro/app-ui-theme.
+ */
+:root {
+  --background: oklch(97% 0 0);
+  --foreground: oklch(14% 0 0);
+  --card: oklch(100% 0 0);
+  --card-foreground: oklch(14% 0 0);
+  --popover: oklch(100% 0 0);
+  --popover-foreground: oklch(14% 0 0);
+  --primary: oklch(20% 0 0);
+  --primary-foreground: oklch(98% 0 0);
+  --secondary: oklch(94% 0 0);
+  --secondary-foreground: oklch(20% 0 0);
+  --muted: oklch(95% 0 0);
+  --muted-foreground: oklch(45% 0 0);
+  --accent: oklch(94% 0 0);
+  --accent-foreground: oklch(20% 0 0);
+  --destructive: oklch(55% 0.2 27);
+  --destructive-foreground: oklch(98% 0 0);
+  --border: oklch(89% 0 0);
+  --input: oklch(89% 0 0);
+  --ring: oklch(60% 0 0);
+  --radius: 0.625rem;
+  --rb-accent: oklch(20.5% 0 0);
+  --rb-accent-fg: oklch(100% 0 0);
+    --rb-radius: 10px;
+    --rb-r-xs: max(0px, calc(var(--rb-radius) - 6px));
+    --rb-r-sm: max(0px, calc(var(--rb-radius) - 4px));
+    --rb-r-md: max(0px, calc(var(--rb-radius) - 2px));
+    --rb-r-lg: var(--rb-radius);
+    --rb-r-xl: calc(var(--rb-radius) + min(2px, var(--rb-radius)));
+    --rb-r-2xl: calc(var(--rb-radius) + min(4px, var(--rb-radius)));
+    --rb-r-3xl: calc(var(--rb-radius) + min(6px, var(--rb-radius)));
+    --rb-r-4xl: calc(var(--rb-radius) + min(8px, var(--rb-radius)));
+    --rb-r-5xl: calc(var(--rb-radius) + min(12px, var(--rb-radius) * 2));
+    --rb-r-6xl: calc(var(--rb-radius) + min(16px, var(--rb-radius) * 3));
+    --rb-r-full: max(var(--rb-radius) * 1.5, (var(--rb-radius) - 8px) * 999);
+}
+
+.dark {
+  --background: oklch(13% 0 0);
+  --foreground: oklch(92% 0 0);
+  --card: oklch(17% 0 0);
+  --card-foreground: oklch(92% 0 0);
+  --popover: oklch(17% 0 0);
+  --popover-foreground: oklch(92% 0 0);
+  --primary: oklch(92% 0 0);
+  --primary-foreground: oklch(15% 0 0);
+  --secondary: oklch(22% 0 0);
+  --secondary-foreground: oklch(92% 0 0);
+  --muted: oklch(22% 0 0);
+  --muted-foreground: oklch(62% 0 0);
+  --accent: oklch(24% 0 0);
+  --accent-foreground: oklch(92% 0 0);
+  --destructive: oklch(60% 0.2 27);
+  --destructive-foreground: oklch(98% 0 0);
+  --border: oklch(27% 0 0);
+  --input: oklch(27% 0 0);
+  --ring: oklch(55% 0 0);
+  --rb-accent: oklch(100% 0 0);
+  --rb-accent-fg: oklch(20.5% 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-rb-accent-fg: var(--rb-accent-fg);
+  --color-rb-accent: var(--rb-accent);
+}
+
+html {
+  font-size: 13px;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}

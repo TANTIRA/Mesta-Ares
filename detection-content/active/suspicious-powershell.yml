@@ -1,0 +1,49 @@
+title: Suspicious PowerShell Invocation
+id: 3f5a8d21-9c4b-4e7a-a1d2-6b0e5f9c8374
+status: stable
+description: >-
+  Detects PowerShell launched with encoded commands, download cradles, or
+  execution-policy bypass flags — typical of initial-access and post-exploit
+  stagers.
+author: Mesta-Ares
+date: 2025/01/01
+logsource:
+  product: windows
+  category: process_creation   # Sysmon EID 1 / Security 4688
+detection:
+  selection_img:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\powershell_ise.exe'
+      - '\pwsh.exe'
+  selection_flags:
+    CommandLine|contains:
+      - ' -enc '
+      - ' -encodedcommand'
+      - 'FromBase64String'
+      - 'DownloadString'
+      - 'DownloadFile'
+      - 'Net.WebClient'
+      - 'Invoke-Expression'
+      - 'IEX '
+      - ' -w hidden'
+      - ' -WindowStyle Hidden'
+      - ' -ep bypass'
+      - ' -ExecutionPolicy bypass'
+      - 'Start-BitsTransfer'
+      - 'Invoke-WebRequest'
+      - ' iwr '
+      - ' curl '
+      - ' wget '
+  filter_mgmt:
+    ParentImage|endswith:
+      - '\CcmExec.exe'        # SCCM
+      - '\IntuneManagementExtension.exe'
+  condition: selection_img and selection_flags and not filter_mgmt
+falsepositives:
+  - Software-deployment tooling (SCCM/Intune) running packaged scripts
+  - Admin automation — tune selection_flags for your environment
+level: high
+tags:
+  - attack.execution
+  - attack.t1059.001

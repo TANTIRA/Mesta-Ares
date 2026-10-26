@@ -1,0 +1,309 @@
+{
+  "batch": "authorization_consistency",
+  "batch_index": 12,
+  "assessments": {
+    "authorization_consistency": 58.0
+  },
+  "dimension_notes": {
+    "authorization_consistency": {
+      "evidence": [
+        "crates/api-server/src/main.rs:283-325 registers 27 routes; the only layers applied are http_limits::middleware and CorsLayer::permissive() (main.rs:361-367) — no authn/authz middleware exists, and main.rs:358-359 states the limiter is keyed by 'peer IP until auth lands'.",
+        "crates/tool-server/src/main.rs:274-281 publishes /invoke, /tools and /approvals/{id}/approve|reject with no authentication; infra/docker-compose.yml:330 publishes :8090 to the host, so the policy engine is the only gate between any network client and wazuh.active_response.*, entra.user.*, blocklist.* and exec.sandbox.",
+        "crates/api-server/src/a2a.rs:158-160 and 189-191 advertise authentication.schemes:[\"bearer\"] on every agent card and the platform card, but no bearer check exists anywhere in the crate.",
+        "crates/api-server/src/kill.rs:39-72 mutates the global kill file from an unauthenticated POST, records no actor, and writes no audit_log row — unlike every tool decision, which is hash-chained (crates/tool-server/src/main.rs:82-99).",
+        "infra/docker-compose.yml:311-330 mounts ../policies read-only into tool-server (POLICIES_DIR=/policies) while api-server (:341-348) has no policies mount, so the file api-server writes on POST /controls/kill-switch is never the file policy-engine reads at crates/policy-engine/src/lib.rs:452.",
+        "Same effects have two authorization paths: triage-agent creates TheHive cases through ThehiveClient directly (crates/triage-agent/src/main.rs:186) and hunt-agent does the same (crates/hunt-agent/src/main.rs:125), although thehive.case.create is allowlisted with a real executor (policies/tools.yml:14, crates/tool-server/src/executors/mod.rs:678).",
+        "crates/detection-agent/src/main.rs:193-195 promotes the rule and creates the OpenSearch monitor BEFORE calling detection.sigma.deploy; that allowlisted tool is a DryRun executor (crates/tool-server/src/executors/mod.rs:769-772) and its denial is only logged (crates/detection-agent/src/pipeline.rs:266-268).",
+        "crates/bas-runner/src/main.rs:86-116 spawns ssh/winrm directly for fleet commands, bypassing both the policy engine and the kill switch, even though exec.bas.run is registered behind the OpenShell sandbox (crates/tool-server/src/executors/mod.rs:775-781).",
+        "crates/tool-server/src/approvals.rs:213-216 and 276-279 take the approver identity from the request body and default it to \"operator\"; that unverified string becomes the audit actor (approvals.rs:248-255, 299-308).",
+        "crates/agent-protocol/src/tool.rs:19 declares actor as a plain caller-supplied String, and crates/policy-engine/src/lib.rs:344-440 never reads it — authorization is per-tool only, never per-principal.",
+        "crates/a2a/src/rpc.rs:144-148 defines TaskBackend::get/cancel without an agent argument, so any /a2a/{agent} endpoint reads or cancels any task (crates/api-server/src/a2a.rs:478-494), contradicting the dispatcher doc at rpc.rs:153-156.",
+        "crates/api-server/src/ratelimit.rs:22-43 puts POST /a2a/{agent} in Tier::Expensive and /a2a/tasks/*/events in Tier::Stream, but the equivalent ACP routes (POST /acp/runs, /acp/runs/{id}/cancel, GET /acp/runs/{id}/events) fall through to Tier::General with no SSE concurrency cap.",
+        "Positive: crates/policy-engine/src/lib.rs:311-440 runs a fixed, documented check order (kill switch, allowlist, autonomy, args_schema, forbidden_args, protected assets, blast radius) and is deny-by-default; executors re-validate independently (crates/tool-server/src/executors/openshell.rs:66-110)."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "confidence": "high",
+      "issues_preventing_higher_score": "No inbound authentication on any of the three HTTP services, the kill switch is unauthenticated/unaudited and disconnected from the enforcement point in the reference deployment, and four of six agent crates perform side effects outside the only authorization gate that exists."
+    }
+  },
+  "dimension_judgment": {
+    "authorization_consistency": {
+      "dimension_character": "One authorization layer is genuinely well built — a centralized, deny-by-default PolicyEngine with a fixed check order, compiled arg schemas, a protected-asset boundary and hash-chained audit of every verdict — but it guards only the tool-call path. Everything around it is inconsistent: none of the three HTTP services authenticates a caller, the global kill switch is unauthenticated, unaudited and not wired to the enforcement point, approval identity is a self-asserted string defaulting to 'operator', and triage/hunt/detection/bas-runner reach the same external effects (TheHive cases, OpenSearch monitors, git commits, ssh commands) without passing through the gate. A security reviewer would find the tool boundary trustworthy and the rest of the trust model unverifiable.",
+      "score_rationale": "The score sits at the 60 anchor ('auth posture is inconsistent; a developer reviewing security cannot trust that coverage is complete') because coverage is genuinely mixed rather than uniformly absent: the same TheHive case creation is both an allowlisted audited tool and a direct unpoliced client call, and the kill switch advertises control it does not exercise. What pulls it up from the 40s is real substance in the one gate that exists — deny-by-default policy, defense-in-depth executor validation, per-decision audit chaining, and gaps honestly catalogued in docs/services.md with scripts/api-security-check.sh. What keeps it out of the 70s and 80s is that nothing verifies who is calling, so none of the good patterns can be attributed to a principal or enforced per-object."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "no-inbound-authn-any-service",
+      "summary": "All three HTTP services accept anonymous requests; the only gate is per-tool policy",
+      "related_files": [
+        "crates/api-server/src/main.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/ingestion-gateway/src/main.rs",
+        "infra/docker-compose.yml"
+      ],
+      "evidence": [
+        "crates/api-server/src/main.rs:283-325 lists 27 routes including POST /controls/kill-switch, POST /a2a/{agent}, POST /acp/runs and GET /audit; main.rs:361-367 applies only http_limits::middleware and CorsLayer::permissive().",
+        "crates/tool-server/src/main.rs:274-281 serves /invoke, /tools and /approvals/{id}/approve|reject with no authentication; infra/docker-compose.yml:330 publishes 8090:8090 to the host.",
+        "crates/api-server/src/ratelimit.rs:3-5 and crates/http-limits/src/lib.rs:10-12 both document keys as 'peer IP until authentication lands'.",
+        "docs/services.md:119 states no endpoint in any of the three services performs authentication or authorization today."
+      ],
+      "suggestion": "Add one shared tower layer (e.g. a `require_bearer` from_fn in a new `crates/http-auth` or in `http-limits`) that validates a token from env/secret and rejects with 401, then apply it to api_router(), tool-server's Router and ingestion-gateway's Router next to the existing rate-limit layer; stop publishing 8090/8091 to the host until it exists.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "a2a-cards-advertise-unenforced-bearer",
+      "summary": "A2A agent cards advertise bearer auth that the server never enforces",
+      "related_files": [
+        "crates/api-server/src/a2a.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs:158-160 sets Authentication { schemes: vec![\"bearer\"] } for every agent card built by card_for().",
+        "crates/api-server/src/a2a.rs:189-191 sets the same scheme on the platform card returned by /.well-known/agent.json.",
+        "crates/api-server/src/a2a.rs:515-532 rpc_endpoint deserializes the body and dispatches without inspecting any header."
+      ],
+      "suggestion": "Either enforce the advertised scheme (reject requests without a valid Authorization: Bearer at rpc_endpoint) or remove the `authentication` claim so the card does not promise a trust boundary the service does not have.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "kill-switch-unauthenticated-unaudited-disconnected",
+      "summary": "Global kill switch: no auth, no audit row, and the file it writes is not the one policy reads",
+      "related_files": [
+        "crates/api-server/src/kill.rs",
+        "crates/policy-engine/src/lib.rs",
+        "infra/docker-compose.yml"
+      ],
+      "evidence": [
+        "crates/api-server/src/kill.rs:39-72 writes or removes $POLICIES_DIR/kill from an unauthenticated POST, taking the body as raw Bytes and defaulting an empty body to engaged=true.",
+        "No actor is captured and no audit_log row is written, while every tool decision is appended to the hash chain (crates/tool-server/src/main.rs:82-99).",
+        "infra/docker-compose.yml:311-330 mounts ../policies:/policies:ro into tool-server, but api-server (:341-348) has no policies mount, so its write lands in its own container filesystem and policy-engine's read at crates/policy-engine/src/lib.rs:452 never sees it.",
+        "crates/policy-engine/src/lib.rs:443-456 also honours ARES_KILL_SWITCH, giving two independent switch states with no reconciliation."
+      ],
+      "suggestion": "Gate the POST behind the shared auth layer, append an audit_log event with the caller identity on every engage/disengage, and propagate state through one channel the enforcer reads (a NATS control subject or a writable shared volume), not a per-container file.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "side-effects-bypass-policy-engine",
+      "summary": "Four agents reach side effects outside the policy engine while the same tools are allowlisted",
+      "related_files": [
+        "crates/triage-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/detection-agent/src/main.rs",
+        "crates/detection-agent/src/pipeline.rs",
+        "crates/bas-runner/src/main.rs",
+        "crates/tool-server/src/executors/mod.rs",
+        "policies/tools.yml"
+      ],
+      "evidence": [
+        "crates/triage-agent/src/main.rs:186 and crates/hunt-agent/src/main.rs:125 call ThehiveClient::create_case directly, although thehive.case.create is allowlisted (policies/tools.yml:14) with a real executor (crates/tool-server/src/executors/mod.rs:678).",
+        "crates/detection-agent/src/main.rs:193-195 runs promote_and_commit (file move + git commit) and deploy_monitor (OpenSearch monitor POST with basic auth) before calling detection.sigma.deploy, whose executor is a DryRun (crates/tool-server/src/executors/mod.rs:769-772); the policy verdict is only logged (crates/detection-agent/src/pipeline.rs:266-268).",
+        "crates/bas-runner/src/main.rs:86-116 spawns ssh/winrm for scenario commands with no policy evaluation and no kill-switch check, even though exec.bas.run is registered behind OpenShell (crates/tool-server/src/executors/mod.rs:775-781).",
+        "Only response-agent (crates/response-agent/src/main.rs:280-291) and agent-core (crates/agent-core/src/agent_loop.rs:148-158) route every effect through the gateway."
+      ],
+      "suggestion": "Route each of these effects through HttpToolGateway so the allowlist is the single decision point — delete the direct ThehiveClient calls in triage/hunt, replace detection-agent's promote/deploy_monitor with a real `detection.sigma.deploy` executor that performs the effect, and make bas-runner invoke exec.bas.run — or delete the now-dead allowlist entries so the policy file stops implying coverage it does not provide.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "root_cause_cluster": "side-effect-bypass"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "approval-identity-self-asserted",
+      "summary": "Approver identity comes from the request body and defaults to 'operator'; no separation of duties",
+      "related_files": [
+        "crates/tool-server/src/approvals.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/approvals.rs:213-216 reads `approver` from the optional JSON body and falls back to \"operator\".",
+        "crates/tool-server/src/approvals.rs:276-279 does the same for reject.",
+        "The resulting string is written as the audit actor (approvals.rs:248-255 for approve, 299-308 for reject), so the human-approval record proves only that someone reached an unauthenticated port.",
+        "Nothing compares the approver with the parked call's own `actor`, so the caller that submitted a call can approve it."
+      ],
+      "suggestion": "Derive the approver from the authenticated principal (the same middleware that fixes the authn gap) instead of the body, reject approve/reject when no principal is present, and refuse an approval whose principal equals call.actor to enforce separation of duties.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "actor-string-unverified-and-unused-by-policy",
+      "summary": "ToolCall.actor is caller-supplied and ignored by the policy engine, so authz is per-tool only",
+      "related_files": [
+        "crates/agent-protocol/src/tool.rs",
+        "crates/policy-engine/src/lib.rs",
+        "policies/tools.yml"
+      ],
+      "evidence": [
+        "crates/agent-protocol/src/tool.rs:19 defines actor as a plain String supplied by the caller.",
+        "crates/policy-engine/src/lib.rs:344-440 evaluates kill switch, allowlist, autonomy, schema, forbidden args, protected assets and blast radius — the actor is never consulted, and policies/tools.yml has no per-actor section.",
+        "Actor literals are hardcoded per crate (\"response-agent\" at crates/response-agent/src/main.rs:284, \"detection-agent\" at crates/detection-agent/src/pipeline.rs:258, \"agent-core\" at crates/agent-core/src/agent_loop.rs:152) with no shared constant, and \"agent-core\" is not one of the agents listed in crates/api-server/src/a2a.rs:76-125.",
+        "Because tool-server is unauthenticated, the actor recorded in the audit chain is whatever the client typed."
+      ],
+      "suggestion": "Resolve the actor from the authenticated caller in the tool-server middleware and overwrite call.actor before evaluation, then add a per-actor rule to policies/tools.yml (e.g. an `actors:` map with allowed tool prefixes) so a compromised agent cannot invoke another agent's tools.",
+      "confidence": "medium",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "a2a-task-access-not-scoped-to-agent",
+      "summary": "tasks/get and tasks/cancel ignore the addressed agent, so any agent path reaches any task",
+      "related_files": [
+        "crates/a2a/src/rpc.rs",
+        "crates/api-server/src/a2a.rs"
+      ],
+      "evidence": [
+        "crates/a2a/src/rpc.rs:144-148 declares TaskBackend::get(task_id) and cancel(task_id) with no agent parameter.",
+        "crates/a2a/src/rpc.rs:158-172 dispatches METHOD_GET and METHOD_CANCEL without passing the `agent` path segment it received.",
+        "crates/api-server/src/a2a.rs:478-494 loads and cancels the row by id alone, so POST /a2a/hunt-agent with a triage-agent task id reads or cancels it.",
+        "crates/a2a/src/rpc.rs:153-156 documents that 'the backend validates that it is a known agent', which is only true for send."
+      ],
+      "suggestion": "Add `agent: &str` to TaskBackend::get/cancel, pass the path segment in dispatch, and constrain the SQL with `AND agent = $2` (returning None on mismatch) so a task is only reachable through the agent it was sent to.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "acp-routes-missing-rate-tier",
+      "summary": "ACP run creation and SSE streams fall into the general rate tier while their A2A twins are throttled",
+      "related_files": [
+        "crates/api-server/src/ratelimit.rs",
+        "policies/rate-limits.yml"
+      ],
+      "evidence": [
+        "crates/api-server/src/ratelimit.rs:34-41 assigns Tier::Expensive to POST /cvss/score and any path starting with /a2a/, but not to POST /acp/runs, POST /acp/runs/{id}/cancel or POST /acp/runs/{id}.",
+        "crates/api-server/src/ratelimit.rs:27-33 assigns Tier::Stream to /stream/activity and /a2a/tasks/*/events, but GET /acp/runs/{id}/events falls through to Tier::General, losing both the concurrency cap and the stream exemption from request counting.",
+        "Both surfaces dispatch the same agent work through the same NATS publish path (crates/api-server/src/acp.rs:236-247 and crates/api-server/src/a2a.rs:434-451)."
+      ],
+      "suggestion": "Extend classify() with the ACP twins: `path.starts_with(\"/acp/runs\")` for POST -> Tier::Expensive and `path.ends_with(\"/events\")` for GET -> Tier::Stream, and add the two new cases to the classify_maps_paths_to_tiers test.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "no-db-level-authorization-or-audit-verification",
+      "summary": "Every service uses one owner Postgres role; no RLS anywhere and the audit chain is never verified",
+      "related_files": [
+        "crates/audit/src/lib.rs",
+        "crates/tool-server/src/main.rs",
+        "infra/helm/ares/templates/postgres.yaml"
+      ],
+      "evidence": [
+        "The blind packet reports 7 tables (a2a_tasks, agent_checkpoints, bas_results, response_actions, seen_alerts, tool_idempotency, vuln_advisories) and zero with RLS; each table is created ad hoc by whichever service owns it (e.g. crates/api-server/src/a2a.rs:207-230, crates/tool-server/src/idempotency.rs:125-133).",
+        "Every service connects with the same DATABASE_URL (crates/tool-server/src/main.rs:236-248, crates/api-server/src/main.rs:334), so any of them can UPDATE or DELETE audit_log rows the others wrote.",
+        "crates/audit/src/lib.rs:59-115 writes prev_hash/hash but no code anywhere re-walks the chain to detect tampering (no reader beyond api-server's plain SELECT at crates/api-server/src/main.rs:187-197).",
+        "infra/helm/ares/templates/postgres.yaml provisions a single POSTGRES_USER with no per-service roles."
+      ],
+      "suggestion": "Create per-service Postgres roles at bootstrap with GRANT INSERT/SELECT only on audit_log (no UPDATE/DELETE) and enable RLS on the per-run tables keyed by service role, then add a verify() that re-walks audit_log hash links and expose it through GET /audit so tampering is actually detectable.",
+      "confidence": "medium",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change"
+    },
+    {
+      "dimension": "authorization_consistency",
+      "identifier": "audit-decision-label-hardcoded-deny",
+      "summary": "Reject path hardcodes the \"deny\" decision label instead of the shared decision_label()",
+      "related_files": [
+        "crates/tool-server/src/approvals.rs",
+        "crates/tool-server/src/main.rs"
+      ],
+      "evidence": [
+        "crates/tool-server/src/main.rs:63-69 centralizes the audit vocabulary in decision_label().",
+        "crates/tool-server/src/approvals.rs:252 calls crate::decision_label(&decision.kind) on approve, but approvals.rs:304 passes the literal \"deny\" on reject.",
+        "The label is a query key for audit_log rows (crates/api-server/src/main.rs:187-197 returns `decision` verbatim), so a typo or rename in one path silently splits the audit vocabulary."
+      ],
+      "suggestion": "Replace the literal with crate::decision_label(&DecisionKind::Deny) so both approval outcomes go through the single label function.",
+      "confidence": "low",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Authentication was deferred ('until auth lands') but the authorization layer was built anyway, so the only gate is per-tool rather than per-principal.",
+      "The policy engine was adopted incrementally: response-agent and agent-core were migrated behind tool-server while triage/hunt/detection/bas-runner kept their direct connector calls, leaving allowlist entries that describe coverage the runtime does not have.",
+      "Control-plane state (the kill switch) is passed through a container-local file rather than a channel the enforcer reads, so the override is decorative in the reference deployment."
+    ],
+    "likely_symptoms": [
+      "kill-switch-no-effect",
+      "approvals-queue-exposed",
+      "thehive-writes-missing-from-audit"
+    ],
+    "possible_false_positives": [
+      "Uniform absence of RLS may be intentional for a dev-grade single-node Postgres; the finding is scoped to audit_log integrity, not to every table."
+    ]
+  },
+  "context_updates": {
+    "authorization_consistency": {
+      "add": [
+        {
+          "header": "Single deny-by-default tool gate",
+          "description": "PolicyEngine::evaluate runs a fixed, documented check order (kill switch, allowlist, autonomy, args_schema, forbidden_args, protected assets, blast radius) and returns Deny for anything absent from tools.yml, so a reviewer can predict the verdict path for any tool call.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Hash-chained audit of every verdict",
+          "description": "tool-server appends every decision (allow, deny, approval_required) to audit_log with args_sha256 and prev_hash/hash chaining, and approval outcomes are audited with the approver as actor — the audit trail is designed to be tamper-evident rather than advisory.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Executors re-validate independently of policy",
+          "description": "Executors do not trust the policy verdict: OpenShellExec re-checks a command allowlist and a shell-metacharacter denylist and fails closed when the sandbox is unreachable, giving genuine defense in depth at the last hop.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Router-level rate limiting on both edge services",
+          "description": "api-server and ingestion-gateway both apply the same http_limits middleware at the router, with tier thresholds in policies/rate-limits.yml, so a new route is metered by default instead of opting in.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Authorization gaps documented with a probe",
+          "description": "docs/services.md carries an OWASP API Top 10 table naming each unauthenticated path and scripts/api-security-check.sh probes them, so the gaps are known and re-testable rather than folklore — documentation does not substitute for the missing middleware, but it keeps the backlog honest.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "No inbound authentication anywhere",
+          "description": "All three HTTP services are anonymous by design today; rate-limit keys are the peer IP with an explicit 'until authentication lands' note, so every authorization decision currently applies to a tool name, never to a principal.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Single owner Postgres role, no RLS",
+          "description": "Every service connects with one DATABASE_URL owner role and creates its own tables ad hoc, so there is no per-service database boundary and audit_log is writable by the services it audits.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Actor identity is a caller-supplied string",
+          "description": "ToolCall.actor travels in the request body and is ignored by the policy engine, so audit attribution reflects what the client claimed, not who connected.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Webhooks intentionally unauthenticated",
+          "description": "/webhook/wazuh and /webhook/generic accept anonymous POSTs by documented design and are metered on the ingest tier; this is the one trust boundary the codebase states openly rather than implying protection it lacks.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}
