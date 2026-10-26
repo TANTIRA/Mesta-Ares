@@ -9,6 +9,5 @@ description = "ACP (Agent Communication Protocol) types for ARES"
 [dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
-uuid = { workspace = true }
 chrono = { workspace = true }
 schemars = { workspace = true }

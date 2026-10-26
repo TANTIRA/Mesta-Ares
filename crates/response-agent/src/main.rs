@@ -440,7 +440,7 @@ mod tests {
     fn policy_tools() -> std::collections::HashSet<String> {
         let text = std::fs::read_to_string("../../policies/tools.yml")
             .expect("read policies/tools.yml");
-        let doc: serde_yaml::Value = serde_yaml::from_str(&text).expect("parse tools.yml");
+        let doc: serde_yaml_ng::Value = serde_yaml_ng::from_str(&text).expect("parse tools.yml");
         doc["tools"]
             .as_mapping()
             .expect("tools mapping")

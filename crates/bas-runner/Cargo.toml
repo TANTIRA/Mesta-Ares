@@ -10,7 +10,7 @@ connectors = { path = "../connectors" }
 tokio.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-serde_yaml.workspace = true
+serde_yaml_ng.workspace = true
 uuid.workspace = true
 chrono.workspace = true
 async-nats.workspace = true

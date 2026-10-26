@@ -9,7 +9,6 @@ agent-protocol = { path = "../agent-protocol" }
 http-limits = { path = "../http-limits" }
 tokio.workspace = true
 axum.workspace = true
-serde.workspace = true
 serde_json.workspace = true
 async-nats.workspace = true
 tracing.workspace = true

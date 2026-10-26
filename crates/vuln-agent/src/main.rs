@@ -72,7 +72,7 @@ struct Watchlist {
 
 fn load_watchlist(path: &str) -> Watchlist {
     match std::fs::read_to_string(path) {
-        Ok(raw) => serde_yaml::from_str(&raw).unwrap_or_else(|e| {
+        Ok(raw) => serde_yaml_ng::from_str(&raw).unwrap_or_else(|e| {
             warn!(error = %e, path, "watchlist parse failed; using empty list");
             Watchlist::default()
         }),

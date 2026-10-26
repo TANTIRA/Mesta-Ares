@@ -31,19 +31,18 @@ rust-version = "1.80"
 
 [workspace.dependencies]
 # async runtime + http
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "sync", "signal", "process", "io-util", "fs"] }
 axum = "0.8"
-reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 # data
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-serde_yaml = "0.9"
+serde_yaml_ng = "0.10"
 schemars = { version = "0.8", features = ["chrono", "uuid1"] }
 uuid = { version = "1", features = ["v4", "v5", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 # storage / queue
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json"] }
-pgvector = { version = "0.4", features = ["sqlx"] }
 async-nats = "0.50"
 redis = { version = "0.27", features = ["tokio-comp"] }
 # observability
@@ -56,6 +55,10 @@ clap = { version = "4", features = ["derive", "env"] }
 sha2 = "0.10"
 dashmap = "6"
 futures = "0.3"
+async-trait = "0.1"
+regex = "1"
+fastrand = "2"
+jsonschema = "0.30"
 tower-http = { version = "0.6", features = ["cors"] }
 
 [profile.release]

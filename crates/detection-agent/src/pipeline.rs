@@ -59,7 +59,7 @@ pub async fn draft_sigma(router: &ModelRouter, context: &Value) -> anyhow::Resul
 /// Returns the parsed YAML value for downstream steps.
 pub fn validate_sigma(yaml_text: &str) -> anyhow::Result<Value> {
     // Ensure the text parses as YAML before invoking external tooling.
-    let doc: Value = serde_yaml::from_str(yaml_text).context("sigma draft is not valid YAML")?;
+    let doc: Value = serde_yaml_ng::from_str(yaml_text).context("sigma draft is not valid YAML")?;
 
     if which("sigma").is_some() {
         // `sigma check` needs a file on disk; use a temp file.

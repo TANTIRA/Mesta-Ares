@@ -6,11 +6,11 @@ ARG RUST_VERSION=1.89
 FROM rust:${RUST_VERSION}-slim AS builder
 ARG BIN
 RUN apt-get update \
- && apt-get install -y --no-install-recommends pkg-config libssl-dev \
+ && apt-get install -y --no-install-recommends pkg-config \
  && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 COPY . .
-RUN cargo build --release --bin "${BIN}" \
+RUN cargo build --release --locked --bin "${BIN}" \
  && cp "target/release/${BIN}" /ares-bin
 
 FROM debian:bookworm-slim

@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 61,
-    "open": 455,
+    "fixed": 65,
+    "open": 451,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 35,
-        "open": 72,
+        "fixed": 38,
+        "open": 69,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 6,
-        "open": 246,
+        "fixed": 7,
+        "open": 245,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -9875,11 +9875,11 @@
         "reasoning": "",
         "summary_hash": "98263c1c"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:23:35+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9887,7 +9887,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:23:35+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes": {
       "id": "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
@@ -13989,11 +13995,11 @@
         "reasoning": "",
         "summary_hash": "78bdb6e4"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:23:39+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14001,7 +14007,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:23:39+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::contract_coherence::nvd_get_cve_404_contract": {
       "id": "review::.::holistic::contract_coherence::nvd_get_cve_404_contract",
@@ -14363,11 +14375,11 @@
         "reasoning": "",
         "summary_hash": "8a3272b0"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:23:50+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14375,7 +14387,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:23:50+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::logic_clarity::bas-runner-dry-run-records-results": {
       "id": "review::.::holistic::logic_clarity::bas-runner-dry-run-records-results",
@@ -15091,11 +15109,11 @@
         "reasoning": "",
         "summary_hash": "b3147e21"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:23:52+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -15103,7 +15121,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Added the eight compensating tools to policies/tools.yml and the executor registry (Shuffle removal workflows, wazuh unisolate-host, entra.user.enable via Graph, dry-run for ad/o365/misp) so every rollback_for target is now allowlisted and dispatchable. Added response-agent tests asserting all rollback targets are allowlisted and irreversible tools have none. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:23:52+00:00",
+        "scan_verified": false
+      }
     },
     "structural::crates/api-server/src/acp.rs": {
       "id": "structural::crates/api-server/src/acp.rs",
@@ -17636,7 +17660,7 @@
       },
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:21:52+00:00"
+      "stale_since": "2026-10-26T09:23:35+00:00"
     },
     "ai_generated_debt": {
       "score": 79.0,
@@ -17668,7 +17692,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:15:59+00:00"
+      "stale_since": "2026-10-26T09:23:39+00:00"
     },
     "convention_outlier": {
       "score": 79.5,
@@ -17737,7 +17761,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:16:02+00:00"
+      "stale_since": "2026-10-26T09:23:50+00:00"
     },
     "low_level_elegance": {
       "score": 80.0,
@@ -17779,7 +17803,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:21:48+00:00"
+      "stale_since": "2026-10-26T09:23:52+00:00"
     }
   },
   "scan_history": [
@@ -22246,13 +22270,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 4,
+      "failing": 3,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 4,
+          "failing": 3,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,
@@ -22345,13 +22369,13 @@
       "strict": 80.0,
       "verified_strict_score": 80.0,
       "checks": 10,
-      "failing": 9,
+      "failing": 8,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.8,
-          "failing": 9,
+          "failing": 8,
           "weighted_failures": 2.0,
           "assessment_score": 80.0,
           "placeholder": false,
@@ -22534,13 +22558,13 @@
       "strict": 82.5,
       "verified_strict_score": 82.5,
       "checks": 10,
-      "failing": 9,
+      "failing": 8,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.825,
-          "failing": 9,
+          "failing": 8,
           "weighted_failures": 1.75,
           "assessment_score": 82.5,
           "placeholder": false,
@@ -22660,13 +22684,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 8,
+          "failing": 7,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,

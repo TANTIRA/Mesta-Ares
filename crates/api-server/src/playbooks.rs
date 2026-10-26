@@ -38,7 +38,7 @@ fn load_playbooks() -> (Vec<Value>, Vec<String>) {
         }
         match std::fs::read_to_string(&path)
             .map_err(anyhow::Error::from)
-            .and_then(|t| serde_yaml::from_str::<Value>(&t).map_err(Into::into))
+            .and_then(|t| serde_yaml_ng::from_str::<Value>(&t).map_err(Into::into))
         {
             Ok(mut doc) => {
                 if doc.is_object() {

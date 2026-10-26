@@ -322,7 +322,7 @@ pub async fn well_known_manifest() -> impl IntoResponse {
     };
     (
         [(axum::http::header::CONTENT_TYPE, "application/yaml")],
-        serde_yaml::to_string(&manifest).unwrap_or_default(),
+        serde_yaml_ng::to_string(&manifest).unwrap_or_default(),
     )
 }
 

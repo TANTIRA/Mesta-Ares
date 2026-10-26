@@ -16,11 +16,9 @@ serde_json = { workspace = true }
 uuid = { workspace = true }
 reqwest = { workspace = true }
 tokio = { workspace = true }
-fastrand = "2"
-# Declared directly: the workspace sqlx spec requests a nonexistent `pgvector`
-# feature (pgvector support comes from the separate `pgvector` crate).
-sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json"] }
+fastrand.workspace = true
+sqlx = { workspace = true }
 dashmap = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
-async-trait = "0.1"
+async-trait.workspace = true

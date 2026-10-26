@@ -8,5 +8,4 @@ description = "CVSS v3.1 and v4.0 vector parsing and scoring per the FIRST speci
 
 [dependencies]
 serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 thiserror = { workspace = true }

@@ -96,7 +96,7 @@ pub struct ToolPolicy {
     pub impact: Impact,
     pub autonomy: Autonomy,
     #[serde(default)]
-    pub args_schema: Option<serde_yaml::Value>,
+    pub args_schema: Option<serde_yaml_ng::Value>,
     #[serde(default)]
     pub blast_radius: Option<BlastRadius>,
     #[serde(default)]
@@ -269,7 +269,7 @@ impl PolicyEngine {
     pub fn load(dir: &Path) -> Result<Self> {
         let tools_text = std::fs::read_to_string(dir.join("tools.yml"))
             .with_context(|| format!("read {}/tools.yml", dir.display()))?;
-        let parsed: ToolsFile = serde_yaml::from_str(&tools_text).context("parse tools.yml")?;
+        let parsed: ToolsFile = serde_yaml_ng::from_str(&tools_text).context("parse tools.yml")?;
 
         let mut tools = HashMap::with_capacity(parsed.tools.len());
         for (name, policy) in parsed.tools {
@@ -291,7 +291,7 @@ impl PolicyEngine {
         let prot_text = std::fs::read_to_string(dir.join("protected-assets.yml"))
             .with_context(|| format!("read {}/protected-assets.yml", dir.display()))?;
         let prot_file: ProtectedFile =
-            serde_yaml::from_str(&prot_text).context("parse protected-assets.yml")?;
+            serde_yaml_ng::from_str(&prot_text).context("parse protected-assets.yml")?;
         let protected = Protected::from_raw(prot_file.protected)?;
 
         Ok(Self {

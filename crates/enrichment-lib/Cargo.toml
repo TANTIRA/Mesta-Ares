@@ -10,10 +10,9 @@ connectors = { path = "../connectors" }
 serde.workspace = true
 serde_json.workspace = true
 reqwest.workspace = true
-tokio.workspace = true
 tracing.workspace = true
 anyhow.workspace = true
 futures.workspace = true
 sha2.workspace = true
 redis.workspace = true
-regex = "1"
+regex.workspace = true

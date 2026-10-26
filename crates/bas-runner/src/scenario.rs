@@ -55,7 +55,7 @@ pub fn load_all() -> anyhow::Result<Vec<(PathBuf, Scenario)>> {
         let text =
             std::fs::read_to_string(&path).with_context(|| format!("read {}", path.display()))?;
         let scenario: Scenario =
-            serde_yaml::from_str(&text).with_context(|| format!("parse {}", path.display()))?;
+            serde_yaml_ng::from_str(&text).with_context(|| format!("parse {}", path.display()))?;
         out.push((path, scenario));
     }
     out.sort_by(|a, b| a.1.id.cmp(&b.1.id));

@@ -39,7 +39,7 @@ pub async fn get_coverage() -> Result<impl IntoResponse, (StatusCode, String)> {
         rules += 1;
         match std::fs::read_to_string(&path)
             .map_err(anyhow::Error::from)
-            .and_then(|t| serde_yaml::from_str::<Value>(&t).map_err(Into::into))
+            .and_then(|t| serde_yaml_ng::from_str::<Value>(&t).map_err(Into::into))
         {
             Ok(doc) => {
                 if let Some(tags) = doc.get("tags").and_then(Value::as_array) {

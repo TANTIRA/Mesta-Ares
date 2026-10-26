@@ -98,7 +98,7 @@ impl RateLimits {
     /// is missing or fails to parse (boot never fails on policy drift).
     pub fn load(path: &Path) -> Self {
         match std::fs::read_to_string(path) {
-            Ok(text) => match serde_yaml::from_str(&text) {
+            Ok(text) => match serde_yaml_ng::from_str(&text) {
                 Ok(limits) => limits,
                 Err(e) => {
                     warn!(error = %e, path = %path.display(),

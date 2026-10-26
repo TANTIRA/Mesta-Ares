@@ -9,10 +9,9 @@ description = "A2A (Agent2Agent) protocol types and JSON-RPC dispatcher for ARES
 [dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
-uuid = { workspace = true }
 chrono = { workspace = true }
 schemars = { workspace = true }
-async-trait = "0.1"
+async-trait.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true }
