@@ -9,6 +9,7 @@ a2a = { path = "../a2a" }
 acp = { path = "../acp" }
 agent-protocol = { path = "../agent-protocol" }
 agent-core = { path = "../agent-core" }
+audit = { path = "../audit" }
 connectors = { path = "../connectors" }
 cvss = { path = "../cvss" }
 enrichment-lib = { path = "../enrichment-lib" }

@@ -534,7 +534,7 @@ paths:
       tags: [ACP]
       summary: One manifest
       parameters:
-        - $ref: '#/components/parameters/AgentName'
+        - $ref: '#/components/parameters/AcpAgentName'
       responses:
         '200':
           description: Manifest
@@ -557,7 +557,7 @@ paths:
               $ref: '#/components/schemas/AcpRunCreateRequest'
       responses:
         '200':
-          description: Completed run (`mode: sync`) or event stream (`mode: stream`)
+          description: 'Completed run (`mode: sync`) or event stream (`mode: stream`)'
           content:
             application/json:
               schema:
@@ -565,7 +565,7 @@ paths:
             text/event-stream:
               schema: { type: string }
         '202':
-          description: Run accepted (`mode: async`)
+          description: 'Run accepted (`mode: async`)'
           content:
             application/json:
               schema:
@@ -675,6 +675,11 @@ components:
         pattern: '^CVE-[0-9]{4}-[0-9]{4,7}$'
     AgentName:
       name: agent
+      in: path
+      required: true
+      schema: { type: string, example: triage-agent }
+    AcpAgentName:
+      name: name
       in: path
       required: true
       schema: { type: string, example: triage-agent }
@@ -841,7 +846,9 @@ components:
       required: [jsonrpc, method]
       properties:
         jsonrpc: { type: string, enum: ['2.0'] }
-        id: { oneOf: [{ type: string }, { type: integer }, { type: 'null' }] }
+        id:
+          description: Request id (string or number; `null` for notifications).
+          oneOf: [{ type: string }, { type: integer }]
         method:
           type: string
           enum: [tasks/send, tasks/get, tasks/cancel, tasks/sendSubscribe]
@@ -852,7 +859,9 @@ components:
       required: [jsonrpc]
       properties:
         jsonrpc: { type: string, enum: ['2.0'] }
-        id: { oneOf: [{ type: string }, { type: integer }, { type: 'null' }] }
+        id:
+          description: Request id (string or number; `null` for notifications).
+          oneOf: [{ type: string }, { type: integer }]
         result: { type: object }
         error:
           type: object
@@ -947,3 +956,5 @@ components:
           enum: [server_error, invalid_input, not_found]
         message: { type: string }
         data: { type: object, nullable: true }
+
+security: []

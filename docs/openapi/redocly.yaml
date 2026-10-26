@@ -1,0 +1,20 @@
+# Lint ruleset for the Ares specs.
+#
+#   npx --yes @redocly/cli lint --config docs/openapi/redocly.yaml docs/openapi/*.yaml
+#
+# Structural rules stay errors. Stylistic rules that the specs deliberately do
+# not follow are off: these are internal service contracts (no license block,
+# no operationId requirement, verbs appear only where no noun exists).
+extends:
+  - recommended
+
+rules:
+  operation-operationId: off
+  operation-4xx-response: off
+  info-license: off
+  tag-description: off
+  no-ambiguous-paths: off
+  operation-summary: error
+  no-unresolved-refs: error
+  struct: error
+  path-parameters-defined: error

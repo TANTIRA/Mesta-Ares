@@ -141,8 +141,20 @@ pub(crate) fn find_agent(name: &str) -> Option<&'static AgentDef> {
     AGENTS.iter().find(|a| a.name == name)
 }
 
+/// Authentication schemes advertised on cards: bearer only when inbound
+/// authentication is actually configured.
+fn auth_schemes(auth_enabled: bool) -> Authentication {
+    Authentication {
+        schemes: if auth_enabled {
+            vec!["bearer".to_string()]
+        } else {
+            Vec::new()
+        },
+    }
+}
+
 /// Builds the [`AgentCard`] for one agent.
-fn card_for(def: &AgentDef) -> AgentCard {
+fn card_for(def: &AgentDef, auth_enabled: bool) -> AgentCard {
     AgentCard {
         name: def.name.to_string(),
         description: def.description.to_string(),
@@ -155,9 +167,7 @@ fn card_for(def: &AgentDef) -> AgentCard {
             push_notifications: false,
             state_transition_history: false,
         },
-        authentication: Authentication {
-            schemes: vec!["bearer".to_string()],
-        },
+        authentication: auth_schemes(auth_enabled),
         skills: def
             .skills
             .iter()
@@ -173,7 +183,7 @@ fn card_for(def: &AgentDef) -> AgentCard {
 }
 
 /// Top-level discovery card representing the Ares platform itself.
-fn orchestrator_card() -> AgentCard {
+fn orchestrator_card(auth_enabled: bool) -> AgentCard {
     AgentCard {
         name: "ares-orchestrator".to_string(),
         description: "Ares agentic SIEM+SOAR: routes work to the triage, response, detection and hunt agents.".to_string(),
@@ -186,9 +196,7 @@ fn orchestrator_card() -> AgentCard {
             push_notifications: false,
             state_transition_history: false,
         },
-        authentication: Authentication {
-            schemes: vec!["bearer".to_string()],
-        },
+        authentication: auth_schemes(auth_enabled),
         skills: AGENTS
             .iter()
             .map(|def| Skill {
@@ -429,39 +437,50 @@ impl TaskBackend for PgBackend<'_> {
         })
     }
 
-    async fn get(&self, task_id: &str) -> Result<Option<Task>, BackendError> {
-        Ok(load_task(&self.s.pool, task_id).await?.map(|(t, _)| t))
+    async fn get(&self, agent: &str, task_id: &str) -> Result<Option<Task>, BackendError> {
+        Ok(load_task(&self.s.pool, task_id)
+            .await?
+            .filter(|(_, stored_agent)| stored_agent == agent)
+            .map(|(t, _)| t))
     }
 
-    async fn cancel(&self, task_id: &str) -> Result<Option<Task>, BackendError> {
+    async fn cancel(&self, agent: &str, task_id: &str) -> Result<Option<Task>, BackendError> {
         // Only marks the row; in-flight agents do not observe the flag.
         // (known gap: agents never poll a cancellation table.)
         sqlx::query(
             "UPDATE a2a_tasks SET state = 'canceled', updated_at = now()
-             WHERE id = $1 AND state NOT IN ('completed', 'failed', 'canceled')",
+             WHERE id = $1 AND agent = $2
+               AND state NOT IN ('completed', 'failed', 'canceled')",
         )
         .bind(task_id)
+        .bind(agent)
         .execute(&self.s.pool)
         .await
         .map_err(|e| BackendError::Internal(e.to_string()))?;
-        Ok(load_task(&self.s.pool, task_id).await?.map(|(t, _)| t))
+        self.get(agent, task_id).await
     }
 }
 
 /// `GET /a2a/agents` — every invocable agent card.
-pub async fn list_agents() -> Json<Value> {
-    Json(json!(AGENTS.iter().map(card_for).collect::<Vec<_>>()))
+pub async fn list_agents(State(s): State<Arc<AppState>>) -> Json<Value> {
+    Json(json!(AGENTS
+        .iter()
+        .map(|def| card_for(def, s.auth_enabled))
+        .collect::<Vec<_>>()))
 }
 
 /// `GET /.well-known/agent.json` — the platform-level card.
-pub async fn well_known_card() -> Json<AgentCard> {
-    Json(orchestrator_card())
+pub async fn well_known_card(State(s): State<Arc<AppState>>) -> Json<AgentCard> {
+    Json(orchestrator_card(s.auth_enabled))
 }
 
 /// `GET /a2a/{agent}/.well-known/agent.json` — one agent's card.
-pub async fn agent_card(Path(name): Path<String>) -> Result<Json<AgentCard>, StatusCode> {
+pub async fn agent_card(
+    State(s): State<Arc<AppState>>,
+    Path(name): Path<String>,
+) -> Result<Json<AgentCard>, StatusCode> {
     find_agent(&name)
-        .map(|def| Json(card_for(def)))
+        .map(|def| Json(card_for(def, s.auth_enabled)))
         .ok_or(StatusCode::NOT_FOUND)
 }
 

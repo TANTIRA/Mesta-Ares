@@ -134,12 +134,20 @@ async fn main() -> anyhow::Result<()> {
         tokio::spawn(pollers::entra_signin_poller(state.sink.clone()));
     }
 
-    // Per-key rate limits on the webhook tier (peer IP until auth lands).
+    // Per-key rate limits on the webhook tier (authenticated actor when keys
+    // are configured, else peer IP).
     let rate_limiter = ratelimit::build();
     let app = Router::new()
         .route("/health", get(health))
-        .route("/webhook/wazuh", post(wazuh_webhook))
-        .route("/webhook/generic", post(generic_webhook))
+        .merge(
+            Router::new()
+                .route("/webhook/wazuh", post(wazuh_webhook))
+                .route("/webhook/generic", post(generic_webhook))
+                .layer(middleware::from_fn_with_state(
+                    http_limits::auth::ApiKeys::from_env(),
+                    http_limits::auth::require_auth,
+                )),
+        )
         .layer(middleware::from_fn_with_state(
             rate_limiter,
             http_limits::middleware,

@@ -8333,18 +8333,25 @@
         "summary_hash": "117f858a"
       },
       "status": "open",
-      "note": null,
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
       "resolved_at": null,
-      "reopen_count": 0,
+      "reopen_count": 1,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
       "origin": "review_import",
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual_reopen",
+        "text": null,
+        "attested_at": "2026-10-26T09:53:27+00:00",
+        "scan_verified": false,
+        "previous_status": "fixed"
+      }
     },
     "review::.::holistic::cross_module_architecture::jetstream_publish_duplicated": {
       "id": "review::.::holistic::cross_module_architecture::jetstream_publish_duplicated",
@@ -17995,8 +18002,8 @@
       "source": "holistic",
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
-      "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:52:16+00:00"
+      "refresh_reason": "review_issue_open",
+      "stale_since": "2026-10-26T09:53:27+00:00"
     },
     "dependency_health": {
       "score": 78.0,

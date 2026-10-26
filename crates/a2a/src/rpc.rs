@@ -143,10 +143,12 @@ pub trait TaskBackend: Send + Sync {
     ) -> Result<Task, BackendError>;
 
     /// Return the current state of `task_id`, or `None` when unknown.
-    async fn get(&self, task_id: &str) -> Result<Option<Task>, BackendError>;
+    /// Load `task_id`, scoped to the `agent` the request was addressed to so
+    /// `/a2a/{agent}` cannot read another agent's task.
+    async fn get(&self, agent: &str, task_id: &str) -> Result<Option<Task>, BackendError>;
 
-    /// Cancel `task_id`; returns the canceled task, or `None` when unknown.
-    async fn cancel(&self, task_id: &str) -> Result<Option<Task>, BackendError>;
+    /// Cancel `task_id` for `agent`; returns the canceled task, or `None`.
+    async fn cancel(&self, agent: &str, task_id: &str) -> Result<Option<Task>, BackendError>;
 }
 
 /// Routes one [`JsonRpcRequest`] to `backend` for the agent named `agent`.
@@ -194,9 +196,9 @@ pub async fn dispatch<B: TaskBackend + ?Sized>(
                 }
             };
             let result = if req.method == METHOD_GET {
-                backend.get(&params.id).await
+                backend.get(agent, &params.id).await
             } else {
-                backend.cancel(&params.id).await
+                backend.cancel(agent, &params.id).await
             };
             match result {
                 Ok(Some(task)) => match serde_json::to_value(&task) {
@@ -246,7 +248,7 @@ mod tests {
             })
         }
 
-        async fn get(&self, task_id: &str) -> Result<Option<Task>, BackendError> {
+        async fn get(&self, _agent: &str, task_id: &str) -> Result<Option<Task>, BackendError> {
             Ok((task_id == "exists").then(|| Task {
                 id: task_id.into(),
                 session_id: None,
@@ -257,7 +259,7 @@ mod tests {
             }))
         }
 
-        async fn cancel(&self, task_id: &str) -> Result<Option<Task>, BackendError> {
+        async fn cancel(&self, _agent: &str, task_id: &str) -> Result<Option<Task>, BackendError> {
             Ok((task_id == "exists").then(|| Task {
                 id: task_id.into(),
                 session_id: None,

@@ -8333,11 +8333,11 @@
         "summary_hash": "117f858a"
       },
       "status": "fixed",
-      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "note": "bas-runner now publishes one BasResult envelope on ares.bas; the orchestrator routes it to ares.detection only when payload.detected is false, so detection-agent no longer receives each coverage gap twice.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": "2026-10-26T09:52:25+00:00",
-      "reopen_count": 0,
+      "resolved_at": "2026-10-26T09:53:33+00:00",
+      "reopen_count": 1,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
       "origin": "review_import",
@@ -8347,8 +8347,8 @@
       "suppression_pattern": null,
       "resolution_attestation": {
         "kind": "manual",
-        "text": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score.",
-        "attested_at": "2026-10-26T09:52:25+00:00",
+        "text": "I have actually bas-runner now publishes one BasResult envelope on ares.bas; the orchestrator routes it to ares.detection only when payload.detected is false, so detection-agent no longer receives each coverage gap twice. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:53:33+00:00",
         "scan_verified": false
       }
     },
@@ -18002,7 +18002,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:52:25+00:00"
+      "stale_since": "2026-10-26T09:53:33+00:00"
     },
     "dependency_health": {
       "score": 78.0,

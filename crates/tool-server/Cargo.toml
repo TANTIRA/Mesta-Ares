@@ -7,6 +7,7 @@ rust-version.workspace = true
 
 [dependencies]
 agent-protocol = { path = "../agent-protocol" }
+http-limits = { path = "../http-limits" }
 policy-engine = { path = "../policy-engine" }
 connectors = { path = "../connectors" }
 cvss = { path = "../cvss" }

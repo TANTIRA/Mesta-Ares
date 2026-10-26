@@ -179,12 +179,10 @@ pub async fn list(
     Json(s.approvals.list(q.status))
 }
 
-/// Body for approve/reject.
+/// Body for approve/reject. The deciding identity comes from the
+/// authenticated [`http_limits::auth::Actor`], never from the body.
 #[derive(Debug, Deserialize)]
 pub struct DecideBody {
-    /// Identity of the human deciding; defaults to `operator`.
-    #[serde(default)]
-    approver: Option<String>,
     /// Optional note (reject reason).
     #[serde(default)]
     reason: Option<String>,
@@ -208,12 +206,12 @@ pub struct Outcome {
 pub async fn approve(
     State(s): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
+    actor: Option<axum::extract::Extension<http_limits::auth::Actor>>,
     body: Option<Json<DecideBody>>,
 ) -> Result<Json<Outcome>, (StatusCode, String)> {
-    let by = body
-        .as_ref()
-        .and_then(|Json(b)| b.approver.clone())
-        .unwrap_or_else(|| "operator".to_string());
+    let by = actor
+        .map(|a| a.0 .0.clone())
+        .unwrap_or_else(|| "anonymous".to_string());
 
     let settled = s
         .approvals
@@ -272,12 +270,12 @@ pub async fn approve(
 pub async fn reject(
     State(s): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
+    actor: Option<axum::extract::Extension<http_limits::auth::Actor>>,
     body: Option<Json<DecideBody>>,
 ) -> Result<Json<Outcome>, (StatusCode, String)> {
-    let by = body
-        .as_ref()
-        .and_then(|Json(b)| b.approver.clone())
-        .unwrap_or_else(|| "operator".to_string());
+    let by = actor
+        .map(|a| a.0 .0.clone())
+        .unwrap_or_else(|| "anonymous".to_string());
     let note = body.as_ref().and_then(|Json(b)| b.reason.clone());
 
     let settled = s

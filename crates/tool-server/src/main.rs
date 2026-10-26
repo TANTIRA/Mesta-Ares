@@ -283,12 +283,19 @@ async fn main() -> Result<()> {
     });
 
     let app = Router::new()
-        .route("/invoke", post(invoke))
-        .route("/tools", get(tools))
-        .route("/approvals", get(approvals::list))
-        .route("/approvals/{id}/approve", post(approvals::approve))
-        .route("/approvals/{id}/reject", post(approvals::reject))
         .route("/health", get(health))
+        .merge(
+            Router::new()
+                .route("/invoke", post(invoke))
+                .route("/tools", get(tools))
+                .route("/approvals", get(approvals::list))
+                .route("/approvals/{id}/approve", post(approvals::approve))
+                .route("/approvals/{id}/reject", post(approvals::reject))
+                .layer(axum::middleware::from_fn_with_state(
+                    http_limits::auth::ApiKeys::from_env(),
+                    http_limits::auth::require_auth,
+                )),
+        )
         .with_state(state);
 
     let bind: SocketAddr = std::env::var("BIND_ADDR")

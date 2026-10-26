@@ -87,6 +87,10 @@ struct AppState {
     activity_tx: stream::ActivityTx,
     /// Durable NATS publisher shared by the A2A and ACP endpoints.
     sink: agent_core::NatsSink,
+    /// Whether inbound authentication is configured (advertised on cards).
+    auth_enabled: bool,
+    /// Audit writer for control-plane changes; `None` when the DB is down.
+    audit: Option<Arc<audit::AuditWriter>>,
 }
 
 /// Liveness probe.
@@ -280,8 +284,19 @@ async fn get_plan(
 
 /// The complete route table (axum 0.8 `{param}` syntax).
 fn api_router() -> Router<Arc<AppState>> {
+    // `/health` stays open so probes work without credentials; every other
+    // route sits behind `http_limits::auth`.
     Router::new()
         .route("/health", get(health))
+        .merge(protected_router().layer(middleware::from_fn_with_state(
+            http_limits::auth::ApiKeys::from_env(),
+            http_limits::auth::require_auth,
+        )))
+}
+
+/// Every route except `/health`.
+fn protected_router() -> Router<Arc<AppState>> {
+    Router::new()
         .route("/alerts", get(list_alerts))
         .route("/alerts/{id}", get(get_alert))
         .route("/cases", get(list_cases))
@@ -338,6 +353,7 @@ async fn main() -> anyhow::Result<()> {
     let sink = agent_core::NatsSink::from_client(nats.clone()).await;
     let activity_tx = stream::spawn_activity_relay(nats.clone()).await?;
     let _ = kill_switch_engaged(); // warm the check path at boot
+    let audit = Some(Arc::new(audit::AuditWriter::new(pool.clone())));
 
     let state = Arc::new(AppState {
         os: conn_cfg
@@ -351,6 +367,8 @@ async fn main() -> anyhow::Result<()> {
         enricher: enrichment_lib::Enricher::new(),
         activity_tx,
         sink,
+        auth_enabled: http_limits::auth::ApiKeys::from_env().is_enabled(),
+        audit,
     });
 
     // Per-key rate limits (peer IP until auth lands). CORS stays outermost

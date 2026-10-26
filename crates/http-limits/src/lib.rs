@@ -6,14 +6,17 @@
 //! streams skip request counting and are instead capped on concurrent
 //! connections per key.
 //!
-//! Keys are the peer IP (`axum::extract::ConnectInfo`) until authentication
-//! lands; requests without connect info share one fallback bucket. Limits
+//! Keys are the authenticated [`auth::Actor`] when inbound authentication is
+//! configured, else the peer IP (`axum::extract::ConnectInfo`); requests
+//! without either share one fallback bucket. Limits
 //! load from `$POLICIES_DIR/rate-limits.yml` with built-in defaults.
 //!
 //! Responses carry the legacy trio `x-ratelimit-limit` (bucket capacity /
 //! stream cap), `x-ratelimit-remaining`, `x-ratelimit-reset` (epoch seconds
 //! when the bucket refills; "now" for streams). Rejection is HTTP 429 with
 //! `Retry-After: <seconds>` and `{"error":"rate_limit_exceeded"}`.
+
+pub mod auth;
 
 use std::{
     io::ErrorKind,

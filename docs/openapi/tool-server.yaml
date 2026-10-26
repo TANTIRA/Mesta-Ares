@@ -37,7 +37,7 @@ paths:
     get:
       tags: [Meta]
       summary: Effective allowlist
-      description: Sorted tool names from `policies/tools.yml` (including `autonomy: deny` entries).
+      description: 'Sorted tool names from `policies/tools.yml` (including `autonomy: deny` entries).'
       responses:
         '200':
           description: Tool names
@@ -197,7 +197,7 @@ components:
         ok: { type: boolean }
         output:
           type: object
-          description: Tool output, or `{"retryable": true}` on transient failure.
+          description: 'Tool output, or `{"retryable": true}` on transient failure.'
         error:
           type: string
           nullable: true
@@ -233,9 +233,7 @@ components:
         decided_at: { type: string, format: date-time, nullable: true }
         decided_by: { type: string, nullable: true }
         result:
-          allOf:
-            - $ref: '#/components/schemas/ToolResult'
-          nullable: true
+          $ref: '#/components/schemas/ToolResult'
 
     DecideBody:
       type: object
@@ -254,10 +252,8 @@ components:
         approval:
           $ref: '#/components/schemas/Approval'
         decision:
-          allOf:
-            - $ref: '#/components/schemas/Decision'
-          nullable: true
+          $ref: '#/components/schemas/Decision'
         result:
-          allOf:
-            - $ref: '#/components/schemas/ToolResult'
-          nullable: true
+          $ref: '#/components/schemas/ToolResult'
+
+security: []

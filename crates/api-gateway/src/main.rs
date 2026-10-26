@@ -272,3 +272,94 @@ mod tests {
         let _ = router(state, auth, rl);
     }
 }
+
+#[cfg(test)]
+mod spec_tests {
+    /// Every OpenAPI file parses and every internal `$ref` resolves.
+    ///
+    /// A dangling `$ref` is otherwise silent until someone opens the docs.
+    #[test]
+    fn specs_are_valid_openapi() {
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/openapi");
+        let mut checked = 0;
+        for entry in std::fs::read_dir(&dir).expect("docs/openapi readable") {
+            let path = entry.expect("dir entry").path();
+            if path.extension().and_then(|e| e.to_str()) != Some("yaml") {
+                continue;
+            }
+            let text = std::fs::read_to_string(&path).expect("spec readable");
+            let doc: serde_yaml_ng::Value = serde_yaml_ng::from_str(&text)
+                .unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+
+            // `redocly.yaml` is the lint ruleset, not a spec.
+            let Some(version) = doc["openapi"].as_str() else {
+                continue;
+            };
+            assert!(
+                version.starts_with("3.0") || version.starts_with("3.1"),
+                "{}: openapi must be 3.0+, got {version:?}",
+                path.display()
+            );
+            for key in ["info", "paths"] {
+                assert!(
+                    doc.get(key).is_some(),
+                    "{}: missing top-level `{key}`",
+                    path.display()
+                );
+            }
+            let paths = doc["paths"].as_mapping().expect("paths is a mapping");
+            for (name, _) in paths {
+                let p = name.as_str().unwrap_or_default();
+                assert!(
+                    p.starts_with('/'),
+                    "{}: path `{p}` must start with /",
+                    path.display()
+                );
+            }
+
+            let mut refs = Vec::new();
+            collect_refs(&doc, &mut refs);
+            for r in refs {
+                assert!(
+                    resolve_ref(&doc, &r),
+                    "{}: unresolved $ref `{r}`",
+                    path.display()
+                );
+            }
+            checked += 1;
+        }
+        assert!(
+            checked >= 4,
+            "expected the four service specs, found {checked}"
+        );
+    }
+
+    fn collect_refs(value: &serde_yaml_ng::Value, out: &mut Vec<String>) {
+        match value {
+            serde_yaml_ng::Value::String(s) if s.starts_with("#/") => out.push(s.clone()),
+            serde_yaml_ng::Value::Mapping(m) => {
+                for (_, v) in m {
+                    collect_refs(v, out);
+                }
+            }
+            serde_yaml_ng::Value::Sequence(s) => {
+                for v in s {
+                    collect_refs(v, out);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// Resolves a local `#/a/b/c` pointer.
+    fn resolve_ref(doc: &serde_yaml_ng::Value, pointer: &str) -> bool {
+        let mut cur = doc;
+        for segment in pointer.trim_start_matches("#/").split('/') {
+            match cur.get(segment) {
+                Some(next) => cur = next,
+                None => return false,
+            }
+        }
+        true
+    }
+}

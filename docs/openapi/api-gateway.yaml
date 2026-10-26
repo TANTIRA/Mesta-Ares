@@ -274,13 +274,13 @@ components:
           type: object
           properties:
             metrics:
-              description: api-server `/metrics` body, or `{"error": "..."}`.
+              description: 'api-server `/metrics` body, or `{"error": "..."}`.'
               type: object
             alerts:
-              description: api-server `/alerts` body, or `{"error": "..."}`.
+              description: 'api-server `/alerts` body, or `{"error": "..."}`.'
               type: object
             advisories:
-              description: api-server `/vulns/advisories` body, or `{"error": "..."}`.
+              description: 'api-server `/vulns/advisories` body, or `{"error": "..."}`.'
               type: object
 
 security:

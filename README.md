@@ -90,6 +90,7 @@ manifests for the same stack live in `infra/k8s` — deploy with
 | `crates/` | Rust workspace (see `Cargo.toml`): control plane (`tool-server`, `policy-engine`, `audit`, `idempotency`), edge (`api-server`, `ingestion-gateway`), agents (`orchestrator`, triage/response/detection/hunt/vuln), shared libs (`agent-protocol`, `agent-core`, `llm-client`, `connectors`, `enrichment-lib`, `cvss`, `http-limits`, `a2a`, `acp`), and `bas-runner` |
 | `apps/console/` | Next.js console |
 | `infra/` | docker-compose dev stack, Dockerfiles, Helm chart, plain k8s manifests, Wazuh integration |
+| `docs/openapi/` | OpenAPI 3.0.3 specs for every HTTP surface (gateway, api-server, tool-server, ingestion-gateway) |
 | `policies/` | Tool allowlist + protected assets (policy gate inputs) |
 | `detection-content/` | Sigma rules — `active/` deployed, `pending/` agent drafts |
 | `evals/` | Golden sets + policy negative-test matrix for offline eval |
