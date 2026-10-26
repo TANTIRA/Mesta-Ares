@@ -29,7 +29,7 @@ use serde_json::{json, Value};
 use tracing::{error, info, warn, Instrument};
 use uuid::Uuid;
 
-use agent_core::publish_activity;
+use agent_core::{kill_switch_engaged, publish_activity};
 use agent_protocol::activity::ActivityEvent;
 
 /// Cron interval between autonomous detection cycles (seconds).
@@ -170,6 +170,21 @@ async fn run_cycle(deps: &Deps, trigger: &str, correlation_id: Uuid) -> anyhow::
                 "detection",
                 "rejected",
                 format!("{title}: {fp_count} > max"),
+            ),
+        )
+        .await;
+        return Ok(());
+    }
+
+    if kill_switch_engaged() {
+        warn!(rule = title, "kill switch engaged; deployment halted");
+        publish_activity(
+            &deps.nats,
+            &ActivityEvent::new(
+                correlation_id,
+                "detection",
+                "kill_switch",
+                format!("{title}: deployment halted"),
             ),
         )
         .await;

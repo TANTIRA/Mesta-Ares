@@ -135,6 +135,11 @@ pub(crate) fn terminal_step(agent: &str, step: &str) -> bool {
     }
 }
 
+/// Activity steps that end a run as a halt rather than a success.
+pub(crate) fn aborted_step(step: &str) -> bool {
+    matches!(step, "kill_switch" | "rejected")
+}
+
 /// Looks up an agent definition by its `/a2a/{name}` segment.
 pub(crate) fn find_agent(name: &str) -> Option<&'static AgentDef> {
     AGENTS.iter().find(|a| a.name == name)
@@ -327,7 +332,7 @@ async fn load_task(pool: &PgPool, task_id: &str) -> Result<Option<(Task, String)
                     parts: vec![Part::Text { text }],
                     metadata: None,
                 });
-                Task::mark_completed(pool, &row.id).await;
+                Task::mark_terminal(pool, &row.id, false).await;
             }
             CheckpointProgress::InProgress => state = TaskState::Working,
             CheckpointProgress::None => {}
@@ -542,13 +547,13 @@ impl RunRecord for Task {
             .map_err(|e| e.to_string())
     }
 
-    async fn mark_completed(pool: &PgPool, id: &str) {
-        let _ = sqlx::query(
-            "UPDATE a2a_tasks SET state = 'completed', updated_at = now() WHERE id = $1",
-        )
-        .bind(id)
-        .execute(pool)
-        .await;
+    async fn mark_terminal(pool: &PgPool, id: &str, aborted: bool) {
+        let state = if aborted { "failed" } else { "completed" };
+        let _ = sqlx::query("UPDATE a2a_tasks SET state = $2, updated_at = now() WHERE id = $1")
+            .bind(id)
+            .bind(state)
+            .execute(pool)
+            .await;
     }
 }
 

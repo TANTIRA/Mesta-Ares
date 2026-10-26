@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 21,
-    "open": 495,
+    "fixed": 22,
+    "open": 494,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 0,
-        "open": 107,
+        "fixed": 1,
+        "open": 106,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -9564,11 +9564,11 @@
         "reasoning": "",
         "summary_hash": "62b3ecc9"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Moved ActivityEvent + SUBJECT_ACTIVITY into agent-protocol::activity (step: String), added agent_core::publish_activity, deleted the four per-agent activity.rs copies and all five emit helpers; vuln-agent now emits the shared struct with a real workflow_run_id (Uuid::new_v4 per poll).",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:10:38+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9576,7 +9576,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Moved ActivityEvent + SUBJECT_ACTIVITY into agent-protocol::activity (step: String), added agent_core::publish_activity, deleted the four per-agent activity.rs copies and all five emit helpers; vuln-agent now emits the shared struct with a real workflow_run_id (Uuid::new_v4 per poll). and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:10:38+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::abstraction_fitness::model_router_never_routes": {
       "id": "review::.::holistic::abstraction_fitness::model_router_never_routes",
@@ -17396,7 +17402,7 @@
       },
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:08:31+00:00"
+      "stale_since": "2026-10-26T09:10:38+00:00"
     },
     "ai_generated_debt": {
       "score": 79.0,
@@ -21970,13 +21976,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 8,
+          "failing": 7,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,

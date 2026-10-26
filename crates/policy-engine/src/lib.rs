@@ -257,6 +257,7 @@ struct CompiledTool {
 
 /// Compiled policy set loaded once from a policy directory.
 pub struct PolicyEngine {
+    /// Policy directory this engine was loaded from (kill file lives here).
     dir: PathBuf,
     tools: HashMap<String, CompiledTool>,
     protected: Protected,
@@ -430,7 +431,6 @@ impl PolicyEngine {
                         );
                     }
                 }
-                drop(ctx.counters.get(&ck));
                 ctx.counters.insert(ck, now_min);
             }
         }
@@ -439,20 +439,10 @@ impl PolicyEngine {
         decide(DecisionKind::Allow, "allowed")
     }
 
-    /// Env flag or non-empty kill file engages the switch.
+    /// Env flag or non-empty kill file engages the switch (shared predicate).
     fn kill_switch_engaged(&self) -> bool {
-        if let Ok(v) = std::env::var("ARES_KILL_SWITCH") {
-            if matches!(
-                v.trim().to_ascii_lowercase().as_str(),
-                "1" | "true" | "yes" | "on"
-            ) {
-                return true;
-            }
-        }
-        match std::fs::read_to_string(self.dir.join("kill")) {
-            Ok(s) => !s.trim().is_empty(),
-            Err(_) => false,
-        }
+        agent_protocol::kill::kill_env_engaged()
+            || agent_protocol::kill::kill_file_engaged_at(&self.dir)
     }
 
     /// Match call targets against the protected-asset boundary.

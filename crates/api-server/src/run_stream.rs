@@ -15,7 +15,7 @@ use serde_json::Value;
 use sqlx::PgPool;
 use tokio::sync::broadcast;
 
-use crate::a2a::{task_uuid, terminal_step};
+use crate::a2a::{aborted_step, task_uuid, terminal_step};
 
 /// Progress reported by `agent_checkpoints` for a non-terminal record.
 pub(crate) enum CheckpointProgress {
@@ -89,8 +89,9 @@ pub(crate) trait RunRecord: Sized + Send + 'static {
     fn activity_event(activity: Value) -> Event;
     /// Reloads the record, folding checkpoint progress.
     async fn load(pool: &PgPool, id: &str) -> Result<Option<Self>, String>;
-    /// Marks the record completed after a terminal activity step.
-    async fn mark_completed(pool: &PgPool, id: &str);
+    /// Marks the record terminal after a terminal activity step;
+    /// `aborted` distinguishes a kill-switch/rejection halt from success.
+    async fn mark_terminal(pool: &PgPool, id: &str, aborted: bool);
 }
 
 /// Per-stream mutable state for [`activity_stream`].
@@ -161,7 +162,7 @@ pub(crate) fn activity_stream<R: RunRecord>(
                     }
                     let step = v.get("step").and_then(Value::as_str).unwrap_or_default();
                     if terminal_step(&st.agent, step) {
-                        R::mark_completed(&st.pool, &st.id).await;
+                        R::mark_terminal(&st.pool, &st.id, aborted_step(step)).await;
                         st.closing = true;
                     }
                     return Some((Ok(R::activity_event(v)), st));

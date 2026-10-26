@@ -9,12 +9,13 @@ use uuid::Uuid;
 use agent_protocol::tool::ToolCall;
 use llm_client::{CompletionRequest, LlmProvider, Message, Role, strong_model};
 
+use agent_protocol::kill::kill_switch_engaged;
+
 use crate::{
     budget::Budgets,
     checkpoint::CheckpointStore,
     error::AgentError,
     gateway::ToolGateway,
-    kill::kill_switch_engaged,
     state::{AgentState, Step},
 };
 

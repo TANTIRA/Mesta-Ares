@@ -11,6 +11,7 @@ pub mod activity;
 pub mod audit;
 pub mod envelope;
 pub mod handoff;
+pub mod kill;
 pub mod tool;
 
 /// NATS subject carrying raw alerts produced by the ingestion gateway.

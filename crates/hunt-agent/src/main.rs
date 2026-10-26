@@ -21,7 +21,7 @@ use serde_json::Value;
 use tracing::{error, info, warn, Instrument};
 use uuid::Uuid;
 
-use agent_core::publish_activity;
+use agent_core::{kill_switch_engaged, publish_activity};
 use agent_protocol::activity::ActivityEvent;
 
 /// Default hunt interval: 6 hours.
@@ -115,6 +115,15 @@ async fn open_finding(
 
 /// Runs every hypothesis once; returns the number of findings opened.
 async fn run_sweep(deps: &Deps, run_id: Uuid) -> anyhow::Result<usize> {
+    if kill_switch_engaged() {
+        warn!("kill switch engaged; hunt sweep halted");
+        publish_activity(
+            &deps.nats,
+            &ActivityEvent::new(run_id, "hunt", "kill_switch", "sweep halted"),
+        )
+        .await;
+        return Ok(0);
+    }
     let mut findings = 0;
     for h in hypotheses::all() {
         publish_activity(

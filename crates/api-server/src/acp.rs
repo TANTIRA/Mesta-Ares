@@ -493,12 +493,13 @@ impl RunRecord for Run {
         load_run(pool, id).await.map_err(|e| e.message)
     }
 
-    async fn mark_completed(pool: &PgPool, id: &str) {
+    async fn mark_terminal(pool: &PgPool, id: &str, aborted: bool) {
+        let status = if aborted { "failed" } else { "completed" };
         let _ = sqlx::query(
-            "UPDATE acp_runs SET status = 'completed', finished_at = now(), updated_at = now()
-             WHERE id = $1",
+            "UPDATE acp_runs SET status = $2, finished_at = now(), updated_at = now() WHERE id = $1",
         )
         .bind(id)
+        .bind(status)
         .execute(pool)
         .await;
     }

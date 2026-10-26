@@ -1,9 +1,8 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T09:10:39+00:00",
+  "updated": "2026-10-26T09:12:56+00:00",
   "queue_order": [
-    "review::.::holistic::abstraction_fitness::connector_config_factory_getters",
     "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers",
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
     "review::.::holistic::abstraction_fitness::model_router_never_routes",
@@ -4289,13 +4288,39 @@
       "actor": "user",
       "note": "Moved ActivityEvent + SUBJECT_ACTIVITY into agent-protocol::activity (step: String), added agent_core::publish_activity, deleted the four per-agent activity.rs copies and all five emit helpers; vuln-agent now emits the shared struct with a real workflow_run_id (Uuid::new_v4 per poll).",
       "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:12:56+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::connector_config_factory_getters"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Renamed ConnectorConfig getters to build_*_client (explicit allocation), derived Clone on all connector clients (Wazuh/NVD lazy state moved behind Arc<Mutex>), and hoisted one client per backend in tool-server build_registry (13+ pools -> 6). Added OpensearchClient::index_doc; triage-agent writes verdicts through it and the dead http/os_url Deps fields are gone.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:12:56+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::connector_config_factory_getters"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Renamed ConnectorConfig getters to build_*_client (explicit allocation), derived Clone on all connector clients (Wazuh/NVD lazy state moved behind Arc<Mutex>), and hoisted one client per backend in tool-server build_registry (13+ pools -> 6). Added OpensearchClient::index_doc; triage-agent writes verdicts through it and the dead http/os_url Deps fields are gone.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Renamed ConnectorConfig getters to build_*_client (explicit allocation), derived Clone on all connector clients (Wazuh/NVD lazy state moved behind Arc<Mutex>), and hoisted one client per backend in tool-server build_registry (13+ pools -> 6). Added OpensearchClient::index_doc; triage-agent writes verdicts through it and the dead http/os_url Deps fields are gone. and I am not gaming the score."
+      }
     }
   ],
   "epic_triage_meta": {},
   "commit_log": [],
   "uncommitted_issues": [
     "review::.::holistic::abstraction_fitness::acp_duplicates_a2a_run_machinery",
-    "review::.::holistic::abstraction_fitness::activity_event_contract_copied"
+    "review::.::holistic::abstraction_fitness::activity_event_contract_copied",
+    "review::.::holistic::abstraction_fitness::connector_config_factory_getters"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3

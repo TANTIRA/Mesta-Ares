@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 22,
-    "open": 494,
+    "fixed": 23,
+    "open": 493,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 1,
-        "open": 106,
+        "fixed": 2,
+        "open": 105,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -9648,11 +9648,11 @@
         "reasoning": "",
         "summary_hash": "f3c4a219"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Renamed ConnectorConfig getters to build_*_client (explicit allocation), derived Clone on all connector clients (Wazuh/NVD lazy state moved behind Arc<Mutex>), and hoisted one client per backend in tool-server build_registry (13+ pools -> 6). Added OpensearchClient::index_doc; triage-agent writes verdicts through it and the dead http/os_url Deps fields are gone.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:12:56+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9660,7 +9660,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Renamed ConnectorConfig getters to build_*_client (explicit allocation), derived Clone on all connector clients (Wazuh/NVD lazy state moved behind Arc<Mutex>), and hoisted one client per backend in tool-server build_registry (13+ pools -> 6). Added OpensearchClient::index_doc; triage-agent writes verdicts through it and the dead http/os_url Deps fields are gone. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:12:56+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers": {
       "id": "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers",
@@ -17402,7 +17408,7 @@
       },
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:10:38+00:00"
+      "stale_since": "2026-10-26T09:12:56+00:00"
     },
     "ai_generated_debt": {
       "score": 79.0,
@@ -21976,13 +21982,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 7,
+          "failing": 6,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,

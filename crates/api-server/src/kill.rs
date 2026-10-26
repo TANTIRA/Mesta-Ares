@@ -25,8 +25,7 @@ fn default_true() -> bool {
 
 /// Resolves the kill-file path (`$POLICIES_DIR/kill`, default `policies/kill`).
 fn kill_file() -> PathBuf {
-    let dir = std::env::var("POLICIES_DIR").unwrap_or_else(|_| "policies".to_string());
-    PathBuf::from(dir).join("kill")
+    agent_protocol::kill::policies_dir().join(agent_protocol::kill::KILL_FILE)
 }
 
 /// `GET /controls/kill-switch` — current switch state.
