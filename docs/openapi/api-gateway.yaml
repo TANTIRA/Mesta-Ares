@@ -1,0 +1,288 @@
+openapi: 3.0.3
+info:
+  title: Ares API Gateway
+  version: 0.1.0
+  description: |
+    Edge contract for the Ares platform. The gateway is the only public HTTP
+    entry point: it authenticates, rate-limits, optionally caches, then
+    forwards to one of three upstream services with the prefix stripped.
+
+    | Gateway path | Upstream | Upstream spec |
+    | - | - | - |
+    | `/api/*` | api-server `:8080` | `api-server.yaml` |
+    | `/ingest/*` | ingestion-gateway `:8091` | `ingestion-gateway.yaml` |
+    | `/tools/*` | tool-server `:8090` | `tool-server.yaml` |
+
+    Cross-cutting behaviour:
+    - **Auth**: `Authorization: Bearer <key>` or `X-API-Key: <key>`, checked
+      against `GATEWAY_API_KEYS`. `/health` and `/metrics` are exempt. With no
+      keys configured every non-exempt route answers `503` unless
+      `GATEWAY_ALLOW_ANONYMOUS=1`.
+    - **Rate limits**: token bucket per peer IP and tier. Rejections are `429`
+      with `Retry-After` and `x-ratelimit-limit|remaining|reset`.
+    - **Cache**: GETs under `GATEWAY_CACHE_PREFIXES` (default `/api/vulns`) are
+      cached for `GATEWAY_CACHE_TTL_SECONDS`; responses carry
+      `x-gateway-cache: hit|miss`.
+    - **Load distribution**: upstream lists are comma-separated; requests
+      rotate round-robin across them.
+
+    Pass-through operations are documented generically because the proxied
+    surface is defined by the upstream service specs.
+servers:
+  - url: http://localhost:8082
+    description: Local development
+tags:
+  - name: Gateway
+    description: Gateway-owned endpoints
+  - name: Proxy
+    description: Pass-through to upstream services
+
+paths:
+  /health:
+    get:
+      tags: [Gateway]
+      summary: Liveness probe
+      security: []
+      responses:
+        '200':
+          description: Gateway is up
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, service]
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  service:
+                    type: string
+                    example: api-gateway
+
+  /metrics:
+    get:
+      tags: [Gateway]
+      summary: Prometheus metrics
+      description: |
+        Text exposition format. Counters:
+        `ares_gateway_requests_total{route,status}`,
+        `ares_gateway_request_duration_seconds_sum{route}`,
+        `ares_gateway_request_duration_seconds_count{route}`,
+        `ares_gateway_cache_hits_total`.
+      security: []
+      responses:
+        '200':
+          description: Metrics in Prometheus text format
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /aggregate/dashboard:
+    get:
+      tags: [Gateway]
+      summary: Fan-in of metrics, recent alerts and vulnerability advisories
+      description: |
+        Fetches `/metrics`, `/alerts?limit=10` and `/vulns/advisories` from the
+        first api-server upstream concurrently. A source that fails contributes
+        `{"error": "<reason>"}` instead of failing the whole response.
+      responses:
+        '200':
+          description: Merged dashboard payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregateDashboard'
+        '502':
+          $ref: '#/components/responses/GatewayError'
+
+  /api/{path}:
+    parameters:
+      - $ref: '#/components/parameters/PathSuffix'
+    get:
+      tags: [Proxy]
+      summary: Proxy to api-server (GET)
+      description: 'Example: `/api/vulns/CVE-2024-3094` → `api-server:8080/vulns/CVE-2024-3094`.'
+      responses:
+        '200':
+          $ref: '#/components/responses/Proxied'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '502':
+          $ref: '#/components/responses/GatewayError'
+    post:
+      tags: [Proxy]
+      summary: Proxy to api-server (POST)
+      responses:
+        '200':
+          $ref: '#/components/responses/Proxied'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '502':
+          $ref: '#/components/responses/GatewayError'
+    put:
+      tags: [Proxy]
+      summary: Proxy to api-server (PUT)
+      responses:
+        '200':
+          $ref: '#/components/responses/Proxied'
+        '502':
+          $ref: '#/components/responses/GatewayError'
+    delete:
+      tags: [Proxy]
+      summary: Proxy to api-server (DELETE)
+      responses:
+        '200':
+          $ref: '#/components/responses/Proxied'
+        '502':
+          $ref: '#/components/responses/GatewayError'
+
+  /ingest/{path}:
+    parameters:
+      - $ref: '#/components/parameters/PathSuffix'
+    post:
+      tags: [Proxy]
+      summary: Proxy to ingestion-gateway (alert webhooks)
+      description: 'Example: `/ingest/webhook/wazuh` → `ingestion-gateway:8091/webhook/wazuh`.'
+      responses:
+        '202':
+          $ref: '#/components/responses/Proxied'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '502':
+          $ref: '#/components/responses/GatewayError'
+
+  /tools/{path}:
+    parameters:
+      - $ref: '#/components/parameters/PathSuffix'
+    get:
+      tags: [Proxy]
+      summary: Proxy to tool-server (GET)
+      responses:
+        '200':
+          $ref: '#/components/responses/Proxied'
+        '502':
+          $ref: '#/components/responses/GatewayError'
+    post:
+      tags: [Proxy]
+      summary: Proxy to tool-server (POST)
+      description: 'Example: `/tools/invoke` → `tool-server:8090/invoke`.'
+      responses:
+        '200':
+          $ref: '#/components/responses/Proxied'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '502':
+          $ref: '#/components/responses/GatewayError'
+
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    Bearer:
+      type: http
+      scheme: bearer
+
+  parameters:
+    PathSuffix:
+      name: path
+      in: path
+      required: true
+      description: Remaining path, forwarded verbatim to the upstream (prefix stripped).
+      schema:
+        type: string
+      example: vulns/CVE-2024-3094
+
+  responses:
+    Proxied:
+      description: |
+        Upstream response, streamed unchanged. Hop-by-hop headers and the
+        gateway credential (`X-API-Key`) are removed.
+    Unauthorized:
+      description: Missing or invalid API key
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+            example: Bearer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GatewayError'
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds until the bucket refills.
+        x-ratelimit-limit:
+          schema:
+            type: integer
+        x-ratelimit-remaining:
+          schema:
+            type: integer
+        x-ratelimit-reset:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: rate_limit_exceeded
+    GatewayError:
+      description: Gateway could not reach the upstream
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GatewayError'
+
+  schemas:
+    GatewayError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: upstream_unavailable
+        upstream:
+          type: string
+          description: Present on `502` responses.
+          example: http://ares-tool-server:8090
+
+    AggregateDashboard:
+      type: object
+      required: [generated_at, sources]
+      properties:
+        generated_at:
+          type: string
+          format: date-time
+        sources:
+          type: object
+          properties:
+            metrics:
+              description: api-server `/metrics` body, or `{"error": "..."}`.
+              type: object
+            alerts:
+              description: api-server `/alerts` body, or `{"error": "..."}`.
+              type: object
+            advisories:
+              description: api-server `/vulns/advisories` body, or `{"error": "..."}`.
+              type: object
+
+security:
+  - ApiKey: []
+  - Bearer: []

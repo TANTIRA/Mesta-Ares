@@ -29,6 +29,7 @@ name = "agent-core"
 version = "0.1.0"
 dependencies = [
  "agent-protocol",
+ "anyhow",
  "async-nats",
  "async-trait",
  "chrono",
@@ -1451,6 +1452,7 @@ dependencies = [
 name = "ingestion-gateway"
 version = "0.1.0"
 dependencies = [
+ "agent-core",
  "agent-protocol",
  "anyhow",
  "async-nats",
@@ -1815,6 +1817,7 @@ checksum = "7c87def4c32ab89d880effc9e097653c8da5d6ef28e6b539d313baaacfbafcbe"
 name = "orchestrator"
 version = "0.1.0"
 dependencies = [
+ "agent-core",
  "agent-protocol",
  "anyhow",
  "async-nats",

@@ -85,10 +85,8 @@ struct AppState {
     nvd: connectors::NvdClient,
     enricher: enrichment_lib::Enricher,
     activity_tx: stream::ActivityTx,
-    /// NATS client for A2A task publishes.
-    nats: async_nats::Client,
-    /// JetStream context for A2A publishes; `None` falls back to plain NATS.
-    jetstream: Option<async_nats::jetstream::Context>,
+    /// Durable NATS publisher shared by the A2A and ACP endpoints.
+    sink: agent_core::NatsSink,
 }
 
 /// Liveness probe.
@@ -337,7 +335,7 @@ async fn main() -> anyhow::Result<()> {
     acp::ensure_schema(&pool).await?;
     let conn_cfg = ConnectorConfig::from_env();
     let nats = async_nats::connect(&config.nats_url).await?;
-    let jetstream = a2a::ensure_jetstream(&nats).await;
+    let sink = agent_core::NatsSink::from_client(nats.clone()).await;
     let activity_tx = stream::spawn_activity_relay(nats.clone()).await?;
     let _ = kill_switch_engaged(); // warm the check path at boot
 
@@ -352,8 +350,7 @@ async fn main() -> anyhow::Result<()> {
         nvd: conn_cfg.build_nvd_client(),
         enricher: enrichment_lib::Enricher::new(),
         activity_tx,
-        nats,
-        jetstream,
+        sink,
     });
 
     // Per-key rate limits (peer IP until auth lands). CORS stays outermost

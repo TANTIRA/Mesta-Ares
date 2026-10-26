@@ -1,4 +1,7 @@
-//! NATS publishing sink with JetStream-first and plain-publish fallback.
+//! NATS publishing with JetStream-first semantics and plain-publish fallback.
+//!
+//! One implementation for every producer: the ingestion gateway, the api
+//! server's A2A/ACP endpoints, and any agent that needs durable publishes.
 
 use agent_protocol::envelope::Envelope;
 use anyhow::Context;
@@ -6,7 +9,7 @@ use async_nats::{jetstream, Client};
 use tracing::{info, warn};
 
 /// Name of the JetStream stream capturing all `ares.>` subjects.
-const STREAM_NAME: &str = "ARES";
+pub const STREAM_NAME: &str = "ARES";
 
 /// Publishes serialized [`Envelope`]s to NATS.
 ///
@@ -21,9 +24,8 @@ pub struct NatsSink {
 impl NatsSink {
     /// Connects to NATS and creates the `ARES` stream when absent.
     ///
-    /// Returns a sink with `jetstream` set to `None` when JetStream is
-    /// unavailable, in which case [`NatsSink::publish`] falls back to plain
-    /// NATS publishes.
+    /// Returns a sink with no JetStream context when the server has none, in
+    /// which case publishes fall back to core NATS.
     pub async fn connect(nats_url: &str) -> anyhow::Result<Self> {
         let client = async_nats::connect(nats_url)
             .await
@@ -36,6 +38,28 @@ impl NatsSink {
             }
         };
         Ok(Self { client, jetstream })
+    }
+
+    /// Wraps an existing client, creating the `ARES` stream when absent.
+    pub async fn from_client(client: Client) -> Self {
+        let jetstream = match Self::ensure_stream(client.clone()).await {
+            Ok(js) => Some(js),
+            Err(e) => {
+                warn!(error = %e, "JetStream unavailable; falling back to plain NATS publish");
+                None
+            }
+        };
+        Self { client, jetstream }
+    }
+
+    /// The underlying client, for subscribers.
+    pub fn client(&self) -> &Client {
+        &self.client
+    }
+
+    /// `true` when publishes are persisted by JetStream.
+    pub fn is_durable(&self) -> bool {
+        self.jetstream.is_some()
     }
 
     /// Creates the `ARES` stream over `ares.>` when it does not already exist.
@@ -59,11 +83,13 @@ impl NatsSink {
     }
 
     /// Serializes `envelope` to JSON and publishes it on `subject`.
-    ///
-    /// Uses JetStream publish when available so messages are persisted;
-    /// otherwise publishes a core NATS message.
     pub async fn publish(&self, subject: &str, envelope: &Envelope) -> anyhow::Result<()> {
         let bytes = serde_json::to_vec(envelope).context("serialize envelope")?;
+        self.publish_bytes(subject, bytes).await
+    }
+
+    /// Publishes raw bytes on `subject`, JetStream-first.
+    pub async fn publish_bytes(&self, subject: &str, bytes: Vec<u8>) -> anyhow::Result<()> {
         match &self.jetstream {
             Some(js) => {
                 js.publish(subject.to_string(), bytes.into())

@@ -14,7 +14,6 @@
 //! - `POLL_ENTRA` — Entra ID (Graph) sign-in logs. Requires `ENTRA_TENANT_ID`,
 //!   `ENTRA_CLIENT_ID`, `ENTRA_CLIENT_SECRET`.
 
-mod nats_sink;
 mod pollers;
 mod ratelimit;
 
@@ -35,7 +34,7 @@ use clap::Parser;
 use serde_json::Value;
 use tracing::{info, warn};
 
-use crate::nats_sink::NatsSink;
+use agent_core::NatsSink;
 
 /// Ingestion gateway service configuration.
 #[derive(Debug, Parser)]

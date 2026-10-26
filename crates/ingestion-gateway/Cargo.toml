@@ -5,6 +5,7 @@ edition.workspace = true
 license.workspace = true
 
 [dependencies]
+agent-core = { path = "../agent-core" }
 agent-protocol = { path = "../agent-protocol" }
 http-limits = { path = "../http-limits" }
 tokio.workspace = true

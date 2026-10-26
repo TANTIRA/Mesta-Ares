@@ -26,3 +26,7 @@ pub const SUBJECT_DETECTION: &str = "ares.detection";
 pub const SUBJECT_HUNT: &str = "ares.hunt";
 /// NATS subject carrying breach-and-attack-simulation results.
 pub const SUBJECT_BAS: &str = "ares.bas";
+/// NATS subject carrying vulnerability advisories from vuln-agent.
+pub const SUBJECT_VULNS: &str = "ares.vulns";
+/// Dead-letter subject for messages the orchestrator cannot route.
+pub const SUBJECT_DLQ: &str = "ares.dlq";

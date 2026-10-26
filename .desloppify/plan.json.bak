@@ -1,14 +1,13 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T09:40:39+00:00",
+  "updated": "2026-10-26T09:47:53+00:00",
   "queue_order": [
-    "review::.::holistic::cross_module_architecture::table_ownership_doc_drift",
+    "review::.::holistic::naming_quality::sse_state_struct_st",
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
     "review::.::holistic::abstraction_fitness::model_router_never_routes",
     "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated",
     "review::.::holistic::ai_generated_debt::agent-core-unused-framework",
-    "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony",
     "review::.::holistic::ai_generated_debt::idem-key-serde-roundtrip",
     "review::.::holistic::ai_generated_debt::jetstream-bootstrap-duplicated",
     "review::.::holistic::ai_generated_debt::micro-helpers-reimplemented-per-crate",
@@ -18,8 +17,6 @@
     "review::.::holistic::api_surface_coherence::audit_append_positional_sprawl",
     "review::.::holistic::api_surface_coherence::http_error_body_conventions",
     "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape",
-    "review::.::holistic::api_surface_coherence::misp_search_silent_row_drop",
-    "review::.::holistic::api_surface_coherence::policy_evaluate_async_without_await",
     "review::.::holistic::api_surface_coherence::tool_args_two_sources_of_truth",
     "review::.::holistic::authorization_consistency::a2a-cards-advertise-unenforced-bearer",
     "review::.::holistic::authorization_consistency::a2a-task-access-not-scoped-to-agent",
@@ -31,9 +28,6 @@
     "review::.::holistic::authorization_consistency::no-inbound-authn-any-service",
     "review::.::holistic::contract_coherence::acp_sync_mode_timeout",
     "review::.::holistic::contract_coherence::approvals_approved_means_executed",
-    "review::.::holistic::contract_coherence::jsonrpc_version_unvalidated",
-    "review::.::holistic::contract_coherence::nvd_get_cve_404_contract",
-    "review::.::holistic::contract_coherence::playbooks_errors_discarded",
     "review::.::holistic::contract_coherence::triage_severity_clamp_downgrade",
     "review::.::holistic::convention_outlier::ares-star-namespace-two-message-conventions",
     "review::.::holistic::convention_outlier::cargo-manifest-style-split",
@@ -49,10 +43,8 @@
     "review::.::holistic::design_coherence::llm_request_boilerplate_repeated",
     "review::.::holistic::design_coherence::yaml_dir_scan_duplicated",
     "review::.::holistic::error_consistency::bas_metrics_conflate_failure_with_negative",
-    "review::.::holistic::error_consistency::executor_dry_run_reports_success",
     "review::.::holistic::error_consistency::fire_and_forget_state_writes",
     "review::.::holistic::error_consistency::http_error_shape_drift",
-    "review::.::holistic::error_consistency::intel_parse_failures_silent",
     "review::.::holistic::error_consistency::orchestrator_dlq_asymmetry",
     "review::.::holistic::high_level_elegance::acp_subsystem_did_not_localize",
     "review::.::holistic::high_level_elegance::agent_core_role_unfilled",
@@ -66,31 +58,23 @@
     "review::.::holistic::initialization_coupling::enricher_new_hidden_env",
     "review::.::holistic::initialization_coupling::eval_ctx_singleton_never_initialized",
     "review::.::holistic::initialization_coupling::two_config_planes",
-    "review::.::holistic::logic_clarity::a2a-jsonrpc-version-unvalidated",
     "review::.::holistic::logic_clarity::acp-cancel-duplicate-return-blocks",
     "review::.::holistic::logic_clarity::bas-runner-dry-run-records-results",
-    "review::.::holistic::logic_clarity::connectors-retry-guard-dead-branch",
-    "review::.::holistic::logic_clarity::playbooks-errors-discarded",
-    "review::.::holistic::logic_clarity::policy-evaluate-async-no-await",
     "review::.::holistic::logic_clarity::vuln-min-severity-fail-open",
     "review::.::holistic::low_level_elegance::enrich_cve_bypasses_cache_helpers",
     "review::.::holistic::low_level_elegance::idem_key_serde_roundtrip_and_result_literals",
     "review::.::holistic::low_level_elegance::identical_helpers_copied_per_crate",
-    "review::.::holistic::low_level_elegance::nvd_list_published_inlines_list_window",
     "review::.::holistic::low_level_elegance::severity_to_int_mapping_drift",
     "review::.::holistic::mid_level_elegance::case_id_encoded_in_uri_string",
     "review::.::holistic::mid_level_elegance::connector_surface_gaps_pushed_to_callers",
     "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented",
     "review::.::holistic::mid_level_elegance::evalctx_asset_classes_unwired",
     "review::.::holistic::mid_level_elegance::orchestrator_dlq_self_feed",
-    "review::.::holistic::naming_quality::cvss_required_metric_named_num",
     "review::.::holistic::naming_quality::executor_type_name_drift",
     "review::.::holistic::naming_quality::generic_process_envelope_handlers",
     "review::.::holistic::naming_quality::impact_enum_mixed_axes",
     "review::.::holistic::naming_quality::insert_helper_boolean_polarity",
-    "review::.::holistic::naming_quality::sse_state_struct_st",
     "review::.::holistic::naming_quality::tool_arg_alias_vocabulary",
-    "review::.::holistic::naming_quality::tool_server_execute_verb_inversion",
     "review::.::holistic::package_organization::agent-registry-inside-a2a-routes",
     "review::.::holistic::package_organization::api-server-handlers-in-main",
     "review::.::holistic::package_organization::api-server-module-shadows-crate",
@@ -109,7 +93,6 @@
     "review::.::holistic::test_strategy::policy_tests_read_ambient_env",
     "review::.::holistic::test_strategy::tool_invoke_path_untested",
     "review::.::holistic::type_safety::cvss_metric_fields_default_not_option",
-    "review::.::holistic::type_safety::dry_run_ok_masks_no_op",
     "review::.::holistic::type_safety::llm_verdict_untyped_string",
     "review::.::holistic::type_safety::persisted_state_bypasses_enums",
     "review::.::holistic::type_safety::policy_forbidden_class_strings",
@@ -3379,7 +3362,7 @@
     }
   },
   "promoted_ids": [
-    "review::.::holistic::cross_module_architecture::table_ownership_doc_drift"
+    "review::.::holistic::naming_quality::sse_state_struct_st"
   ],
   "plan_start_scores": {
     "strict": 77.7,
@@ -7259,6 +7242,686 @@
       "actor": "user",
       "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:40:39+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::table_ownership_doc_drift"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:29+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::jsonrpc_version_unvalidated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:29+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::jsonrpc_version_unvalidated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:29+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::jsonrpc_version_unvalidated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:30+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::a2a-jsonrpc-version-unvalidated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:31+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::a2a-jsonrpc-version-unvalidated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:31+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::a2a-jsonrpc-version-unvalidated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:32+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::playbooks-errors-discarded"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:32+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::playbooks-errors-discarded"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:32+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::playbooks-errors-discarded"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:33+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::playbooks_errors_discarded"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:34+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::playbooks_errors_discarded"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:34+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::playbooks_errors_discarded"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:34+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::misp_search_silent_row_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:35+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::misp_search_silent_row_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:35+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::misp_search_silent_row_drop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:36+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::intel_parse_failures_silent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:36+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::intel_parse_failures_silent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:36+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::intel_parse_failures_silent"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:37+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::nvd_get_cve_404_contract"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:38+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::nvd_get_cve_404_contract"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:38+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::contract_coherence::nvd_get_cve_404_contract"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:38+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::nvd_list_published_inlines_list_window"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:39+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::nvd_list_published_inlines_list_window"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:39+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::nvd_list_published_inlines_list_window"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:40+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::connectors-retry-guard-dead-branch"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:40+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::connectors-retry-guard-dead-branch"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:40+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::connectors-retry-guard-dead-branch"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:41+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::policy_evaluate_async_without_await"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:41+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::policy_evaluate_async_without_await"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:42+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::policy_evaluate_async_without_await"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:42+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::policy-evaluate-async-no-await"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:43+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::policy-evaluate-async-no-await"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:43+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::logic_clarity::policy-evaluate-async-no-await"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:44+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::naming_quality::tool_server_execute_verb_inversion"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:45+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::naming_quality::tool_server_execute_verb_inversion"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:45+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::naming_quality::tool_server_execute_verb_inversion"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:46+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::executor_dry_run_reports_success"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:46+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::executor_dry_run_reports_success"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:46+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::executor_dry_run_reports_success"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:47+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::type_safety::dry_run_ok_masks_no_op"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:48+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::type_safety::dry_run_ok_masks_no_op"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:48+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::type_safety::dry_run_ok_masks_no_op"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:49+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::naming_quality::cvss_required_metric_named_num"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:50+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::naming_quality::cvss_required_metric_named_num"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:50+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::naming_quality::cvss_required_metric_named_num"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:51+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:51+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:52+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:52+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::naming_quality::sse_state_struct_st"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:47:53+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::naming_quality::sse_state_struct_st"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {}
     }
   ],
   "epic_triage_meta": {},
@@ -7327,7 +7990,24 @@
     "review::.::holistic::high_level_elegance::docs_inventory_drift",
     "review::.::holistic::incomplete_migration::stale_rate_limit_docs",
     "review::.::holistic::incomplete_migration::api_bind_rename_incomplete",
-    "review::.::holistic::contract_coherence::registry_startup_abort_doc"
+    "review::.::holistic::contract_coherence::registry_startup_abort_doc",
+    "review::.::holistic::cross_module_architecture::table_ownership_doc_drift",
+    "review::.::holistic::contract_coherence::jsonrpc_version_unvalidated",
+    "review::.::holistic::logic_clarity::a2a-jsonrpc-version-unvalidated",
+    "review::.::holistic::logic_clarity::playbooks-errors-discarded",
+    "review::.::holistic::contract_coherence::playbooks_errors_discarded",
+    "review::.::holistic::api_surface_coherence::misp_search_silent_row_drop",
+    "review::.::holistic::error_consistency::intel_parse_failures_silent",
+    "review::.::holistic::contract_coherence::nvd_get_cve_404_contract",
+    "review::.::holistic::low_level_elegance::nvd_list_published_inlines_list_window",
+    "review::.::holistic::logic_clarity::connectors-retry-guard-dead-branch",
+    "review::.::holistic::api_surface_coherence::policy_evaluate_async_without_await",
+    "review::.::holistic::logic_clarity::policy-evaluate-async-no-await",
+    "review::.::holistic::naming_quality::tool_server_execute_verb_inversion",
+    "review::.::holistic::error_consistency::executor_dry_run_reports_success",
+    "review::.::holistic::type_safety::dry_run_ok_masks_no_op",
+    "review::.::holistic::naming_quality::cvss_required_metric_named_num",
+    "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3

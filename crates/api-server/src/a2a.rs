@@ -24,7 +24,6 @@ use a2a::task::{Message, Part, Role, SendParams, Task, TaskState, TaskStatus};
 use agent_protocol::envelope::{Envelope, EnvelopeKind};
 use agent_protocol::handoff::HandoffPayload;
 use agent_protocol::{SUBJECT_DETECTION, SUBJECT_HUNT, SUBJECT_RESPOND, SUBJECT_TRIAGE};
-use async_nats::jetstream;
 use axum::{
     body::Bytes,
     extract::{Path, State},
@@ -37,14 +36,11 @@ use chrono::{DateTime, Utc};
 use futures::Stream;
 use serde_json::{json, Value};
 use sqlx::PgPool;
-use tracing::{info, warn};
+use tracing::info;
 use uuid::Uuid;
 
 use crate::run_stream::{self, CheckpointProgress, RunRecord};
 use crate::AppState;
-
-/// Name of the JetStream stream capturing `ares.>` (mirrors ingestion-gateway).
-const STREAM_NAME: &str = "ARES";
 
 /// Static definition of one A2A-addressable Ares agent.
 pub(crate) struct AgentDef {
@@ -234,32 +230,6 @@ pub async fn ensure_schema(pool: &PgPool) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Returns a JetStream context when the `ARES` stream is available (creating
-/// it when absent); `None` means callers should fall back to plain publish.
-pub async fn ensure_jetstream(client: &async_nats::Client) -> Option<jetstream::Context> {
-    let js = jetstream::new(client.clone());
-    match js.get_stream(STREAM_NAME).await {
-        Ok(_) => Some(js),
-        Err(_) => match js
-            .create_stream(jetstream::stream::Config {
-                name: STREAM_NAME.to_string(),
-                subjects: vec!["ares.>".to_string()],
-                ..Default::default()
-            })
-            .await
-        {
-            Ok(stream) => {
-                info!(stream = %stream.cached_info().config.name, "created ARES JetStream stream");
-                Some(js)
-            }
-            Err(e) => {
-                warn!(error = %e, "JetStream unavailable; A2A will use plain NATS publish");
-                None
-            }
-        },
-    }
-}
-
 /// Publishes `envelope` on `subject`, JetStream-first with plain-publish
 /// fallback (same policy as ingestion-gateway's `NatsSink`).
 pub(crate) async fn publish(
@@ -267,16 +237,7 @@ pub(crate) async fn publish(
     subject: &str,
     envelope: &Envelope,
 ) -> anyhow::Result<()> {
-    let bytes = serde_json::to_vec(envelope)?;
-    match &s.jetstream {
-        Some(js) => {
-            js.publish(subject.to_string(), bytes.into()).await?;
-        }
-        None => {
-            s.nats.publish(subject.to_string(), bytes.into()).await?;
-        }
-    }
-    Ok(())
+    s.sink.publish(subject, envelope).await
 }
 
 /// Derives the workflow-run UUID for a task id: the id itself when it is a

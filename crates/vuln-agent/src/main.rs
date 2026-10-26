@@ -17,6 +17,8 @@ use std::time::Duration;
 
 use agent_core::{kill_switch_engaged, publish_activity};
 use agent_protocol::activity::ActivityEvent;
+use agent_protocol::envelope::{Envelope, EnvelopeKind};
+use agent_protocol::SUBJECT_VULNS;
 use clap::Parser;
 use connectors::{ConnectorConfig, CveRecord, NewCase, NvdClient};
 use serde::Deserialize;
@@ -25,8 +27,7 @@ use sqlx::PgPool;
 use tracing::{error, info, warn};
 use uuid::Uuid;
 
-/// Subject advisories are published to.
-const SUBJECT_VULNS: &str = "ares.vulns";
+
 
 /// vuln-agent service configuration.
 #[derive(Debug, Parser)]
@@ -175,6 +176,7 @@ async fn poll_once(
     hive: Option<&connectors::ThehiveClient>,
     wl: &Watchlist,
     cfg: &Config,
+    run_id: Uuid,
 ) -> anyhow::Result<()> {
     let to = chrono::Utc::now();
     let from = to - chrono::Duration::hours(cfg.lookback_hours);
@@ -226,10 +228,19 @@ async fn poll_once(
             "published": rec.published,
             "summary": rec.description,
         });
-        if let Ok(bytes) = serde_json::to_vec(&advisory) {
-            if let Err(e) = nats.publish(SUBJECT_VULNS.to_string(), bytes.into()).await {
-                warn!(error = %e, "vulns publish failed");
+        let mut envelope = Envelope::new(
+            format!("vuln-agent:{}", rec.id),
+            EnvelopeKind::Intel,
+            advisory,
+        );
+        envelope.correlation_id = run_id;
+        match serde_json::to_vec(&envelope) {
+            Ok(bytes) => {
+                if let Err(e) = nats.publish(SUBJECT_VULNS.to_string(), bytes.into()).await {
+                    warn!(error = %e, "vulns publish failed");
+                }
             }
+            Err(e) => warn!(error = %e, "vuln envelope serialize failed"),
         }
         if let Some(hive) = hive {
             if kill_switch_engaged() {
@@ -269,7 +280,7 @@ async fn poll_once(
     publish_activity(
         nats,
         &ActivityEvent::new(
-            Uuid::new_v4(),
+            run_id,
             "vuln",
             "poll",
             format!("window={}h new_advisories={escalated}", cfg.lookback_hours),
@@ -302,7 +313,7 @@ async fn main() -> anyhow::Result<()> {
     let mut interval = tokio::time::interval(Duration::from_secs(cfg.poll_interval_secs));
     loop {
         interval.tick().await;
-        if let Err(e) = poll_once(&nvd, &pool, &nats, hive.as_ref(), &wl, &cfg).await {
+        if let Err(e) = poll_once(&nvd, &pool, &nats, hive.as_ref(), &wl, &cfg, Uuid::new_v4()).await {
             error!(error = %e, "vuln poll failed");
         }
     }

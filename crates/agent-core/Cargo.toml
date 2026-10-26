@@ -8,6 +8,7 @@ description = "Agent control loop, checkpointing, tool gateway and kill switch f
 
 [dependencies]
 async-nats.workspace = true
+anyhow.workspace = true
 chrono.workspace = true
 agent-protocol = { path = "../agent-protocol" }
 llm-client = { path = "../llm-client" }

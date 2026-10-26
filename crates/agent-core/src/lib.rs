@@ -13,6 +13,7 @@ mod budget;
 mod checkpoint;
 mod error;
 mod gateway;
+mod nats_sink;
 mod state;
 
 pub use agent_loop::{AgentLoop, LoopOutcome};
@@ -20,6 +21,7 @@ pub use budget::Budgets;
 pub use checkpoint::{CheckpointStore, InMemoryCheckpointer, PostgresCheckpointer};
 pub use error::AgentError;
 pub use gateway::{HttpToolGateway, ToolGateway};
+pub use nats_sink::{NatsSink, STREAM_NAME};
 pub use agent_protocol::kill::kill_switch_engaged;
 pub use state::{AgentState, Step};
 

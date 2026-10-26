@@ -11,7 +11,7 @@ use agent_protocol::envelope::{Envelope, EnvelopeKind};
 use agent_protocol::SUBJECT_ALERTS;
 use tracing::{debug, info, warn};
 
-use crate::nats_sink::NatsSink;
+use agent_core::NatsSink;
 
 /// Poll interval for the Office 365 poller (seconds).
 const M365_POLL_INTERVAL_SECS: u64 = 300;

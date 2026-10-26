@@ -1,6 +1,7 @@
 //! Orchestrator for the Ares SIEM+SOAR pipeline.
 //!
-//! Subscribes to `ares.*` on NATS and routes each [`Envelope`] by
+//! Subscribes to the envelope-bearing `ares.*` subjects and routes each
+//! [`Envelope`] by
 //! [`EnvelopeKind`] to its downstream subject:
 //! - `Alert`       → `ares.triage`
 //! - `Case`        → `ares.respond`
@@ -14,23 +15,21 @@
 //! `MAX_DELIVERIES` times are dropped to `ares.dlq`.
 
 mod dedupe;
-mod nats_bus;
 
 use agent_protocol::envelope::{Envelope, EnvelopeKind};
-use agent_protocol::{SUBJECT_DETECTION, SUBJECT_HUNT, SUBJECT_RESPOND, SUBJECT_TRIAGE};
+use agent_protocol::{
+    SUBJECT_ALERTS, SUBJECT_BAS, SUBJECT_DETECTION, SUBJECT_DLQ, SUBJECT_HUNT, SUBJECT_RESPOND,
+    SUBJECT_TRIAGE,
+};
 use clap::Parser;
 use futures::StreamExt;
 use tracing::{error, info, warn, Instrument};
 
 use crate::dedupe::DedupeStore;
-use crate::nats_bus::NatsBus;
+use agent_core::NatsSink;
 
 /// Maximum number of delivery attempts before a message is sent to the DLQ.
 const MAX_DELIVERIES: u64 = 3;
-
-/// Dead-letter subject for messages that fail routing or exceed redelivery
-/// limits. Not part of the agent-protocol contract; local to the router.
-const SUBJECT_DLQ: &str = "ares.dlq";
 
 /// Orchestrator service configuration.
 #[derive(Debug, Parser)]
@@ -58,19 +57,19 @@ fn route_subject(kind: &EnvelopeKind) -> &'static str {
 }
 
 /// Handles one inbound NATS message: parse, dedupe, route.
-async fn handle_message(bus: &NatsBus, dedupe: &DedupeStore, msg: async_nats::Message) {
+async fn handle_message(sink: &NatsSink, dedupe: &DedupeStore, msg: async_nats::Message) {
     let deliveries = delivery_count(&msg);
     if deliveries > MAX_DELIVERIES {
         warn!(deliveries, "max redeliveries reached; dropping to DLQ");
-        let _ = bus.publish_raw(SUBJECT_DLQ, msg.payload.to_vec()).await;
+        dead_letter(sink, &msg, "max redeliveries").await;
         return;
     }
 
     let envelope: Envelope = match serde_json::from_slice(&msg.payload) {
         Ok(e) => e,
         Err(e) => {
-            warn!(error = %e, "unparseable message on ares.*; dropping to DLQ");
-            let _ = bus.publish_raw(SUBJECT_DLQ, msg.payload.to_vec()).await;
+            warn!(error = %e, subject = %msg.subject, "unparseable envelope; dropping to DLQ");
+            dead_letter(sink, &msg, "unparseable envelope").await;
             return;
         }
     };
@@ -103,14 +102,35 @@ async fn handle_message(bus: &NatsBus, dedupe: &DedupeStore, msg: async_nats::Me
                 }
             }
         }
-        if let Err(e) = bus.publish_envelope(subject, &envelope).await {
-            error!(error = %e, subject, "failed to route envelope");
+        if let Err(e) = sink.publish(subject, &envelope).await {
+            error!(error = %e, subject, "failed to route envelope; dropping to DLQ");
+            dead_letter(sink, &msg, "routing failed").await;
         } else {
             info!(subject, "envelope routed");
         }
     }
     .instrument(span)
     .await
+}
+
+/// Publishes the raw payload to the DLQ, logging a failed publish.
+async fn dead_letter(sink: &NatsSink, msg: &async_nats::Message, reason: &str) {
+    warn!(subject = %msg.subject, reason, "dead-lettering message");
+    if let Err(e) = sink.publish_bytes(SUBJECT_DLQ, msg.payload.to_vec()).await {
+        error!(error = %e, "DLQ publish failed; message dropped");
+    }
+}
+
+/// Subscribes to several explicit subjects and merges them into one stream.
+async fn subscribe_many(
+    client: &async_nats::Client,
+    subjects: &[&str],
+) -> anyhow::Result<impl futures::Stream<Item = async_nats::Message>> {
+    let mut subs = Vec::with_capacity(subjects.len());
+    for subject in subjects {
+        subs.push(client.subscribe((*subject).to_string()).await?);
+    }
+    Ok(futures::stream::select_all(subs))
 }
 
 /// Extracts a delivery-count hint from NATS message headers, if present.
@@ -133,14 +153,25 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let config = Config::parse();
-    let bus = NatsBus::connect(&config.nats_url).await?;
+    let sink = NatsSink::connect(&config.nats_url).await?;
     let dedupe = DedupeStore::connect(&config.database_url).await?;
 
-    let mut sub = bus.subscribe("ares.*").await?;
-    info!("orchestrator subscribed to ares.*");
+    // Envelope-bearing subjects only: `ares.activity` (console feed),
+    // `ares.vulns` (advisories) and `ares.dlq` must never be re-routed, and a
+    // wildcard would also match the DLQ it publishes to.
+    let subjects = [
+        SUBJECT_ALERTS,
+        SUBJECT_TRIAGE,
+        SUBJECT_RESPOND,
+        SUBJECT_DETECTION,
+        SUBJECT_HUNT,
+        SUBJECT_BAS,
+    ];
+    let mut sub = subscribe_many(sink.client(), &subjects).await?;
+    info!(?subjects, "orchestrator subscribed");
 
     while let Some(msg) = sub.next().await {
-        handle_message(&bus, &dedupe, msg).await;
+        handle_message(&sink, &dedupe, msg).await;
     }
     Ok(())
 }
