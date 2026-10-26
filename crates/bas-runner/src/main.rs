@@ -8,8 +8,8 @@
 //! - **MTTR** — time until a containment action lands in `audit_log`.
 //!
 //! Each technique produces one `bas_results` row; every scenario publishes a
-//! [`EnvelopeKind::BasResult`] envelope to [`SUBJECT_BAS`], and undetected
-//! scenarios are republished to [`SUBJECT_DETECTION`] so the detection agent
+//! [`EnvelopeKind::BasResult`] envelope to [`SUBJECT_BAS`]; the orchestrator
+//! routes undetected scenarios to [`SUBJECT_DETECTION`] so the detection agent
 //! can fill the coverage gap.
 //!
 //! Execution transports: `BAS_SSH_TARGET` → `ssh <target> <command>`,
@@ -25,7 +25,7 @@ use std::process::Command;
 use std::time::{Duration, Instant};
 
 use agent_protocol::envelope::{Envelope, EnvelopeKind};
-use agent_protocol::{SUBJECT_BAS, SUBJECT_DETECTION};
+use agent_protocol::SUBJECT_BAS;
 use anyhow::Context;
 use clap::Parser;
 use connectors::{ConnectorConfig, OpensearchClient};
@@ -238,16 +238,8 @@ async fn run_scenario(deps: &Deps, scenario: &Scenario) -> anyhow::Result<()> {
         payload.clone(),
     )
     .await;
-    if !detected {
-        // Coverage gap: detection-agent consumes this to draft a new rule.
-        publish(
-            &deps.nats,
-            SUBJECT_DETECTION,
-            EnvelopeKind::BasResult,
-            payload,
-        )
-        .await;
-    }
+    // The orchestrator routes undetected BasResult envelopes on to
+    // detection-agent; publishing here as well would run it twice.
     Ok(())
 }
 

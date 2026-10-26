@@ -44,15 +44,24 @@ struct Config {
     database_url: String,
 }
 
-/// Maps an [`EnvelopeKind`] to its downstream subject.
-fn route_subject(kind: &EnvelopeKind) -> &'static str {
-    match kind {
-        EnvelopeKind::Alert => SUBJECT_TRIAGE,
-        EnvelopeKind::Case => SUBJECT_RESPOND,
-        EnvelopeKind::Intel => SUBJECT_DETECTION,
-        EnvelopeKind::HuntFinding => SUBJECT_HUNT,
-        EnvelopeKind::BasResult => SUBJECT_DETECTION,
-        EnvelopeKind::Command => SUBJECT_RESPOND,
+/// Maps an [`EnvelopeKind`] (and payload, for BAS results) to its downstream
+/// subject. `None` means the message is terminal here.
+fn route_subject(envelope: &Envelope) -> Option<&'static str> {
+    match envelope.kind {
+        EnvelopeKind::Alert => Some(SUBJECT_TRIAGE),
+        EnvelopeKind::Case => Some(SUBJECT_RESPOND),
+        EnvelopeKind::Intel => Some(SUBJECT_DETECTION),
+        EnvelopeKind::HuntFinding => Some(SUBJECT_HUNT),
+        // Only coverage gaps need a new rule; detected runs are terminal.
+        EnvelopeKind::BasResult => {
+            let detected = envelope
+                .payload
+                .get("detected")
+                .and_then(serde_json::Value::as_bool)
+                .unwrap_or(true);
+            (!detected).then_some(SUBJECT_DETECTION)
+        }
+        EnvelopeKind::Command => Some(SUBJECT_RESPOND),
     }
 }
 
@@ -85,7 +94,10 @@ async fn handle_message(sink: &NatsSink, dedupe: &DedupeStore, msg: async_nats::
         // Envelope already sits on its destination subject (a direct publish
         // — e.g. from api-server's A2A endpoint — or our own re-publish).
         // Routing it again would deliver a duplicate and loop forever.
-        let subject = route_subject(&envelope.kind);
+        let Some(subject) = route_subject(&envelope) else {
+            info!("envelope is terminal at this hop");
+            return;
+        };
         if msg.subject.as_str() == subject {
             return;
         }

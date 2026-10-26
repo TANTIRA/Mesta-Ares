@@ -38,7 +38,7 @@ and `agent_checkpoints` (api-server folds it into task/run status).
 - `POST /controls/kill-switch` — engages/disengages `$POLICIES_DIR/kill`; `GET` reads state. Fail-closed reads.
 - `GET /stream/activity` — SSE, event `{workflow_run_id, agent, step, detail, ts}`.
 - A2A interop: `GET /.well-known/agent.json` (platform card), `GET /a2a/agents`, `GET /a2a/{agent}/.well-known/agent.json`, `POST /a2a/{agent}` (JSON-RPC `tasks/send|get|cancel|sendSubscribe`), `GET /a2a/tasks/{id}/events` (per-task SSE). Agents: `triage-agent`, `response-agent`, `detection-agent`, `hunt-agent`. Task → `Envelope` (source `a2a:<task_id>`, correlation_id = task UUID) published on the agent's subject.
-- `POST ingestion-gateway:8091/webhook/wazuh` — Wazuh integratord JSON → `Envelope`. `202 Accepted` on publish, `503` if NATS down (caller retries; integratord does not, so monitor this).
+- `POST ingestion-gateway:8091/webhook/wazuh` — Wazuh integratord JSON → `Envelope`. `202 Accepted` on publish, `502` if the publish fails (caller retries; integratord does not, so monitor this).
 - `GET|POST api-gateway:8082/…` — single entry point: `/api/*`→api-server, `/ingest/*`→ingestion-gateway, `/tools/*`→tool-server (prefix stripped, method/headers/body forwarded, response streamed). Auth: `Authorization: Bearer <key>` or `X-API-Key` against `GATEWAY_API_KEYS`; `/health` and `/metrics` exempt; empty key list fails closed unless `GATEWAY_ALLOW_ANONYMOUS=1`. `GET /aggregate/dashboard` fans in metrics + alerts + advisories. `GET /metrics` is Prometheus text (`ares_gateway_requests_total{route,status}`, latency sums, cache hits). GETs under `GATEWAY_CACHE_PREFIXES` are cached for `GATEWAY_CACHE_TTL_SECONDS` and answer `x-gateway-cache: hit|miss`.
 
 Errors: JSON `{error: string}`; 4xx = caller fixable, 5xx = retryable. All
@@ -137,7 +137,7 @@ host by `infra/docker-compose.yml`). Probe script: `scripts/api-security-check.s
 | API6 | Unrestricted Access to Sensitive Business Flows | VULNERABLE | Anyone can inject unlimited "alerts" via `POST /webhook/{wazuh,generic}` → each one consumes LLM tokens, can open TheHive cases and trigger response handoffs (`triage-agent/main.rs:296-353`). |
 | API7 | Server-Side Request Forgery | VULNERABLE (limited) | Connector base URLs are env-pinned — no arbitrary-origin SSRF found. But tool args steer internal requests: `opensearch.query` takes caller `index` + Lucene `q` + DSL `body` with no schema (`executors/mod.rs:88-99` — read any index); `thehive.case.update` joins raw `case_id` into the URL path (`connectors/lib.rs:182-191`). Reachable unauthenticated via `:8090/invoke`. |
 | API8 | Security Misconfiguration | VULNERABLE | `CorsLayer::permissive()` (`main.rs:339`) + kill-switch/A2A accept any content-type → CSRF-able cross-origin POSTs; no security headers on any service or the console (`next.config.ts`); upstream/DB error strings echoed in bodies (`main.rs:119,154,191` etc.); compose defaults — `WAZUH_API_PASS:-`, `THEHIVE_APPLICATION_SECRET=dev-only-secret-change-me`, `MISP_ADMIN_PASSWORD=admin`, `DISABLE_SECURITY_PLUGIN=true`, `postgres ares/ares`, tool-server `:8090` published; `API_BIND` env is dead (code reads `BIND_ADDR`, `main.rs:61`). |
-| API9 | Improper Inventory Management | PARTIAL | Route inventory is now documented in *HTTP contracts* (including `/playbooks*`, `/vulns*`, `/cvss/score`, `/acp/*`, `/webhook/generic`); remaining drift: console calls a nonexistent `POST /hunt` (`apps/console/lib/api.ts:373`); doc promises `503` on NATS-down but code returns `502` (`ingestion-gateway/main.rs:110`). |
+| API9 | Improper Inventory Management | PARTIAL | Route inventory is now documented in *HTTP contracts* (including `/playbooks*`, `/vulns*`, `/cvss/score`, `/acp/*`, `/webhook/generic`); remaining drift: console calls a nonexistent `POST /hunt` (`apps/console/lib/api.ts:373`). The `503`-vs-`502` drift is resolved (code returns `502`, doc now agrees) and the HTTP surface is specified in `docs/openapi/`. |
 | API10 | Unsafe Consumption of APIs | VULNERABLE | Attacker-controlled JSON (webhook payloads, A2A `message`) flows verbatim into LLM prompts — triage context (`triage-agent/main.rs:297-304`) and response planner (`response-agent/main.rs:247-248`) — so prompt injection becomes planned tool calls; `exec.sandbox` permits `bash -c` and `FORBIDDEN_SUBSTRINGS` misses `\n`, `>`, `&`, `<(` (`executors/openshell.rs:50-55,92-96`); `/stream/activity` relays raw NATS payloads to browsers (`stream.rs:48-68`). |
 
 ### Findings (ordered)
@@ -191,10 +191,10 @@ host by `infra/docker-compose.yml`). Probe script: `scripts/api-security-check.s
    (`docker-compose.yml:42,62,103,175,205,330`). *Fix:* map errors to generic
    bodies + log internals, scope CORS to the console origin, remove published
    ports for internal services, drop empty-string secret defaults.
-7. **Inventory drift.** Undocumented routes listed under API9; `POST /hunt`
-   called by the console doesn't exist; `webhook/generic` undocumented;
-   `503`-vs-`502` contract drift; dead `API_BIND` env. *Fix:* regenerate the
-   route table from `api_router()` and reconcile `services.md`.
+7. **Inventory drift.** `POST /hunt` called by the console doesn't exist; dead
+   `API_BIND` env. *Fix:* regenerate the route table from `api_router()` and
+   reconcile `services.md`. (`webhook/generic` and the `502` status are now
+   documented, and `docs/openapi/` carries the machine-readable contract.)
 
 Positive notes worth keeping: deny-by-default tool allowlist + compiled JSON
 Schemas + protected-asset boundary (`policy-engine/lib.rs:327-423`); all SQL is

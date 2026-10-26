@@ -1,15 +1,13 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T09:47:53+00:00",
+  "updated": "2026-10-26T09:52:25+00:00",
   "queue_order": [
-    "review::.::holistic::naming_quality::sse_state_struct_st",
+    "review::.::holistic::cross_module_architecture::bas_double_delivery",
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
     "review::.::holistic::abstraction_fitness::model_router_never_routes",
-    "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated",
     "review::.::holistic::ai_generated_debt::agent-core-unused-framework",
     "review::.::holistic::ai_generated_debt::idem-key-serde-roundtrip",
-    "review::.::holistic::ai_generated_debt::jetstream-bootstrap-duplicated",
     "review::.::holistic::ai_generated_debt::micro-helpers-reimplemented-per-crate",
     "review::.::holistic::ai_generated_debt::restating-field-docs",
     "review::.::holistic::ai_generated_debt::sse-unfold-duplicated",
@@ -29,14 +27,9 @@
     "review::.::holistic::contract_coherence::acp_sync_mode_timeout",
     "review::.::holistic::contract_coherence::approvals_approved_means_executed",
     "review::.::holistic::contract_coherence::triage_severity_clamp_downgrade",
-    "review::.::holistic::convention_outlier::ares-star-namespace-two-message-conventions",
     "review::.::holistic::convention_outlier::cargo-manifest-style-split",
     "review::.::holistic::convention_outlier::llm-json-completion-protocol-duplicated",
     "review::.::holistic::cross_module_architecture::agent_runtime_duplicated",
-    "review::.::holistic::cross_module_architecture::bas_double_delivery",
-    "review::.::holistic::cross_module_architecture::dlq_republish_loop",
-    "review::.::holistic::cross_module_architecture::jetstream_publish_duplicated",
-    "review::.::holistic::cross_module_architecture::vuln_off_contract_publish",
     "review::.::holistic::design_coherence::a2a_acp_duplicate_run_machinery",
     "review::.::holistic::design_coherence::agent_scaffolding_copied_per_crate",
     "review::.::holistic::design_coherence::cvss_metric_validation_duplicated",
@@ -45,14 +38,11 @@
     "review::.::holistic::error_consistency::bas_metrics_conflate_failure_with_negative",
     "review::.::holistic::error_consistency::fire_and_forget_state_writes",
     "review::.::holistic::error_consistency::http_error_shape_drift",
-    "review::.::holistic::error_consistency::orchestrator_dlq_asymmetry",
     "review::.::holistic::high_level_elegance::acp_subsystem_did_not_localize",
     "review::.::holistic::high_level_elegance::agent_core_role_unfilled",
     "review::.::holistic::high_level_elegance::agent_roster_duplicated",
     "review::.::holistic::incomplete_migration::agent_runtime_never_adopted",
     "review::.::holistic::incomplete_migration::connector_bypass_raw_http",
-    "review::.::holistic::incomplete_migration::jetstream_publish_half_migrated",
-    "review::.::holistic::incomplete_migration::subject_constants_half_shared",
     "review::.::holistic::initialization_coupling::ambient_env_in_policy_evaluate",
     "review::.::holistic::initialization_coupling::cwd_relative_path_constants",
     "review::.::holistic::initialization_coupling::enricher_new_hidden_env",
@@ -67,9 +57,7 @@
     "review::.::holistic::low_level_elegance::severity_to_int_mapping_drift",
     "review::.::holistic::mid_level_elegance::case_id_encoded_in_uri_string",
     "review::.::holistic::mid_level_elegance::connector_surface_gaps_pushed_to_callers",
-    "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented",
     "review::.::holistic::mid_level_elegance::evalctx_asset_classes_unwired",
-    "review::.::holistic::mid_level_elegance::orchestrator_dlq_self_feed",
     "review::.::holistic::naming_quality::executor_type_name_drift",
     "review::.::holistic::naming_quality::generic_process_envelope_handlers",
     "review::.::holistic::naming_quality::impact_enum_mixed_axes",
@@ -3362,7 +3350,7 @@
     }
   },
   "promoted_ids": [
-    "review::.::holistic::naming_quality::sse_state_struct_st"
+    "review::.::holistic::cross_module_architecture::bas_double_delivery"
   ],
   "plan_start_scores": {
     "strict": 77.7,
@@ -7922,6 +7910,486 @@
       "actor": "user",
       "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
       "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:47:53+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::naming_quality::sse_state_struct_st"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually JSON-RPC 2.0 version is validated (INVALID_REQUEST no longer dead); playbook parse errors are logged; MISP unparsable rows log instead of vanishing; NVD 404 on a CVE id returns Ok(None) so the negative cache works and list_published reuses list_window; the connector retry guard is no longer dead code; PolicyEngine::evaluate/evaluate_approved are sync (no fake await, mutex no longer held across await); tool-server's claim-and-execute vs run_tool verbs are honest; dry runs are typed (ToolResult.dry_run) and response-agent skips post-check/rollback for them; cvss required-metric helper renamed and identity match arms removed. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:03+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::dlq_republish_loop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:03+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::dlq_republish_loop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:03+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::dlq_republish_loop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:05+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::orchestrator_dlq_self_feed"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:05+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::orchestrator_dlq_self_feed"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:06+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::orchestrator_dlq_self_feed"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:07+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::orchestrator_dlq_asymmetry"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:08+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::orchestrator_dlq_asymmetry"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:08+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::orchestrator_dlq_asymmetry"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:09+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::ares-star-namespace-two-message-conventions"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:10+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::ares-star-namespace-two-message-conventions"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:10+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::convention_outlier::ares-star-namespace-two-message-conventions"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:11+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::vuln_off_contract_publish"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:12+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::vuln_off_contract_publish"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:12+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::vuln_off_contract_publish"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:13+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::subject_constants_half_shared"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:14+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::subject_constants_half_shared"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:14+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::subject_constants_half_shared"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:15+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::jetstream_publish_duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:16+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::jetstream_publish_duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:16+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::jetstream_publish_duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:17+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::jetstream-bootstrap-duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:18+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::jetstream-bootstrap-duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:18+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::ai_generated_debt::jetstream-bootstrap-duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:19+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:20+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:20+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:21+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:22+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:22+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:23+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::jetstream_publish_half_migrated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:23+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::jetstream_publish_half_migrated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:52:24+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::jetstream_publish_half_migrated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol). and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:24+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::bas_double_delivery"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:52:25+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::bas_double_delivery"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "detail": {}
     }
   ],
   "epic_triage_meta": {},
@@ -8007,7 +8475,19 @@
     "review::.::holistic::error_consistency::executor_dry_run_reports_success",
     "review::.::holistic::type_safety::dry_run_ok_masks_no_op",
     "review::.::holistic::naming_quality::cvss_required_metric_named_num",
-    "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony"
+    "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony",
+    "review::.::holistic::naming_quality::sse_state_struct_st",
+    "review::.::holistic::cross_module_architecture::dlq_republish_loop",
+    "review::.::holistic::mid_level_elegance::orchestrator_dlq_self_feed",
+    "review::.::holistic::error_consistency::orchestrator_dlq_asymmetry",
+    "review::.::holistic::convention_outlier::ares-star-namespace-two-message-conventions",
+    "review::.::holistic::cross_module_architecture::vuln_off_contract_publish",
+    "review::.::holistic::incomplete_migration::subject_constants_half_shared",
+    "review::.::holistic::cross_module_architecture::jetstream_publish_duplicated",
+    "review::.::holistic::ai_generated_debt::jetstream-bootstrap-duplicated",
+    "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated",
+    "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented",
+    "review::.::holistic::incomplete_migration::jetstream_publish_half_migrated"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3
