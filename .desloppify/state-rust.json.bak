@@ -12,17 +12,17 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 121,
-    "open": 395,
+    "fixed": 130,
+    "open": 385,
     "triaged_out": 0,
-    "wontfix": 0,
+    "wontfix": 1,
     "by_tier": {
       "1": {
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 68,
-        "open": 39,
+        "fixed": 75,
+        "open": 32,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,10 +30,10 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 33,
-        "open": 219,
+        "fixed": 35,
+        "open": 216,
         "triaged_out": 0,
-        "wontfix": 0
+        "wontfix": 1
       },
       "3": {
         "auto_resolved": 7,
@@ -11180,11 +11180,11 @@
         "reasoning": "",
         "summary_hash": "9c709658"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:30+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11192,7 +11192,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:30+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::agent_decision_logic_untested": {
       "id": "review::.::holistic::test_strategy::agent_decision_logic_untested",
@@ -11222,11 +11228,11 @@
         "reasoning": "",
         "summary_hash": "1a0758d6"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:33+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11234,7 +11240,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:33+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::connectors_http_layer_untested": {
       "id": "review::.::holistic::test_strategy::connectors_http_layer_untested",
@@ -11259,11 +11271,11 @@
         "reasoning": "",
         "summary_hash": "ba16acef"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:29+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11271,7 +11283,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:29+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::detection_pipeline_untested": {
       "id": "review::.::holistic::test_strategy::detection_pipeline_untested",
@@ -11296,11 +11314,11 @@
         "reasoning": "",
         "summary_hash": "e9eff6e0"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:28+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11308,7 +11326,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:28+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::dedupe_key_untested": {
       "id": "review::.::holistic::test_strategy::dedupe_key_untested",
@@ -11332,11 +11356,11 @@
         "reasoning": "",
         "summary_hash": "dac37572"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:26+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11344,7 +11368,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:26+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::api_server_surface_untested": {
       "id": "review::.::holistic::test_strategy::api_server_surface_untested",
@@ -11372,11 +11402,11 @@
         "reasoning": "",
         "summary_hash": "f0ff72d9"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:27+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11384,7 +11414,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:27+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::policy_matrix_rows_unasserted": {
       "id": "review::.::holistic::test_strategy::policy_matrix_rows_unasserted",
@@ -11411,11 +11447,11 @@
         "reasoning": "",
         "summary_hash": "d9be731b"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:31+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11423,7 +11459,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:31+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::no_integration_test_surface": {
       "id": "review::.::holistic::test_strategy::no_integration_test_surface",
@@ -11450,11 +11492,11 @@
         "reasoning": "",
         "summary_hash": "793c8407"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:33+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11462,7 +11504,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:33+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::policy_tests_read_ambient_env": {
       "id": "review::.::holistic::test_strategy::policy_tests_read_ambient_env",
@@ -11486,11 +11534,11 @@
         "reasoning": "",
         "summary_hash": "c7b91551"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:05:32+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11498,7 +11546,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:05:32+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::api_surface_coherence::http_error_body_conventions": {
       "id": "review::.::holistic::api_surface_coherence::http_error_body_conventions",
@@ -12306,11 +12360,11 @@
         "reasoning": "",
         "summary_hash": "23a19f8b"
       },
-      "status": "open",
-      "note": null,
+      "status": "wontfix",
+      "note": "Audit integrity is now verifiable at runtime (audit::verify_chain + GET /audit/verify re-walks prev_hash/hash; appends are advisory-locked). Postgres RLS is not adopted: every service shares one DSN, so RLS without per-service roles would be theatre. Accepted as dev-grade debt until per-service credentials exist.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:02:05+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12318,7 +12372,38 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect: the audit half is fixed, the RLS half needs per-service roles the deployment does not have.",
+        "attested_at": "2026-10-26T10:02:05+00:00",
+        "scan_verified": false
+      },
+      "wontfix_scan_count": 3,
+      "wontfix_snapshot": {
+        "captured_at": "2026-10-26T10:02:05+00:00",
+        "scan_count": 3,
+        "tier": 2,
+        "confidence": "medium",
+        "detail": {
+          "holistic": true,
+          "dimension": "authorization_consistency",
+          "related_files": [
+            "crates/audit/src/lib.rs",
+            "crates/tool-server/src/main.rs",
+            "infra/helm/ares/templates/postgres.yaml"
+          ],
+          "evidence": [
+            "The blind packet reports 7 tables (a2a_tasks, agent_checkpoints, bas_results, response_actions, seen_alerts, tool_idempotency, vuln_advisories) and zero with RLS; each table is created ad hoc by whichever service owns it (e.g. crates/api-server/src/a2a.rs:207-230, crates/tool-server/src/idempotency.rs:125-133).",
+            "Every service connects with the same DATABASE_URL (crates/tool-server/src/main.rs:236-248, crates/api-server/src/main.rs:334), so any of them can UPDATE or DELETE audit_log rows the others wrote.",
+            "crates/audit/src/lib.rs:59-115 writes prev_hash/hash but no code anywhere re-walks the chain to detect tampering (no reader beyond api-server's plain SELECT at crates/api-server/src/main.rs:187-197).",
+            "infra/helm/ares/templates/postgres.yaml provisions a single POSTGRES_USER with no per-service roles."
+          ],
+          "suggestion": "Create per-service Postgres roles at bootstrap with GRANT INSERT/SELECT only on audit_log (no UPDATE/DELETE) and enable RLS on the per-run tables keyed by service role, then add a verify() that re-walks audit_log hash links and expose it through GET /audit so tampering is actually detectable.",
+          "reasoning": "",
+          "summary_hash": "23a19f8b"
+        }
+      }
     },
     "review::.::holistic::authorization_consistency::audit-decision-label-hardcoded-deny": {
       "id": "review::.::holistic::authorization_consistency::audit-decision-label-hardcoded-deny",
@@ -18019,8 +18104,8 @@
       "source": "holistic",
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
-      "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:01:55+00:00"
+      "refresh_reason": "review_issue_wontfix",
+      "stale_since": "2026-10-26T10:02:05+00:00"
     },
     "contract_coherence": {
       "score": 80.0,
@@ -18137,7 +18222,10 @@
     "test_strategy": {
       "score": 63.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T10:05:33+00:00"
     },
     "type_safety": {
       "score": 78.0,
@@ -22690,13 +22778,13 @@
       "strict": 58.0,
       "verified_strict_score": 58.0,
       "checks": 10,
-      "failing": 2,
+      "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.58,
-          "failing": 2,
+          "failing": 1,
           "weighted_failures": 4.2,
           "assessment_score": 58.0,
           "placeholder": false,
@@ -23005,13 +23093,13 @@
       "strict": 63.0,
       "verified_strict_score": 63.0,
       "checks": 10,
-      "failing": 9,
+      "failing": 0,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.63,
-          "failing": 9,
+          "failing": 0,
           "weighted_failures": 3.7,
           "assessment_score": 63.0,
           "placeholder": false,

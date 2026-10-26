@@ -18,6 +18,7 @@ use std::time::Duration;
 use agent_core::{kill_switch_engaged, publish_activity};
 use agent_protocol::activity::ActivityEvent;
 use agent_protocol::envelope::{Envelope, EnvelopeKind};
+use agent_protocol::severity::Severity;
 use agent_protocol::SUBJECT_VULNS;
 use clap::Parser;
 use connectors::{ConnectorConfig, CveRecord, NewCase, NvdClient};
@@ -84,27 +85,22 @@ fn load_watchlist(path: &str) -> Watchlist {
     }
 }
 
-fn severity_rank(sev: &str) -> u8 {
-    match sev.to_ascii_lowercase().as_str() {
-        "low" => 1,
-        "medium" => 2,
-        "high" => 3,
-        "critical" => 4,
-        _ => 0,
-    }
-}
+
 
 /// Highest base score across all reported CVSS metric versions.
-fn best_cvss(rec: &CveRecord) -> Option<(f64, String)> {
+fn best_cvss(rec: &CveRecord) -> Option<(f64, Severity)> {
     rec.metrics
         .iter()
         .filter(|m| m.base_score > 0.0)
         .max_by(|a, b| a.base_score.total_cmp(&b.base_score))
         .map(|m| {
-            (
-                m.base_score,
-                m.severity.clone().unwrap_or_else(|| "UNKNOWN".into()),
-            )
+            // NVD's own band wins; the CVSS score is the fallback.
+            let severity = m
+                .severity
+                .as_deref()
+                .and_then(Severity::parse)
+                .unwrap_or_else(|| Severity::from_cvss(m.base_score));
+            (m.base_score, severity)
         })
 }
 
@@ -145,7 +141,7 @@ async fn ensure_schema(pool: &PgPool) -> anyhow::Result<()> {
 async fn record_advisory(
     pool: &PgPool,
     rec: &CveRecord,
-    severity: &str,
+    severity: Severity,
     score: f64,
     matched: Option<&str>,
 ) -> anyhow::Result<bool> {
@@ -157,7 +153,7 @@ async fn record_advisory(
          RETURNING CASE WHEN xmax = 0 THEN cve_id ELSE NULL END",
     )
     .bind(&rec.id)
-    .bind(severity)
+    .bind(severity.as_str())
     .bind(score)
     .bind(rec.has_kev)
     .bind(&rec.description)
@@ -203,18 +199,24 @@ async fn poll_once(
         }
     }
 
-    let min_rank = severity_rank(&cfg.min_severity);
+    // A typo in VULN_MIN_SEVERITY must not silently escalate everything.
+    let min_severity = Severity::parse(&cfg.min_severity).ok_or_else(|| {
+        anyhow::anyhow!(
+            "VULN_MIN_SEVERITY `{}` is not one of low|medium|high|critical",
+            cfg.min_severity
+        )
+    })?;
     let mut escalated = 0usize;
     for rec in seen {
         let Some((score, severity)) = best_cvss(&rec) else {
             continue;
         };
         let matched = watchlist_match(&rec, wl);
-        let qualifies = severity_rank(&severity) >= min_rank || rec.has_kev || matched.is_some();
+        let qualifies = severity >= min_severity || rec.has_kev || matched.is_some();
         if !qualifies {
             continue;
         }
-        if !record_advisory(pool, &rec, &severity, score, matched.as_deref()).await? {
+        if !record_advisory(pool, &rec, severity, score, matched.as_deref()).await? {
             continue; // already known
         }
         escalated += 1;
@@ -249,7 +251,7 @@ async fn poll_once(
                 let case = NewCase {
                     title: format!("[NVD] {} — {}", rec.id, severity),
                     description: rec.description.clone().unwrap_or_default(),
-                    severity: severity_rank(&severity),
+                    severity: severity.rank(),
                     tags: vec![
                         "ares".to_string(),
                         "vuln".to_string(),
@@ -263,14 +265,17 @@ async fn poll_once(
                 };
                 match hive.create_case(&case).await {
                     Ok(created) => {
-                        let _ = sqlx::query(
+                        if let Err(e) = sqlx::query(
                             "UPDATE vuln_advisories SET case_id = $1, status = 'cased'
                              WHERE cve_id = $2",
                         )
                         .bind(&created.id)
                         .bind(&rec.id)
                         .execute(pool)
-                        .await;
+                        .await
+                        {
+                            warn!(error = %e, cve = %rec.id, "advisory case_id write failed");
+                        }
                     }
                     Err(e) => warn!(error = %e, cve = %rec.id, "thehive case failed"),
                 }

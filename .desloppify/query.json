@@ -1,11 +1,11 @@
 {
   "command": "resolve",
   "patterns": [
-    "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
+    "review::.::holistic::initialization_coupling::ambient_env_in_policy_evaluate"
   ],
   "status": "fixed",
   "resolved": [
-    "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
+    "review::.::holistic::initialization_coupling::ambient_env_in_policy_evaluate"
   ],
   "count": 1,
   "next_command": "desloppify next",
@@ -17,10 +17,10 @@
   "prev_objective_score": 84.1,
   "prev_strict_score": 77.7,
   "prev_verified_strict_score": 84.1,
-  "attestation": "I have actually tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths. and I am not gaming the score.",
+  "attestation": "I have actually Tests added for the previously untested surfaces: orchestrator dedupe_key/day-bucket (same-day dedupe, host/rule/next-day differences), api-server valid_cve_id boundaries, detection pipeline (validate_sigma required keys, naive_lucene, slugify), connectors retry_sleep budget + b64url, tool-server invoke composition (claim_and_execute runs a registered tool and replays the same key) and allowlist/executor coverage, plus a policy-engine integration test dir that loads the shipped policies and asserts deny-by-default and MISP approval. PolicyEngine kill-switch state now comes from EvalCtx (refreshed per invoke) instead of ambient env, so tests are deterministic and the unasserted matrix rows (firewall.rule.add, kill_process, nvd/cvss/sigma tools, Tier-0 accounts) are covered. and I am not gaming the score.",
   "narrative": {
     "phase": "early_momentum",
-    "headline": "Score 77.7/100 with 395 issues open. Keep the momentum going. (74 review work items \u2014 run `desloppify show review --status open`)",
+    "headline": "Score 77.7/100 with 384 issues open. Keep the momentum going. (63 review work items \u2014 run `desloppify show review --status open`)",
     "dimensions": {
       "lowest_dimensions": [
         {
@@ -32,7 +32,7 @@
         {
           "name": "Auth consistency",
           "strict": 58.0,
-          "failing": 2,
+          "failing": 1,
           "impact": 0.0,
           "subjective": true,
           "impact_description": "re-review to improve"
@@ -40,7 +40,7 @@
         {
           "name": "Test strategy",
           "strict": 63.0,
-          "failing": 9,
+          "failing": 0,
           "impact": 0.0,
           "subjective": true,
           "impact_description": "re-review to improve"
@@ -129,8 +129,8 @@
       {
         "type": "refactor",
         "detector": "review",
-        "count": 74,
-        "description": "74 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
+        "count": 63,
+        "description": "63 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
         "command": "desloppify show review --status open",
         "impact": 0.0,
         "dimension": "Unknown",
@@ -196,7 +196,7 @@
     "strategy": {
       "fixer_leverage": {
         "auto_fixable_count": 0,
-        "total_count": 543,
+        "total_count": 510,
         "coverage": 0.0,
         "impact_ratio": 0.0,
         "recommendation": "none"
@@ -247,7 +247,7 @@
         }
       },
       "can_parallelize": true,
-      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 74 issue(s) \u2014 `desloppify show review --status open`."
+      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 63 issue(s) \u2014 `desloppify show review --status open`."
     },
     "tools": {
       "fixers": [],
@@ -270,7 +270,7 @@
     },
     "debt": {
       "overall_gap": 0.4,
-      "wontfix_count": 0,
+      "wontfix_count": 1,
       "worst_dimension": "Test health",
       "worst_gap": 7.6,
       "trend": "growing"
@@ -280,12 +280,18 @@
       "command": "desloppify show structural --status open",
       "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable"
     },
-    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 74 issue(s) \u2014 `desloppify show review --status open`.",
+    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 63 issue(s) \u2014 `desloppify show review --status open`.",
     "verification_step": {
       "command": "desloppify scan",
       "reason": "revalidate after changes"
     },
-    "risk_flags": [],
+    "risk_flags": [
+      {
+        "type": "wontfix_gap",
+        "severity": "medium",
+        "message": "Strict/lenient gap is 0.4 pts with 1 wontfix issues"
+      }
+    ],
     "strict_target": {
       "target": 85.0,
       "current": 77.7,
@@ -310,7 +316,7 @@
       },
       {
         "type": "review_issues_pending",
-        "message": "74 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
+        "message": "63 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
         "command": "desloppify show review --status open",
         "priority": 1,
         "severity": "high"

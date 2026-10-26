@@ -246,7 +246,7 @@ async fn dispatch_run(
     );
     env.correlation_id = a2a::task_uuid(run_id);
     if let Err(e) = a2a::publish(s, def.subject, &env).await {
-        let _ = sqlx::query(
+        if let Err(werr) = sqlx::query(
             "UPDATE acp_runs SET status = 'failed', error = $2, finished_at = now(),
              updated_at = now() WHERE id = $1",
         )
@@ -256,7 +256,10 @@ async fn dispatch_run(
             format!("publish {}: {e}", def.subject),
         )))
         .execute(&s.pool)
-        .await;
+        .await
+        {
+            tracing::error!(run_id = %run_id, error = %werr, "failed-status write failed");
+        }
         return Err(AcpError::new(
             ERR_SERVER,
             format!("publish {}: {e}", def.subject),
@@ -495,13 +498,16 @@ impl RunRecord for Run {
 
     async fn mark_terminal(pool: &PgPool, id: &str, aborted: bool) {
         let status = if aborted { "failed" } else { "completed" };
-        let _ = sqlx::query(
+        if let Err(e) = sqlx::query(
             "UPDATE acp_runs SET status = $2, finished_at = now(), updated_at = now() WHERE id = $1",
         )
         .bind(id)
         .bind(status)
         .execute(pool)
-        .await;
+        .await
+        {
+            tracing::error!(run_id = %id, error = %e, "terminal status write failed");
+        }
     }
 }
 

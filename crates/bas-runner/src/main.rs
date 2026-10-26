@@ -118,7 +118,7 @@ async fn wait_mttd(
     os: &OpensearchClient,
     technique: &str,
     since: chrono::DateTime<chrono::Utc>,
-) -> Option<u64> {
+) -> anyhow::Result<Option<u64>> {
     let started = Instant::now();
     let body = json!({
         "size": 1,
@@ -127,6 +127,7 @@ async fn wait_mttd(
             "filter": [{"range": {"@timestamp": {"gte": since.to_rfc3339()}}}]
         }}
     });
+    let mut last_error = None;
     while started.elapsed() < POLL_TIMEOUT {
         match os.query(ALERT_INDEX, "", body.clone()).await {
             Ok(resp) => {
@@ -135,19 +136,30 @@ async fn wait_mttd(
                     .and_then(Value::as_u64)
                     .unwrap_or(0);
                 if hits > 0 {
-                    return Some(started.elapsed().as_secs());
+                    return Ok(Some(started.elapsed().as_secs()));
                 }
             }
-            Err(e) => warn!(error = %e, technique, "mttd poll failed"),
+            Err(e) => {
+                warn!(error = %e, technique, "mttd poll failed");
+                last_error = Some(e);
+            }
         }
         tokio::time::sleep(POLL_INTERVAL).await;
     }
-    None
+    match last_error {
+        // Only a clean timeout means "not detected"; a failing store must not
+        // be recorded as a detection gap.
+        None => Ok(None),
+        Some(e) => Err(e.context("mttd poll never succeeded")),
+    }
 }
 
 /// Waits for a containment signal in `audit_log` newer than `since`;
 /// returns `(mttr_secs, contained)`.
-async fn wait_mttr(pool: &PgPool, since: chrono::DateTime<chrono::Utc>) -> (Option<i64>, bool) {
+async fn wait_mttr(
+    pool: &PgPool,
+    since: chrono::DateTime<chrono::Utc>,
+) -> anyhow::Result<(Option<i64>, bool)> {
     let started = Instant::now();
     while started.elapsed() < POLL_TIMEOUT {
         let found = sqlx::query_scalar::<_, i64>(
@@ -157,14 +169,13 @@ async fn wait_mttr(pool: &PgPool, since: chrono::DateTime<chrono::Utc>) -> (Opti
         .bind(since)
         .bind(CONTAINMENT_TOOLS)
         .fetch_one(pool)
-        .await
-        .unwrap_or(0);
+        .await?;
         if found > 0 {
-            return (Some(started.elapsed().as_secs() as i64), true);
+            return Ok((Some(started.elapsed().as_secs() as i64), true));
         }
         tokio::time::sleep(POLL_INTERVAL).await;
     }
-    (None, false)
+    Ok((None, false))
 }
 
 /// Publishes a JSON payload as an [`Envelope`] on `subject`.
@@ -183,6 +194,13 @@ async fn publish(nats: &async_nats::Client, subject: &str, kind: EnvelopeKind, p
 /// Runs one scenario end-to-end: execute, MTTD, MTTR, rows, envelopes.
 async fn run_scenario(deps: &Deps, scenario: &Scenario) -> anyhow::Result<()> {
     info!(scenario = %scenario.id, name = %scenario.name, "running scenario");
+    if deps.dry {
+        // A dry run simulates the attack only: recording MTTD/MTTR would
+        // poison the metrics table and republishing would trigger
+        // detection-agent for a scenario that never ran.
+        info!(scenario = %scenario.id, "dry run: skipping metrics and publish");
+        return Ok(());
+    }
     execute(scenario, deps.dry)?;
     let since = chrono::Utc::now();
     let started = Instant::now();
@@ -194,12 +212,12 @@ async fn run_scenario(deps: &Deps, scenario: &Scenario) -> anyhow::Result<()> {
         .first()
         .cloned()
         .unwrap_or_else(|| "unknown".to_string());
-    let mttd = wait_mttd(&deps.os, &primary, since).await;
+    let mttd = wait_mttd(&deps.os, &primary, since).await?;
     let detected = mttd.is_some();
 
     // Only wait for containment when something was detected.
     let (mttr_secs, mttr_contained) = if detected {
-        wait_mttr(&deps.pool, since).await
+        wait_mttr(&deps.pool, since).await?
     } else {
         (None, false)
     };

@@ -400,12 +400,15 @@ impl TaskBackend for PgBackend<'_> {
         );
         env.correlation_id = task_uuid(&task_id);
         if let Err(e) = publish(self.s, def.subject, &env).await {
-            let _ = sqlx::query(
+            if let Err(werr) = sqlx::query(
                 "UPDATE a2a_tasks SET state = 'failed', updated_at = now() WHERE id = $1",
             )
             .bind(&task_id)
             .execute(&self.s.pool)
-            .await;
+            .await
+            {
+                tracing::error!(task_id = %task_id, error = %werr, "failed-state write failed");
+            }
             return Err(BackendError::Internal(format!(
                 "publish {}: {e}",
                 def.subject
@@ -529,11 +532,15 @@ impl RunRecord for Task {
 
     async fn mark_terminal(pool: &PgPool, id: &str, aborted: bool) {
         let state = if aborted { "failed" } else { "completed" };
-        let _ = sqlx::query("UPDATE a2a_tasks SET state = $2, updated_at = now() WHERE id = $1")
-            .bind(id)
-            .bind(state)
-            .execute(pool)
-            .await;
+        if let Err(e) =
+            sqlx::query("UPDATE a2a_tasks SET state = $2, updated_at = now() WHERE id = $1")
+                .bind(id)
+                .bind(state)
+                .execute(pool)
+                .await
+        {
+            tracing::error!(task_id = %id, error = %e, "terminal state write failed");
+        }
     }
 }
 

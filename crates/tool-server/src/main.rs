@@ -54,9 +54,7 @@ struct AppState {
 
 /// Prefer the caller-supplied idempotency key; absent one, no caching.
 fn idem_key(call: &ToolCall) -> Option<String> {
-    serde_json::to_value(&call.idempotency_key)
-        .ok()
-        .and_then(|v| v.as_str().filter(|s| !s.is_empty()).map(str::to_string))
+    (!call.idempotency_key.is_empty()).then(|| call.idempotency_key.clone())
 }
 
 async fn invoke(

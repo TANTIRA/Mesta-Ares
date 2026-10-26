@@ -41,6 +41,7 @@ use tracing::{error, info, warn, Instrument};
 
 use agent_core::{publish_activity, HttpToolGateway};
 use agent_protocol::activity::ActivityEvent;
+use agent_protocol::severity::Severity;
 use agent_protocol::tool::ToolCall;
 
 /// Triage agent service configuration.
@@ -56,20 +57,65 @@ struct Config {
     tool_server_url: String,
 }
 
+/// Verdict class; anything unrecognised is treated as `suspicious` rather
+/// than dropping the alert.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum VerdictKind {
+    /// True positive: malicious, needs response.
+    Tp,
+    /// False positive: benign or expected.
+    Fp,
+    /// Inconclusive; keep watching.
+    Suspicious,
+}
+
+impl VerdictKind {
+    /// Parses the wire spelling; unknown values become [`VerdictKind::Suspicious`].
+    fn parse(value: &str) -> Self {
+        match value.trim().to_ascii_lowercase().as_str() {
+            "tp" => Self::Tp,
+            "fp" => Self::Fp,
+            _ => Self::Suspicious,
+        }
+    }
+
+    /// Stable lowercase spelling.
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Tp => "tp",
+            Self::Fp => "fp",
+            Self::Suspicious => "suspicious",
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for VerdictKind {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        let raw = String::deserialize(d)?;
+        Ok(Self::parse(&raw))
+    }
+}
+
+impl serde::Serialize for VerdictKind {
+    fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        s.serialize_str(self.as_str())
+    }
+}
+
 /// LLM verdict parsed from the strict-JSON completion.
 #[derive(Debug, Deserialize)]
 struct Verdict {
     /// `tp` (true positive), `fp` (false positive), or `suspicious`.
-    verdict: String,
+    verdict: VerdictKind,
     /// `low` | `medium` | `high` | `critical`.
-    severity: String,
+    severity: Severity,
     /// One-paragraph justification.
     rationale: String,
 }
 
 /// Severity ranks that trigger a handoff to the response agent.
-fn severity_gte_high(severity: &str) -> bool {
-    matches!(severity.to_ascii_lowercase().as_str(), "high" | "critical")
+fn severity_gte_high(severity: Severity) -> bool {
+    severity >= Severity::High
 }
 
 /// Strict-JSON system prompt for the verdict completion.
@@ -135,14 +181,16 @@ const SEVERITY_LEVELS: &[&str] = &[
     "critical: widespread or destructive impact",
 ];
 
-/// Maps a decision-model severity level (0–3, probability-weighted) to the
-/// verdict severity label, clamping out-of-range values.
-fn severity_from_level(level: f32) -> String {
-    SEVERITY_LEVELS
-        .get(level.round().max(0.0) as usize)
-        .and_then(|l| l.split(':').next())
-        .unwrap_or("medium")
-        .to_string()
+/// Maps a decision-model severity level (0–3, probability-weighted) to a
+/// [`Severity`], clamping out-of-range values instead of downgrading them.
+fn severity_from_level(level: f32) -> Severity {
+    const LEVELS: [Severity; 4] = [
+        Severity::Low,
+        Severity::Medium,
+        Severity::High,
+        Severity::Critical,
+    ];
+    LEVELS[level.round().clamp(0.0, 3.0) as usize]
 }
 
 /// Asks a local Ollama decision model for the verdict: a `choice` over
@@ -185,11 +233,12 @@ async fn decision_verdict(
         .collect::<Vec<_>>()
         .join(", ");
     Ok(Verdict {
-        verdict: choice.choice.clone(),
+        verdict: VerdictKind::parse(&choice.choice),
         severity,
         rationale: format!(
             "local decision model {model}: verdict {} (confidence {:.2}; {probs}); severity score {level:.2}/3",
-            choice.choice, choice.confidence
+            VerdictKind::parse(&choice.choice).as_str(),
+            choice.confidence
         ),
     })
 }
@@ -249,12 +298,7 @@ async fn open_case(
         .and_then(Value::as_str)
         .unwrap_or("Ares triage case")
         .to_string();
-    let severity = match verdict.severity.to_ascii_lowercase().as_str() {
-        "low" => 1,
-        "high" => 3,
-        "critical" => 4,
-        _ => 2,
-    };
+    let severity = verdict.severity.rank();
     let case = NewCase {
         title: title.clone(),
         description: verdict.rationale.clone(),
@@ -404,7 +448,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
             run_id,
             "triage",
             "verdict",
-            format!("{} ({})", verdict.verdict, verdict.severity),
+            format!("{} ({})", verdict.verdict.as_str(), verdict.severity),
         ),
     )
     .await;
@@ -421,8 +465,8 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
     }
 
     // 5. Route on verdict.
-    match verdict.verdict.as_str() {
-        "fp" => {
+    match verdict.verdict {
+        VerdictKind::Fp => {
             write_fp_verdict(&deps.os, &envelope.payload, &verdict).await?;
             publish_activity(
                 &deps.nats,
@@ -430,7 +474,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
             )
             .await;
         }
-        "tp" | "suspicious" => {
+        VerdictKind::Tp | VerdictKind::Suspicious => {
             let mut observables = iocs.clone();
             observables.extend(ioc_set.cve_ids.iter().map(|c| ("cve", c)));
             let case_id = open_case(&deps.gateway, &envelope.payload, &verdict, &observables, run_id).await?;
@@ -439,7 +483,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
                 &ActivityEvent::new(run_id, "triage", "case", format!("case {case_id} opened")),
             )
             .await;
-            if severity_gte_high(&verdict.severity) {
+            if severity_gte_high(verdict.severity) {
                 handoff_respond(&deps.nats, envelope, &case_id, &verdict).await?;
                 publish_activity(
                     &deps.nats,
@@ -447,9 +491,6 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
                 )
                 .await;
             }
-        }
-        other => {
-            warn!(verdict = other, "unrecognized verdict; logging only");
         }
     }
     Ok(())
@@ -513,20 +554,20 @@ mod tests {
     /// Weighted level rounds to the nearest severity label and clamps.
     #[test]
     fn severity_levels_map_to_labels() {
-        assert_eq!(severity_from_level(0.2), "low");
-        assert_eq!(severity_from_level(1.2), "medium");
-        assert_eq!(severity_from_level(1.83), "high");
-        assert_eq!(severity_from_level(2.9), "critical");
-        assert_eq!(severity_from_level(9.0), "medium");
-        assert_eq!(severity_from_level(-1.0), "low");
+        assert_eq!(severity_from_level(0.2), Severity::Low);
+        assert_eq!(severity_from_level(1.2), Severity::Medium);
+        assert_eq!(severity_from_level(1.83), Severity::High);
+        assert_eq!(severity_from_level(2.9), Severity::Critical);
+        assert_eq!(severity_from_level(9.0), Severity::Critical);
+        assert_eq!(severity_from_level(-1.0), Severity::Low);
     }
 
     /// High and critical trigger the response-agent handoff.
     #[test]
     fn handoff_threshold_is_high() {
-        assert!(severity_gte_high("high"));
-        assert!(severity_gte_high("CRITICAL"));
-        assert!(!severity_gte_high("medium"));
-        assert!(!severity_gte_high("low"));
+        assert!(severity_gte_high(Severity::High));
+        assert!(severity_gte_high(Severity::Critical));
+        assert!(!severity_gte_high(Severity::Medium));
+        assert!(!severity_gte_high(Severity::Low));
     }
 }
