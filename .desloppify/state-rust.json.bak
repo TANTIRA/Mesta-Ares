@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 20,
-    "open": 496,
+    "fixed": 21,
+    "open": 495,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 0,
-        "open": 252,
+        "fixed": 1,
+        "open": 251,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -9757,11 +9757,11 @@
         "reasoning": "",
         "summary_hash": "b2641499"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Extracted crates/api-server/src/run_stream.rs: RunRecord trait + activity_stream (single SSE state machine), checkpoint_progress (shared agent_checkpoints folding), wait_for_terminal. A2A Task and ACP Run both implement RunRecord; both handlers and ACP sync mode use the shared helpers. Wire vocabularies (TaskState/RunStatus) stay per-spec.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:08:31+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9769,7 +9769,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Extracted crates/api-server/src/run_stream.rs: RunRecord trait + activity_stream (single SSE state machine), checkpoint_progress (shared agent_checkpoints folding), wait_for_terminal. A2A Task and ACP Run both implement RunRecord; both handlers and ACP sync mode use the shared helpers. Wire vocabularies (TaskState/RunStatus) stay per-spec. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:08:31+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::abstraction_fitness::rollback_tools_never_exist": {
       "id": "review::.::holistic::abstraction_fitness::rollback_tools_never_exist",
@@ -17389,8 +17395,8 @@
         "Type Discipline": 78.0
       },
       "needs_review_refresh": true,
-      "refresh_reason": "mechanical_issues_changed",
-      "stale_since": "2026-10-26T09:05:51+00:00"
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:08:31+00:00"
     },
     "ai_generated_debt": {
       "score": 79.0,
@@ -21964,13 +21970,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 9,
+      "failing": 8,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 9,
+          "failing": 8,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,

@@ -78,7 +78,9 @@ To receive Wazuh alerts, add the block in `infra/wazuh/integratord.xml` to
 bind-mounted at `/var/ossec/integrations/custom-ares-webhook`).
 
 Production skeleton: `helm install ares infra/helm/ares` after creating an
-`ares-secrets` Secret and setting `global.imageRegistry`.
+`ares-secrets` Secret and setting `global.imageRegistry`. Plain Kubernetes
+manifests for the same stack live in `infra/k8s` — deploy with
+`./infra/k8s/apply.sh` (see `infra/k8s/README.md`).
 
 ## Repo layout
 
@@ -86,7 +88,7 @@ Production skeleton: `helm install ares infra/helm/ares` after creating an
 |---|---|
 | `crates/` | Rust workspace: tool-server, api-server, ingestion-gateway, orchestrator, triage/response/detection/hunt agents, bas-runner |
 | `apps/console/` | Next.js console |
-| `infra/` | docker-compose dev stack, Dockerfiles, Helm chart, Wazuh integration |
+| `infra/` | docker-compose dev stack, Dockerfiles, Helm chart, plain k8s manifests, Wazuh integration |
 | `policies/` | Tool allowlist + protected assets (policy gate inputs) |
 | `detection-content/` | Sigma rules — `active/` deployed, `pending/` agent drafts |
 | `evals/` | Golden sets + policy negative-test matrix for offline eval |

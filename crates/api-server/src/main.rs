@@ -343,13 +343,13 @@ async fn main() -> anyhow::Result<()> {
 
     let state = Arc::new(AppState {
         os: conn_cfg
-            .opensearch_client()
+            .build_opensearch_client()
             .context("OPENSEARCH_URL not set")?,
         pool,
         http: reqwest::Client::builder()
             .timeout(Duration::from_secs(15))
             .build()?,
-        nvd: conn_cfg.nvd_client(),
+        nvd: conn_cfg.build_nvd_client(),
         enricher: enrichment_lib::Enricher::new(),
         activity_tx,
         nats,

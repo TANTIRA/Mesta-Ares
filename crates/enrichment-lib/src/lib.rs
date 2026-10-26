@@ -220,8 +220,8 @@ impl Enricher {
         Self {
             http,
             redis,
-            misp: cfg.misp_client(),
-            nvd: cfg.nvd_client(),
+            misp: cfg.build_misp_client(),
+            nvd: cfg.build_nvd_client(),
             virustotal_key: env("VIRUSTOTAL_API_KEY"),
             abuseipdb_key: env("ABUSEIPDB_API_KEY"),
             shodan_key: env("SHODAN_API_KEY"),

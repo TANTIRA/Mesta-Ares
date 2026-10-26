@@ -211,10 +211,10 @@ async fn main() -> anyhow::Result<()> {
         router: Arc::new(ModelRouter::new(provider.clone(), provider)),
         os: Arc::new(
             conn_cfg
-                .opensearch_client()
+                .build_opensearch_client()
                 .context("OPENSEARCH_URL not set")?,
         ),
-        misp: Arc::new(conn_cfg.misp_client().context("MISP_URL not set")?),
+        misp: Arc::new(conn_cfg.build_misp_client().context("MISP_URL not set")?),
         tool_url: config.tool_server_url.clone(),
         http: reqwest::Client::new(),
         pool,

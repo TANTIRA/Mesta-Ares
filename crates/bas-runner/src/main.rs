@@ -286,7 +286,7 @@ async fn main() -> anyhow::Result<()> {
     let deps = Deps {
         nats,
         os: conn_cfg
-            .opensearch_client()
+            .build_opensearch_client()
             .context("OPENSEARCH_URL not set")?,
         pool,
         dry: config.dry,

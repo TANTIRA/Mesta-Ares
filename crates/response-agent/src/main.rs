@@ -384,8 +384,8 @@ async fn main() -> anyhow::Result<()> {
         router: Arc::new(ModelRouter::new(provider.clone(), provider)),
         http: reqwest::Client::new(),
         tool_url: config.tool_server_url.clone(),
-        hive: Arc::new(conn_cfg.thehive_client().context("THEHIVE_URL not set")?),
-        wazuh: Arc::new(conn_cfg.wazuh_client().context("WAZUH_API_URL not set")?),
+        hive: Arc::new(conn_cfg.build_thehive_client().context("THEHIVE_URL not set")?),
+        wazuh: Arc::new(conn_cfg.build_wazuh_client().context("WAZUH_API_URL not set")?),
         pool,
     });
 

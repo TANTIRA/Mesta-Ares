@@ -677,25 +677,33 @@ pub fn build_registry(cfg: &ConnectorConfig) -> HashMap<String, Arc<dyn Tool>> {
         reg.insert(t.name().to_string(), t);
     };
 
+    // One client (and connection pool) per backend, cloned into executors.
+    let os = cfg.build_opensearch_client();
+    let hive = cfg.build_thehive_client();
+    let cortex = cfg.build_cortex_client();
+    let misp = cfg.build_misp_client();
+    let shuffle = cfg.build_shuffle_client();
+    let wazuh = cfg.build_wazuh_client();
+
     // Read-only / enrichment
-    put(Arc::new(OpensearchQuery(cfg.opensearch_client())));
-    put(Arc::new(ThehiveCase(cfg.thehive_client())));
-    put(Arc::new(ThehiveCaseUpdate(cfg.thehive_client())));
-    put(Arc::new(ThehiveObservable(cfg.thehive_client())));
-    put(Arc::new(CortexAnalyzer(cfg.cortex_client())));
-    put(Arc::new(MispSearch(cfg.misp_client())));
+    put(Arc::new(OpensearchQuery(os)));
+    put(Arc::new(ThehiveCase(hive.clone())));
+    put(Arc::new(ThehiveCaseUpdate(hive.clone())));
+    put(Arc::new(ThehiveObservable(hive)));
+    put(Arc::new(CortexAnalyzer(cortex)));
+    put(Arc::new(MispSearch(misp.clone())));
     put(Arc::new(MispAttribute {
         name: "misp.attribute.add",
-        client: cfg.misp_client(),
+        client: misp.clone(),
     }));
     put(Arc::new(MispAttribute {
         name: "misp.ioc.block",
-        client: cfg.misp_client(),
+        client: misp.clone(),
     }));
-    put(Arc::new(MispAttributeSearch(cfg.misp_client())));
-    put(Arc::new(MispEventView(cfg.misp_client())));
-    put(Arc::new(MispWarninglist(cfg.misp_client())));
-    put(Arc::new(MispSighting(cfg.misp_client())));
+    put(Arc::new(MispAttributeSearch(misp.clone())));
+    put(Arc::new(MispEventView(misp.clone())));
+    put(Arc::new(MispWarninglist(misp.clone())));
+    put(Arc::new(MispSighting(misp)));
     for name in [
         "virustotal.lookup",
         "abuseipdb.check",
@@ -708,10 +716,10 @@ pub fn build_registry(cfg: &ConnectorConfig) -> HashMap<String, Arc<dyn Tool>> {
     put(Arc::new(DryRun {
         name: "osquery.fleet_query",
     }));
-    put(Arc::new(WazuhAgents(cfg.wazuh_client())));
+    put(Arc::new(WazuhAgents(wazuh.clone())));
 
     // NVD / CVSS
-    let nvd = Arc::new(cfg.nvd_client());
+    let nvd = Arc::new(cfg.build_nvd_client());
     for name in ["nvd.lookup_cve", "nvd.cve_history", "nvd.recent_cves"] {
         put(Arc::new(NvdTool {
             name,
@@ -724,27 +732,27 @@ pub fn build_registry(cfg: &ConnectorConfig) -> HashMap<String, Arc<dyn Tool>> {
     put(Arc::new(ShuffleWorkflow {
         name: "blocklist.ip.add",
         env_key: "SHUFFLE_BLOCKLIST_WORKFLOW_ID",
-        client: cfg.shuffle_client(),
+        client: shuffle.clone(),
     }));
     put(Arc::new(ShuffleWorkflow {
         name: "blocklist.domain.add",
         env_key: "SHUFFLE_DOMAIN_WORKFLOW_ID",
-        client: cfg.shuffle_client(),
+        client: shuffle.clone(),
     }));
     put(Arc::new(ShuffleWorkflow {
         name: "firewall.rule.add",
         env_key: "SHUFFLE_FW_WORKFLOW_ID",
-        client: cfg.shuffle_client(),
+        client: shuffle.clone(),
     }));
     put(Arc::new(WazuhActiveResponse {
         name: "wazuh.active_response.isolate_host",
         command: "isolate-host",
-        client: cfg.wazuh_client(),
+        client: wazuh.clone(),
     }));
     put(Arc::new(WazuhActiveResponse {
         name: "wazuh.active_response.kill_process",
         command: "kill-process",
-        client: cfg.wazuh_client(),
+        client: wazuh.clone(),
     }));
     put(Arc::new(EntraUser {
         name: "entra.user.revoke_sessions",

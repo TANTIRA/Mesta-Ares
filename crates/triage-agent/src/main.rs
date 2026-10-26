@@ -202,12 +202,8 @@ async fn verdict(deps: &Deps, context: &Value) -> anyhow::Result<Verdict> {
 }
 
 /// Writes a false-positive verdict document to OpenSearch `ares-verdicts`.
-///
-/// Raw `POST {os_url}/ares-verdicts/_doc` — [`OpensearchClient`] has no
-/// document-index method.
 async fn write_fp_verdict(
-    http: &reqwest::Client,
-    os_url: &str,
+    os: &OpensearchClient,
     alert: &Value,
     verdict: &Verdict,
 ) -> anyhow::Result<()> {
@@ -218,17 +214,7 @@ async fn write_fp_verdict(
         "rationale": verdict.rationale,
         "ts": chrono::Utc::now(),
     });
-    let mut req = http.post(format!(
-        "{}/ares-verdicts/_doc",
-        os_url.trim_end_matches('/')
-    ));
-    if let (Ok(u), Ok(p)) = (
-        std::env::var("OPENSEARCH_USER"),
-        std::env::var("OPENSEARCH_PASS"),
-    ) {
-        req = req.basic_auth(u, Some(p));
-    }
-    req.json(&doc).send().await?.error_for_status()?;
+    os.index_doc("ares-verdicts", &doc).await?;
     Ok(())
 }
 
@@ -319,12 +305,8 @@ struct Deps {
     decision: Option<SystemOneClient>,
     /// Decision-model name (e.g. `tev1:4b`); `None` uses the LLM path.
     decision_model: Option<String>,
-    http: reqwest::Client,
-    os_url: String,
     hive: Arc<ThehiveClient>,
-    /// Kept for parity with the connector config; verdict writes go through
-    /// `http` because `OpensearchClient` exposes search only.
-    #[allow(dead_code)]
+    /// Verdict documents are indexed here.
     os: Arc<OpensearchClient>,
 }
 
@@ -406,7 +388,7 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
     // 5. Route on verdict.
     match verdict.verdict.as_str() {
         "fp" => {
-            write_fp_verdict(&deps.http, &deps.os_url, &envelope.payload, &verdict).await?;
+            write_fp_verdict(&deps.os, &envelope.payload, &verdict).await?;
             publish_activity(
                 &deps.nats,
                 &ActivityEvent::new(run_id, "triage", "close", "false positive recorded"),
@@ -447,10 +429,6 @@ async fn main() -> anyhow::Result<()> {
     let config = Config::parse();
     let nats = async_nats::connect(&config.nats_url).await?;
     let conn_cfg = ConnectorConfig::from_env();
-    let os_url = conn_cfg
-        .opensearch_url
-        .clone()
-        .unwrap_or_else(|| "http://localhost:9200".to_string());
     let provider: Arc<dyn LlmProvider> = Arc::new(AnthropicProvider::from_env()?);
     let deps = Arc::new(Deps {
         nats: nats.clone(),
@@ -460,12 +438,10 @@ async fn main() -> anyhow::Result<()> {
         decision_model: std::env::var("DECISION_MODEL")
             .ok()
             .filter(|s| !s.is_empty()),
-        http: reqwest::Client::new(),
-        os_url,
-        hive: Arc::new(conn_cfg.thehive_client().context("THEHIVE_URL not set")?),
+        hive: Arc::new(conn_cfg.build_thehive_client().context("THEHIVE_URL not set")?),
         os: Arc::new(
             conn_cfg
-                .opensearch_client()
+                .build_opensearch_client()
                 .context("OPENSEARCH_URL not set")?,
         ),
     });

@@ -7,6 +7,7 @@
 //! semantic retries remain the caller's job.
 
 use std::collections::HashMap;
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use anyhow::{Context, Result};
@@ -127,6 +128,7 @@ async fn send_with_retry(req: RequestBuilder) -> Result<reqwest::Response> {
 // ---------------------------------------------------------------------------
 
 /// OpenSearch / Elasticsearch `_search` client.
+#[derive(Clone)]
 pub struct OpensearchClient {
     base: String,
     http: Client,
@@ -140,6 +142,15 @@ impl OpensearchClient {
             http: Client::new(),
             auth,
         }
+    }
+
+    /// Indexes `doc` into `index` as a new document (`POST /{index}/_doc`).
+    pub async fn index_doc(&self, index: &str, doc: &Value) -> Result<Value> {
+        let req = self
+            .auth
+            .apply(self.http.post(join(&self.base, &format!("/{index}/_doc"))))
+            .json(doc);
+        json_ok(send_with_retry(req).await.context("opensearch index_doc")?).await
     }
 
     /// `POST {base}/{index}/_search` with the given query body. `q` is passed
@@ -211,6 +222,7 @@ pub struct Observable {
 }
 
 /// TheHive case-management client.
+#[derive(Clone)]
 pub struct ThehiveClient {
     base: String,
     http: Client,
@@ -274,6 +286,7 @@ impl ThehiveClient {
 // ---------------------------------------------------------------------------
 
 /// Cortex analyzer runner.
+#[derive(Clone)]
 pub struct CortexClient {
     base: String,
     http: Client,
@@ -426,6 +439,7 @@ pub struct MispTag {
 
 /// MISP threat-intel client. Auth is the raw `Authorization` header (MISP's
 /// convention) plus `Accept: application/json`.
+#[derive(Clone)]
 pub struct MispClient {
     base: String,
     http: Client,
@@ -559,11 +573,12 @@ impl MispClient {
 
 /// Wazuh manager API client. Authenticates lazily against
 /// `POST /security/user/authenticate` and caches the JWT.
+#[derive(Clone)]
 pub struct WazuhClient {
     base: String,
     http: Client,
     auth: Auth,
-    token: Mutex<Option<String>>,
+    token: Arc<Mutex<Option<String>>>,
 }
 
 impl WazuhClient {
@@ -572,7 +587,7 @@ impl WazuhClient {
             base: base_url.into().trim_end_matches('/').to_string(),
             http: Client::new(),
             auth,
-            token: Mutex::new(None),
+            token: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -646,6 +661,7 @@ impl WazuhClient {
 // ---------------------------------------------------------------------------
 
 /// Shuffle workflow executor.
+#[derive(Clone)]
 pub struct ShuffleClient {
     base: String,
     http: Client,
@@ -721,8 +737,8 @@ impl ConnectorConfig {
         }
     }
 
-    /// OpenSearch client if `OPENSEARCH_URL` is set.
-    pub fn opensearch_client(&self) -> Option<OpensearchClient> {
+    /// Builds an OpenSearch client if `OPENSEARCH_URL` is set.
+    pub fn build_opensearch_client(&self) -> Option<OpensearchClient> {
         let url = self.opensearch_url.clone()?;
         let auth = match (&self.opensearch_user, &self.opensearch_pass) {
             (Some(u), Some(p)) => Auth::Basic {
@@ -735,7 +751,7 @@ impl ConnectorConfig {
     }
 
     /// Wazuh client if `WAZUH_API_URL` is set.
-    pub fn wazuh_client(&self) -> Option<WazuhClient> {
+    pub fn build_wazuh_client(&self) -> Option<WazuhClient> {
         let url = self.wazuh_api_url.clone()?;
         let auth = match (&self.wazuh_api_user, &self.wazuh_api_pass) {
             (Some(u), Some(p)) => Auth::Basic {
@@ -748,7 +764,7 @@ impl ConnectorConfig {
     }
 
     /// TheHive client if `THEHIVE_URL` is set.
-    pub fn thehive_client(&self) -> Option<ThehiveClient> {
+    pub fn build_thehive_client(&self) -> Option<ThehiveClient> {
         let url = self.thehive_url.clone()?;
         let auth = self
             .thehive_api_key
@@ -759,7 +775,7 @@ impl ConnectorConfig {
     }
 
     /// Cortex client if `CORTEX_URL` is set.
-    pub fn cortex_client(&self) -> Option<CortexClient> {
+    pub fn build_cortex_client(&self) -> Option<CortexClient> {
         let url = self.cortex_url.clone()?;
         let auth = self
             .cortex_api_key
@@ -770,7 +786,7 @@ impl ConnectorConfig {
     }
 
     /// MISP client if `MISP_URL` is set.
-    pub fn misp_client(&self) -> Option<MispClient> {
+    pub fn build_misp_client(&self) -> Option<MispClient> {
         let url = self.misp_url.clone()?;
         let auth = self
             .misp_api_key
@@ -781,7 +797,7 @@ impl ConnectorConfig {
     }
 
     /// Shuffle client if `SHUFFLE_URL` is set.
-    pub fn shuffle_client(&self) -> Option<ShuffleClient> {
+    pub fn build_shuffle_client(&self) -> Option<ShuffleClient> {
         let url = self.shuffle_url.clone()?;
         let auth = self
             .shuffle_api_key
@@ -793,7 +809,7 @@ impl ConnectorConfig {
 
     /// NVD client; always available, with the faster rate limit when
     /// `NVD_API_KEY` is set.
-    pub fn nvd_client(&self) -> NvdClient {
+    pub fn build_nvd_client(&self) -> NvdClient {
         NvdClient::new(self.nvd_api_key.clone())
     }
 }
@@ -882,11 +898,12 @@ pub struct CvePage {
 /// Rate limits per NVD docs: ~5 requests per 30s rolling window without an
 /// API key, ~50 per 30s with one. Requests are spaced via a shared mutex so
 /// concurrent callers serialize instead of racing the limit.
+#[derive(Clone)]
 pub struct NvdClient {
     http: Client,
     api_key: Option<String>,
     min_interval: Duration,
-    last_call: Mutex<Option<Instant>>,
+    last_call: Arc<Mutex<Option<Instant>>>,
 }
 
 impl NvdClient {
@@ -900,7 +917,7 @@ impl NvdClient {
             http: Client::new(),
             api_key,
             min_interval,
-            last_call: Mutex::new(None),
+            last_call: Arc::new(Mutex::new(None)),
         }
     }
 

@@ -177,10 +177,10 @@ async fn main() -> anyhow::Result<()> {
         nats: nats.clone(),
         os: Arc::new(
             conn_cfg
-                .opensearch_client()
+                .build_opensearch_client()
                 .context("OPENSEARCH_URL not set")?,
         ),
-        hive: Arc::new(conn_cfg.thehive_client().context("THEHIVE_URL not set")?),
+        hive: Arc::new(conn_cfg.build_thehive_client().context("THEHIVE_URL not set")?),
     });
 
     let mut sub = nats.subscribe(SUBJECT_HUNT.to_string()).await?;

@@ -2,34 +2,32 @@
   "command": "next",
   "items": [
     {
-      "id": "review::.::holistic::abstraction_fitness::activity_event_contract_copied",
+      "id": "review::.::holistic::abstraction_fitness::connector_config_factory_getters",
       "confidence": "high",
       "detector": "review",
       "file": ".",
-      "summary": "ActivityEvent is defined four times per agent and a fifth time inline without workflow_run_id",
+      "summary": "ConnectorConfig is a flat 15-field env bag whose *_client() getters construct new clients on every call",
       "detail": {
         "holistic": true,
         "dimension": "abstraction_fitness",
         "related_files": [
-          "crates/triage-agent/src/activity.rs",
-          "crates/detection-agent/src/activity.rs",
-          "crates/response-agent/src/activity.rs",
-          "crates/hunt-agent/src/activity.rs",
-          "crates/vuln-agent/src/main.rs",
-          "crates/agent-protocol/src/lib.rs"
+          "crates/connectors/src/lib.rs",
+          "crates/tool-server/src/executors/mod.rs",
+          "crates/triage-agent/src/main.rs"
         ],
         "evidence": [
-          "The four activity.rs files differ only in doc comments and in `step: &'static str` (triage) vs `step: String` (the other three); each also re-declares SUBJECT_ACTIVITY = \"ares.activity\" and an identical emit() helper in main.rs",
-          "vuln-agent emits a bare json!({agent, step, detail, ts}) (crates/vuln-agent/src/main.rs:120-135) with no workflow_run_id, while docs/services.md specifies {workflow_run_id, agent, step, detail, ts} and both SSE filters key on workflow_run_id (api-server/src/a2a.rs:600, acp.rs:560)",
-          "agent-protocol already owns the other NATS subjects (SUBJECT_ALERTS..SUBJECT_BAS) but not SUBJECT_ACTIVITY, so the console contract has no single definition"
+          "15 public Option<String> fields (connectors/src/lib.rs:683-699) expose per-service credentials flatly, hiding which fields belong to which client",
+          "Each *_client() builds a fresh client that owns a new reqwest::Client (OpensearchClient::new, MispClient::new, ... all call Client::new()); build_registry calls misp_client() 7x, thehive_client() 3x, wazuh_client() 3x (tool-server/src/executors/mod.rs:679-700)",
+          "NvdClient is the one exception \u2014 Arc::new(cfg.nvd_client()) is shared across the three nvd tools \u2014 which shows the intended pattern exists but was applied once",
+          "triage-agent reads conn_cfg.opensearch_url directly and re-reads OPENSEARCH_USER/PASS in write_fp_verdict (crates/triage-agent/src/main.rs:131-155), bypassing the client and its retry policy"
         ],
-        "suggestion": "Move ActivityEvent and SUBJECT_ACTIVITY into agent-protocol (next to the other subjects), delete the four activity.rs copies and the five emit() helpers, and have vuln-agent construct the same struct so its events carry workflow_run_id.",
+        "suggestion": "Make ConnectorConfig hold constructed clients (or have build_registry construct each once and pass Arc clones to every executor) and rename the remaining constructors to connect_*/build_* so a getter never allocates. Add an OpensearchClient::index_doc method so triage stops hand-rolling the _doc POST.",
         "reasoning": "",
-        "summary_hash": "62b3ecc9"
+        "summary_hash": "f3c4a219"
       },
       "status": "open",
       "kind": "issue",
-      "primary_command": "desloppify plan resolve \"review::.::holistic::abstraction_fitness::activity_event_contract_copied\" --note \"<what you did>\" --confirm",
+      "primary_command": "desloppify plan resolve \"review::.::holistic::abstraction_fitness::connector_config_factory_getters\" --note \"<what you did>\" --confirm",
       "queue_position": 1
     }
   ],
@@ -39,7 +37,7 @@
   },
   "narrative": {
     "phase": "early_momentum",
-    "headline": "Score 77.7/100 with 495 issues open. Keep the momentum going. (174 review work items \u2014 run `desloppify show review --status open`)",
+    "headline": "Score 77.7/100 with 494 issues open. Keep the momentum going. (173 review work items \u2014 run `desloppify show review --status open`)",
     "dimensions": {
       "lowest_dimensions": [
         {
@@ -154,8 +152,8 @@
       {
         "type": "refactor",
         "detector": "review",
-        "count": 174,
-        "description": "174 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
+        "count": 173,
+        "description": "173 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
         "command": "desloppify show review --status open",
         "impact": 0.0,
         "dimension": "Unknown",
@@ -225,7 +223,7 @@
     "strategy": {
       "fixer_leverage": {
         "auto_fixable_count": 0,
-        "total_count": 843,
+        "total_count": 840,
         "coverage": 0.0,
         "impact_ratio": 0.0,
         "recommendation": "none"
@@ -276,7 +274,7 @@
         }
       },
       "can_parallelize": true,
-      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 174 issue(s) \u2014 `desloppify show review --status open`."
+      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 173 issue(s) \u2014 `desloppify show review --status open`."
     },
     "tools": {
       "fixers": [],
@@ -309,7 +307,7 @@
       "command": "desloppify show structural --status open",
       "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable"
     },
-    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 174 issue(s) \u2014 `desloppify show review --status open`.",
+    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 173 issue(s) \u2014 `desloppify show review --status open`.",
     "verification_step": {
       "command": "desloppify scan",
       "reason": "revalidate after changes"
@@ -325,7 +323,7 @@
     "reminders": [
       {
         "type": "review_issues_pending",
-        "message": "174 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
+        "message": "173 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
         "command": "desloppify show review --status open",
         "priority": 1,
         "severity": "high"
@@ -388,7 +386,7 @@
         "item_count": 20
       }
     ],
-    "total_ordered": 193,
+    "total_ordered": 192,
     "total_skipped": 0,
     "plan_overrides_narrative": true
   },
@@ -436,7 +434,7 @@
       "score": 73.0,
       "strict": 73.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "subjective": true,
       "placeholder": false,
@@ -671,7 +669,7 @@
       "score": 73.0,
       "strict": 73.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "subjective": true,
       "placeholder": false,

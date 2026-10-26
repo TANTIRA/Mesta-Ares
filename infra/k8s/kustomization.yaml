@@ -1,16 +1,9 @@
 # Plain-Kubernetes deployment of the Ares stack, as an alternative to
-# `helm install`. Same service names, images and env as the chart, so the two
-# can be compared side by side.
+# `helm install`. Same service names, images and env as the chart.
 #
-#   kubectl apply -k infra/k8s
-#
-# Prerequisites:
-#   kubectl -n ares create namespace ares   # also handled by namespace.yaml
-#   kubectl -n ares create secret generic ares-secrets --from-env-file=.env
-#
-# Content ConfigMaps are generated from the repo, so policies and detection
-# rules stay single-sourced. Add a file to any of those directories and
-# re-apply: the ConfigMap hash changes and the dependent pods roll.
+# Use `infra/k8s/apply.sh`, not a bare `kubectl apply -k`: the content
+# ConfigMaps are created from the repo by the script (kustomize refuses to
+# read files outside its own directory).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -21,6 +14,3 @@ resources:
   - config.yaml
   - datastores.yaml
   - apps.yaml
-
-generators:
-  - policies-config.yaml

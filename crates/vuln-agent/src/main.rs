@@ -287,8 +287,8 @@ async fn main() -> anyhow::Result<()> {
 
     let cfg = Config::parse();
     let conn_cfg = ConnectorConfig::from_env();
-    let nvd = conn_cfg.nvd_client();
-    let hive = conn_cfg.thehive_client();
+    let nvd = conn_cfg.build_nvd_client();
+    let hive = conn_cfg.build_thehive_client();
     let pool = PgPool::connect(&cfg.database_url).await?;
     ensure_schema(&pool).await?;
     let nats = async_nats::connect(&cfg.nats_url).await?;

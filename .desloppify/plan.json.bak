@@ -1,10 +1,8 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T09:08:31+00:00",
+  "updated": "2026-10-26T09:10:38+00:00",
   "queue_order": [
-    "review::.::holistic::abstraction_fitness::acp_duplicates_a2a_run_machinery",
-    "review::.::holistic::abstraction_fitness::activity_event_contract_copied",
     "review::.::holistic::abstraction_fitness::connector_config_factory_getters",
     "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers",
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
@@ -4241,11 +4239,53 @@
       "actor": "user",
       "note": "Extracted crates/api-server/src/run_stream.rs: RunRecord trait + activity_stream (single SSE state machine), checkpoint_progress (shared agent_checkpoints folding), wait_for_terminal. A2A Task and ACP Run both implement RunRecord; both handlers and ACP sync mode use the shared helpers. Wire vocabularies (TaskState/RunStatus) stay per-spec.",
       "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:08:31+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::acp_duplicates_a2a_run_machinery"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Extracted crates/api-server/src/run_stream.rs: RunRecord trait + activity_stream (single SSE state machine), checkpoint_progress (shared agent_checkpoints folding), wait_for_terminal. A2A Task and ACP Run both implement RunRecord; both handlers and ACP sync mode use the shared helpers. Wire vocabularies (TaskState/RunStatus) stay per-spec.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Extracted crates/api-server/src/run_stream.rs: RunRecord trait + activity_stream (single SSE state machine), checkpoint_progress (shared agent_checkpoints folding), wait_for_terminal. A2A Task and ACP Run both implement RunRecord; both handlers and ACP sync mode use the shared helpers. Wire vocabularies (TaskState/RunStatus) stay per-spec. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:10:38+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::activity_event_contract_copied"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Moved ActivityEvent + SUBJECT_ACTIVITY into agent-protocol::activity (step: String), added agent_core::publish_activity, deleted the four per-agent activity.rs copies and all five emit helpers; vuln-agent now emits the shared struct with a real workflow_run_id (Uuid::new_v4 per poll).",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:10:38+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::activity_event_contract_copied"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Moved ActivityEvent + SUBJECT_ACTIVITY into agent-protocol::activity (step: String), added agent_core::publish_activity, deleted the four per-agent activity.rs copies and all five emit helpers; vuln-agent now emits the shared struct with a real workflow_run_id (Uuid::new_v4 per poll).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Moved ActivityEvent + SUBJECT_ACTIVITY into agent-protocol::activity (step: String), added agent_core::publish_activity, deleted the four per-agent activity.rs copies and all five emit helpers; vuln-agent now emits the shared struct with a real workflow_run_id (Uuid::new_v4 per poll). and I am not gaming the score."
+      }
     }
   ],
   "epic_triage_meta": {},
   "commit_log": [],
-  "uncommitted_issues": [],
+  "uncommitted_issues": [
+    "review::.::holistic::abstraction_fitness::acp_duplicates_a2a_run_machinery",
+    "review::.::holistic::abstraction_fitness::activity_event_contract_copied"
+  ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3
 }
