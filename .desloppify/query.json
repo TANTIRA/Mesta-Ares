@@ -1,11 +1,11 @@
 {
   "command": "resolve",
   "patterns": [
-    "review::.::holistic::type_safety::activity_event_parallel_types"
+    "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points"
   ],
   "status": "fixed",
   "resolved": [
-    "review::.::holistic::type_safety::activity_event_parallel_types"
+    "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points"
   ],
   "count": 1,
   "next_command": "desloppify next",
@@ -17,10 +17,10 @@
   "prev_objective_score": 84.1,
   "prev_strict_score": 77.7,
   "prev_verified_strict_score": 84.1,
-  "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+  "attestation": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score.",
   "narrative": {
     "phase": "early_momentum",
-    "headline": "Score 77.7/100 with 472 issues open. Keep the momentum going. (151 review work items \u2014 run `desloppify show review --status open`)",
+    "headline": "Score 77.7/100 with 464 issues open. Keep the momentum going. (143 review work items \u2014 run `desloppify show review --status open`)",
     "dimensions": {
       "lowest_dimensions": [
         {
@@ -32,7 +32,7 @@
         {
           "name": "Auth consistency",
           "strict": 58.0,
-          "failing": 10,
+          "failing": 9,
           "impact": 0.0,
           "subjective": true,
           "impact_description": "re-review to improve"
@@ -129,8 +129,8 @@
       {
         "type": "refactor",
         "detector": "review",
-        "count": 151,
-        "description": "151 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
+        "count": 143,
+        "description": "143 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
         "command": "desloppify show review --status open",
         "impact": 0.0,
         "dimension": "Unknown",
@@ -196,7 +196,7 @@
     "strategy": {
       "fixer_leverage": {
         "auto_fixable_count": 0,
-        "total_count": 774,
+        "total_count": 750,
         "coverage": 0.0,
         "impact_ratio": 0.0,
         "recommendation": "none"
@@ -247,7 +247,7 @@
         }
       },
       "can_parallelize": true,
-      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 151 issue(s) \u2014 `desloppify show review --status open`."
+      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 143 issue(s) \u2014 `desloppify show review --status open`."
     },
     "tools": {
       "fixers": [],
@@ -280,7 +280,7 @@
       "command": "desloppify show structural --status open",
       "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable"
     },
-    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 151 issue(s) \u2014 `desloppify show review --status open`.",
+    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 143 issue(s) \u2014 `desloppify show review --status open`.",
     "verification_step": {
       "command": "desloppify scan",
       "reason": "revalidate after changes"
@@ -310,7 +310,7 @@
       },
       {
         "type": "review_issues_pending",
-        "message": "151 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
+        "message": "143 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
         "command": "desloppify show review --status open",
         "priority": 1,
         "severity": "high"

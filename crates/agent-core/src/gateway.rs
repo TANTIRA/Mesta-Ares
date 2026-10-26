@@ -25,10 +25,15 @@ fn backoff(attempt: u32) -> Duration {
 }
 
 /// tool-server `/invoke` wire shape: the policy verdict plus the result.
-#[derive(serde::Deserialize)]
-struct InvokeResponse {
-    decision: Decision,
-    result: ToolResult,
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct InvokeResponse {
+    /// Policy verdict for the call.
+    pub decision: Decision,
+    /// Execution result (a dry-run success when the verdict is not Allow).
+    pub result: ToolResult,
+    /// Approval id when the verdict is `ApprovalRequired`.
+    #[serde(default)]
+    pub approval_id: Option<String>,
 }
 
 /// Dispatch channel through which agents invoke [`ToolCall`]s.
@@ -64,7 +69,11 @@ impl HttpToolGateway {
     /// One `/invoke` round trip. The returned flag is the server's retry
     /// hint: `true` only on an allow verdict whose result carries the
     /// `retryable` marker (idempotency claim in flight, store unavailable).
-    async fn try_invoke(&self, url: &str, call: &ToolCall) -> Result<(ToolResult, bool), AgentError> {
+    async fn try_invoke(
+        &self,
+        url: &str,
+        call: &ToolCall,
+    ) -> Result<(InvokeResponse, bool), AgentError> {
         let resp = self
             .client
             .post(url)
@@ -77,11 +86,19 @@ impl HttpToolGateway {
             let status = resp.status();
             let body = resp.text().await.unwrap_or_default();
             return Ok((
-                ToolResult {
-                    call_id: call.id,
-                    ok: false,
-                    output: serde_json::Value::Null,
-                    error: Some(format!("gateway returned {status}: {body}")),
+                InvokeResponse {
+                    decision: Decision {
+                        kind: DecisionKind::Deny,
+                        reason: format!("gateway returned {status}: {body}"),
+                        decided_at: chrono::Utc::now(),
+                    },
+                    result: ToolResult {
+                        call_id: call.id,
+                        ok: false,
+                        output: serde_json::Value::Null,
+                        error: Some(format!("gateway returned {status}: {body}")),
+                    },
+                    approval_id: None,
                 },
                 false,
             ));
@@ -92,22 +109,22 @@ impl HttpToolGateway {
         // and mismatch errors are terminal by definition.
         let retryable =
             parsed.decision.kind == DecisionKind::Allow && parsed.result.is_retryable();
-        Ok((parsed.result, retryable))
+        Ok((parsed, retryable))
     }
 }
 
-#[async_trait::async_trait]
-impl ToolGateway for HttpToolGateway {
-    async fn invoke(&self, call: &ToolCall) -> Result<ToolResult, AgentError> {
+impl HttpToolGateway {
+    /// Invokes `call` and returns the full verdict plus result.
+    pub async fn invoke_verdict(&self, call: &ToolCall) -> Result<InvokeResponse, AgentError> {
         let url = format!("{}/invoke", self.base_url.trim_end_matches('/'));
         let mut attempt = 0u32;
         loop {
             let retry = match self.try_invoke(&url, call).await {
-                Ok((result, retryable)) => {
+                Ok((response, retryable)) => {
                     if !retryable || attempt >= MAX_RETRIES {
-                        return Ok(result);
+                        return Ok(response);
                     }
-                    format!("server flagged result retryable: {:?}", result.error)
+                    format!("server flagged result retryable: {:?}", response.result.error)
                 }
                 Err(e) => {
                     let transient = matches!(
@@ -130,5 +147,12 @@ impl ToolGateway for HttpToolGateway {
             tokio::time::sleep(backoff(attempt)).await;
             attempt += 1;
         }
+    }
+}
+
+#[async_trait::async_trait]
+impl ToolGateway for HttpToolGateway {
+    async fn invoke(&self, call: &ToolCall) -> Result<ToolResult, AgentError> {
+        Ok(self.invoke_verdict(call).await?.result)
     }
 }

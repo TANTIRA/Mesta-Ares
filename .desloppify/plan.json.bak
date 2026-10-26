@@ -1,9 +1,9 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T09:16:13+00:00",
+  "updated": "2026-10-26T09:18:36+00:00",
   "queue_order": [
-    "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers",
+    "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points",
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
     "review::.::holistic::abstraction_fitness::model_router_never_routes",
     "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated",
@@ -17,9 +17,7 @@
     "review::.::holistic::ai_generated_debt::restating-field-docs",
     "review::.::holistic::ai_generated_debt::sse-unfold-duplicated",
     "review::.::holistic::ai_generated_debt::unwrap-or-default-on-infallible-serde",
-    "review::.::holistic::api_surface_coherence::acp_missing_from_rate_limit_tiers",
     "review::.::holistic::api_surface_coherence::audit_append_positional_sprawl",
-    "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points",
     "review::.::holistic::api_surface_coherence::http_error_body_conventions",
     "review::.::holistic::api_surface_coherence::invoke_contract_duplicated",
     "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape",
@@ -29,7 +27,6 @@
     "review::.::holistic::api_surface_coherence::tool_args_two_sources_of_truth",
     "review::.::holistic::authorization_consistency::a2a-cards-advertise-unenforced-bearer",
     "review::.::holistic::authorization_consistency::a2a-task-access-not-scoped-to-agent",
-    "review::.::holistic::authorization_consistency::acp-routes-missing-rate-tier",
     "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy",
     "review::.::holistic::authorization_consistency::approval-identity-self-asserted",
     "review::.::holistic::authorization_consistency::audit-decision-label-hardcoded-deny",
@@ -67,7 +64,6 @@
     "review::.::holistic::design_coherence::agent_scaffolding_copied_per_crate",
     "review::.::holistic::design_coherence::cvss_metric_validation_duplicated",
     "review::.::holistic::design_coherence::llm_request_boilerplate_repeated",
-    "review::.::holistic::design_coherence::provider_clients_duplicated_across_crates",
     "review::.::holistic::design_coherence::unwired_agent_core_loop",
     "review::.::holistic::design_coherence::yaml_dir_scan_duplicated",
     "review::.::holistic::error_consistency::bas_metrics_conflate_failure_with_negative",
@@ -87,7 +83,6 @@
     "review::.::holistic::incomplete_migration::connector_bypass_raw_http",
     "review::.::holistic::incomplete_migration::jetstream_publish_half_migrated",
     "review::.::holistic::incomplete_migration::pgvector_dead_workspace_dep",
-    "review::.::holistic::incomplete_migration::provider_integrations_duplicated",
     "review::.::holistic::incomplete_migration::stale_rate_limit_docs",
     "review::.::holistic::incomplete_migration::subject_constants_half_shared",
     "review::.::holistic::incomplete_migration::three_invoke_clients",
@@ -110,8 +105,6 @@
     "review::.::holistic::low_level_elegance::idem_key_serde_roundtrip_and_result_literals",
     "review::.::holistic::low_level_elegance::identical_helpers_copied_per_crate",
     "review::.::holistic::low_level_elegance::nvd_list_published_inlines_list_window",
-    "review::.::holistic::low_level_elegance::provider_lookup_repeats_http_chain",
-    "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes",
     "review::.::holistic::low_level_elegance::severity_to_int_mapping_drift",
     "review::.::holistic::mid_level_elegance::case_id_encoded_in_uri_string",
     "review::.::holistic::mid_level_elegance::connector_surface_gaps_pushed_to_callers",
@@ -3418,7 +3411,9 @@
       "candidates": []
     }
   },
-  "promoted_ids": [],
+  "promoted_ids": [
+    "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points"
+  ],
   "plan_start_scores": {
     "strict": 77.7,
     "overall": 78.3,
@@ -5660,6 +5655,323 @@
         "status": "fixed",
         "attestation": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score."
       }
+    },
+    {
+      "timestamp": "2026-10-26T09:16:14+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::activity_event_contract_copied"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:18:28+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:28+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:18:29+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:29+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::provider_clients_duplicated_across_crates"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:30+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::provider_clients_duplicated_across_crates"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:18:30+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::provider_clients_duplicated_across_crates"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:30+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::provider_integrations_duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:31+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::provider_integrations_duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:18:31+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::provider_integrations_duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:32+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::provider_lookup_repeats_http_chain"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:32+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::provider_lookup_repeats_http_chain"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:18:32+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::provider_lookup_repeats_http_chain"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:33+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::acp_missing_from_rate_limit_tiers"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:33+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::acp_missing_from_rate_limit_tiers"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:18:33+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::acp_missing_from_rate_limit_tiers"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:34+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::acp-routes-missing-rate-tier"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:34+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::acp-routes-missing-rate-tier"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:18:34+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::acp-routes-missing-rate-tier"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:35+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:35+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:18:35+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:36+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:18:36+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {}
     }
   ],
   "epic_triage_meta": {},
@@ -5688,7 +6000,14 @@
     "review::.::holistic::cross_module_architecture::activity_contract_fragmented",
     "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented",
     "review::.::holistic::package_organization::activity-contract-duplicated",
-    "review::.::holistic::type_safety::activity_event_parallel_types"
+    "review::.::holistic::type_safety::activity_event_parallel_types",
+    "review::.::holistic::abstraction_fitness::duplicate_threat_intel_providers",
+    "review::.::holistic::design_coherence::provider_clients_duplicated_across_crates",
+    "review::.::holistic::incomplete_migration::provider_integrations_duplicated",
+    "review::.::holistic::low_level_elegance::provider_lookup_repeats_http_chain",
+    "review::.::holistic::api_surface_coherence::acp_missing_from_rate_limit_tiers",
+    "review::.::holistic::authorization_consistency::acp-routes-missing-rate-tier",
+    "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3

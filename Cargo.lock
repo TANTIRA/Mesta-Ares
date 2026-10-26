@@ -33,6 +33,7 @@ dependencies = [
  "agent-protocol",
  "async-nats",
  "async-trait",
+ "chrono",
  "dashmap",
  "fastrand",
  "llm-client",

@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 43,
-    "open": 473,
+    "fixed": 51,
+    "open": 465,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 19,
-        "open": 88,
+        "fixed": 26,
+        "open": 81,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 4,
-        "open": 248,
+        "fixed": 5,
+        "open": 247,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -9727,11 +9727,11 @@
         "reasoning": "",
         "summary_hash": "0953962e"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:18:28+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9739,7 +9739,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:18:28+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated": {
       "id": "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated",
@@ -10304,11 +10310,11 @@
         "reasoning": "",
         "summary_hash": "9a1a6ad5"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:18:32+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10316,7 +10322,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:18:32+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes": {
       "id": "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes",
@@ -10341,11 +10353,11 @@
         "reasoning": "",
         "summary_hash": "4791929d"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:18:35+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10353,7 +10365,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:18:35+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::severity_to_int_mapping_drift": {
       "id": "review::.::holistic::low_level_elegance::severity_to_int_mapping_drift",
@@ -11479,11 +11497,11 @@
         "reasoning": "",
         "summary_hash": "41e16619"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:18:33+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11491,7 +11509,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:18:33+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::api_surface_coherence::policy_evaluate_async_without_await": {
       "id": "review::.::holistic::api_surface_coherence::policy_evaluate_async_without_await",
@@ -11973,11 +11997,11 @@
         "reasoning": "",
         "summary_hash": "3cc61b8e"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:18:34+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11985,7 +12009,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:18:34+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification": {
       "id": "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification",
@@ -12616,11 +12646,11 @@
         "reasoning": "",
         "summary_hash": "a5f369b9"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:18:31+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12628,7 +12658,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:18:31+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::incomplete_migration::jetstream_publish_half_migrated": {
       "id": "review::.::holistic::incomplete_migration::jetstream_publish_half_migrated",
@@ -13699,11 +13735,11 @@
         "reasoning": "",
         "summary_hash": "fefb911c"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:18:30+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13711,7 +13747,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:18:30+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::design_coherence::llm_request_boilerplate_repeated": {
       "id": "review::.::holistic::design_coherence::llm_request_boilerplate_repeated",
@@ -14835,11 +14877,11 @@
         "reasoning": "",
         "summary_hash": "e2f06fcf"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:16:13+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14847,7 +14889,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Kill switch: single agent_protocol::kill predicate (env + policies/kill, fail-closed on unreadable, whitespace disengages); agent-core re-exports it, policy-engine and api-server share it; detection/hunt agents now gate side effects; kill_switch/rejected terminal steps mark failed not completed. Activity: one ActivityEvent in agent-protocol. Also triage uses OpensearchClient::index_doc, no-op counter drop removed, ACP cancel duplicate branches collapsed. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:16:13+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::type_safety::gateway_fabricates_deny_decision": {
       "id": "review::.::holistic::type_safety::gateway_fabricates_deny_decision",
@@ -17528,7 +17576,7 @@
       },
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:12:56+00:00"
+      "stale_since": "2026-10-26T09:18:28+00:00"
     },
     "ai_generated_debt": {
       "score": 79.0,
@@ -17541,12 +17589,18 @@
     "api_surface_coherence": {
       "score": 74.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:18:33+00:00"
     },
     "authorization_consistency": {
       "score": 58.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:18:34+00:00"
     },
     "contract_coherence": {
       "score": 80.0,
@@ -17583,7 +17637,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:16:04+00:00"
+      "stale_since": "2026-10-26T09:18:30+00:00"
     },
     "error_consistency": {
       "score": 83.0,
@@ -17604,7 +17658,10 @@
     "incomplete_migration": {
       "score": 74.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:18:31+00:00"
     },
     "initialization_coupling": {
       "score": 74.0,
@@ -17628,7 +17685,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:16:05+00:00"
+      "stale_since": "2026-10-26T09:18:35+00:00"
     },
     "mid_level_elegance": {
       "score": 70.0,
@@ -17659,7 +17716,10 @@
     "type_safety": {
       "score": 78.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "needs_review_refresh": true,
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:16:13+00:00"
     }
   },
   "scan_history": [
@@ -22126,13 +22186,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 6,
+      "failing": 5,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 6,
+          "failing": 5,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,
@@ -22183,13 +22243,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 10,
+      "failing": 9,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 10,
+          "failing": 9,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22204,13 +22264,13 @@
       "strict": 58.0,
       "verified_strict_score": 58.0,
       "checks": 10,
-      "failing": 10,
+      "failing": 9,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.58,
-          "failing": 10,
+          "failing": 9,
           "weighted_failures": 4.2,
           "assessment_score": 58.0,
           "placeholder": false,
@@ -22309,13 +22369,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 7,
+          "failing": 6,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,
@@ -22372,13 +22432,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 9,
+      "failing": 8,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 9,
+          "failing": 8,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22435,13 +22495,13 @@
       "strict": 80.0,
       "verified_strict_score": 80.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 5,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.8,
-          "failing": 7,
+          "failing": 5,
           "weighted_failures": 2.0,
           "assessment_score": 80.0,
           "placeholder": false,
@@ -22540,13 +22600,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 10,
+      "failing": 9,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 10,
+          "failing": 9,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,

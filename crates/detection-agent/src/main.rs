@@ -29,7 +29,7 @@ use serde_json::{json, Value};
 use tracing::{error, info, warn, Instrument};
 use uuid::Uuid;
 
-use agent_core::{kill_switch_engaged, publish_activity};
+use agent_core::{kill_switch_engaged, publish_activity, HttpToolGateway};
 use agent_protocol::activity::ActivityEvent;
 
 /// Cron interval between autonomous detection cycles (seconds).
@@ -62,7 +62,7 @@ struct Deps {
     router: Arc<ModelRouter>,
     os: Arc<OpensearchClient>,
     misp: Arc<MispClient>,
-    tool_url: String,
+    gateway: Arc<HttpToolGateway>,
     http: reqwest::Client,
     pool: Option<sqlx::PgPool>,
     fp_max: u64,
@@ -193,7 +193,7 @@ async fn run_cycle(deps: &Deps, trigger: &str, correlation_id: Uuid) -> anyhow::
 
     let active = pipeline::promote_and_commit(&pending)?;
     pipeline::deploy_monitor(&deps.http, title, &lucene).await?;
-    pipeline::audit_deploy(&deps.http, &deps.tool_url, &active, correlation_id).await;
+    pipeline::audit_deploy(&deps.gateway, &active, correlation_id).await;
     publish_activity(
         &deps.nats,
         &ActivityEvent::new(
@@ -230,7 +230,7 @@ async fn main() -> anyhow::Result<()> {
                 .context("OPENSEARCH_URL not set")?,
         ),
         misp: Arc::new(conn_cfg.build_misp_client().context("MISP_URL not set")?),
-        tool_url: config.tool_server_url.clone(),
+        gateway: Arc::new(HttpToolGateway::new(config.tool_server_url.clone())),
         http: reqwest::Client::new(),
         pool,
         fp_max: config.detect_fp_max,

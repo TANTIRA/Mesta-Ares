@@ -18,11 +18,13 @@
 
 use std::sync::Arc;
 
-use agent_core::kill_switch_engaged;
+use agent_core::{
+    kill_switch_engaged, AgentState, CheckpointStore, HttpToolGateway, PostgresCheckpointer, Step,
+};
 use agent_protocol::{
     envelope::Envelope,
     handoff::HandoffPayload,
-    tool::{Decision, DecisionKind, ToolCall, ToolResult},
+    tool::{DecisionKind, ToolCall},
     SUBJECT_RESPOND,
 };
 use anyhow::Context;
@@ -171,50 +173,15 @@ fn case_id_of(handoff: &HandoffPayload) -> String {
         .unwrap_or_else(|| "unknown".to_string())
 }
 
-/// `POST /invoke` response shape returned by the tool server.
-#[derive(Debug, Deserialize)]
-struct InvokeResponse {
-    /// Policy verdict on the call.
-    decision: Decision,
-    /// Execution result (or a denial stub).
-    result: ToolResult,
-}
-
 /// Shared dependencies threaded into each spawned task.
 struct Deps {
     nats: async_nats::Client,
     router: Arc<ModelRouter>,
-    http: reqwest::Client,
-    tool_url: String,
+    gateway: Arc<HttpToolGateway>,
+    checkpoints: Arc<PostgresCheckpointer>,
     hive: Arc<ThehiveClient>,
     wazuh: Arc<WazuhClient>,
     pool: PgPool,
-}
-
-/// POSTs `call` to `{tool_url}/invoke`; transport failures become a
-/// `result.ok=false` response so the plan keeps moving.
-async fn invoke_tool(deps: &Deps, call: &ToolCall) -> InvokeResponse {
-    let url = format!("{}/invoke", deps.tool_url.trim_end_matches('/'));
-    let fallback = |e: String| InvokeResponse {
-        decision: Decision {
-            kind: DecisionKind::Deny,
-            reason: e.clone(),
-            decided_at: chrono::Utc::now(),
-        },
-        result: ToolResult {
-            call_id: call.id,
-            ok: false,
-            output: Value::Null,
-            error: Some(e),
-        },
-    };
-    match deps.http.post(&url).json(call).send().await {
-        Ok(resp) => match resp.json::<InvokeResponse>().await {
-            Ok(r) => r,
-            Err(e) => fallback(format!("invoke response parse: {e}")),
-        },
-        Err(e) => fallback(format!("invoke transport: {e}")),
-    }
 }
 
 /// Executes one response envelope end-to-end.
@@ -271,9 +238,46 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
             idempotency_key: format!("{case_id}:{}:{args_sha}", action.tool),
             correlation_id: run_id,
         };
-        let invoke = invoke_tool(deps, &call).await;
-        let result = invoke.result;
-        let denied = invoke.decision.kind == DecisionKind::Deny;
+        let (decision, result) = match deps.gateway.invoke_verdict(&call).await {
+            Ok(v) => (Some(v.decision), v.result),
+            Err(e) => {
+                warn!(error = %e, tool = %action.tool, "tool invoke failed; stopping plan");
+                let record = json!({
+                    "tool": action.tool,
+                    "args": action.args,
+                    "ok": false,
+                    "decision": Value::Null,
+                    "decision_reason": Value::Null,
+                    "output": Value::Null,
+                    "error": format!("invoke failed: {e}"),
+                    "post_check": Value::Null,
+                    "rationale": action.rationale,
+                });
+                sqlx::query(
+                    "INSERT INTO response_actions (id, case_id, tool, args, result, rollback_json, ts)
+                     VALUES ($1, $2, $3, $4, $5, NULL, now())",
+                )
+                .bind(Uuid::new_v4())
+                .bind(&case_id)
+                .bind(&action.tool)
+                .bind(&action.args)
+                .bind(&record)
+                .execute(&deps.pool)
+                .await?;
+                publish_activity(
+                    &deps.nats,
+                    &ActivityEvent::new(run_id, "response", &step, "invoke failed; plan stopped"),
+                )
+                .await;
+                save_final_checkpoint(deps, run_id, format!("aborted: {} invoke failed", action.tool))
+                    .await;
+                return Ok(());
+            }
+        };
+        let denied = decision
+            .as_ref()
+            .map(|d| d.kind == DecisionKind::Deny)
+            .unwrap_or(false);
 
         // 3. Post-check on success; record everything to response_actions.
         let post = if result.ok {
@@ -285,8 +289,8 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
             "tool": action.tool,
             "args": action.args,
             "ok": result.ok,
-            "decision": invoke.decision.kind,
-            "decision_reason": invoke.decision.reason,
+            "decision": decision.as_ref().map(|d| d.kind),
+            "decision_reason": decision.as_ref().map(|d| d.reason.clone()),
             "output": result.output,
             "error": result.error,
             "post_check": post,
@@ -346,7 +350,21 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
         ),
     )
     .await;
+    save_final_checkpoint(deps, run_id, format!("{} actions executed", results.len())).await;
     Ok(())
+}
+
+/// Persists the run's terminal checkpoint so task/run streams can fold it.
+async fn save_final_checkpoint(deps: &Deps, run_id: Uuid, text: String) {
+    let state = AgentState {
+        thread_id: run_id,
+        input: String::new(),
+        steps: vec![Step::Final { text }],
+        tokens_used: 0,
+    };
+    if let Err(e) = deps.checkpoints.save(&state).await {
+        warn!(error = %e, "checkpoint save failed");
+    }
 }
 
 /// Lowercase hex encoder for the idempotency key digest.
@@ -382,8 +400,8 @@ async fn main() -> anyhow::Result<()> {
     let deps = Arc::new(Deps {
         nats: nats.clone(),
         router: Arc::new(ModelRouter::new(provider.clone(), provider)),
-        http: reqwest::Client::new(),
-        tool_url: config.tool_server_url.clone(),
+        gateway: Arc::new(HttpToolGateway::new(config.tool_server_url.clone())),
+        checkpoints: Arc::new(PostgresCheckpointer::new(pool.clone())),
         hive: Arc::new(conn_cfg.build_thehive_client().context("THEHIVE_URL not set")?),
         wazuh: Arc::new(conn_cfg.build_wazuh_client().context("WAZUH_API_URL not set")?),
         pool,

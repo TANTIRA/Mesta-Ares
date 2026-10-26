@@ -242,12 +242,11 @@ pub async fn deploy_monitor(
     Ok(())
 }
 
-/// Audits the deployment by POSTing a `detection.sigma.deploy` [`ToolCall`]
-/// to `{tool_url}/invoke`. Failures are logged, not fatal — the tool server
-/// may be down.
+/// Audits the deployment by invoking `detection.sigma.deploy` through the
+/// shared gateway. Failures are logged, not fatal — the tool server may be
+/// down, and a denial is recorded by the tool server's own audit chain.
 pub async fn audit_deploy(
-    http: &reqwest::Client,
-    tool_url: &str,
+    gateway: &agent_core::HttpToolGateway,
     rule_path: &Path,
     correlation_id: Uuid,
 ) {
@@ -259,13 +258,14 @@ pub async fn audit_deploy(
         idempotency_key: format!("sigma-deploy:{}", rule_path.display()),
         correlation_id,
     };
-    let url = format!("{}/invoke", tool_url.trim_end_matches('/'));
-    match http.post(&url).json(&call).send().await {
-        Ok(resp) if resp.status().is_success() => {
-            let body = resp.text().await.unwrap_or_default();
-            info!(response = %body, "detection.sigma.deploy audited");
+    match gateway.invoke_verdict(&call).await {
+        Ok(v) if v.decision.kind == agent_protocol::tool::DecisionKind::Allow => {
+            info!(output = %v.result.output, "detection.sigma.deploy audited");
         }
-        Ok(resp) => warn!(status = %resp.status(), "detection.sigma.deploy denied/failed"),
+        Ok(v) => warn!(
+            reason = %v.decision.reason,
+            "detection.sigma.deploy denied; deployment recorded as unaudited"
+        ),
         Err(e) => warn!(error = %e, "tool-server unreachable for audit"),
     }
 }
