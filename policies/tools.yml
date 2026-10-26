@@ -219,6 +219,81 @@ tools:
       required: [direction, remote, action]
       additionalProperties: false
 
+  # ---- compensating actions (rollback targets recorded by response-agent) ----
+  # Same impact class as the action they undo; autonomy stays `auto` because
+  # they restore prior state rather than extending blast radius.
+  blocklist.ip.remove:
+    impact: write
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        ip: { type: string, format: ipv4 }
+      required: [ip]
+      additionalProperties: false
+  blocklist.domain.remove:
+    impact: write
+    autonomy: auto
+    args_schema:
+      type: object
+      properties:
+        domain: { type: string, maxLength: 253 }
+      required: [domain]
+      additionalProperties: false
+  firewall.rule.remove:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 20 }
+    args_schema:
+      type: object
+      properties:
+        remote: { type: string }
+      required: [remote]
+      additionalProperties: false
+  wazuh.active_response.unisolate_host:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 5, cooldown_minutes: 10 }
+    args_schema:
+      type: object
+      properties:
+        agent_id: { type: string, pattern: '^[0-9]{3,}$' }
+      required: [agent_id]
+      additionalProperties: false
+  entra.user.enable:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 5 }
+    args_schema:
+      type: object
+      properties:
+        user_id: { type: string, format: uuid }
+      required: [user_id]
+      additionalProperties: false
+  ad.user.enable:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 5 }
+    args_schema:
+      type: object
+      properties:
+        sam_account_name: { type: string, maxLength: 20 }
+      required: [sam_account_name]
+      additionalProperties: false
+  o365.email.release:
+    impact: high
+    autonomy: auto
+    blast_radius: { max_per_hour: 50 }
+    args_schema:
+      type: object
+      properties:
+        message_id: { type: string }
+      required: [message_id]
+      additionalProperties: false
+  misp.ioc.unblock:
+    impact: write
+    autonomy: approval
+
   # ---- detection-as-code ----
   detection.sigma.deploy:
     impact: write

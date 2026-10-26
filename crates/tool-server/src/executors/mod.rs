@@ -409,6 +409,9 @@ impl Tool for EntraUser {
             "entra.user.disable" => http()
                 .patch(format!("https://graph.microsoft.com/v1.0/users/{user_id}"))
                 .json(&json!({ "accountEnabled": false })),
+            "entra.user.enable" => http()
+                .patch(format!("https://graph.microsoft.com/v1.0/users/{user_id}"))
+                .json(&json!({ "accountEnabled": true })),
             "entra.user.revoke_sessions" => http().post(format!(
                 "https://graph.microsoft.com/v1.0/users/{user_id}/revokeSignInSessions"
             )),
@@ -651,17 +654,47 @@ pub fn build_registry(cfg: &ConnectorConfig) -> HashMap<String, Arc<dyn Tool>> {
         command: "kill-process",
         client: wazuh.clone(),
     }));
+    put(Arc::new(WazuhActiveResponse {
+        name: "wazuh.active_response.unisolate_host",
+        command: "unisolate-host",
+        client: wazuh.clone(),
+    }));
+    // Compensating blocklist/firewall actions run the matching Shuffle
+    // removal workflow; an unset workflow id falls back to dry-run.
+    for (name, env_key) in [
+        ("blocklist.ip.remove", "SHUFFLE_UNBLOCK_IP_WORKFLOW_ID"),
+        ("blocklist.domain.remove", "SHUFFLE_UNBLOCK_DOMAIN_WORKFLOW_ID"),
+        ("firewall.rule.remove", "SHUFFLE_FW_REMOVE_WORKFLOW_ID"),
+    ] {
+        put(Arc::new(ShuffleWorkflow {
+            name,
+            env_key,
+            client: shuffle.clone(),
+        }));
+    }
     put(Arc::new(EntraUser {
         name: "entra.user.revoke_sessions",
     }));
     put(Arc::new(EntraUser {
         name: "entra.user.disable",
     }));
+    put(Arc::new(EntraUser {
+        name: "entra.user.enable",
+    }));
     put(Arc::new(DryRun {
         name: "ad.user.disable",
     }));
     put(Arc::new(DryRun {
+        name: "ad.user.enable",
+    }));
+    put(Arc::new(DryRun {
         name: "o365.email.quarantine",
+    }));
+    put(Arc::new(DryRun {
+        name: "o365.email.release",
+    }));
+    put(Arc::new(DryRun {
+        name: "misp.ioc.unblock",
     }));
 
     // Detection-as-code + notifications

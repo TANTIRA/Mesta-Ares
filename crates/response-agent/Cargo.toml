@@ -23,3 +23,6 @@ anyhow.workspace = true
 clap.workspace = true
 futures.workspace = true
 sha2.workspace = true
+
+[dev-dependencies]
+serde_yaml.workspace = true

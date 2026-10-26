@@ -431,3 +431,59 @@ async fn main() -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Tool names allowlisted in `policies/tools.yml`.
+    fn policy_tools() -> std::collections::HashSet<String> {
+        let text = std::fs::read_to_string("../../policies/tools.yml")
+            .expect("read policies/tools.yml");
+        let doc: serde_yaml::Value = serde_yaml::from_str(&text).expect("parse tools.yml");
+        doc["tools"]
+            .as_mapping()
+            .expect("tools mapping")
+            .keys()
+            .map(|k| k.as_str().expect("tool name").to_string())
+            .collect()
+    }
+
+    #[test]
+    fn every_rollback_target_is_allowlisted() {
+        let tools = policy_tools();
+        let reversible = [
+            ("blocklist.ip.add", json!({"ip": "203.0.113.9"})),
+            ("blocklist.domain.add", json!({"domain": "evil.example"})),
+            ("firewall.rule.add", json!({"remote": "203.0.113.9"})),
+            ("wazuh.active_response.isolate_host", json!({"agent_id": "001"})),
+            ("entra.user.disable", json!({"user_id": "00000000-0000-0000-0000-000000000000"})),
+            ("ad.user.disable", json!({"sam_account_name": "jdoe"})),
+            ("o365.email.quarantine", json!({"message_id": "m1"})),
+            ("misp.ioc.block", json!({"value": "203.0.113.9"})),
+        ];
+        for (source, args) in reversible {
+            let action = PlannedAction {
+                tool: source.to_string(),
+                args,
+                rationale: String::new(),
+            };
+            let rollback = rollback_for(&action).expect("action should be reversible");
+            let target = rollback["tool"].as_str().expect("rollback tool");
+            assert!(
+                tools.contains(target),
+                "{source} rolls back to `{target}`, which is not allowlisted"
+            );
+        }
+    }
+
+    #[test]
+    fn irreversible_actions_have_no_rollback() {
+        let action = PlannedAction {
+            tool: "notify.slack.post".to_string(),
+            args: json!({"text": "hi"}),
+            rationale: String::new(),
+        };
+        assert!(rollback_for(&action).is_none());
+    }
+}

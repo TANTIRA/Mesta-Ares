@@ -1,14 +1,13 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T09:18:36+00:00",
+  "updated": "2026-10-26T09:21:52+00:00",
   "queue_order": [
-    "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points",
+    "review::.::holistic::abstraction_fitness::unused_agent_loop_and_gateway",
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
     "review::.::holistic::abstraction_fitness::model_router_never_routes",
     "review::.::holistic::abstraction_fitness::nats_publish_wrappers_triplicated",
     "review::.::holistic::abstraction_fitness::rollback_tools_never_exist",
-    "review::.::holistic::abstraction_fitness::unused_agent_loop_and_gateway",
     "review::.::holistic::ai_generated_debt::agent-core-unused-framework",
     "review::.::holistic::ai_generated_debt::cvss-identity-match-ceremony",
     "review::.::holistic::ai_generated_debt::idem-key-serde-roundtrip",
@@ -19,11 +18,9 @@
     "review::.::holistic::ai_generated_debt::unwrap-or-default-on-infallible-serde",
     "review::.::holistic::api_surface_coherence::audit_append_positional_sprawl",
     "review::.::holistic::api_surface_coherence::http_error_body_conventions",
-    "review::.::holistic::api_surface_coherence::invoke_contract_duplicated",
     "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape",
     "review::.::holistic::api_surface_coherence::misp_search_silent_row_drop",
     "review::.::holistic::api_surface_coherence::policy_evaluate_async_without_await",
-    "review::.::holistic::api_surface_coherence::response_agent_fake_deny",
     "review::.::holistic::api_surface_coherence::tool_args_two_sources_of_truth",
     "review::.::holistic::authorization_consistency::a2a-cards-advertise-unenforced-bearer",
     "review::.::holistic::authorization_consistency::a2a-task-access-not-scoped-to-agent",
@@ -51,7 +48,6 @@
     "review::.::holistic::cross_module_architecture::dlq_republish_loop",
     "review::.::holistic::cross_module_architecture::jetstream_publish_duplicated",
     "review::.::holistic::cross_module_architecture::table_ownership_doc_drift",
-    "review::.::holistic::cross_module_architecture::tool_gateway_bypass",
     "review::.::holistic::cross_module_architecture::vuln_off_contract_publish",
     "review::.::holistic::dependency_health::dead_pgvector_and_sqlx_bypass",
     "review::.::holistic::dependency_health::inline_version_pins_bypass_workspace",
@@ -64,14 +60,12 @@
     "review::.::holistic::design_coherence::agent_scaffolding_copied_per_crate",
     "review::.::holistic::design_coherence::cvss_metric_validation_duplicated",
     "review::.::holistic::design_coherence::llm_request_boilerplate_repeated",
-    "review::.::holistic::design_coherence::unwired_agent_core_loop",
     "review::.::holistic::design_coherence::yaml_dir_scan_duplicated",
     "review::.::holistic::error_consistency::bas_metrics_conflate_failure_with_negative",
     "review::.::holistic::error_consistency::executor_dry_run_reports_success",
     "review::.::holistic::error_consistency::fire_and_forget_state_writes",
     "review::.::holistic::error_consistency::http_error_shape_drift",
     "review::.::holistic::error_consistency::intel_parse_failures_silent",
-    "review::.::holistic::error_consistency::invoke_client_three_contracts",
     "review::.::holistic::error_consistency::orchestrator_dlq_asymmetry",
     "review::.::holistic::high_level_elegance::acp_subsystem_did_not_localize",
     "review::.::holistic::high_level_elegance::agent_core_role_unfilled",
@@ -85,7 +79,6 @@
     "review::.::holistic::incomplete_migration::pgvector_dead_workspace_dep",
     "review::.::holistic::incomplete_migration::stale_rate_limit_docs",
     "review::.::holistic::incomplete_migration::subject_constants_half_shared",
-    "review::.::holistic::incomplete_migration::three_invoke_clients",
     "review::.::holistic::initialization_coupling::ambient_env_in_policy_evaluate",
     "review::.::holistic::initialization_coupling::cwd_relative_path_constants",
     "review::.::holistic::initialization_coupling::ddl_ownership_split_from_owner_crate",
@@ -112,7 +105,6 @@
     "review::.::holistic::mid_level_elegance::envelope_publish_paths_fragmented",
     "review::.::holistic::mid_level_elegance::evalctx_asset_classes_unwired",
     "review::.::holistic::mid_level_elegance::orchestrator_dlq_self_feed",
-    "review::.::holistic::mid_level_elegance::tool_invoke_boundary_reimplemented",
     "review::.::holistic::naming_quality::cvss_required_metric_named_num",
     "review::.::holistic::naming_quality::executor_type_name_drift",
     "review::.::holistic::naming_quality::generic_process_envelope_handlers",
@@ -141,7 +133,6 @@
     "review::.::holistic::type_safety::audit_decision_string_not_enum",
     "review::.::holistic::type_safety::cvss_metric_fields_default_not_option",
     "review::.::holistic::type_safety::dry_run_ok_masks_no_op",
-    "review::.::holistic::type_safety::gateway_fabricates_deny_decision",
     "review::.::holistic::type_safety::llm_verdict_untyped_string",
     "review::.::holistic::type_safety::persisted_state_bypasses_enums",
     "review::.::holistic::type_safety::policy_forbidden_class_strings",
@@ -3412,7 +3403,7 @@
     }
   },
   "promoted_ids": [
-    "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points"
+    "review::.::holistic::abstraction_fitness::unused_agent_loop_and_gateway"
   ],
   "plan_start_scores": {
     "strict": 77.7,
@@ -5972,6 +5963,366 @@
       "actor": "user",
       "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
       "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:18:36+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Threat-intel HTTP calls moved into connectors::intel (ThreatIntelClient + IntelKeys + shared b64url); enrichment-lib and tool-server executors both delegate, one connection pool each; free enrich() wrapper removed. Rate limiter now classifies POST /acp/runs as Expensive and /acp/runs/{id}/events as Stream, matching A2A. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:40+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::invoke_contract_duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:40+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::invoke_contract_duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:21:41+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::invoke_contract_duplicated"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:41+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::invoke_client_three_contracts"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:42+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::invoke_client_three_contracts"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:21:42+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::error_consistency::invoke_client_three_contracts"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:43+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::tool_invoke_boundary_reimplemented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:43+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::tool_invoke_boundary_reimplemented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:21:43+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::mid_level_elegance::tool_invoke_boundary_reimplemented"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:44+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::three_invoke_clients"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:45+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::three_invoke_clients"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:21:45+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::incomplete_migration::three_invoke_clients"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:46+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::response_agent_fake_deny"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:46+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::response_agent_fake_deny"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:21:46+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::response_agent_fake_deny"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:47+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::type_safety::gateway_fabricates_deny_decision"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:48+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::type_safety::gateway_fabricates_deny_decision"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:21:48+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::type_safety::gateway_fabricates_deny_decision"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:48+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::tool_gateway_bypass"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:49+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::tool_gateway_bypass"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:21:49+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::cross_module_architecture::tool_gateway_bypass"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:50+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::unwired_agent_core_loop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:50+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::unwired_agent_core_loop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T09:21:50+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::design_coherence::unwired_agent_core_loop"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:51+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::unused_agent_loop_and_gateway"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T09:21:52+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::abstraction_fitness::unused_agent_loop_and_gateway"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
+      "detail": {}
     }
   ],
   "epic_triage_meta": {},
@@ -6007,7 +6358,16 @@
     "review::.::holistic::low_level_elegance::provider_lookup_repeats_http_chain",
     "review::.::holistic::api_surface_coherence::acp_missing_from_rate_limit_tiers",
     "review::.::holistic::authorization_consistency::acp-routes-missing-rate-tier",
-    "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes"
+    "review::.::holistic::low_level_elegance::ratelimit_classifier_skips_acp_routes",
+    "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points",
+    "review::.::holistic::api_surface_coherence::invoke_contract_duplicated",
+    "review::.::holistic::error_consistency::invoke_client_three_contracts",
+    "review::.::holistic::mid_level_elegance::tool_invoke_boundary_reimplemented",
+    "review::.::holistic::incomplete_migration::three_invoke_clients",
+    "review::.::holistic::api_surface_coherence::response_agent_fake_deny",
+    "review::.::holistic::type_safety::gateway_fabricates_deny_decision",
+    "review::.::holistic::cross_module_architecture::tool_gateway_bypass",
+    "review::.::holistic::design_coherence::unwired_agent_core_loop"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3

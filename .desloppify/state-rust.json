@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 52,
-    "open": 464,
+    "fixed": 61,
+    "open": 455,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 26,
-        "open": 81,
+        "fixed": 35,
+        "open": 72,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -8235,11 +8235,11 @@
         "reasoning": "",
         "summary_hash": "eeb7d483"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:21:49+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8247,7 +8247,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:21:49+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::cross_module_architecture::agent_runtime_duplicated": {
       "id": "review::.::holistic::cross_module_architecture::agent_runtime_duplicated",
@@ -9031,11 +9037,11 @@
         "reasoning": "",
         "summary_hash": "5cbf5d2c"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:21:42+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9043,7 +9049,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:21:42+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::error_consistency::http_error_shape_drift": {
       "id": "review::.::holistic::error_consistency::http_error_shape_drift",
@@ -9559,11 +9571,11 @@
         "reasoning": "",
         "summary_hash": "8a61d557"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:21:52+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -9571,7 +9583,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:21:52+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::abstraction_fitness::activity_event_contract_copied": {
       "id": "review::.::holistic::abstraction_fitness::activity_event_contract_copied",
@@ -10631,11 +10649,11 @@
         "reasoning": "",
         "summary_hash": "12b9df10"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:21:43+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10643,7 +10661,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:21:43+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented": {
       "id": "review::.::holistic::mid_level_elegance::activity_event_contract_fragmented",
@@ -11385,11 +11409,11 @@
         "reasoning": "",
         "summary_hash": "cecbce5c"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:21:41+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11397,7 +11421,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:21:41+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::api_surface_coherence::response_agent_fake_deny": {
       "id": "review::.::holistic::api_surface_coherence::response_agent_fake_deny",
@@ -11421,11 +11451,11 @@
         "reasoning": "",
         "summary_hash": "8b5beca8"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:21:46+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11433,7 +11463,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:21:46+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::api_surface_coherence::tool_args_two_sources_of_truth": {
       "id": "review::.::holistic::api_surface_coherence::tool_args_two_sources_of_truth",
@@ -12574,11 +12610,11 @@
         "reasoning": "",
         "summary_hash": "949b16ee"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:21:45+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12586,7 +12622,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:21:45+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::incomplete_migration::connector_bypass_raw_http": {
       "id": "review::.::holistic::incomplete_migration::connector_bypass_raw_http",
@@ -13573,11 +13615,11 @@
         "reasoning": "",
         "summary_hash": "7b24c87d"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:21:50+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13585,7 +13627,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:21:50+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::design_coherence::agent_scaffolding_copied_per_crate": {
       "id": "review::.::holistic::design_coherence::agent_scaffolding_copied_per_crate",
@@ -14924,11 +14972,11 @@
         "reasoning": "",
         "summary_hash": "d8e44978"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:21:48+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14936,7 +14984,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually One /invoke implementation: agent-core HttpToolGateway::invoke_verdict (typed InvokeResponse incl. approval_id, 4-send full-jitter retry). response-agent and detection-agent now use it; response-agent records a transport failure as an error with decision=null and stops the plan instead of fabricating a Deny; detection logs denials with the real reason. response-agent writes agent_checkpoints Final, so task/run streams fold a live checkpoint. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:21:48+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::type_safety::cvss_metric_fields_default_not_option": {
       "id": "review::.::holistic::type_safety::cvss_metric_fields_default_not_option",
@@ -17582,7 +17636,7 @@
       },
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:18:28+00:00"
+      "stale_since": "2026-10-26T09:21:52+00:00"
     },
     "ai_generated_debt": {
       "score": 79.0,
@@ -17598,7 +17652,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:18:36+00:00"
+      "stale_since": "2026-10-26T09:21:46+00:00"
     },
     "authorization_consistency": {
       "score": 58.0,
@@ -17630,7 +17684,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:16:09+00:00"
+      "stale_since": "2026-10-26T09:21:49+00:00"
     },
     "dependency_health": {
       "score": 78.0,
@@ -17643,7 +17697,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:18:30+00:00"
+      "stale_since": "2026-10-26T09:21:50+00:00"
     },
     "error_consistency": {
       "score": 83.0,
@@ -17651,7 +17705,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:15:54+00:00"
+      "stale_since": "2026-10-26T09:21:42+00:00"
     },
     "high_level_elegance": {
       "score": 78.0,
@@ -17667,7 +17721,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:18:31+00:00"
+      "stale_since": "2026-10-26T09:21:45+00:00"
     },
     "initialization_coupling": {
       "score": 74.0,
@@ -17699,7 +17753,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:16:10+00:00"
+      "stale_since": "2026-10-26T09:21:43+00:00"
     },
     "naming_quality": {
       "score": 88.5,
@@ -17725,7 +17779,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:16:13+00:00"
+      "stale_since": "2026-10-26T09:21:48+00:00"
     }
   },
   "scan_history": [
@@ -22192,13 +22246,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 5,
+      "failing": 4,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 5,
+          "failing": 4,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,
@@ -22249,13 +22303,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 8,
+          "failing": 6,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22333,13 +22387,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 7,
+          "failing": 6,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22375,13 +22429,13 @@
       "strict": 73.0,
       "verified_strict_score": 73.0,
       "checks": 10,
-      "failing": 6,
+      "failing": 5,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.73,
-          "failing": 6,
+          "failing": 5,
           "weighted_failures": 2.7,
           "assessment_score": 73.0,
           "placeholder": false,
@@ -22396,13 +22450,13 @@
       "strict": 83.0,
       "verified_strict_score": 83.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.83,
-          "failing": 7,
+          "failing": 6,
           "weighted_failures": 1.7,
           "assessment_score": 83.0,
           "placeholder": false,
@@ -22438,13 +22492,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 8,
+          "failing": 7,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22522,13 +22576,13 @@
       "strict": 70.0,
       "verified_strict_score": 70.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.7,
-          "failing": 7,
+          "failing": 6,
           "weighted_failures": 3.0,
           "assessment_score": 70.0,
           "placeholder": false,
@@ -22606,13 +22660,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 9,
+      "failing": 8,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 9,
+          "failing": 8,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,
