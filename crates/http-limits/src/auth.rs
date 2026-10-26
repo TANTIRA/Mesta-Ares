@@ -137,3 +137,66 @@ mod tests {
         assert!(!ApiKeys::default().is_enabled());
     }
 }
+
+#[cfg(test)]
+mod middleware_tests {
+    use super::*;
+    use axum::body::Body;
+    use axum::middleware;
+    use axum::routing::get;
+    use axum::Router;
+    use tower::ServiceExt;
+
+    fn app(keys: ApiKeys) -> Router {
+        Router::new()
+            .route("/protected", get(|| async { "ok" }))
+            .layer(middleware::from_fn_with_state(keys, require_auth))
+    }
+
+    fn req(auth: Option<&str>, api_key: Option<&str>) -> Request {
+        let mut builder = Request::builder().uri("/protected");
+        if let Some(value) = auth {
+            builder = builder.header("authorization", value);
+        }
+        if let Some(value) = api_key {
+            builder = builder.header("x-api-key", value);
+        }
+        builder.body(Body::empty()).unwrap()
+    }
+
+    fn keys() -> ApiKeys {
+        ApiKeys::new([("k1".to_string(), "alice".to_string())])
+    }
+
+    #[tokio::test]
+    async fn missing_credentials_are_rejected() {
+        let res = app(keys()).oneshot(req(None, None)).await.unwrap();
+        assert_eq!(res.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[tokio::test]
+    async fn wrong_credentials_are_rejected() {
+        let res = app(keys())
+            .oneshot(req(Some("Bearer nope"), None))
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[tokio::test]
+    async fn bearer_and_api_key_both_authenticate() {
+        for request in [req(Some("Bearer k1"), None), req(None, Some("k1"))] {
+            let res = app(keys()).oneshot(request).await.unwrap();
+            assert_eq!(res.status(), StatusCode::OK);
+        }
+    }
+
+    #[tokio::test]
+    async fn dev_mode_without_keys_allows_anonymous() {
+        let res = app(ApiKeys::default())
+            .oneshot(req(None, None))
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+    }
+}

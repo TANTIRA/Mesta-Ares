@@ -1,0 +1,1037 @@
+{
+  "assessments": {
+    "abstraction_fitness": {
+      "score": 81.0,
+      "components": [
+        "Abstraction Leverage",
+        "Indirection Cost",
+        "Interface Honesty",
+        "Delegation Density",
+        "Definition Directness",
+        "Type Discipline"
+      ],
+      "component_scores": {
+        "Abstraction Leverage": 84.0,
+        "Indirection Cost": 86.0,
+        "Interface Honesty": 72.0,
+        "Delegation Density": 88.0,
+        "Definition Directness": 80.0,
+        "Type Discipline": 78.0
+      }
+    },
+    "dependency_health": 79.0,
+    "logic_clarity": 79.5,
+    "low_level_elegance": 84.0
+  },
+  "dimension_notes": {
+    "abstraction_fitness": {
+      "evidence": [
+        "crates/agent-protocol is a real shared-contract crate with many consumers: envelope.rs, tool.rs, severity.rs, hex.rs, kill.rs, activity.rs, paths.rs and the SUBJECT_* constants are imported by 15+ files across agents, orchestrator, tool-server, audit and api-server.",
+        "crates/agent-core/src/nats_sink.rs:19-107 is one publisher with an explicit policy (JetStream-first, plain fallback) shared by ingestion-gateway (main.rs:126), orchestrator (main.rs:168) and api-server (main.rs:361) - it replaced three earlier copies.",
+        "crates/api-server/src/run_stream.rs:82-95 declares RunRecord with exactly two implementations (Task in a2a.rs:510, Run in acp.rs:479), and owns the replay/stream/terminal state machine so the protocol modules keep only wire shapes.",
+        "crates/tool-server/src/executors/mod.rs:25-29 defines trait Tool with ~25 registered implementations (build_registry, lines 570-724); the single DryRun struct is parametrized by name for the 12 unbacked allowlist entries instead of one class per tool.",
+        "crates/agent-core/src/gateway.rs:40-44 (ToolGateway) concentrates tool-server HTTP volatility: full-jitter retry, retryable-marker handling and the allow/deny contract live in one type used by all agents.",
+        "crates/http-limits/src/auth.rs:26-110 and crates/http-limits/src/lib.rs:44-120 own API-key auth and token-bucket rate limiting for both api-server (main.rs:298-301) and ingestion-gateway (main.rs:146-154).",
+        "crates/agent-protocol/src/activity.rs:14 derives Debug/Clone/Serialize only, so no consumer can parse ActivityEvent; run_stream.rs:62-71 and 157-168 filter activity payloads by string-keying serde_json::Value, duplicating the type's field names.",
+        "crates/api-server/src/a2a.rs:124-131 owns the terminal-step vocabulary as a string match on agent/step and returns false for anything unrecognised; hunt-agent emits run/finding/clear/kill_switch (hunt-agent/src/main.rs:140-185), so hunt SSE streams never close (acknowledged at a2a.rs:122-123).",
+        "crates/agent-core/src/lib.rs:30-48 publish_activity serializes and publishes on a raw async_nats::Client, and crates/bas-runner/src/main.rs:180-190 re-implements the same serialize+publish+warn sequence locally, so NatsSink's publish policy is bypassed by 6 of 9 producers.",
+        "crates/api-server/src/paths.rs:9-11 is a byte-identical copy of crates/agent-protocol/src/paths.rs:9-11 while detection-agent/src/pipeline.rs:16,20, bas-runner/src/scenario.rs:12 and http-limits/src/lib.rs:463 import the shared one.",
+        "crates/api-server/src/stream.rs:22 re-declares SUBJECT_ACTIVITY locally although crates/agent-protocol/src/activity.rs:11 defines it and agents import the shared constant.",
+        "crates/api-server/src/a2a.rs:242-248 a2a::publish is a pure forward to s.sink.publish with no policy, translation or logging of its own; callers are a2a.rs:401 and acp.rs:248."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "",
+      "sub_axes": {
+        "abstraction_leverage": 84.0,
+        "indirection_cost": 86.0,
+        "interface_honesty": 72.0,
+        "delegation_density": 88.0,
+        "definition_directness": 80.0,
+        "type_discipline": 78.0
+      }
+    },
+    "dependency_health": {
+      "evidence": [
+        "Cargo.toml:31-63 pins every third-party version once in [workspace.dependencies]; all 22 crate manifests consume them as `workspace = true` (only exception is the dev-dependency `tower = { version = \"0.5\" }` in crates/http-limits/Cargo.toml:19).",
+        "Cargo.lock is committed and .github/workflows/ci.yml runs `cargo clippy --workspace --all-targets --locked`, `cargo test --workspace --locked` and `cargo check --workspace --locked`, so CI cannot silently re-resolve; a `supply-chain` job runs rustsec/audit-check.",
+        "Single TLS stack confirmed: `cargo tree -e features -i reqwest` shows only rustls-tls/__rustls-ring, sqlx uses runtime-tokio-rustls, async-nats uses rustls; no native-tls/openssl-sys in Cargo.lock. Three root-cert sources remain (webpki-roots 0.26 via sqlx-core, webpki-roots 1.0 via hyper-rustls/reqwest, rustls-native-certs via async-nats) but all are rustls.",
+        "One library per concern on the direct-dependency level: serde_yaml_ng everywhere (no serde_yaml package left in Cargo.lock), serde_json only, reqwest only, axum only, tracing only.",
+        "Internal crate graph is acyclic: agent-protocol/connectors/llm-client are leaves; api-server and tool-server are the only wide consumers (9 and 6 path deps). No cycles detected across the 22 workspace members.",
+        "Content-only crates keep tiny dep sets: crates/cvss = serde + thiserror; crates/acp = serde/serde_json/chrono/schemars; crates/a2a adds only async-trait.",
+        "15 dependency declarations have zero references in their crate (grep for `\\b<ident>\\b` over src/ + tests/): api-gateway serde+futures, api-server reqwest, audit sha2, detection-agent serde+chrono+reqwest, enrichment-lib reqwest+anyhow, hunt-agent serde+chrono, ingestion-gateway async-nats, response-agent chrono+reqwest, triage-agent reqwest.",
+        "crates/audit/Cargo.toml:12 declares reqwest, but the only reference is `AuditError::Http(#[from] reqwest::Error)` at crates/audit/src/lib.rs:33; the writer performs no HTTP at all, and the crate description still advertises 'OpenSearch shipping'.",
+        "jsonschema 0.30 default features are [\"resolve-http\", \"resolve-file\"]; `resolve-http` enables reqwest with the `blocking` and `json` features. policy-engine (crates/policy-engine/src/lib.rs:292) only calls `jsonschema::validator_for` on a schema built from YAML, so the resolver, reqwest-blocking and fancy-regex (a second regex engine next to the direct `regex` dep) are dead weight.",
+        "Workspace tokio features list `signal` and `fs` (Cargo.toml:33) but nothing in the workspace uses `tokio::signal` or `tokio::fs` (0 occurrences; all file IO is std::fs). tracing-subscriber enables `json` (Cargo.toml:50) yet all 11 binaries call plain `fmt().with_env_filter(..).init()` with no `.json()`.",
+        "redis 0.27 defaults (acl, streams, geospatial, script, keep-alive) stay on in Cargo.toml:41 while enrichment-lib only issues `set_ex`/`get` for the IOC cache (crates/enrichment-lib/src/lib.rs:244,381).",
+        "Transitive duplicate versions in Cargo.lock are all upstream-driven, not caused by the workspace pins: base64 0.22.1 (async-nats/sqlx/jsonschema) + 0.23.1 (hyper-util), rand 0.8.8 + 0.10.3, webpki-roots 0.26.11 + 1.0.11, syn 2 + 3, getrandom 0.2/0.3/0.4.",
+        "apps/console/package.json ships two icon libraries: @hugeicons/react + @hugeicons/core-free-icons used across ~20 components, and lucide-react used in exactly one file (apps/console/app/(console)/playbooks/page.tsx:20).",
+        "apps/console commits package-lock.json (npm) while .github/workflows/ci.yml runs `pnpm -C apps/console install --frozen-lockfile=false`; there is no pnpm-lock.yaml, so the console build resolves fresh versions on every CI run.",
+        "infra/docker-compose.yml pins most images by version but leaves 8 services on mutable tags: thehiveproject/thehive:latest, ghcr.io/misp/misp-docker/misp-core:latest, misp-modules:latest, ghcr.io/shuffle/shuffle-{backend,frontend,orborus}:latest and ghcr.io/nvidia/openshell/gateway:latest (x2).",
+        "No mechanical dependency concern signals were present in the blind packet (holistic_context.dependencies is empty), so there was nothing to adjudicate as dismissed."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": ""
+    },
+    "low_level_elegance": {
+      "evidence": [
+        "Function bodies are overwhelmingly small and single-purpose: crates/tool-server/src/executors/mod.rs:25-29 declares a 2-method `Tool` trait and every executor is a ~15-line `execute` with one early `let Some(c) = &self.0 else { return dry_run(args) }` guard; arg access goes through one `arg_str(args, keys)` helper (line 40).",
+        "crates/tool-server/src/idempotency.rs:86-105 is the strongest local-craft pattern in the repo: `next(state, fingerprint) -> Claim` is a pure match over four states, and both backends (claim_pg:229, claim_mem:355) delegate to it instead of re-implementing the transition.",
+        "Early-return guard clauses are the house style for handlers: crates/api-server/src/acp.rs:426-460 (`cancel_run`), crates/api-server/src/vulns.rs:78-90, crates/tool-server/src/main.rs:59-70 all validate-then-return rather than nesting the happy path.",
+        "crates/api-server/src/run_stream.rs:93-185 models SSE as one explicit `StreamState` struct plus an `unfold` that sets `closing`/`done`; state mutation is local to the closure and documented field by field.",
+        "The last two commits left stale shims at half-migrated sites: crates/orchestrator/src/dedupe.rs:81-86 still declares `mod hex { pub fn encode(..) { agent_protocol::hex::hex_lower(..) } }` behind the now-false comment 'Minimal hex encoder to avoid an extra dependency'; crates/api-gateway/src/main.rs:174-177 still hand-builds the limiter that `http_limits::build_limiter` (http-limits/src/lib.rs:462) now provides for the other two edge services.",
+        "Helper adoption is uneven for the same shared function: `agent_protocol::hex::sha256_hex` is used by audit (audit/src/lib.rs:88,109,180) but crates/tool-server/src/idempotency.rs:112-122 and crates/response-agent/src/main.rs:232 still hand-roll `Sha256::new()` + `format!(\"{b:02x}\")`, and hex.rs's module doc claims idempotency is a consumer.",
+        "Duplicated blocks survive in otherwise tidy modules: the 8-line `info!(tool, actor, correlation_id, decision, reason, \"policy decision\")` block appears twice in crates/policy-engine/src/lib.rs:326-338 and 343-355; the activity-filter predicate (parse JSON, compare `workflow_run_id`, `terminal_step`) appears twice in crates/api-server/src/run_stream.rs:60-72 and 155-166.",
+        "crates/policy-engine/src/lib.rs:451-454 keeps `fn kill_switch_engaged(&self, ctx: &EvalCtx) -> bool { ctx.kill_switch }` - a pass-through method that takes an unused `&self` and whose name implies the live env/file check performed by `agent_protocol::kill::kill_switch_engaged`.",
+        "Activity emission is inlined at 20 call sites across crates/triage-agent/src/main.rs:395-495, crates/hunt-agent/src/main.rs:138-186 and crates/response-agent/src/main.rs:193-350 (`publish_activity(&deps.nats, &ActivityEvent::new(run_id, \"<agent>\", step, detail)).await`), even though the same files extract `tool_call`, `typed_iocs`, `open_case` and `save_final_checkpoint` helpers.",
+        "crates/enrichment-lib/src/lib.rs:170 and :448 are orphan doc comments left by removed functions - the first ('Base64-url (unpadded) encoding for VirusTotal URL ids.') is now attached to `fn env`, the second ('Convenience wrapper: enrich one indicator through a shared Enricher.') is attached to `#[cfg(test)] mod tests`.",
+        "crates/audit/src/lib.rs:104-108 and 161-170 rebuild the same `prev_hash|actor|tool|args_sha256|decision|reason|correlation_id|ts` canonical string in two places that must stay byte-identical for the chain to verify.",
+        "crates/connectors/src/lib.rs:620-641 holds the token `MutexGuard` across `send_with_retry` (up to the 15s CALL_BUDGET with jittered sleeps) and the JSON decode, so concurrent Wazuh callers serialize behind a network round-trip; `NvdClient::get` (line 966) similarly holds its throttle guard through the retry sleep and body decode.",
+        "crates/tool-server/src/main.rs:99-113, 155-190 and approvals.rs:232-244 spell the six-field `ToolResult { ok: false, .. }` literal by hand at 7 production sites while the sibling constructor `ToolResult::retryable` (agent-protocol/src/tool.rs:93) exists for the other failure shape."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": ""
+    },
+    "logic_clarity": {
+      "evidence": [
+        "crates/orchestrator/src/main.rs:152-159 derives the delivery count from a `Nats-Delivery-Count` header that no NATS component sets, and main.rs:182 subscribes with core `client.subscribe()`, so `deliveries > MAX_DELIVERIES` (line 71) is always false and the module doc line 15 ('Messages redelivered more than MAX_DELIVERIES times are dropped to ares.dlq') describes an unreachable path.",
+        "crates/api-gateway/src/main.rs:156-161 chains `.layer(rate_limiter)` then `.layer(auth)`, so the auth middleware is outermost and the rate limiter is inner; the comment above claims 'Rate limiting outermost so unauthenticated floods are still metered'. crates/api-server/src/main.rs:383-388 documents the opposite (and correct) rule ('CORS stays outermost' after the last `.layer`), proving the gateway comment is inverted.",
+        "crates/audit/src/lib.rs:103-109 hashes `ts.to_rfc3339()` of a `Utc::now()` value with nanosecond precision, while sqlx persists `timestamptz` at microsecond precision and verify_chain (lines 161-180) re-hashes the truncated value; any timestamp whose sub-microsecond nanos are non-zero fails verification with 'hash does not match row contents'.",
+        "crates/connectors/src/lib.rs:1006-1009 detects NVD 'no such CVE' by `e.to_string().contains(\"404\")` on an anyhow error built at line 983 from `format!(\"NVD HTTP {status}\")`, so control flow depends on the rendering of an error message.",
+        "crates/agent-core/src/gateway.rs:85-106 converts any non-2xx `/invoke` response into a synthetic `Decision { kind: Deny, reason: \"gateway returned {status}\" }`, so a 502/503 is indistinguishable from a real policy denial downstream (response-agent records `decision.kind == Deny`, invoke_allowed returns AgentError::Denied).",
+        "crates/bas-runner/src/main.rs:197-204 returns early when `deps.dry`, then calls `execute(scenario, deps.dry)`; the `(target, dry)` match at lines 93-100 therefore only ever sees `dry == false`, leaving the 'dry run' arm of `execute` dead.",
+        "crates/response-agent/src/main.rs:241-280 binds `decision` as `Some(v.decision)` on the only reachable path, then computes `denied` via `decision.as_ref().map(|d| d.kind == DecisionKind::Deny).unwrap_or(false)` and stores `decision.as_ref().map(|d| d.kind)` \u2014 null handling for a value that cannot be null.",
+        "crates/response-agent/src/main.rs:215-223 `break`s out of the plan loop on the kill switch and then falls through to the 'done' activity and `save_final_checkpoint(...)` at lines 345-356, whereas the invoke-failure path (lines 243-275) writes an 'aborted' checkpoint; a halted plan is reported as a completed run.",
+        "crates/policy-engine/src/lib.rs:409-427 increments the hourly blast-radius counter before testing `count > max`, so calls rejected by the cap or the cooldown (line 436) still consume the hour's quota.",
+        "crates/api-server/src/vulns.rs:85-91 returns 404 'no NVD record' whenever `enricher.enrich_cve` yields None, but enrichment-lib/src/lib.rs:396-400 maps NVD transport/HTTP errors to the same None, so an upstream outage is served as 'CVE does not exist'.",
+        "Positive counterweight: policy-engine/src/lib.rs:354-449 numbers every check (1)-(9) and documents the load-bearing order; tool-server/src/idempotency.rs:88-104 keeps the claim transition in one pure `next()` shared by the Pg and Mem backends; api-server/src/run_stream.rs:136-174 encodes the replay/live/close states explicitly.",
+        "crates/api-server/src/main.rs:363 contains the no-op statement `let _ = kill_switch_engaged(); // warm the check path at boot`, although agent-protocol/src/kill.rs:32-34 caches nothing, so nothing is warmed.",
+        "crates/http-limits/src/lib.rs:9-11 documents actor-based limiter keys, but `middleware` (lines 278-283) only reads `ConnectInfo<SocketAddr>` and never the `auth::Actor` extension; api-server/src/main.rs:380 concedes 'peer IP until auth lands'."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": ""
+    }
+  },
+  "dimension_judgment": {
+    "abstraction_fitness": {
+      "dimension_character": "Abstractions here are mostly earned: one contract crate, one NATS publisher with a stated policy, one tool trait with ~25 implementations, one ToolGateway carrying the retry/deny contract, one RunRecord trait behind both A2A and ACP streaming. The friction is at the seams rather than the core - the shared activity type is emit-only so consumers string-key raw JSON, the terminal-step vocabulary lives in the API server instead of next to the emitters, and a handful of producers and helpers still duplicate or bypass the shared pieces they were meant to use. A developer would trust the protocol and gateway layers, but would have to read each producer to know whether it actually goes through them.",
+      "score_rationale": "This sits in the 'solid but uneven' band rather than the mixed band because the leverage is systemic: agent-protocol is genuinely the single definition point, NatsSink and ToolGateway enforce real policy, and the only declared traits with one implementation are protocol boundaries with test doubles. What holds it back is interface honesty - ActivityEvent cannot be deserialized by the services that filter on it, terminal step names are an unwritten contract that has already drifted for hunt-agent, and NatsSink is bypassed by publish_activity and bas-runner while a duplicate paths module and a duplicate SUBJECT_ACTIVITY constant survive in api-server. Fixing those five seams is mostly deletion and small moves, which is why the score is above the previous 73.0 but not in the 90s."
+    },
+    "dependency_health": {
+      "dimension_character": "The Rust workspace is deliberately centralized: every third-party version lives once in [workspace.dependencies], Cargo.lock is committed and enforced by --locked CI with a rustsec job, TLS is rustls-only end to end, and there is exactly one library per concern (serde_yaml_ng, serde_json, reqwest, axum) over an acyclic 22-crate graph. The drag sits at the edges rather than in the structure: 15 dependency declarations in 9 crates no longer have a caller (several left behind by the last few refactors), a few crates inherit heavy default feature sets (jsonschema's HTTP resolver, redis's unused feature set) or workspace features nobody uses, and the Next.js console has its own weaker hygiene \u2014 an npm lockfile that the pnpm CI ignores plus a second icon library used in one file.",
+      "score_rationale": "Against the anchors this sits just below 'solid but uneven': the pinning, lockfile enforcement, single TLS stack and per-concern library choices are systemic strengths a developer can rely on, but 9 of 22 crates carry at least one provably unused dependency and audit keeps reqwest for an error variant it can never construct, which is exactly the kind of rot that makes a manifest unreliable as documentation. Everything found is cheap to fix (manifest lines, one feature flag, one lockfile), which keeps it out of 'significant drag' territory, but the sheer spread of unused declarations prevents a score in the mid-80s."
+    },
+    "low_level_elegance": {
+      "dimension_character": "Function internals are written with real craft: short guard-clause bodies, pure transition functions, explicit state structs for streams, and one helper per repeated arg-parsing need. The unevenness comes from migration residue rather than design - a shared helper lands, but one or two of the old call sites keep their private shim, a doc comment outlives the function it described, and a duplicated block stays behind in an otherwise tidy module.",
+      "score_rationale": "Against the anchors, this sits between 90 ('mostly clean craft with isolated rough edges') and 80 ('regularly encounters local complexity'): a developer opening executors, idempotency, acp/a2a or the agents finds direct, readable code, which pushes the score up. It is pulled down because the residue is recurring and visible (dedupe's `mod hex` shim, api-gateway's hand-built limiter, hand-rolled sha256 hex in two crates, two orphan doc comments, a duplicated audit canonical string), and because one lock is held across a network round-trip in the Wazuh client - the kind of local detail that makes a function harder to reason about than its size suggests."
+    },
+    "logic_clarity": {
+      "dimension_character": "Control flow in this codebase is mostly direct and deliberate: guard clauses, numbered policy checks, explicit state enums (Claim, Outcome, CheckpointProgress) and comments that explain why a branch exists. The failures are of a specific kind \u2014 paths that the code claims to have but cannot reach (the orchestrator redelivery guard, bas-runner's dry arm, the 'warm the check path' call) and paths that silently reinterpret one condition as another (HTTP failures fabricated into Deny verdicts, NVD errors served as 404, an untruncated timestamp hashed against a truncated one). A developer reading these areas gets a confident story from the comments that the code does not always back up, which is worse than an obviously unfinished branch.",
+      "score_rationale": "The strengths are systemic: ordering is documented and honoured, state machines are pure and shared, and degradation paths carry a one-line reason. That holds the score near the 'solid but uneven' anchor rather than lower. What pulls it down is the density of provable dead paths and mis-signalled outcomes in exactly the highest-traffic files (orchestrator, api-gateway, connectors, audit, response-agent), including one inverted comment about middleware ordering and one audit-chain hash that cannot verify \u2014 issues a developer would hit as 'the code does not do what it appears to do'."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "activity_event_not_deserializable",
+      "summary": "ActivityEvent is serialize-only, so every consumer filters activity payloads as untyped JSON",
+      "confidence": "high",
+      "suggestion": "Add Deserialize to ActivityEvent and replace both Value traversals in run_stream.rs with serde_json::from_str::<ActivityEvent>(&text) followed by typed field access; leave stream.rs forwarding raw text (the console wants the original bytes) but let it import the type for documentation.",
+      "related_files": [
+        "crates/agent-protocol/src/activity.rs",
+        "crates/api-server/src/run_stream.rs",
+        "crates/api-server/src/stream.rs"
+      ],
+      "evidence": [
+        "crates/agent-protocol/src/activity.rs:14 derives only Debug, Clone and Serialize; there is no Deserialize, so no service can parse the type it is meant to share.",
+        "crates/api-server/src/run_stream.rs:62-71 and 157-168 parse each ares.activity payload into serde_json::Value and compare v.get(\"workflow_run_id\").and_then(Value::as_str) != Some(corr) plus v.get(\"step\"), restating the type's field names in two places.",
+        "crates/api-server/src/stream.rs:37 forwards raw UTF-8 payload text straight to the console SSE feed, so the frontend also depends on the untyped shape.",
+        "ActivityEvent.workflow_run_id is a Uuid and ts a DateTime<Utc>, but consumers compare the serialized string form, so a field rename or type change is invisible to the compiler at every consumer."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "terminal_step_vocabulary_misplaced",
+      "summary": "Terminal-step registry lives in the API server as magic strings and hunt runs never terminate",
+      "confidence": "high",
+      "suggestion": "Move the vocabulary into agent-protocol::activity as an ActivityStep enum (or per-agent const slices) plus ActivityEvent::is_terminal()/is_aborted(), have agents construct steps from it and run_stream call it directly; add hunt's terminal step in the same change so hunt SSE streams close.",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/run_stream.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs:124-131 terminal_step matches only \"triage\", \"response\" and \"detection\" and returns false for every other agent, so hunt-agent's steps (\"run\", \"finding\", \"clear\", \"kill_switch\" at crates/hunt-agent/src/main.rs:140-185) never close an SSE stream; a2a.rs:122-123 documents this as a known gap instead of fixing the contract.",
+        "crates/api-server/src/run_stream.rs:18 imports aborted_step, task_uuid and terminal_step from crate::a2a, so the module documented as shared A2A+ACP machinery depends on one protocol module for the step vocabulary.",
+        "Step names are free string literals at the emit sites (crates/triage-agent/src/main.rs:397-490, crates/detection-agent/src/main.rs:126-202, crates/response-agent/src/main.rs:193-347) with no shared constant, so a renamed step silently stops terminating its run.",
+        "aborted_step (a2a.rs:134-136) encodes a second cross-agent rule (\"kill_switch\" | \"rejected\") in the same API-server module rather than next to the emitters."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "nats_sink_bypassed_by_producers",
+      "summary": "NatsSink's publish policy is bypassed by publish_activity and by bas-runner's local publish helper",
+      "confidence": "high",
+      "suggestion": "Add NatsSink::publish_activity(&ActivityEvent) (and use publish() for BAS envelopes), have publish_activity take &NatsSink instead of &async_nats::Client, and replace the six raw connects with NatsSink::connect; if activity is deliberately best-effort, say so in one comment on the new method so the two policies are explicit.",
+      "related_files": [
+        "crates/agent-core/src/lib.rs",
+        "crates/agent-core/src/nats_sink.rs",
+        "crates/bas-runner/src/main.rs",
+        "crates/vuln-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/agent-core/src/lib.rs:30-48 publish_activity serializes an ActivityEvent and publishes on a raw async_nats::Client, so the JetStream-first policy in NatsSink::publish_bytes (crates/agent-core/src/nats_sink.rs:92-107) never applies to activity events.",
+        "crates/bas-runner/src/main.rs:180-190 re-implements serialize + publish + warn for SUBJECT_BAS envelopes on a raw client, so BAS results are the only envelope kind never written to the ARES stream.",
+        "Six services open a raw client only for this path (crates/triage-agent/src/main.rs:506, response-agent/src/main.rs:382, detection-agent/src/main.rs:216, hunt-agent/src/main.rs:201, vuln-agent/src/main.rs:310, bas-runner/src/main.rs:278) while ingestion-gateway, orchestrator and api-server use NatsSink.",
+        "NatsSink's own doc comment (nats_sink.rs:1-4) claims 'one implementation for every producer', which the raw-client call sites contradict."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "duplicate_paths_helper_module",
+      "summary": "api-server re-declares agent-protocol's dir_from_env in its own paths module",
+      "confidence": "high",
+      "suggestion": "Delete crates/api-server/src/paths.rs (and its mod line at main.rs:31) and import agent_protocol::paths::dir_from_env in coverage.rs and playbooks.rs.",
+      "related_files": [
+        "crates/api-server/src/paths.rs",
+        "crates/agent-protocol/src/paths.rs",
+        "crates/api-server/src/coverage.rs",
+        "crates/api-server/src/playbooks.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/paths.rs:9-11 is byte-identical to crates/agent-protocol/src/paths.rs:9-11 (same signature, same env-or-default body, same doc line).",
+        "crates/api-server/src/coverage.rs:17 and crates/api-server/src/playbooks.rs:14 call crate::paths::dir_from_env while detection-agent/src/pipeline.rs:16,20, bas-runner/src/scenario.rs:12 and http-limits/src/lib.rs:463 call agent_protocol::paths::dir_from_env.",
+        "api-server already depends on agent-protocol (a2a.rs:24-26, kill.rs:40), so the copy buys nothing."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "duplicate_subject_activity_const",
+      "summary": "api-server re-declares SUBJECT_ACTIVITY locally instead of importing the shared constant",
+      "confidence": "high",
+      "suggestion": "Import agent_protocol::activity::SUBJECT_ACTIVITY in stream.rs and delete the local const at line 22.",
+      "related_files": [
+        "crates/api-server/src/stream.rs",
+        "crates/agent-protocol/src/activity.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/stream.rs:22 defines const SUBJECT_ACTIVITY: &str = \"ares.activity\"; duplicating crates/agent-protocol/src/activity.rs:11.",
+        "Every other subject now lives once in agent-protocol/src/lib.rs:20-35 and is imported by producers, so this is the single remaining local copy of a subject name.",
+        "A rename or subject change in agent-protocol would leave api-server silently subscribed to a dead subject with no compile error."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "a2a_publish_pass_through_wrapper",
+      "summary": "a2a::publish is a pass-through wrapper over NatsSink::publish with no policy of its own",
+      "confidence": "medium",
+      "suggestion": "Call s.sink.publish(def.subject, &env) directly at both call sites and delete the wrapper, so the publish policy has exactly one definition (agent-core::NatsSink).",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/a2a.rs:242-248 the body is a single s.sink.publish(subject, envelope).await; it adds no logging, translation or policy, only a doc comment.",
+        "Its doc still claims 'same policy as ingestion-gateway's NatsSink' even though the sink moved to agent-core, so the wrapper's only content is already stale.",
+        "Call sites are a2a.rs:401 and acp.rs:248, both of which already hold &AppState and can reach s.sink directly."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "tool_gateway_bypassed_for_thehive_writes",
+      "summary": "vuln-agent and response-agent write to TheHive through ThehiveClient, bypassing the ToolGateway used for every other side effect",
+      "confidence": "medium",
+      "suggestion": "Route vuln-agent's case creation through HttpToolGateway::invoke_allowed(\"thehive.case.create\") so kill switch, policy and audit apply uniformly; keep response-agent's summary write only if it is documented as bookkeeping, otherwise add a policy-gated tool for it. If typed returns are the blocker, add a typed helper next to invoke_allowed rather than another direct client.",
+      "related_files": [
+        "crates/vuln-agent/src/main.rs",
+        "crates/response-agent/src/main.rs",
+        "crates/agent-core/src/gateway.rs",
+        "crates/tool-server/src/executors/mod.rs"
+      ],
+      "evidence": [
+        "crates/vuln-agent/src/main.rs:266 calls hive.create_case(&case) directly although thehive.case.create is a registered policy-gated tool (crates/tool-server/src/executors/mod.rs:79) that triage-agent uses via gateway.invoke_allowed (crates/triage-agent/src/main.rs:310-320).",
+        "crates/response-agent/src/main.rs:339 updates the TheHive case directly for the run summary while every other response side effect goes through deps.gateway.invoke_verdict (main.rs:236).",
+        "ToolGateway (crates/agent-core/src/gateway.rs:41-44) returns a ToolResult whose output is untyped Value, so agents that need a typed case id must re-parse it (crates/triage-agent/src/main.rs:318-321) - the cheap path to typed results is the direct client, which is why the bypass keeps reappearing."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "unused_dep_declarations",
+      "summary": "15 dependency declarations across 9 crates have no reference in their crate's source",
+      "confidence": "high",
+      "suggestion": "Delete the 15 dead declarations (api-gateway: serde, futures; api-server: reqwest; audit: sha2; detection-agent: serde, chrono, reqwest; enrichment-lib: reqwest, anyhow; hunt-agent: serde, chrono; ingestion-gateway: async-nats; response-agent: chrono, reqwest; triage-agent: reqwest), then add `unused_crate_dependencies = \"warn\"` to a shared `[workspace.lints.rust]` table so the next refactor cannot leave a manifest lying again.",
+      "related_files": [
+        "crates/api-gateway/Cargo.toml",
+        "crates/api-server/Cargo.toml",
+        "crates/audit/Cargo.toml",
+        "crates/detection-agent/Cargo.toml",
+        "crates/enrichment-lib/Cargo.toml",
+        "crates/hunt-agent/Cargo.toml",
+        "crates/ingestion-gateway/Cargo.toml",
+        "crates/response-agent/Cargo.toml",
+        "crates/triage-agent/Cargo.toml"
+      ],
+      "evidence": [
+        "crates/api-gateway/Cargo.toml declares serde and futures; neither identifier appears anywhere in crates/api-gateway/src (0 matches, no Serialize/Deserialize derive either).",
+        "crates/api-server/Cargo.toml:24 declares reqwest; `grep -rn reqwest crates/api-server/` matches only the manifest line.",
+        "crates/audit/Cargo.toml declares sha2, but the crate now hashes through `agent_protocol::hex::sha256_hex` (crates/audit/src/lib.rs:228) after commit 9c765f8 moved the helper.",
+        "crates/detection-agent declares serde, chrono and reqwest; crates/hunt-agent declares serde and chrono; crates/response-agent declares chrono and reqwest; crates/triage-agent declares reqwest \u2014 none of those identifiers occur in the respective src trees.",
+        "crates/enrichment-lib declares reqwest and anyhow; HTTP now goes through the connectors crate and errors are a local type, so both names are absent from src.",
+        "crates/ingestion-gateway declares async-nats but publishes through `agent_core::NatsSink` (crates/ingestion-gateway/src/main.rs:126); the crate name never appears."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "audit_reqwest_dead_error_variant",
+      "summary": "audit keeps the full reqwest stack only for an error variant it can never construct, and its description still claims OpenSearch shipping",
+      "confidence": "high",
+      "suggestion": "Drop the `Http` variant and the reqwest dependency from crates/audit, and correct the crate description to 'Hash-chained Postgres audit log for ARES'. If OpenSearch shipping is still planned, land it in connectors (where the OpenSearch client already lives) rather than reserving an error variant for it.",
+      "related_files": [
+        "crates/audit/Cargo.toml",
+        "crates/audit/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/audit/src/lib.rs:30-33 defines `AuditError::Http(#[from] reqwest::Error)` documented as 'HTTP failure shipping an event to OpenSearch'.",
+        "No other reqwest reference exists in crates/audit/src; AuditWriter holds only a PgPool (crates/audit/src/lib.rs:43-46) and performs zero HTTP, so the variant is unreachable and the `#[from]` conversion is dead.",
+        "crates/audit/Cargo.toml:6 still describes the crate as 'Hash-chained Postgres audit log with OpenSearch shipping for ARES', which no longer matches the code.",
+        "This is the only reason reqwest is a dependency of audit, so the crate pays for a manifest entry whose only consumer is an impossible error path."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "jsonschema_default_features",
+      "summary": "policy-engine inherits jsonschema's HTTP resolver, reqwest-blocking and fancy-regex for in-memory schema validation",
+      "confidence": "high",
+      "suggestion": "Pin `jsonschema = { version = \"0.30\", default-features = false }` in [workspace.dependencies] (crates/policy-engine/Cargo.toml:18 already uses `workspace = true`, so no per-crate change is needed). `validator_for` needs no feature, so this removes reqwest-blocking and fancy-regex from the tree without touching call sites.",
+      "related_files": [
+        "Cargo.toml",
+        "crates/policy-engine/Cargo.toml",
+        "crates/policy-engine/src/lib.rs"
+      ],
+      "evidence": [
+        "jsonschema 0.30's default features are [\"resolve-http\", \"resolve-file\"]; `resolve-http` turns on the optional reqwest dependency with the `blocking` and `json` features (verified in the crate manifest and in `cargo tree -e features -i reqwest`, which shows `reqwest feature \"blocking\"` reached from `jsonschema feature \"default\"`).",
+        "policy-engine only builds validators from an in-memory schema value: crates/policy-engine/src/lib.rs:288-292 does `serde_json::to_value(schema)` then `jsonschema::validator_for(&json_schema)` \u2014 no $ref resolution, no file or URL retrieval.",
+        "The default feature set also pulls fancy-regex (a second regex engine alongside policy-engine's direct `regex` dependency), email_address, idna, uuid-simd, bytecount and fraction into every binary that links policy-engine (tool-server, api-server).",
+        "The workspace pin at Cargo.toml:63 (`jsonschema = \"0.30\"`) does not disable default features, so the cost is paid by default for every consumer."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "unused_workspace_features",
+      "summary": "Workspace feature lists enable tokio signal/fs, tracing-subscriber json and redis's default feature set that no code uses",
+      "confidence": "medium",
+      "suggestion": "Trim the workspace feature lists to what the code actually calls: drop `signal` and `fs` from tokio, drop `json` from tracing-subscriber (keep env-filter), set `redis = { version = \"0.27\", default-features = false, features = [\"tokio-comp\"] }`, and reduce schemars to `features = [\"chrono\"]`. Each change is one line in Cargo.toml and cannot break callers, because the removed APIs are unreferenced.",
+      "related_files": [
+        "Cargo.toml",
+        "crates/enrichment-lib/src/lib.rs"
+      ],
+      "evidence": [
+        "Cargo.toml:33 enables tokio features [\"rt-multi-thread\", \"macros\", \"net\", \"time\", \"sync\", \"signal\", \"process\", \"io-util\", \"fs\"]; `tokio::signal` and `tokio::fs` have 0 occurrences workspace-wide (all file IO is std::fs), while `process` is used once in crates/tool-server/src/executors/openshell.rs:37.",
+        "Cargo.toml:50 enables tracing-subscriber [\"env-filter\", \"json\"], but all 11 binaries initialize with plain `tracing_subscriber::fmt().with_env_filter(..).init()` (e.g. crates/api-server/src/main.rs:351-353) and nothing calls `.json()`, so the json feature (tracing-serde) is dead.",
+        "Cargo.toml:41 pins `redis = { version = \"0.27\", features = [\"tokio-comp\"] }` without default-features = false; redis defaults are acl, streams, geospatial, script, keep-alive, yet enrichment-lib only calls `set_ex` and `get` for the IOC cache (crates/enrichment-lib/src/lib.rs:244,381).",
+        "Cargo.toml:43 enables schemars features [\"chrono\", \"uuid1\"] although no code emits a schema and UUID v1 is never used (uuid v4/v5 only)."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "console_lockfile_ignored_by_ci",
+      "summary": "Console commits an npm package-lock.json while CI installs with pnpm and --frozen-lockfile=false",
+      "confidence": "high",
+      "suggestion": "Pick one package manager, commit its lockfile and enforce it: add `\"packageManager\": \"pnpm@<version>\"` to apps/console/package.json, generate and commit pnpm-lock.yaml, delete package-lock.json, and change the CI step to `pnpm -C apps/console install --frozen-lockfile`.",
+      "related_files": [
+        "apps/console/package.json",
+        "apps/console/package-lock.json",
+        ".github/workflows/ci.yml"
+      ],
+      "evidence": [
+        "apps/console/package-lock.json (234 KB, npm) is tracked in git; there is no pnpm-lock.yaml in the repo.",
+        ".github/workflows/ci.yml console job runs `pnpm -C apps/console install --frozen-lockfile=false`, so pnpm neither reads the npm lockfile nor is constrained by any lockfile \u2014 dependency versions can drift between CI runs and between developers.",
+        "The same job also uses `corepack enable` without a pinned `packageManager` field in apps/console/package.json, so the pnpm major version itself is whatever corepack resolves."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "console_duplicate_icon_libraries",
+      "summary": "Console ships two icon libraries; lucide-react is used in exactly one file",
+      "confidence": "medium",
+      "suggestion": "Replace the four lucide-react icons in app/(console)/playbooks/page.tsx with their @hugeicons equivalents and remove lucide-react from package.json, leaving one icon system for the whole console.",
+      "related_files": [
+        "apps/console/package.json",
+        "apps/console/app/(console)/playbooks/page.tsx"
+      ],
+      "evidence": [
+        "apps/console/package.json depends on @hugeicons/react, @hugeicons/core-free-icons and lucide-react.",
+        "@hugeicons is the established convention: it is imported in ~20 components under components/blocks/ and app/(console)/page.tsx, app/(console)/alerts/[id]/page.tsx.",
+        "lucide-react appears only at apps/console/app/(console)/playbooks/page.tsx:20 (`import { Zap, Wrench, GitFork, Flag } from \"lucide-react\"`), so an entire icon package (plus its transitive icon data) ships for four glyphs in one screen."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "compose_latest_tags",
+      "summary": "Eight infra services run on mutable :latest image tags, so compose stacks are not reproducible",
+      "confidence": "medium",
+      "suggestion": "Pin the eight remaining services to concrete tags or digests (e.g. `thehiveproject/thehive:4.1.24`, `ghcr.io/nvidia/openshell/gateway@sha256:...`) the same way opensearch and wazuh already are, and resolve the 'verify tag' comments at the same time.",
+      "related_files": [
+        "infra/docker-compose.yml"
+      ],
+      "evidence": [
+        "infra/docker-compose.yml pins several images by version (opensearch:2.17.1, wazuh/wazuh-manager:4.9.2, cortex:3.2.1-1, nats:2.11-alpine, redis:7-alpine) but leaves thehiveproject/thehive:latest (line 168), ghcr.io/misp/misp-docker/misp-core:latest (201), misp-modules:latest (257), shuffle-backend/frontend/orborus:latest (265/282/290) and ghcr.io/nvidia/openshell/gateway:latest (478, 491).",
+        "The shuffle and openshell lines carry inline comments ('verify tag on first pull', 'verify tag'), which acknowledges the tags are unverified.",
+        "Because the CI docker job only runs `docker compose config -q`, an upstream :latest push changes the deployed stack without any diff in this repository."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "api_gateway_handbuilt_limiter",
+      "summary": "api-gateway still hand-builds the rate limiter that http_limits::build_limiter now provides",
+      "confidence": "high",
+      "suggestion": "Replace lines 174-177 with `let rl = http_limits::build_limiter(classify);` and drop the now-unused `RateLimits`/`RateLimiter`/`PathBuf` imports.",
+      "related_files": [
+        "crates/api-gateway/src/main.rs",
+        "crates/http-limits/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/api-gateway/src/main.rs:174-177: `let policies_dir = std::env::var(\"POLICIES_DIR\")...; let limits = RateLimits::load(&PathBuf::from(&policies_dir).join(\"rate-limits.yml\")); let rl = Arc::new(RateLimiter::new(limits, classify)); rl.spawn_idle_purge();`",
+        "crates/http-limits/src/lib.rs:462-467 adds `pub fn build_limiter(classify)` doing exactly those four steps, and the same commit (9c765f8) deleted the identical block from crates/api-server/src/ratelimit.rs:13 and crates/ingestion-gateway/src/ratelimit.rs:14."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "dedupe_hex_passthrough_module",
+      "summary": "orchestrator dedupe keeps a pass-through `mod hex` shim whose comment is no longer true",
+      "confidence": "high",
+      "suggestion": "Delete `mod hex` and hash the four fields into one buffer, then call `agent_protocol::hex::sha256_hex(&buf)` at line 73 - one line, one helper, no shim.",
+      "related_files": [
+        "crates/orchestrator/src/dedupe.rs"
+      ],
+      "evidence": [
+        "crates/orchestrator/src/dedupe.rs:81-86: `/// Minimal hex encoder to avoid an extra dependency.` followed by `mod hex { pub fn encode(bytes: impl AsRef<[u8]>) -> String { agent_protocol::hex::hex_lower(bytes.as_ref()) } }` - the module no longer encodes anything, it forwards.",
+        "The single call site is crates/orchestrator/src/dedupe.rs:73 `hex::encode(hasher.finalize())`, inside a function that already imports `sha2::{Digest, Sha256}`.",
+        "The nested module is declared mid-file between `day_bucket` and `mod tests`, so a reader meets a module definition where a function was expected."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "orphan_doc_comments_enrichment",
+      "summary": "Two doc comments in enrichment-lib now document the wrong items after their functions were removed",
+      "confidence": "high",
+      "suggestion": "Delete both doc lines (the functions they described are gone); keep `env` undocumented or give it a one-line doc of its own.",
+      "related_files": [
+        "crates/enrichment-lib/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/enrichment-lib/src/lib.rs:170 `/// Base64-url (unpadded) encoding for VirusTotal URL ids.` is followed by a blank line and `fn env(key: &str) -> Option<String>` (line 172), so it reads as `env`'s documentation.",
+        "crates/enrichment-lib/src/lib.rs:448 `/// Convenience wrapper: enrich one indicator through a shared Enricher.` sits directly above `#[cfg(test)] mod tests` (line 449); no such wrapper exists in the file."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "audit_canonical_string_duplicated",
+      "summary": "Audit chain canonical string is built twice and must stay byte-identical",
+      "confidence": "high",
+      "suggestion": "Extract one `fn canonical(prev_hash: &str, actor: &str, tool: &str, args_sha256: &str, decision: &str, reason: &str, correlation_id: Uuid, ts: DateTime<Utc>) -> String` and call it from both `append` and `verify_chain`.",
+      "related_files": [
+        "crates/audit/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/audit/src/lib.rs:104-108 builds `format!(\"{prev_hash}|{actor}|{tool}|{args_sha256}|{decision_label}|{reason}|{correlation_id}|{ts}\")` for the write path.",
+        "crates/audit/src/lib.rs:161-170 rebuilds the same eight fields positionally in `verify_chain`; a field added or reordered in one place silently invalidates every stored hash, and the only detector is the `/audit/verify` endpoint.",
+        "The two versions already differ cosmetically (named vs positional args, `decision_label` vs `row.decision`), which is exactly how the next drift starts."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "run_stream_duplicate_activity_filter",
+      "summary": "The activity-filter predicate is written twice in run_stream.rs",
+      "confidence": "medium",
+      "suggestion": "Extract `fn terminal_activity(text: &str, corr: &str, agent: &str) -> Option<Value>` returning the parsed event when it matches and is terminal, and call it from both loops.",
+      "related_files": [
+        "crates/api-server/src/run_stream.rs"
+      ],
+      "evidence": [
+        "crates/api-server/src/run_stream.rs:60-72 (inside `wait_for_terminal`) parses the payload, compares `workflow_run_id`, extracts `step`, and tests `terminal_step(agent, step)`.",
+        "crates/api-server/src/run_stream.rs:155-166 (inside the `activity_stream` unfold) repeats the same five steps against `st.corr`/`st.agent`, with the only difference being that one `continue`s and the other returns an event.",
+        "The two copies must agree on the correlation field name and the terminal-step rule; today they do, by inspection only."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "policy_duplicate_decision_log",
+      "summary": "evaluate and evaluate_approved duplicate the same 8-line decision log block",
+      "confidence": "medium",
+      "suggestion": "Add one private `fn evaluate_logged(&self, call, ctx, approved, label: &str) -> Decision` that calls `evaluate_inner` and emits the log, have both public methods delegate to it, and inline `ctx.kill_switch` at the single call site in `evaluate_inner` instead of the pass-through method.",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/policy-engine/src/lib.rs:324-339 (`evaluate`) and 341-356 (`evaluate_approved`) each run `evaluate_inner` and then repeat the identical `info!(tool, actor, correlation_id, decision = ?decision.kind, reason, \"policy decision\")` call.",
+        "The only difference is the trailing message string (\"policy decision\" vs \"policy decision (approved call)\"), so the two public methods differ by one literal.",
+        "crates/policy-engine/src/lib.rs:451-454 compounds this with `fn kill_switch_engaged(&self, ctx: &EvalCtx) -> bool { ctx.kill_switch }` - a pass-through that ignores `&self` and reads like the live `agent_protocol::kill::kill_switch_engaged` check it is not."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "wazuh_token_lock_across_io",
+      "summary": "WazuhClient::token holds the token mutex across the authenticate HTTP round-trip",
+      "confidence": "medium",
+      "suggestion": "Fetch the token outside the lock (authenticate is idempotent) and only take the mutex to store it: check `self.token.lock().await.clone()`, drop the guard, do the request, then `if guard.is_none() { *guard = Some(token) }`. In `NvdClient::get`, scope the throttle guard to the spacing decision so it is dropped before the send and the backoff sleep.",
+      "related_files": [
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "crates/connectors/src/lib.rs:621-641: `let mut guard = self.token.lock().await;` then `send_with_retry(req).await` (which retries with full-jitter sleeps under a 15s `CALL_BUDGET`, lines 88-140) and `json_ok(resp).await` all execute while `guard` is alive; it is only written at line 637.",
+        "Every concurrent `authed()` caller (list_agents line 648, active_response line 660) blocks on that mutex for the duration of the network call, so one slow authenticate stalls the whole client instead of just the callers that need a token.",
+        "crates/connectors/src/lib.rs:966 has the same shape in `NvdClient::get`, where `let _guard = self.throttle().await` stays alive through the retry `sleep` at line 1000 and the response decode."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "inline_activity_emission_agents",
+      "summary": "Activity emission is inlined 20 times across three agents while sibling helpers are extracted",
+      "confidence": "medium",
+      "suggestion": "Add one per-agent helper `async fn activity(deps: &Deps, run_id: Uuid, step: &str, detail: impl Into<String>)` that fixes the agent name and discards the publish result, and replace the 20 call sites with one line each.",
+      "related_files": [
+        "crates/triage-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "crates/triage-agent/src/main.rs:395,405,422,445,459,471,481,488 each spell `publish_activity(&deps.nats, &ActivityEvent::new(run_id, \"triage\", <step>, <detail>)).await;`, 3-6 lines per step.",
+        "crates/hunt-agent/src/main.rs:138,147,168,179 and crates/response-agent/src/main.rs:193,202,217,225,267,320,326,345 repeat the same shape with \"hunt\"/\"response\".",
+        "The same files do extract helpers for the other repeated shapes (`tool_call` triage:265, `typed_iocs` triage:139, `open_case` triage:277, `save_final_checkpoint` response:365), so the extraction level is inconsistent within a single file.",
+        "In `run_sweep` (hunt-agent:134-192) the four activity calls are longer than the query/score logic they surround, which buries the control flow the function exists to express."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "tool_result_failure_literals",
+      "summary": "Seven sites hand-spell the failure ToolResult while its sibling constructor exists",
+      "confidence": "medium",
+      "suggestion": "Add `ToolResult::failed(call_id: Uuid, error: impl Into<String>) -> Self` next to `retryable` in agent-protocol/src/tool.rs:93 and use it at the seven sites; each call collapses from six fields to one line.",
+      "related_files": [
+        "crates/tool-server/src/main.rs",
+        "crates/tool-server/src/approvals.rs",
+        "crates/agent-protocol/src/tool.rs"
+      ],
+      "evidence": [
+        "crates/agent-protocol/src/tool.rs:93 provides `ToolResult::retryable(call_id, error)` for the retryable failure shape, but there is no constructor for the ordinary failure shape.",
+        "crates/tool-server/src/main.rs:99-113 (deny), 158-166 (no executor), 178-190 (executor error), 203-212 (mismatch) and approvals.rs:232-244 (denied after approval) each write out `ToolResult { call_id, ok: false, output: Value::Null, error: Some(..), dry_run: false }` by hand.",
+        "crates/agent-core/src/gateway.rs:88-100 does the same for the non-2xx upstream case, so the six-field literal is a cross-crate copy pattern."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "orchestrator_unreachable_delivery_guard",
+      "summary": "MAX_DELIVERIES guard can never fire; the redelivery DLQ path is dead code",
+      "confidence": "high",
+      "suggestion": "Delete the guard, `delivery_count` and `MAX_DELIVERIES` (and the doc line), or replace the core subscribe with a JetStream consumer and read the delivery count from `message.info()`; do not keep a dead branch that implies poison-message protection.",
+      "related_files": [
+        "crates/orchestrator/src/main.rs"
+      ],
+      "evidence": [
+        "main.rs:152-159 reads `Nats-Delivery-Count` from message headers; no NATS producer or JetStream consumer metadata sets that header, and `delivery_count` returns 1 when it is absent.",
+        "main.rs:182 subscribes with `client.subscribe(...)` (core NATS), which carries no delivery metadata, so `handle_message`'s `deliveries > MAX_DELIVERIES` check at line 71 is always false.",
+        "The module doc at line 15 states 'Messages redelivered more than MAX_DELIVERIES times are dropped to ares.dlq', and lines 31-32 define the constant \u2014 both describe behaviour that cannot occur."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "gateway_layer_order_comment_inverted",
+      "summary": "Gateway comment says rate limiting is outermost; the layer chain puts auth outermost",
+      "confidence": "high",
+      "suggestion": "Swap the two `.layer` calls so the rate limiter is applied last (outermost), or fix the comment to state that auth runs first; pick one and make the comment match the code.",
+      "related_files": [
+        "crates/api-gateway/src/main.rs",
+        "crates/api-server/src/main.rs"
+      ],
+      "evidence": [
+        "main.rs:159-160 applies `.layer(middleware::from_fn_with_state(rl, ...))` then `.layer(middleware::from_fn_with_state(auth, ...))`; in axum the last layer is outermost, so `auth::middleware` runs before `http_limits::middleware`.",
+        "The comment at lines 157-158 asserts the opposite: 'Rate limiting outermost so unauthenticated floods are still metered; authentication then gates everything except the exempt paths.'",
+        "crates/api-server/src/main.rs:383-388 relies on the correct rule ('CORS stays outermost') when it puts `CorsLayer` last, so the two files disagree about ordering semantics.",
+        "Consequence: unauthenticated requests are rejected with 401 before the limiter sees them, so unauthenticated floods are not metered and only authenticated traffic consumes buckets."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "audit_chain_timestamp_precision_mismatch",
+      "summary": "Audit hash uses nanosecond timestamp, verification re-hashes the microsecond DB value",
+      "confidence": "high",
+      "suggestion": "Truncate the timestamp before hashing and storing, e.g. `let ts = Utc::now().trunc_subsecs(6)` (or hash `ts.timestamp_micros()`), so the canonical string is identical on insert and verify.",
+      "related_files": [
+        "crates/audit/src/lib.rs"
+      ],
+      "evidence": [
+        "lib.rs:103-109 builds the canonical string with `ts = ts.to_rfc3339()` where `ts = Utc::now()` (nanosecond precision), then hashes it.",
+        "The same `ts` is bound into a `timestamptz` column (lines 111-128); PostgreSQL/sqlx store microseconds, so the value read back differs from the hashed one whenever the sub-microsecond digits are non-zero.",
+        "verify_chain (lines 161-180) recomputes the canonical string from the stored `row.ts.to_rfc3339()`, so it reports `broken_at` with 'hash does not match row contents' for essentially every intact row."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "nvd_404_detected_by_string_match",
+      "summary": "NVD 404 is detected by substring-matching a formatted error message",
+      "confidence": "high",
+      "suggestion": "Have `NvdClient::get` return a typed failure (e.g. `Err(NvdError::Status(u16))` or `Ok(None)` for 404) so `get_cve` matches on the variant instead of the message string.",
+      "related_files": [
+        "crates/connectors/src/lib.rs"
+      ],
+      "evidence": [
+        "lib.rs:983 returns `anyhow::bail!(\"NVD HTTP {status}\")` for every non-retryable status, discarding the structured status code.",
+        "lib.rs:1008 branches on `Err(e) if e.to_string().contains(\"404\")` to decide that the CVE is a miss rather than an outage.",
+        "Any error whose text happens to contain '404' (a URL, a body echo, a wrapped context line) is treated as 'CVE not found' and negative-cached by callers."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "gateway_fabricates_deny_for_http_failures",
+      "summary": "Non-2xx /invoke responses become a synthetic 'deny' policy verdict",
+      "confidence": "high",
+      "suggestion": "Return `Err(AgentError::Http(...))` (or a dedicated `AgentError::Upstream(status)`) for non-2xx responses and let retry/abort logic handle it; reserve `DecisionKind::Deny` for verdicts the policy engine actually produced.",
+      "related_files": [
+        "crates/agent-core/src/gateway.rs",
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "gateway.rs:85-106 builds `Decision { kind: DecisionKind::Deny, reason: \"gateway returned {status}: {body}\" }` for any non-success HTTP status, so a 502/503/504 is reported as a policy denial.",
+        "response-agent/src/main.rs:277-300 persists `decision.kind` in `response_actions.result`, so an outage is recorded as 'denied by policy' and the activity step at line 322 reads 'denied by policy; recorded'.",
+        "`invoke_allowed` (gateway.rs:121-135) returns `AgentError::Denied` for these, so callers cannot distinguish 'the tool server refused' from 'the tool server was unreachable'."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "bas_execute_dry_param_always_false",
+      "summary": "bas-runner passes dry=false to execute(); its dry-run branch is unreachable",
+      "confidence": "medium",
+      "suggestion": "Drop the `dry` parameter from `execute` and keep the single dry-run gate in `run_scenario` (the arm then collapses to `match std::env::var(env_var) { Ok(t) => t, Err(_) => { log; return Ok(()) } }`).",
+      "related_files": [
+        "crates/bas-runner/src/main.rs"
+      ],
+      "evidence": [
+        "main.rs:197-203 returns early from `run_scenario` when `deps.dry`, so the later `execute(scenario, deps.dry)` at line 204 is only reached with `dry == false`.",
+        "Inside `execute` (lines 86-100) the `match (target, dry)` arm that logs 'dry run (no {env_var} or --dry)' and returns Ok(()) can therefore never run.",
+        "The `dry` field on `Deps` (line 82) exists only to be re-passed to a function that can no longer use it."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "response_agent_redundant_option_decision",
+      "summary": "`denied` is unwrapped from an Option that is always Some",
+      "confidence": "medium",
+      "suggestion": "Make the tuple `(v.decision, v.result)` and use `decision.kind == DecisionKind::Deny` / `decision.kind` / `decision.reason` directly.",
+      "related_files": [
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "main.rs:241-242 builds the tuple `(Some(v.decision), v.result)` in the only success arm; the error arm returns early at line 274.",
+        "main.rs:277-280 then computes `decision.as_ref().map(|d| d.kind == DecisionKind::Deny).unwrap_or(false)` \u2014 an unwrap_or on a value that cannot be None.",
+        "main.rs:293-294 also stores `decision.as_ref().map(|d| d.kind)` and `decision.as_ref().map(|d| d.reason.clone())`, adding an Option layer to the persisted record for no reason."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "response_agent_killswitch_reports_success",
+      "summary": "Kill-switch halt breaks the loop and then reports 'done' with a Final checkpoint",
+      "confidence": "medium",
+      "suggestion": "On the kill-switch halt, save an `aborted` checkpoint and skip the `done` activity (or emit a distinct `halted` terminal step), matching the invoke-failure path.",
+      "related_files": [
+        "crates/response-agent/src/main.rs",
+        "crates/api-server/src/a2a.rs"
+      ],
+      "evidence": [
+        "main.rs:215-223 publishes the `kill_switch` activity and `break`s, so execution continues to the summary block.",
+        "main.rs:345-356 then publishes `done` ('{n} actions executed') and `save_final_checkpoint`, which writes `Step::Final`.",
+        "The invoke-failure path (lines 243-275) instead writes `aborted: ... invoke failed` and returns, so the two halt paths disagree about whether the run completed.",
+        "api-server/src/a2a.rs:291-307 treats a checkpoint whose last step is `Final` as `Completed`, so the halted run can be folded back to completed."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "policy_blast_radius_counts_denials",
+      "summary": "Blast-radius counter increments before the cap check, so denied calls consume the quota",
+      "confidence": "medium",
+      "suggestion": "Read the current count, decide, and only increment on the allow path (or increment-and-compare but roll back the increment on every deny branch).",
+      "related_files": [
+        "crates/policy-engine/src/lib.rs"
+      ],
+      "evidence": [
+        "lib.rs:412-416 increments `ctx.counters` and returns the new count before any check runs.",
+        "lib.rs:417-427 compares `count > max` afterwards, so the call that is rejected has already been counted.",
+        "lib.rs:428-442 returns early on cooldown before the cooldown timestamp is written, but the hourly counter increment from line 414 is not rolled back, so repeated denied attempts can exhaust the hourly budget for legitimate calls."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "vulns_error_mapped_to_404",
+      "summary": "`GET /vulns/{id}` answers 404 for NVD outages because errors collapse into None",
+      "confidence": "medium",
+      "suggestion": "Return a three-state result from `enrich_cve` (e.g. `Result<Option<CveRecord>, NvdUnavailable>`) and map the error arm to 502/503 in `get_vuln` instead of 404.",
+      "related_files": [
+        "crates/api-server/src/vulns.rs",
+        "crates/enrichment-lib/src/lib.rs"
+      ],
+      "evidence": [
+        "enrichment-lib/src/lib.rs:388-400 returns `None` for 'NVD has no record' (Ok(None)) and also for 'NVD lookup failed' (Err), after only a warn log.",
+        "vulns.rs:85-91 turns every None into `404 'no NVD record (unknown, reserved, or rejected)'`, so a rate-limited or unreachable NVD is reported as a nonexistent CVE.",
+        "The connector's own doc (connectors/src/lib.rs:997-999) is careful to distinguish a miss from an outage, but that distinction is dropped one layer up."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    }
+  ],
+  "review_quality": {
+    "batch_count": 4,
+    "dimension_coverage": 0.05,
+    "evidence_density": 1.686,
+    "high_score_missing_issue_note": 0
+  },
+  "context_updates": {
+    "abstraction_fitness": {
+      "add": [
+        {
+          "header": "agent-protocol is the single contract crate",
+          "description": "Envelope, ToolCall/Decision/ToolResult, Severity, hex, kill, activity, paths and the SUBJECT_* constants are defined once and imported by 15+ files across agents, orchestrator, tool-server, audit and api-server, so wire shapes cannot drift per service.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One NatsSink with an explicit publish policy",
+          "description": "agent-core::NatsSink (JetStream-first, plain fallback, stream creation) replaced three earlier copies and is used by ingestion-gateway, orchestrator and api-server; the remaining raw-client sites are tracked as a defect rather than a second design.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "RunRecord shares A2A/ACP streaming machinery",
+          "description": "run_stream owns replay, live activity, terminal detection and write-back; Task and Run implement a five-method trait so each protocol module keeps only its wire shape. Two implementations justify the trait.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Tool trait with a parametrized dry-run fallback",
+          "description": "One Tool trait serves ~25 executors, and the 12 allowlist entries without a backend share a single DryRun struct parametrized by name instead of a class per tool; missing_executors turns policy/registry drift into a startup failure.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "ToolGateway concentrates tool-server volatility",
+          "description": "Retry policy (full-jitter, retryable marker, deny-is-terminal) and the allow/deny contract live in HttpToolGateway, so agents carry no HTTP resilience code of their own.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "http-limits owns edge auth and rate-limit policy",
+          "description": "API-key auth and token-bucket tiering are implemented once and layered onto both api-server and ingestion-gateway, keeping each service's module limited to its tier mapping.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Activity contract is emit-only",
+          "description": "ActivityEvent has no Deserialize, so the API server filters activity with string-keyed serde_json::Value; the shared type documents the shape but cannot enforce it at the consumer.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Gateway auth diverges from http-limits auth",
+          "description": "api-gateway keeps its own fail-closed API-key middleware (GATEWAY_API_KEYS, 503 when unset) while api-server/ingestion use the fail-open http-limits one; the differing posture looks deliberate, but the header parsing is now implemented twice.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    },
+    "dependency_health": {
+      "add": [
+        {
+          "header": "Single workspace dependency table",
+          "description": "Every third-party version is declared once in [workspace.dependencies] and consumed with `workspace = true`, so a version bump is one edit and crates cannot drift apart; the only literal version left is a dev-dependency (tower 0.5 in http-limits).",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Lockfile enforced in CI",
+          "description": "Cargo.lock is committed and every CI cargo invocation uses --locked, with a rustsec/audit-check job alongside, so resolution cannot change silently between a local build and CI.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Rustls-only TLS stack",
+          "description": "reqwest is pinned with default-features = false + rustls-tls, sqlx uses runtime-tokio-rustls and async-nats uses rustls, so no native-tls/openssl-sys is compiled; the remaining root-cert duplication (webpki-roots 0.26 and 1.0, rustls-native-certs) is upstream-driven and stays inside rustls.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One library per concern",
+          "description": "serde_yaml_ng fully replaced serde_yaml (no serde_yaml package in Cargo.lock), and JSON, HTTP client, HTTP server and tracing each have exactly one crate, so there are no moment/dayjs-style parallel stacks on the direct-dependency level.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Acyclic internal crate graph",
+          "description": "agent-protocol, connectors and llm-client are leaves and the 22 members form a DAG with api-server/tool-server as the only wide consumers, so dependency cycles cannot appear through the path dependencies.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Manifests lag behind refactors",
+          "description": "15 dependency declarations in 9 crates have zero references because moving code into agent-protocol::hex, NatsSink and connectors removed the last callers; unused_crate_dependencies is allow-by-default so CI never notices.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Upstream default features left enabled",
+          "description": "Workspace pins control versions but not features: jsonschema keeps its HTTP resolver (reqwest blocking + fancy-regex), redis keeps acl/streams/geospatial/script, and tracing-subscriber keeps json, so several crates compile capability nothing calls.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Console toolchain diverges from repo",
+          "description": "apps/console tracks an npm package-lock.json while CI installs with pnpm --frozen-lockfile=false and no pnpm-lock.yaml, so the frontend has no enforced resolution even though the Rust side does.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    },
+    "low_level_elegance": {
+      "add": [
+        {
+          "header": "Guard-clause handler bodies",
+          "description": "Handlers validate and return early (`let Some(x) = .. else { return .. }`) instead of nesting the happy path, so the success path stays at one indentation level across acp.rs, vulns.rs, executors/mod.rs and tool-server main.rs. This is why individual functions read faster than their file sizes suggest.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Pure transition function for idempotency",
+          "description": "tool-server idempotency puts the four-state claim logic in one pure `next(state, fingerprint) -> Claim` and has both the Postgres and in-memory backends delegate to it, so the two storage paths cannot drift in semantics.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One small executor struct per tool",
+          "description": "Every allowlisted tool is a dedicated struct implementing a 2-method `Tool` trait, with shared `arg_str`/`dry_run`/`env` helpers, which keeps each `execute` body at roughly one screen and makes the registry a flat, greppable list.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Shared helper introduced without retiring the old site",
+          "description": "When a helper lands (build_limiter, sha256_hex, hex_lower, dir_from_env), one or two call sites keep their private copy or pass-through wrapper. The residue is small but repeated, and each leftover keeps a second source of truth alive.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Doc comments outliving their functions",
+          "description": "Migrations that delete or convert a function leave its `///` block attached to whatever follows, so enrichment-lib documents `env` as a base64-url encoder and audit/response-agent carry a doc line on a `use` statement.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    },
+    "logic_clarity": {
+      "add": [
+        {
+          "header": "Numbered, order-bearing policy checks",
+          "description": "PolicyEngine::evaluate_inner labels each gate (1) kill switch through (9) allow and states that the order is load-bearing, so a reviewer can audit the sequence without reconstructing it. Keep the numbering when adding checks.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "One pure transition for idempotency claims",
+          "description": "tool-server/src/idempotency.rs keeps the Absent/InFlight/Complete/Failed decision in a single pure `next()` used by both the Postgres and in-memory backends, so the two stores cannot drift.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Explicit subscription list prevents self-feeding",
+          "description": "The orchestrator subscribes to six named envelope subjects instead of a wildcard, and re-checks `msg.subject == destination` before republishing, which makes the routing loop impossible by construction.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Degradation branches carry their reason",
+          "description": "Branches that accept degraded behaviour (route anyway when dedupe fails, skip metrics on a dry run, negative-cache a CVE miss) each carry a one-line why, which is what makes the deliberate cases distinguishable from the accidental ones.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Infrastructure failures restated as domain verdicts",
+          "description": "Several layers convert transport/HTTP failures into domain outcomes (synthetic Deny decisions, 404 for an NVD outage, Option instead of Result at the connector boundary), so callers cannot tell an outage from a decision; prefer surfacing the error and mapping it at the edge.",
+          "settled": false,
+          "positive": false
+        },
+        {
+          "header": "Kill switch re-read at every write hop",
+          "description": "Each agent re-checks kill_switch_engaged() immediately before its side effects rather than trusting an earlier hop, which keeps the switch effective mid-run; the repetition is intentional, not redundancy to remove.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  },
+  "review_scope": {
+    "reviewed_files_count": 0,
+    "successful_batch_count": 4,
+    "full_sweep_included": false,
+    "total_files": 74,
+    "imported_dimensions": [
+      "abstraction_fitness",
+      "dependency_health",
+      "logic_clarity",
+      "low_level_elegance"
+    ]
+  },
+  "provenance": {
+    "kind": "blind_review_batch_import",
+    "blind": true,
+    "runner": "dry-run",
+    "run_stamp": "20261026_101501",
+    "created_at": "2026-10-26T10:22:46+00:00",
+    "batch_count": 4,
+    "batch_indexes": [
+      6,
+      7,
+      8,
+      19
+    ],
+    "packet_path": "/Users/macbook/Mesta-Ares/.desloppify/review_packet_blind.json",
+    "packet_sha256": "f8f95504f47bcd177c42ff6290377f9974463c24e3985a0c9047ce829c749125"
+  },
+  "assessment_coverage": {
+    "scored_dimensions": [
+      "naming_quality",
+      "logic_clarity",
+      "type_safety",
+      "contract_coherence",
+      "error_consistency",
+      "abstraction_fitness",
+      "ai_generated_debt",
+      "high_level_elegance",
+      "mid_level_elegance",
+      "low_level_elegance",
+      "cross_module_architecture",
+      "initialization_coupling",
+      "convention_outlier",
+      "dependency_health",
+      "test_strategy",
+      "api_surface_coherence",
+      "authorization_consistency",
+      "incomplete_migration",
+      "package_organization",
+      "design_coherence"
+    ],
+    "selected_dimensions": [
+      "naming_quality",
+      "logic_clarity",
+      "type_safety",
+      "contract_coherence",
+      "error_consistency",
+      "abstraction_fitness",
+      "ai_generated_debt",
+      "high_level_elegance",
+      "mid_level_elegance",
+      "low_level_elegance",
+      "cross_module_architecture",
+      "initialization_coupling",
+      "convention_outlier",
+      "dependency_health",
+      "test_strategy",
+      "api_surface_coherence",
+      "authorization_consistency",
+      "incomplete_migration",
+      "package_organization",
+      "design_coherence"
+    ],
+    "imported_dimensions": [
+      "abstraction_fitness",
+      "dependency_health",
+      "logic_clarity",
+      "low_level_elegance"
+    ],
+    "missing_dimensions": [
+      "naming_quality",
+      "type_safety",
+      "contract_coherence",
+      "error_consistency",
+      "ai_generated_debt",
+      "high_level_elegance",
+      "mid_level_elegance",
+      "cross_module_architecture",
+      "initialization_coupling",
+      "convention_outlier",
+      "test_strategy",
+      "api_surface_coherence",
+      "authorization_consistency",
+      "incomplete_migration",
+      "package_organization",
+      "design_coherence"
+    ]
+  }
+}

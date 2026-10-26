@@ -182,3 +182,28 @@ pub(crate) fn activity_stream<R: RunRecord>(
             .text("ping"),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn activity(run: uuid::Uuid, agent: &str, step: &str) -> String {
+        serde_json::to_string(&ActivityEvent::new(run, agent, step, "test")).unwrap()
+    }
+
+    #[tokio::test]
+    async fn wait_for_terminal_ignores_other_runs_and_steps() {
+        let run = uuid::Uuid::new_v4();
+        let (tx, rx) = broadcast::channel(8);
+        tx.send(activity(uuid::Uuid::new_v4(), "response", "done"))
+            .unwrap();
+        tx.send(activity(run, "response", "action_0")).unwrap();
+        let waiter = tokio::spawn(async move {
+            wait_for_terminal(rx, &run.to_string(), "response", Duration::from_millis(50)).await
+        });
+        tokio::time::sleep(Duration::from_millis(10)).await;
+        tx.send(activity(run, "response", "done")).unwrap();
+        // Returns as soon as the matching terminal step arrives.
+        waiter.await.unwrap();
+    }
+}

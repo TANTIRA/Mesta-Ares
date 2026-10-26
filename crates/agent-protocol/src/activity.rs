@@ -59,3 +59,36 @@ impl ActivityEvent {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn terminal_steps_close_only_for_known_agents() {
+        assert!(terminal_step("triage", "close"));
+        assert!(terminal_step("response", "done"));
+        assert!(terminal_step("detection", "rejected"));
+        assert!(terminal_step("hunt", "done"));
+        assert!(!terminal_step("hunt", "run"));
+        assert!(!terminal_step("unknown-agent", "done"));
+    }
+
+    #[test]
+    fn aborted_steps_are_halts() {
+        assert!(aborted_step("kill_switch"));
+        assert!(aborted_step("rejected"));
+        assert!(!aborted_step("done"));
+        assert!(!aborted_step("close"));
+    }
+
+    #[test]
+    fn event_round_trips_through_json() {
+        let event = ActivityEvent::new(Uuid::nil(), "triage", "close", "fp recorded");
+        let text = serde_json::to_string(&event).expect("serialize");
+        let back: ActivityEvent = serde_json::from_str(&text).expect("deserialize");
+        assert_eq!(back.agent, "triage");
+        assert_eq!(back.step, "close");
+        assert_eq!(back.workflow_run_id, Uuid::nil());
+    }
+}

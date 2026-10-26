@@ -546,3 +546,36 @@ pub async fn task_events(
 
 // Task rows and SSE filtering use `serde_json::Value` traversal; typed
 // request deserialization lives in the `a2a` crate.
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn task_uuid_is_stable_for_non_uuid_ids() {
+        let a = task_uuid("not-a-uuid");
+        let b = task_uuid("not-a-uuid");
+        assert_eq!(a, b);
+        assert_ne!(a, task_uuid("other"));
+        let real = Uuid::new_v4();
+        assert_eq!(task_uuid(&real.to_string()), real);
+    }
+
+    #[test]
+    fn response_tasks_receive_a_handoff_goal() {
+        let def = find_agent("response-agent").expect("agent");
+        let msg = Message::user_text("contain the host");
+        let payload = build_payload(def, "task-1", &msg, &None);
+        assert_eq!(payload["goal"], "contain the host");
+        assert!(payload["constraints"].is_array());
+    }
+
+    #[test]
+    fn other_agents_receive_the_raw_message() {
+        let def = find_agent("triage-agent").expect("agent");
+        let msg = Message::user_text("alert");
+        let payload = build_payload(def, "task-1", &msg, &None);
+        assert_eq!(payload["a2a_task_id"], "task-1");
+        assert!(payload["message"].is_object());
+    }
+}

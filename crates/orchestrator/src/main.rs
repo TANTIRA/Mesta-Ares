@@ -187,3 +187,41 @@ async fn main() -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    fn envelope(kind: EnvelopeKind, payload: serde_json::Value) -> Envelope {
+        Envelope::new("test", kind, payload)
+    }
+
+    #[test]
+    fn kinds_route_to_their_agents() {
+        assert_eq!(
+            route_subject(&envelope(EnvelopeKind::Alert, json!({}))),
+            Some(SUBJECT_TRIAGE)
+        );
+        assert_eq!(
+            route_subject(&envelope(EnvelopeKind::HuntFinding, json!({}))),
+            Some(SUBJECT_HUNT)
+        );
+        assert_eq!(
+            route_subject(&envelope(EnvelopeKind::Command, json!({}))),
+            Some(SUBJECT_RESPOND)
+        );
+    }
+
+    #[test]
+    fn bas_results_route_only_for_coverage_gaps() {
+        assert_eq!(
+            route_subject(&envelope(EnvelopeKind::BasResult, json!({"detected": false}))),
+            Some(SUBJECT_DETECTION)
+        );
+        assert_eq!(
+            route_subject(&envelope(EnvelopeKind::BasResult, json!({"detected": true}))),
+            None
+        );
+    }
+}

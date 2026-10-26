@@ -18222,10 +18222,7 @@
         "Delegation Density": 85.0,
         "Definition Directness": 79.0,
         "Type Discipline": 78.0
-      },
-      "needs_review_refresh": true,
-      "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:14:39+00:00"
+      }
     },
     "ai_generated_debt": {
       "score": 79.0,
@@ -18278,10 +18275,7 @@
     "dependency_health": {
       "score": 78.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00",
-      "needs_review_refresh": true,
-      "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:29:11+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00"
     },
     "design_coherence": {
       "score": 73.0,
@@ -18326,18 +18320,12 @@
     "logic_clarity": {
       "score": 82.5,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00",
-      "needs_review_refresh": true,
-      "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:09:26+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00"
     },
     "low_level_elegance": {
       "score": 80.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00",
-      "needs_review_refresh": true,
-      "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:14:37+00:00"
+      "assessed_at": "2026-10-26T09:03:05+00:00"
     },
     "mid_level_elegance": {
       "score": 70.0,

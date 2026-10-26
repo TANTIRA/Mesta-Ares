@@ -1,19 +1,19 @@
 {
   "version": 3,
   "created": "2026-10-26T08:15:39+00:00",
-  "last_scan": "2026-10-26T09:05:51+00:00",
-  "scan_count": 3,
-  "overall_score": 78.3,
+  "last_scan": "2026-10-26T10:22:46+00:00",
+  "scan_count": 4,
+  "overall_score": 78.9,
   "objective_score": 84.1,
-  "strict_score": 77.7,
+  "strict_score": 78.3,
   "verified_strict_score": 84.1,
   "stats": {
-    "total": 566,
+    "total": 599,
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 154,
-    "open": 361,
+    "fixed": 156,
+    "open": 392,
     "triaged_out": 0,
     "wontfix": 1,
     "by_tier": {
@@ -22,7 +22,7 @@
         "deferred": 0,
         "false_positive": 0,
         "fixed": 90,
-        "open": 17,
+        "open": 35,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 44,
-        "open": 207,
+        "fixed": 46,
+        "open": 220,
         "triaged_out": 0,
         "wontfix": 1
       },
@@ -6045,7 +6045,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6079,7 +6079,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6113,7 +6113,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6147,7 +6147,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6181,7 +6181,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6215,7 +6215,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6249,7 +6249,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6283,7 +6283,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6317,7 +6317,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6351,7 +6351,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6385,7 +6385,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6419,7 +6419,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6453,7 +6453,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6487,7 +6487,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6521,7 +6521,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6555,7 +6555,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6589,7 +6589,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6623,7 +6623,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6657,7 +6657,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -6691,7 +6691,7 @@
         "text": "Dimension assessment imported; coverage marker superseded",
         "attested_at": "2026-10-26T09:03:06+00:00",
         "scan_verified": true,
-        "scan_verified_at": "2026-10-26T09:05:51+00:00",
+        "scan_verified_at": "2026-10-26T10:22:46+00:00",
         "scan_verification_text": "Absent from detector output in latest scan"
       }
     },
@@ -10709,11 +10709,11 @@
         "reasoning": "",
         "summary_hash": "489d66e5"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:22:46+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10721,7 +10721,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::nvd_list_published_inlines_list_window": {
       "id": "review::.::holistic::low_level_elegance::nvd_list_published_inlines_list_window",
@@ -10788,11 +10794,11 @@
         "reasoning": "",
         "summary_hash": "7199119b"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "not reported in latest holistic re-import",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:22:46+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10800,7 +10806,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "agent_import",
+        "text": "not reported in latest holistic re-import",
+        "attested_at": "2026-10-26T10:22:46+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::mid_level_elegance::tool_invoke_boundary_reimplemented": {
       "id": "review::.::holistic::mid_level_elegance::tool_invoke_boundary_reimplemented",
@@ -18164,6 +18176,1244 @@
       "suppressed": false,
       "suppressed_at": null,
       "suppression_pattern": null
+    },
+    "review::.::holistic::abstraction_fitness::activity_event_not_deserializable": {
+      "id": "review::.::holistic::abstraction_fitness::activity_event_not_deserializable",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "ActivityEvent is serialize-only, so every consumer filters activity payloads as untyped JSON",
+      "detail": {
+        "holistic": true,
+        "dimension": "abstraction_fitness",
+        "related_files": [
+          "crates/agent-protocol/src/activity.rs",
+          "crates/api-server/src/run_stream.rs",
+          "crates/api-server/src/stream.rs"
+        ],
+        "evidence": [
+          "crates/agent-protocol/src/activity.rs:14 derives only Debug, Clone and Serialize; there is no Deserialize, so no service can parse the type it is meant to share.",
+          "crates/api-server/src/run_stream.rs:62-71 and 157-168 parse each ares.activity payload into serde_json::Value and compare v.get(\"workflow_run_id\").and_then(Value::as_str) != Some(corr) plus v.get(\"step\"), restating the type's field names in two places.",
+          "crates/api-server/src/stream.rs:37 forwards raw UTF-8 payload text straight to the console SSE feed, so the frontend also depends on the untyped shape.",
+          "ActivityEvent.workflow_run_id is a Uuid and ts a DateTime<Utc>, but consumers compare the serialized string form, so a field rename or type change is invisible to the compiler at every consumer."
+        ],
+        "suggestion": "Add Deserialize to ActivityEvent and replace both Value traversals in run_stream.rs with serde_json::from_str::<ActivityEvent>(&text) followed by typed field access; leave stream.rs forwarding raw text (the console wants the original bytes) but let it import the type for documentation.",
+        "reasoning": "",
+        "summary_hash": "c0153239"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::abstraction_fitness::terminal_step_vocabulary_misplaced": {
+      "id": "review::.::holistic::abstraction_fitness::terminal_step_vocabulary_misplaced",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Terminal-step registry lives in the API server as magic strings and hunt runs never terminate",
+      "detail": {
+        "holistic": true,
+        "dimension": "abstraction_fitness",
+        "related_files": [
+          "crates/api-server/src/a2a.rs",
+          "crates/api-server/src/run_stream.rs",
+          "crates/hunt-agent/src/main.rs",
+          "crates/triage-agent/src/main.rs"
+        ],
+        "evidence": [
+          "crates/api-server/src/a2a.rs:124-131 terminal_step matches only \"triage\", \"response\" and \"detection\" and returns false for every other agent, so hunt-agent's steps (\"run\", \"finding\", \"clear\", \"kill_switch\" at crates/hunt-agent/src/main.rs:140-185) never close an SSE stream; a2a.rs:122-123 documents this as a known gap instead of fixing the contract.",
+          "crates/api-server/src/run_stream.rs:18 imports aborted_step, task_uuid and terminal_step from crate::a2a, so the module documented as shared A2A+ACP machinery depends on one protocol module for the step vocabulary.",
+          "Step names are free string literals at the emit sites (crates/triage-agent/src/main.rs:397-490, crates/detection-agent/src/main.rs:126-202, crates/response-agent/src/main.rs:193-347) with no shared constant, so a renamed step silently stops terminating its run.",
+          "aborted_step (a2a.rs:134-136) encodes a second cross-agent rule (\"kill_switch\" | \"rejected\") in the same API-server module rather than next to the emitters."
+        ],
+        "suggestion": "Move the vocabulary into agent-protocol::activity as an ActivityStep enum (or per-agent const slices) plus ActivityEvent::is_terminal()/is_aborted(), have agents construct steps from it and run_stream call it directly; add hunt's terminal step in the same change so hunt SSE streams close.",
+        "reasoning": "",
+        "summary_hash": "c82c7043"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::abstraction_fitness::nats_sink_bypassed_by_producers": {
+      "id": "review::.::holistic::abstraction_fitness::nats_sink_bypassed_by_producers",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "NatsSink's publish policy is bypassed by publish_activity and by bas-runner's local publish helper",
+      "detail": {
+        "holistic": true,
+        "dimension": "abstraction_fitness",
+        "related_files": [
+          "crates/agent-core/src/lib.rs",
+          "crates/agent-core/src/nats_sink.rs",
+          "crates/bas-runner/src/main.rs",
+          "crates/vuln-agent/src/main.rs"
+        ],
+        "evidence": [
+          "crates/agent-core/src/lib.rs:30-48 publish_activity serializes an ActivityEvent and publishes on a raw async_nats::Client, so the JetStream-first policy in NatsSink::publish_bytes (crates/agent-core/src/nats_sink.rs:92-107) never applies to activity events.",
+          "crates/bas-runner/src/main.rs:180-190 re-implements serialize + publish + warn for SUBJECT_BAS envelopes on a raw client, so BAS results are the only envelope kind never written to the ARES stream.",
+          "Six services open a raw client only for this path (crates/triage-agent/src/main.rs:506, response-agent/src/main.rs:382, detection-agent/src/main.rs:216, hunt-agent/src/main.rs:201, vuln-agent/src/main.rs:310, bas-runner/src/main.rs:278) while ingestion-gateway, orchestrator and api-server use NatsSink.",
+          "NatsSink's own doc comment (nats_sink.rs:1-4) claims 'one implementation for every producer', which the raw-client call sites contradict."
+        ],
+        "suggestion": "Add NatsSink::publish_activity(&ActivityEvent) (and use publish() for BAS envelopes), have publish_activity take &NatsSink instead of &async_nats::Client, and replace the six raw connects with NatsSink::connect; if activity is deliberately best-effort, say so in one comment on the new method so the two policies are explicit.",
+        "reasoning": "",
+        "summary_hash": "a3c40899"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::abstraction_fitness::duplicate_paths_helper_module": {
+      "id": "review::.::holistic::abstraction_fitness::duplicate_paths_helper_module",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "api-server re-declares agent-protocol's dir_from_env in its own paths module",
+      "detail": {
+        "holistic": true,
+        "dimension": "abstraction_fitness",
+        "related_files": [
+          "crates/api-server/src/paths.rs",
+          "crates/agent-protocol/src/paths.rs",
+          "crates/api-server/src/coverage.rs",
+          "crates/api-server/src/playbooks.rs"
+        ],
+        "evidence": [
+          "crates/api-server/src/paths.rs:9-11 is byte-identical to crates/agent-protocol/src/paths.rs:9-11 (same signature, same env-or-default body, same doc line).",
+          "crates/api-server/src/coverage.rs:17 and crates/api-server/src/playbooks.rs:14 call crate::paths::dir_from_env while detection-agent/src/pipeline.rs:16,20, bas-runner/src/scenario.rs:12 and http-limits/src/lib.rs:463 call agent_protocol::paths::dir_from_env.",
+          "api-server already depends on agent-protocol (a2a.rs:24-26, kill.rs:40), so the copy buys nothing."
+        ],
+        "suggestion": "Delete crates/api-server/src/paths.rs (and its mod line at main.rs:31) and import agent_protocol::paths::dir_from_env in coverage.rs and playbooks.rs.",
+        "reasoning": "",
+        "summary_hash": "7669b3fc"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::abstraction_fitness::duplicate_subject_activity_const": {
+      "id": "review::.::holistic::abstraction_fitness::duplicate_subject_activity_const",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "api-server re-declares SUBJECT_ACTIVITY locally instead of importing the shared constant",
+      "detail": {
+        "holistic": true,
+        "dimension": "abstraction_fitness",
+        "related_files": [
+          "crates/api-server/src/stream.rs",
+          "crates/agent-protocol/src/activity.rs"
+        ],
+        "evidence": [
+          "crates/api-server/src/stream.rs:22 defines const SUBJECT_ACTIVITY: &str = \"ares.activity\"; duplicating crates/agent-protocol/src/activity.rs:11.",
+          "Every other subject now lives once in agent-protocol/src/lib.rs:20-35 and is imported by producers, so this is the single remaining local copy of a subject name.",
+          "A rename or subject change in agent-protocol would leave api-server silently subscribed to a dead subject with no compile error."
+        ],
+        "suggestion": "Import agent_protocol::activity::SUBJECT_ACTIVITY in stream.rs and delete the local const at line 22.",
+        "reasoning": "",
+        "summary_hash": "af794fbf"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::abstraction_fitness::a2a_publish_pass_through_wrapper": {
+      "id": "review::.::holistic::abstraction_fitness::a2a_publish_pass_through_wrapper",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "a2a::publish is a pass-through wrapper over NatsSink::publish with no policy of its own",
+      "detail": {
+        "holistic": true,
+        "dimension": "abstraction_fitness",
+        "related_files": [
+          "crates/api-server/src/a2a.rs",
+          "crates/api-server/src/acp.rs"
+        ],
+        "evidence": [
+          "crates/api-server/src/a2a.rs:242-248 the body is a single s.sink.publish(subject, envelope).await; it adds no logging, translation or policy, only a doc comment.",
+          "Its doc still claims 'same policy as ingestion-gateway's NatsSink' even though the sink moved to agent-core, so the wrapper's only content is already stale.",
+          "Call sites are a2a.rs:401 and acp.rs:248, both of which already hold &AppState and can reach s.sink directly."
+        ],
+        "suggestion": "Call s.sink.publish(def.subject, &env) directly at both call sites and delete the wrapper, so the publish policy has exactly one definition (agent-core::NatsSink).",
+        "reasoning": "",
+        "summary_hash": "3c976d12"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::abstraction_fitness::tool_gateway_bypassed_for_thehive_writes": {
+      "id": "review::.::holistic::abstraction_fitness::tool_gateway_bypassed_for_thehive_writes",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "vuln-agent and response-agent write to TheHive through ThehiveClient, bypassing the ToolGateway used for every other side effect",
+      "detail": {
+        "holistic": true,
+        "dimension": "abstraction_fitness",
+        "related_files": [
+          "crates/vuln-agent/src/main.rs",
+          "crates/response-agent/src/main.rs",
+          "crates/agent-core/src/gateway.rs",
+          "crates/tool-server/src/executors/mod.rs"
+        ],
+        "evidence": [
+          "crates/vuln-agent/src/main.rs:266 calls hive.create_case(&case) directly although thehive.case.create is a registered policy-gated tool (crates/tool-server/src/executors/mod.rs:79) that triage-agent uses via gateway.invoke_allowed (crates/triage-agent/src/main.rs:310-320).",
+          "crates/response-agent/src/main.rs:339 updates the TheHive case directly for the run summary while every other response side effect goes through deps.gateway.invoke_verdict (main.rs:236).",
+          "ToolGateway (crates/agent-core/src/gateway.rs:41-44) returns a ToolResult whose output is untyped Value, so agents that need a typed case id must re-parse it (crates/triage-agent/src/main.rs:318-321) - the cheap path to typed results is the direct client, which is why the bypass keeps reappearing."
+        ],
+        "suggestion": "Route vuln-agent's case creation through HttpToolGateway::invoke_allowed(\"thehive.case.create\") so kill switch, policy and audit apply uniformly; keep response-agent's summary write only if it is documented as bookkeeping, otherwise add a policy-gated tool for it. If typed returns are the blocker, add a typed helper next to invoke_allowed rather than another direct client.",
+        "reasoning": "",
+        "summary_hash": "aad1878c"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::dependency_health::unused_dep_declarations": {
+      "id": "review::.::holistic::dependency_health::unused_dep_declarations",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "15 dependency declarations across 9 crates have no reference in their crate's source",
+      "detail": {
+        "holistic": true,
+        "dimension": "dependency_health",
+        "related_files": [
+          "crates/api-gateway/Cargo.toml",
+          "crates/api-server/Cargo.toml",
+          "crates/audit/Cargo.toml",
+          "crates/detection-agent/Cargo.toml",
+          "crates/enrichment-lib/Cargo.toml",
+          "crates/hunt-agent/Cargo.toml",
+          "crates/ingestion-gateway/Cargo.toml",
+          "crates/response-agent/Cargo.toml",
+          "crates/triage-agent/Cargo.toml"
+        ],
+        "evidence": [
+          "crates/api-gateway/Cargo.toml declares serde and futures; neither identifier appears anywhere in crates/api-gateway/src (0 matches, no Serialize/Deserialize derive either).",
+          "crates/api-server/Cargo.toml:24 declares reqwest; `grep -rn reqwest crates/api-server/` matches only the manifest line.",
+          "crates/audit/Cargo.toml declares sha2, but the crate now hashes through `agent_protocol::hex::sha256_hex` (crates/audit/src/lib.rs:228) after commit 9c765f8 moved the helper.",
+          "crates/detection-agent declares serde, chrono and reqwest; crates/hunt-agent declares serde and chrono; crates/response-agent declares chrono and reqwest; crates/triage-agent declares reqwest \u2014 none of those identifiers occur in the respective src trees.",
+          "crates/enrichment-lib declares reqwest and anyhow; HTTP now goes through the connectors crate and errors are a local type, so both names are absent from src.",
+          "crates/ingestion-gateway declares async-nats but publishes through `agent_core::NatsSink` (crates/ingestion-gateway/src/main.rs:126); the crate name never appears."
+        ],
+        "suggestion": "Delete the 15 dead declarations (api-gateway: serde, futures; api-server: reqwest; audit: sha2; detection-agent: serde, chrono, reqwest; enrichment-lib: reqwest, anyhow; hunt-agent: serde, chrono; ingestion-gateway: async-nats; response-agent: chrono, reqwest; triage-agent: reqwest), then add `unused_crate_dependencies = \"warn\"` to a shared `[workspace.lints.rust]` table so the next refactor cannot leave a manifest lying again.",
+        "reasoning": "",
+        "summary_hash": "7a872b87"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::dependency_health::audit_reqwest_dead_error_variant": {
+      "id": "review::.::holistic::dependency_health::audit_reqwest_dead_error_variant",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "audit keeps the full reqwest stack only for an error variant it can never construct, and its description still claims OpenSearch shipping",
+      "detail": {
+        "holistic": true,
+        "dimension": "dependency_health",
+        "related_files": [
+          "crates/audit/Cargo.toml",
+          "crates/audit/src/lib.rs"
+        ],
+        "evidence": [
+          "crates/audit/src/lib.rs:30-33 defines `AuditError::Http(#[from] reqwest::Error)` documented as 'HTTP failure shipping an event to OpenSearch'.",
+          "No other reqwest reference exists in crates/audit/src; AuditWriter holds only a PgPool (crates/audit/src/lib.rs:43-46) and performs zero HTTP, so the variant is unreachable and the `#[from]` conversion is dead.",
+          "crates/audit/Cargo.toml:6 still describes the crate as 'Hash-chained Postgres audit log with OpenSearch shipping for ARES', which no longer matches the code.",
+          "This is the only reason reqwest is a dependency of audit, so the crate pays for a manifest entry whose only consumer is an impossible error path."
+        ],
+        "suggestion": "Drop the `Http` variant and the reqwest dependency from crates/audit, and correct the crate description to 'Hash-chained Postgres audit log for ARES'. If OpenSearch shipping is still planned, land it in connectors (where the OpenSearch client already lives) rather than reserving an error variant for it.",
+        "reasoning": "",
+        "summary_hash": "f259d1c1"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::dependency_health::jsonschema_default_features": {
+      "id": "review::.::holistic::dependency_health::jsonschema_default_features",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "policy-engine inherits jsonschema's HTTP resolver, reqwest-blocking and fancy-regex for in-memory schema validation",
+      "detail": {
+        "holistic": true,
+        "dimension": "dependency_health",
+        "related_files": [
+          "Cargo.toml",
+          "crates/policy-engine/Cargo.toml",
+          "crates/policy-engine/src/lib.rs"
+        ],
+        "evidence": [
+          "jsonschema 0.30's default features are [\"resolve-http\", \"resolve-file\"]; `resolve-http` turns on the optional reqwest dependency with the `blocking` and `json` features (verified in the crate manifest and in `cargo tree -e features -i reqwest`, which shows `reqwest feature \"blocking\"` reached from `jsonschema feature \"default\"`).",
+          "policy-engine only builds validators from an in-memory schema value: crates/policy-engine/src/lib.rs:288-292 does `serde_json::to_value(schema)` then `jsonschema::validator_for(&json_schema)` \u2014 no $ref resolution, no file or URL retrieval.",
+          "The default feature set also pulls fancy-regex (a second regex engine alongside policy-engine's direct `regex` dependency), email_address, idna, uuid-simd, bytecount and fraction into every binary that links policy-engine (tool-server, api-server).",
+          "The workspace pin at Cargo.toml:63 (`jsonschema = \"0.30\"`) does not disable default features, so the cost is paid by default for every consumer."
+        ],
+        "suggestion": "Pin `jsonschema = { version = \"0.30\", default-features = false }` in [workspace.dependencies] (crates/policy-engine/Cargo.toml:18 already uses `workspace = true`, so no per-crate change is needed). `validator_for` needs no feature, so this removes reqwest-blocking and fancy-regex from the tree without touching call sites.",
+        "reasoning": "",
+        "summary_hash": "b8f4b5f5"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::dependency_health::unused_workspace_features": {
+      "id": "review::.::holistic::dependency_health::unused_workspace_features",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Workspace feature lists enable tokio signal/fs, tracing-subscriber json and redis's default feature set that no code uses",
+      "detail": {
+        "holistic": true,
+        "dimension": "dependency_health",
+        "related_files": [
+          "Cargo.toml",
+          "crates/enrichment-lib/src/lib.rs"
+        ],
+        "evidence": [
+          "Cargo.toml:33 enables tokio features [\"rt-multi-thread\", \"macros\", \"net\", \"time\", \"sync\", \"signal\", \"process\", \"io-util\", \"fs\"]; `tokio::signal` and `tokio::fs` have 0 occurrences workspace-wide (all file IO is std::fs), while `process` is used once in crates/tool-server/src/executors/openshell.rs:37.",
+          "Cargo.toml:50 enables tracing-subscriber [\"env-filter\", \"json\"], but all 11 binaries initialize with plain `tracing_subscriber::fmt().with_env_filter(..).init()` (e.g. crates/api-server/src/main.rs:351-353) and nothing calls `.json()`, so the json feature (tracing-serde) is dead.",
+          "Cargo.toml:41 pins `redis = { version = \"0.27\", features = [\"tokio-comp\"] }` without default-features = false; redis defaults are acl, streams, geospatial, script, keep-alive, yet enrichment-lib only calls `set_ex` and `get` for the IOC cache (crates/enrichment-lib/src/lib.rs:244,381).",
+          "Cargo.toml:43 enables schemars features [\"chrono\", \"uuid1\"] although no code emits a schema and UUID v1 is never used (uuid v4/v5 only)."
+        ],
+        "suggestion": "Trim the workspace feature lists to what the code actually calls: drop `signal` and `fs` from tokio, drop `json` from tracing-subscriber (keep env-filter), set `redis = { version = \"0.27\", default-features = false, features = [\"tokio-comp\"] }`, and reduce schemars to `features = [\"chrono\"]`. Each change is one line in Cargo.toml and cannot break callers, because the removed APIs are unreferenced.",
+        "reasoning": "",
+        "summary_hash": "f077d50e"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::dependency_health::console_lockfile_ignored_by_ci": {
+      "id": "review::.::holistic::dependency_health::console_lockfile_ignored_by_ci",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Console commits an npm package-lock.json while CI installs with pnpm and --frozen-lockfile=false",
+      "detail": {
+        "holistic": true,
+        "dimension": "dependency_health",
+        "related_files": [
+          "apps/console/package.json",
+          "apps/console/package-lock.json",
+          ".github/workflows/ci.yml"
+        ],
+        "evidence": [
+          "apps/console/package-lock.json (234 KB, npm) is tracked in git; there is no pnpm-lock.yaml in the repo.",
+          ".github/workflows/ci.yml console job runs `pnpm -C apps/console install --frozen-lockfile=false`, so pnpm neither reads the npm lockfile nor is constrained by any lockfile \u2014 dependency versions can drift between CI runs and between developers.",
+          "The same job also uses `corepack enable` without a pinned `packageManager` field in apps/console/package.json, so the pnpm major version itself is whatever corepack resolves."
+        ],
+        "suggestion": "Pick one package manager, commit its lockfile and enforce it: add `\"packageManager\": \"pnpm@<version>\"` to apps/console/package.json, generate and commit pnpm-lock.yaml, delete package-lock.json, and change the CI step to `pnpm -C apps/console install --frozen-lockfile`.",
+        "reasoning": "",
+        "summary_hash": "96b8a5af"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::dependency_health::console_duplicate_icon_libraries": {
+      "id": "review::.::holistic::dependency_health::console_duplicate_icon_libraries",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Console ships two icon libraries; lucide-react is used in exactly one file",
+      "detail": {
+        "holistic": true,
+        "dimension": "dependency_health",
+        "related_files": [
+          "apps/console/package.json",
+          "apps/console/app/(console)/playbooks/page.tsx"
+        ],
+        "evidence": [
+          "apps/console/package.json depends on @hugeicons/react, @hugeicons/core-free-icons and lucide-react.",
+          "@hugeicons is the established convention: it is imported in ~20 components under components/blocks/ and app/(console)/page.tsx, app/(console)/alerts/[id]/page.tsx.",
+          "lucide-react appears only at apps/console/app/(console)/playbooks/page.tsx:20 (`import { Zap, Wrench, GitFork, Flag } from \"lucide-react\"`), so an entire icon package (plus its transitive icon data) ships for four glyphs in one screen."
+        ],
+        "suggestion": "Replace the four lucide-react icons in app/(console)/playbooks/page.tsx with their @hugeicons equivalents and remove lucide-react from package.json, leaving one icon system for the whole console.",
+        "reasoning": "",
+        "summary_hash": "a13a6f7f"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::dependency_health::compose_latest_tags": {
+      "id": "review::.::holistic::dependency_health::compose_latest_tags",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Eight infra services run on mutable :latest image tags, so compose stacks are not reproducible",
+      "detail": {
+        "holistic": true,
+        "dimension": "dependency_health",
+        "related_files": [
+          "infra/docker-compose.yml"
+        ],
+        "evidence": [
+          "infra/docker-compose.yml pins several images by version (opensearch:2.17.1, wazuh/wazuh-manager:4.9.2, cortex:3.2.1-1, nats:2.11-alpine, redis:7-alpine) but leaves thehiveproject/thehive:latest (line 168), ghcr.io/misp/misp-docker/misp-core:latest (201), misp-modules:latest (257), shuffle-backend/frontend/orborus:latest (265/282/290) and ghcr.io/nvidia/openshell/gateway:latest (478, 491).",
+          "The shuffle and openshell lines carry inline comments ('verify tag on first pull', 'verify tag'), which acknowledges the tags are unverified.",
+          "Because the CI docker job only runs `docker compose config -q`, an upstream :latest push changes the deployed stack without any diff in this repository."
+        ],
+        "suggestion": "Pin the eight remaining services to concrete tags or digests (e.g. `thehiveproject/thehive:4.1.24`, `ghcr.io/nvidia/openshell/gateway@sha256:...`) the same way opensearch and wazuh already are, and resolve the 'verify tag' comments at the same time.",
+        "reasoning": "",
+        "summary_hash": "76d2ef06"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::api_gateway_handbuilt_limiter": {
+      "id": "review::.::holistic::low_level_elegance::api_gateway_handbuilt_limiter",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "api-gateway still hand-builds the rate limiter that http_limits::build_limiter now provides",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "crates/api-gateway/src/main.rs",
+          "crates/http-limits/src/lib.rs"
+        ],
+        "evidence": [
+          "crates/api-gateway/src/main.rs:174-177: `let policies_dir = std::env::var(\"POLICIES_DIR\")...; let limits = RateLimits::load(&PathBuf::from(&policies_dir).join(\"rate-limits.yml\")); let rl = Arc::new(RateLimiter::new(limits, classify)); rl.spawn_idle_purge();`",
+          "crates/http-limits/src/lib.rs:462-467 adds `pub fn build_limiter(classify)` doing exactly those four steps, and the same commit (9c765f8) deleted the identical block from crates/api-server/src/ratelimit.rs:13 and crates/ingestion-gateway/src/ratelimit.rs:14."
+        ],
+        "suggestion": "Replace lines 174-177 with `let rl = http_limits::build_limiter(classify);` and drop the now-unused `RateLimits`/`RateLimiter`/`PathBuf` imports.",
+        "reasoning": "",
+        "summary_hash": "6e8acf2d"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::dedupe_hex_passthrough_module": {
+      "id": "review::.::holistic::low_level_elegance::dedupe_hex_passthrough_module",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "orchestrator dedupe keeps a pass-through `mod hex` shim whose comment is no longer true",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "crates/orchestrator/src/dedupe.rs"
+        ],
+        "evidence": [
+          "crates/orchestrator/src/dedupe.rs:81-86: `/// Minimal hex encoder to avoid an extra dependency.` followed by `mod hex { pub fn encode(bytes: impl AsRef<[u8]>) -> String { agent_protocol::hex::hex_lower(bytes.as_ref()) } }` - the module no longer encodes anything, it forwards.",
+          "The single call site is crates/orchestrator/src/dedupe.rs:73 `hex::encode(hasher.finalize())`, inside a function that already imports `sha2::{Digest, Sha256}`.",
+          "The nested module is declared mid-file between `day_bucket` and `mod tests`, so a reader meets a module definition where a function was expected."
+        ],
+        "suggestion": "Delete `mod hex` and hash the four fields into one buffer, then call `agent_protocol::hex::sha256_hex(&buf)` at line 73 - one line, one helper, no shim.",
+        "reasoning": "",
+        "summary_hash": "9837ec49"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::orphan_doc_comments_enrichment": {
+      "id": "review::.::holistic::low_level_elegance::orphan_doc_comments_enrichment",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Two doc comments in enrichment-lib now document the wrong items after their functions were removed",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "crates/enrichment-lib/src/lib.rs"
+        ],
+        "evidence": [
+          "crates/enrichment-lib/src/lib.rs:170 `/// Base64-url (unpadded) encoding for VirusTotal URL ids.` is followed by a blank line and `fn env(key: &str) -> Option<String>` (line 172), so it reads as `env`'s documentation.",
+          "crates/enrichment-lib/src/lib.rs:448 `/// Convenience wrapper: enrich one indicator through a shared Enricher.` sits directly above `#[cfg(test)] mod tests` (line 449); no such wrapper exists in the file."
+        ],
+        "suggestion": "Delete both doc lines (the functions they described are gone); keep `env` undocumented or give it a one-line doc of its own.",
+        "reasoning": "",
+        "summary_hash": "ed29f92e"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::audit_canonical_string_duplicated": {
+      "id": "review::.::holistic::low_level_elegance::audit_canonical_string_duplicated",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Audit chain canonical string is built twice and must stay byte-identical",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "crates/audit/src/lib.rs"
+        ],
+        "evidence": [
+          "crates/audit/src/lib.rs:104-108 builds `format!(\"{prev_hash}|{actor}|{tool}|{args_sha256}|{decision_label}|{reason}|{correlation_id}|{ts}\")` for the write path.",
+          "crates/audit/src/lib.rs:161-170 rebuilds the same eight fields positionally in `verify_chain`; a field added or reordered in one place silently invalidates every stored hash, and the only detector is the `/audit/verify` endpoint.",
+          "The two versions already differ cosmetically (named vs positional args, `decision_label` vs `row.decision`), which is exactly how the next drift starts."
+        ],
+        "suggestion": "Extract one `fn canonical(prev_hash: &str, actor: &str, tool: &str, args_sha256: &str, decision: &str, reason: &str, correlation_id: Uuid, ts: DateTime<Utc>) -> String` and call it from both `append` and `verify_chain`.",
+        "reasoning": "",
+        "summary_hash": "aedceea5"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::run_stream_duplicate_activity_filter": {
+      "id": "review::.::holistic::low_level_elegance::run_stream_duplicate_activity_filter",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "The activity-filter predicate is written twice in run_stream.rs",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "crates/api-server/src/run_stream.rs"
+        ],
+        "evidence": [
+          "crates/api-server/src/run_stream.rs:60-72 (inside `wait_for_terminal`) parses the payload, compares `workflow_run_id`, extracts `step`, and tests `terminal_step(agent, step)`.",
+          "crates/api-server/src/run_stream.rs:155-166 (inside the `activity_stream` unfold) repeats the same five steps against `st.corr`/`st.agent`, with the only difference being that one `continue`s and the other returns an event.",
+          "The two copies must agree on the correlation field name and the terminal-step rule; today they do, by inspection only."
+        ],
+        "suggestion": "Extract `fn terminal_activity(text: &str, corr: &str, agent: &str) -> Option<Value>` returning the parsed event when it matches and is terminal, and call it from both loops.",
+        "reasoning": "",
+        "summary_hash": "fd5098a9"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::policy_duplicate_decision_log": {
+      "id": "review::.::holistic::low_level_elegance::policy_duplicate_decision_log",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "evaluate and evaluate_approved duplicate the same 8-line decision log block",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "crates/policy-engine/src/lib.rs"
+        ],
+        "evidence": [
+          "crates/policy-engine/src/lib.rs:324-339 (`evaluate`) and 341-356 (`evaluate_approved`) each run `evaluate_inner` and then repeat the identical `info!(tool, actor, correlation_id, decision = ?decision.kind, reason, \"policy decision\")` call.",
+          "The only difference is the trailing message string (\"policy decision\" vs \"policy decision (approved call)\"), so the two public methods differ by one literal.",
+          "crates/policy-engine/src/lib.rs:451-454 compounds this with `fn kill_switch_engaged(&self, ctx: &EvalCtx) -> bool { ctx.kill_switch }` - a pass-through that ignores `&self` and reads like the live `agent_protocol::kill::kill_switch_engaged` check it is not."
+        ],
+        "suggestion": "Add one private `fn evaluate_logged(&self, call, ctx, approved, label: &str) -> Decision` that calls `evaluate_inner` and emits the log, have both public methods delegate to it, and inline `ctx.kill_switch` at the single call site in `evaluate_inner` instead of the pass-through method.",
+        "reasoning": "",
+        "summary_hash": "fdd96110"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::wazuh_token_lock_across_io": {
+      "id": "review::.::holistic::low_level_elegance::wazuh_token_lock_across_io",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "WazuhClient::token holds the token mutex across the authenticate HTTP round-trip",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "crates/connectors/src/lib.rs"
+        ],
+        "evidence": [
+          "crates/connectors/src/lib.rs:621-641: `let mut guard = self.token.lock().await;` then `send_with_retry(req).await` (which retries with full-jitter sleeps under a 15s `CALL_BUDGET`, lines 88-140) and `json_ok(resp).await` all execute while `guard` is alive; it is only written at line 637.",
+          "Every concurrent `authed()` caller (list_agents line 648, active_response line 660) blocks on that mutex for the duration of the network call, so one slow authenticate stalls the whole client instead of just the callers that need a token.",
+          "crates/connectors/src/lib.rs:966 has the same shape in `NvdClient::get`, where `let _guard = self.throttle().await` stays alive through the retry `sleep` at line 1000 and the response decode."
+        ],
+        "suggestion": "Fetch the token outside the lock (authenticate is idempotent) and only take the mutex to store it: check `self.token.lock().await.clone()`, drop the guard, do the request, then `if guard.is_none() { *guard = Some(token) }`. In `NvdClient::get`, scope the throttle guard to the spacing decision so it is dropped before the send and the backoff sleep.",
+        "reasoning": "",
+        "summary_hash": "8759aa18"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::inline_activity_emission_agents": {
+      "id": "review::.::holistic::low_level_elegance::inline_activity_emission_agents",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Activity emission is inlined 20 times across three agents while sibling helpers are extracted",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "crates/triage-agent/src/main.rs",
+          "crates/hunt-agent/src/main.rs",
+          "crates/response-agent/src/main.rs"
+        ],
+        "evidence": [
+          "crates/triage-agent/src/main.rs:395,405,422,445,459,471,481,488 each spell `publish_activity(&deps.nats, &ActivityEvent::new(run_id, \"triage\", <step>, <detail>)).await;`, 3-6 lines per step.",
+          "crates/hunt-agent/src/main.rs:138,147,168,179 and crates/response-agent/src/main.rs:193,202,217,225,267,320,326,345 repeat the same shape with \"hunt\"/\"response\".",
+          "The same files do extract helpers for the other repeated shapes (`tool_call` triage:265, `typed_iocs` triage:139, `open_case` triage:277, `save_final_checkpoint` response:365), so the extraction level is inconsistent within a single file.",
+          "In `run_sweep` (hunt-agent:134-192) the four activity calls are longer than the query/score logic they surround, which buries the control flow the function exists to express."
+        ],
+        "suggestion": "Add one per-agent helper `async fn activity(deps: &Deps, run_id: Uuid, step: &str, detail: impl Into<String>)` that fixes the agent name and discards the publish result, and replace the 20 call sites with one line each.",
+        "reasoning": "",
+        "summary_hash": "9c1249f9"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::low_level_elegance::tool_result_failure_literals": {
+      "id": "review::.::holistic::low_level_elegance::tool_result_failure_literals",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Seven sites hand-spell the failure ToolResult while its sibling constructor exists",
+      "detail": {
+        "holistic": true,
+        "dimension": "low_level_elegance",
+        "related_files": [
+          "crates/tool-server/src/main.rs",
+          "crates/tool-server/src/approvals.rs",
+          "crates/agent-protocol/src/tool.rs"
+        ],
+        "evidence": [
+          "crates/agent-protocol/src/tool.rs:93 provides `ToolResult::retryable(call_id, error)` for the retryable failure shape, but there is no constructor for the ordinary failure shape.",
+          "crates/tool-server/src/main.rs:99-113 (deny), 158-166 (no executor), 178-190 (executor error), 203-212 (mismatch) and approvals.rs:232-244 (denied after approval) each write out `ToolResult { call_id, ok: false, output: Value::Null, error: Some(..), dry_run: false }` by hand.",
+          "crates/agent-core/src/gateway.rs:88-100 does the same for the non-2xx upstream case, so the six-field literal is a cross-crate copy pattern."
+        ],
+        "suggestion": "Add `ToolResult::failed(call_id: Uuid, error: impl Into<String>) -> Self` next to `retryable` in agent-protocol/src/tool.rs:93 and use it at the seven sites; each call collapses from six fields to one line.",
+        "reasoning": "",
+        "summary_hash": "17e64e6d"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::orchestrator_unreachable_delivery_guard": {
+      "id": "review::.::holistic::logic_clarity::orchestrator_unreachable_delivery_guard",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "MAX_DELIVERIES guard can never fire; the redelivery DLQ path is dead code",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/orchestrator/src/main.rs"
+        ],
+        "evidence": [
+          "main.rs:152-159 reads `Nats-Delivery-Count` from message headers; no NATS producer or JetStream consumer metadata sets that header, and `delivery_count` returns 1 when it is absent.",
+          "main.rs:182 subscribes with `client.subscribe(...)` (core NATS), which carries no delivery metadata, so `handle_message`'s `deliveries > MAX_DELIVERIES` check at line 71 is always false.",
+          "The module doc at line 15 states 'Messages redelivered more than MAX_DELIVERIES times are dropped to ares.dlq', and lines 31-32 define the constant \u2014 both describe behaviour that cannot occur."
+        ],
+        "suggestion": "Delete the guard, `delivery_count` and `MAX_DELIVERIES` (and the doc line), or replace the core subscribe with a JetStream consumer and read the delivery count from `message.info()`; do not keep a dead branch that implies poison-message protection.",
+        "reasoning": "",
+        "summary_hash": "e7e43f67"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::gateway_layer_order_comment_inverted": {
+      "id": "review::.::holistic::logic_clarity::gateway_layer_order_comment_inverted",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Gateway comment says rate limiting is outermost; the layer chain puts auth outermost",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/api-gateway/src/main.rs",
+          "crates/api-server/src/main.rs"
+        ],
+        "evidence": [
+          "main.rs:159-160 applies `.layer(middleware::from_fn_with_state(rl, ...))` then `.layer(middleware::from_fn_with_state(auth, ...))`; in axum the last layer is outermost, so `auth::middleware` runs before `http_limits::middleware`.",
+          "The comment at lines 157-158 asserts the opposite: 'Rate limiting outermost so unauthenticated floods are still metered; authentication then gates everything except the exempt paths.'",
+          "crates/api-server/src/main.rs:383-388 relies on the correct rule ('CORS stays outermost') when it puts `CorsLayer` last, so the two files disagree about ordering semantics.",
+          "Consequence: unauthenticated requests are rejected with 401 before the limiter sees them, so unauthenticated floods are not metered and only authenticated traffic consumes buckets."
+        ],
+        "suggestion": "Swap the two `.layer` calls so the rate limiter is applied last (outermost), or fix the comment to state that auth runs first; pick one and make the comment match the code.",
+        "reasoning": "",
+        "summary_hash": "ebd5c214"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::audit_chain_timestamp_precision_mismatch": {
+      "id": "review::.::holistic::logic_clarity::audit_chain_timestamp_precision_mismatch",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Audit hash uses nanosecond timestamp, verification re-hashes the microsecond DB value",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/audit/src/lib.rs"
+        ],
+        "evidence": [
+          "lib.rs:103-109 builds the canonical string with `ts = ts.to_rfc3339()` where `ts = Utc::now()` (nanosecond precision), then hashes it.",
+          "The same `ts` is bound into a `timestamptz` column (lines 111-128); PostgreSQL/sqlx store microseconds, so the value read back differs from the hashed one whenever the sub-microsecond digits are non-zero.",
+          "verify_chain (lines 161-180) recomputes the canonical string from the stored `row.ts.to_rfc3339()`, so it reports `broken_at` with 'hash does not match row contents' for essentially every intact row."
+        ],
+        "suggestion": "Truncate the timestamp before hashing and storing, e.g. `let ts = Utc::now().trunc_subsecs(6)` (or hash `ts.timestamp_micros()`), so the canonical string is identical on insert and verify.",
+        "reasoning": "",
+        "summary_hash": "e6269db3"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::nvd_404_detected_by_string_match": {
+      "id": "review::.::holistic::logic_clarity::nvd_404_detected_by_string_match",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "NVD 404 is detected by substring-matching a formatted error message",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/connectors/src/lib.rs"
+        ],
+        "evidence": [
+          "lib.rs:983 returns `anyhow::bail!(\"NVD HTTP {status}\")` for every non-retryable status, discarding the structured status code.",
+          "lib.rs:1008 branches on `Err(e) if e.to_string().contains(\"404\")` to decide that the CVE is a miss rather than an outage.",
+          "Any error whose text happens to contain '404' (a URL, a body echo, a wrapped context line) is treated as 'CVE not found' and negative-cached by callers."
+        ],
+        "suggestion": "Have `NvdClient::get` return a typed failure (e.g. `Err(NvdError::Status(u16))` or `Ok(None)` for 404) so `get_cve` matches on the variant instead of the message string.",
+        "reasoning": "",
+        "summary_hash": "26324d36"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::gateway_fabricates_deny_for_http_failures": {
+      "id": "review::.::holistic::logic_clarity::gateway_fabricates_deny_for_http_failures",
+      "detector": "review",
+      "file": ".",
+      "tier": 1,
+      "confidence": "high",
+      "summary": "Non-2xx /invoke responses become a synthetic 'deny' policy verdict",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/agent-core/src/gateway.rs",
+          "crates/response-agent/src/main.rs"
+        ],
+        "evidence": [
+          "gateway.rs:85-106 builds `Decision { kind: DecisionKind::Deny, reason: \"gateway returned {status}: {body}\" }` for any non-success HTTP status, so a 502/503/504 is reported as a policy denial.",
+          "response-agent/src/main.rs:277-300 persists `decision.kind` in `response_actions.result`, so an outage is recorded as 'denied by policy' and the activity step at line 322 reads 'denied by policy; recorded'.",
+          "`invoke_allowed` (gateway.rs:121-135) returns `AgentError::Denied` for these, so callers cannot distinguish 'the tool server refused' from 'the tool server was unreachable'."
+        ],
+        "suggestion": "Return `Err(AgentError::Http(...))` (or a dedicated `AgentError::Upstream(status)`) for non-2xx responses and let retry/abort logic handle it; reserve `DecisionKind::Deny` for verdicts the policy engine actually produced.",
+        "reasoning": "",
+        "summary_hash": "7fc211ed"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::bas_execute_dry_param_always_false": {
+      "id": "review::.::holistic::logic_clarity::bas_execute_dry_param_always_false",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "bas-runner passes dry=false to execute(); its dry-run branch is unreachable",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/bas-runner/src/main.rs"
+        ],
+        "evidence": [
+          "main.rs:197-203 returns early from `run_scenario` when `deps.dry`, so the later `execute(scenario, deps.dry)` at line 204 is only reached with `dry == false`.",
+          "Inside `execute` (lines 86-100) the `match (target, dry)` arm that logs 'dry run (no {env_var} or --dry)' and returns Ok(()) can therefore never run.",
+          "The `dry` field on `Deps` (line 82) exists only to be re-passed to a function that can no longer use it."
+        ],
+        "suggestion": "Drop the `dry` parameter from `execute` and keep the single dry-run gate in `run_scenario` (the arm then collapses to `match std::env::var(env_var) { Ok(t) => t, Err(_) => { log; return Ok(()) } }`).",
+        "reasoning": "",
+        "summary_hash": "b0c45618"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::response_agent_redundant_option_decision": {
+      "id": "review::.::holistic::logic_clarity::response_agent_redundant_option_decision",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "`denied` is unwrapped from an Option that is always Some",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/response-agent/src/main.rs"
+        ],
+        "evidence": [
+          "main.rs:241-242 builds the tuple `(Some(v.decision), v.result)` in the only success arm; the error arm returns early at line 274.",
+          "main.rs:277-280 then computes `decision.as_ref().map(|d| d.kind == DecisionKind::Deny).unwrap_or(false)` \u2014 an unwrap_or on a value that cannot be None.",
+          "main.rs:293-294 also stores `decision.as_ref().map(|d| d.kind)` and `decision.as_ref().map(|d| d.reason.clone())`, adding an Option layer to the persisted record for no reason."
+        ],
+        "suggestion": "Make the tuple `(v.decision, v.result)` and use `decision.kind == DecisionKind::Deny` / `decision.kind` / `decision.reason` directly.",
+        "reasoning": "",
+        "summary_hash": "10d19506"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::response_agent_killswitch_reports_success": {
+      "id": "review::.::holistic::logic_clarity::response_agent_killswitch_reports_success",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Kill-switch halt breaks the loop and then reports 'done' with a Final checkpoint",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/response-agent/src/main.rs",
+          "crates/api-server/src/a2a.rs"
+        ],
+        "evidence": [
+          "main.rs:215-223 publishes the `kill_switch` activity and `break`s, so execution continues to the summary block.",
+          "main.rs:345-356 then publishes `done` ('{n} actions executed') and `save_final_checkpoint`, which writes `Step::Final`.",
+          "The invoke-failure path (lines 243-275) instead writes `aborted: ... invoke failed` and returns, so the two halt paths disagree about whether the run completed.",
+          "api-server/src/a2a.rs:291-307 treats a checkpoint whose last step is `Final` as `Completed`, so the halted run can be folded back to completed."
+        ],
+        "suggestion": "On the kill-switch halt, save an `aborted` checkpoint and skip the `done` activity (or emit a distinct `halted` terminal step), matching the invoke-failure path.",
+        "reasoning": "",
+        "summary_hash": "b974d4a3"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::policy_blast_radius_counts_denials": {
+      "id": "review::.::holistic::logic_clarity::policy_blast_radius_counts_denials",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "Blast-radius counter increments before the cap check, so denied calls consume the quota",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/policy-engine/src/lib.rs"
+        ],
+        "evidence": [
+          "lib.rs:412-416 increments `ctx.counters` and returns the new count before any check runs.",
+          "lib.rs:417-427 compares `count > max` afterwards, so the call that is rejected has already been counted.",
+          "lib.rs:428-442 returns early on cooldown before the cooldown timestamp is written, but the hourly counter increment from line 414 is not rolled back, so repeated denied attempts can exhaust the hourly budget for legitimate calls."
+        ],
+        "suggestion": "Read the current count, decide, and only increment on the allow path (or increment-and-compare but roll back the increment on every deny branch).",
+        "reasoning": "",
+        "summary_hash": "472decfe"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
+    },
+    "review::.::holistic::logic_clarity::vulns_error_mapped_to_404": {
+      "id": "review::.::holistic::logic_clarity::vulns_error_mapped_to_404",
+      "detector": "review",
+      "file": ".",
+      "tier": 2,
+      "confidence": "medium",
+      "summary": "`GET /vulns/{id}` answers 404 for NVD outages because errors collapse into None",
+      "detail": {
+        "holistic": true,
+        "dimension": "logic_clarity",
+        "related_files": [
+          "crates/api-server/src/vulns.rs",
+          "crates/enrichment-lib/src/lib.rs"
+        ],
+        "evidence": [
+          "enrichment-lib/src/lib.rs:388-400 returns `None` for 'NVD has no record' (Ok(None)) and also for 'NVD lookup failed' (Err), after only a warn log.",
+          "vulns.rs:85-91 turns every None into `404 'no NVD record (unknown, reserved, or rejected)'`, so a rate-limited or unreachable NVD is reported as a nonexistent CVE.",
+          "The connector's own doc (connectors/src/lib.rs:997-999) is careful to distinguish a miss from an outage, but that distinction is dropped one layer up."
+        ],
+        "suggestion": "Return a three-state result from `enrich_cve` (e.g. `Result<Option<CveRecord>, NvdUnavailable>`) and map the error arm to 502/503 in `get_vuln` instead of 404.",
+        "reasoning": "",
+        "summary_hash": "114cb5c3"
+      },
+      "status": "open",
+      "note": null,
+      "first_seen": "2026-10-26T10:22:46+00:00",
+      "last_seen": "2026-10-26T10:22:46+00:00",
+      "resolved_at": null,
+      "reopen_count": 0,
+      "work_item_kind": "review_defect",
+      "issue_kind": "review_defect",
+      "origin": "review_import",
+      "lang": "rust",
+      "suppressed": false,
+      "suppressed_at": null,
+      "suppression_pattern": null
     }
   },
   "scan_coverage": {
@@ -18197,16 +19447,16 @@
   },
   "subjective_integrity": {
     "status": "disabled",
-    "target_score": 85.0,
+    "target_score": null,
     "matched_count": 0,
     "matched_dimensions": [],
     "reset_dimensions": []
   },
   "subjective_assessments": {
     "abstraction_fitness": {
-      "score": 73.0,
+      "score": 81.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00",
+      "assessed_at": "2026-10-26T10:22:46+00:00",
       "components": [
         "Abstraction Leverage",
         "Indirection Cost",
@@ -18216,11 +19466,11 @@
         "Type Discipline"
       ],
       "component_scores": {
-        "Abstraction Leverage": 55.0,
-        "Indirection Cost": 78.0,
-        "Interface Honesty": 62.0,
-        "Delegation Density": 85.0,
-        "Definition Directness": 79.0,
+        "Abstraction Leverage": 84.0,
+        "Indirection Cost": 86.0,
+        "Interface Honesty": 72.0,
+        "Delegation Density": 88.0,
+        "Definition Directness": 80.0,
         "Type Discipline": 78.0
       }
     },
@@ -18273,9 +19523,9 @@
       "stale_since": "2026-10-26T09:53:33+00:00"
     },
     "dependency_health": {
-      "score": 78.0,
+      "score": 79.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T10:22:46+00:00"
     },
     "design_coherence": {
       "score": 73.0,
@@ -18318,14 +19568,14 @@
       "stale_since": "2026-10-26T10:14:41+00:00"
     },
     "logic_clarity": {
-      "score": 82.5,
+      "score": 79.5,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T10:22:46+00:00"
     },
     "low_level_elegance": {
-      "score": 80.0,
+      "score": 84.0,
       "source": "holistic",
-      "assessed_at": "2026-10-26T09:03:05+00:00"
+      "assessed_at": "2026-10-26T10:22:46+00:00"
     },
     "mid_level_elegance": {
       "score": 70.0,
@@ -18733,6 +19983,135 @@
         "Low elegance": {
           "score": 80.0,
           "strict": 80.0
+        },
+        "Mid elegance": {
+          "score": 70.0,
+          "strict": 70.0
+        },
+        "Naming quality": {
+          "score": 88.5,
+          "strict": 88.5
+        },
+        "Structure nav": {
+          "score": 78.0,
+          "strict": 78.0
+        },
+        "Test strategy": {
+          "score": 63.0,
+          "strict": 63.0
+        },
+        "Type safety": {
+          "score": 78.0,
+          "strict": 78.0
+        }
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:22:46+00:00",
+      "lang": "rust",
+      "strict_score": 78.3,
+      "verified_strict_score": 84.1,
+      "objective_score": 84.1,
+      "overall_score": 78.9,
+      "open": 394,
+      "diff_new": 33,
+      "diff_resolved": 20,
+      "ignored": 0,
+      "raw_issues": 33,
+      "suppressed_pct": 0.0,
+      "ignore_patterns": 0,
+      "subjective_integrity": {
+        "status": "disabled",
+        "matched_count": 0,
+        "reset_count": 0,
+        "target_score": null
+      },
+      "score_confidence": {
+        "status": "full",
+        "confidence": 1.0,
+        "detector_count": 0,
+        "dimension_count": 0
+      },
+      "dimension_scores": {
+        "Code quality": {
+          "score": 91.6,
+          "strict": 90.2
+        },
+        "Security": {
+          "score": 100.0,
+          "strict": 100.0
+        },
+        "File health": {
+          "score": 91.4,
+          "strict": 91.4
+        },
+        "Duplication": {
+          "score": 95.7,
+          "strict": 95.5
+        },
+        "Test health": {
+          "score": 55.0,
+          "strict": 47.4
+        },
+        "Abstraction fit": {
+          "score": 81.0,
+          "strict": 81.0
+        },
+        "AI generated debt": {
+          "score": 79.0,
+          "strict": 79.0
+        },
+        "API coherence": {
+          "score": 74.0,
+          "strict": 74.0
+        },
+        "Auth consistency": {
+          "score": 58.0,
+          "strict": 58.0
+        },
+        "Contracts": {
+          "score": 80.0,
+          "strict": 80.0
+        },
+        "Convention drift": {
+          "score": 79.5,
+          "strict": 79.5
+        },
+        "Cross-module arch": {
+          "score": 74.0,
+          "strict": 74.0
+        },
+        "Dep health": {
+          "score": 79.0,
+          "strict": 79.0
+        },
+        "Design coherence": {
+          "score": 73.0,
+          "strict": 73.0
+        },
+        "Error consistency": {
+          "score": 83.0,
+          "strict": 83.0
+        },
+        "High elegance": {
+          "score": 78.0,
+          "strict": 78.0
+        },
+        "Stale migration": {
+          "score": 74.0,
+          "strict": 74.0
+        },
+        "Init coupling": {
+          "score": 74.0,
+          "strict": 74.0
+        },
+        "Logic clarity": {
+          "score": 79.5,
+          "strict": 79.5
+        },
+        "Low elegance": {
+          "score": 84.0,
+          "strict": 84.0
         },
         "Mid elegance": {
           "score": 70.0,
@@ -22589,9 +23968,9 @@
     },
     "files": {},
     "holistic": {
-      "reviewed_at": "2026-10-26T09:03:06+00:00",
-      "file_count_at_review": 62,
-      "issue_count": 175,
+      "reviewed_at": "2026-10-26T10:22:46+00:00",
+      "file_count_at_review": 74,
+      "issue_count": 33,
       "reviewed_files_count": 0,
       "full_sweep_included": false
     }
@@ -22610,7 +23989,7 @@
     "production": 65
   },
   "tool_hash": "2ead5ae7d4e6",
-  "scan_path": ".",
+  "scan_path": null,
   "scan_completeness": {
     "rust": "full"
   },
@@ -22640,7 +24019,8 @@
       "subjective_review": 20,
       "boilerplate_duplication": 27,
       "dupes": 522,
-      "stale_wontfix": 0
+      "stale_wontfix": 0,
+      "review": 10
     }
   },
   "codebase_metrics": {
@@ -22828,19 +24208,19 @@
       }
     },
     "Abstraction fit": {
-      "score": 73.0,
-      "strict": 73.0,
-      "verified_strict_score": 73.0,
+      "score": 81.0,
+      "strict": 81.0,
+      "verified_strict_score": 81.0,
       "checks": 10,
-      "failing": 0,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.73,
-          "failing": 0,
-          "weighted_failures": 2.7,
-          "assessment_score": 73.0,
+          "pass_rate": 0.81,
+          "failing": 7,
+          "weighted_failures": 1.9,
+          "assessment_score": 81.0,
           "placeholder": false,
           "dimension_key": "abstraction_fitness",
           "configured_weight": 8.0,
@@ -22853,11 +24233,11 @@
             "Type Discipline"
           ],
           "component_scores": {
-            "Abstraction Leverage": 55.0,
-            "Indirection Cost": 78.0,
-            "Interface Honesty": 62.0,
-            "Delegation Density": 85.0,
-            "Definition Directness": 79.0,
+            "Abstraction Leverage": 84.0,
+            "Indirection Cost": 86.0,
+            "Interface Honesty": 72.0,
+            "Delegation Density": 88.0,
+            "Definition Directness": 80.0,
             "Type Discipline": 78.0
           }
         }
@@ -22990,19 +24370,19 @@
       }
     },
     "Dep health": {
-      "score": 78.0,
-      "strict": 78.0,
-      "verified_strict_score": 78.0,
+      "score": 79.0,
+      "strict": 79.0,
+      "verified_strict_score": 79.0,
       "checks": 10,
-      "failing": 0,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.78,
-          "failing": 0,
-          "weighted_failures": 2.2,
-          "assessment_score": 78.0,
+          "pass_rate": 0.79,
+          "failing": 7,
+          "weighted_failures": 2.1,
+          "assessment_score": 79.0,
           "placeholder": false,
           "dimension_key": "dependency_health",
           "configured_weight": 1.0,
@@ -23116,19 +24496,19 @@
       }
     },
     "Logic clarity": {
-      "score": 82.5,
-      "strict": 82.5,
-      "verified_strict_score": 82.5,
+      "score": 79.5,
+      "strict": 79.5,
+      "verified_strict_score": 79.5,
       "checks": 10,
-      "failing": 0,
+      "failing": 10,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.825,
-          "failing": 0,
-          "weighted_failures": 1.75,
-          "assessment_score": 82.5,
+          "pass_rate": 0.795,
+          "failing": 10,
+          "weighted_failures": 2.05,
+          "assessment_score": 79.5,
           "placeholder": false,
           "dimension_key": "logic_clarity",
           "configured_weight": 6.0,
@@ -23137,19 +24517,19 @@
       }
     },
     "Low elegance": {
-      "score": 80.0,
-      "strict": 80.0,
-      "verified_strict_score": 80.0,
+      "score": 84.0,
+      "strict": 84.0,
+      "verified_strict_score": 84.0,
       "checks": 10,
-      "failing": 2,
+      "failing": 9,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
-          "pass_rate": 0.8,
-          "failing": 2,
-          "weighted_failures": 2.0,
-          "assessment_score": 80.0,
+          "pass_rate": 0.84,
+          "failing": 9,
+          "weighted_failures": 1.6,
+          "assessment_score": 84.0,
           "placeholder": false,
           "dimension_key": "low_level_elegance",
           "configured_weight": 12.0,
@@ -23311,6 +24691,19 @@
       "attest": "",
       "import_file": ".desloppify/subagents/runs/20261026_081720/holistic_issues_merged.json",
       "packet_sha256": "58093a76dfd2e795d6a9a379d9a6ce78cc71afe227a34f7b2c2161b0855fc309"
+    },
+    {
+      "timestamp": "2026-10-26T10:22:46+00:00",
+      "mode": "trusted_internal",
+      "trusted": true,
+      "reason": "trusted import-run replay from 20261026_101501",
+      "override_used": false,
+      "attested_external": false,
+      "provisional": false,
+      "provisional_count": 0,
+      "attest": "",
+      "import_file": ".desloppify/subagents/runs/20261026_101501/holistic_issues_merged.json",
+      "packet_sha256": "f8f95504f47bcd177c42ff6290377f9974463c24e3985a0c9047ce829c749125"
     }
   ]
 }

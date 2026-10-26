@@ -1,0 +1,275 @@
+{
+  "batch": "test_strategy",
+  "batch_index": 10,
+  "assessments": {
+    "test_strategy": 64.0
+  },
+  "dimension_notes": {
+    "test_strategy": {
+      "evidence": [
+        "The suite is green and fast: `cargo test --workspace --locked` runs 122 tests across 23 crates in well under a second per binary (a2a 8, acp 3, agent-core 3, agent-protocol 5, api-gateway 16, api-server 4, audit 2, bas-runner 0, connectors 6, cvss 8, detection-agent 4, enrichment-lib 2, http-limits 7, hunt-agent 0, ingestion-gateway 1, llm-client 5, orchestrator 3, policy-engine 14 + 3 integration, response-agent 2, tool-server 24, triage-agent 2, vuln-agent 0).",
+        "CI (`.github/workflows/ci.yml`) gates on `cargo test --workspace --locked`, clippy -D warnings, fmt, rustsec audit, `sigma check`, and `bash evals/run.sh`, so tests cannot silently rot.",
+        "Test seams are designed in, not bolted on: `agent-core/src/agent_loop.rs:65-72` injects `Arc<dyn LlmProvider>`, `Arc<dyn ToolGateway>`, `Arc<dyn CheckpointStore>`; `llm_client::MockProvider` is a public (non-cfg(test)) provider; `agent-core/src/checkpoint.rs:22` ships `InMemoryCheckpointer`; `tool-server/src/idempotency.rs:188` ships `Store::mem`. The loop tests (agent_loop.rs:239-275) run with zero infrastructure because of this.",
+        "Cross-module contract tests exist and are the strongest part of the portfolio: `tool-server/src/executors/mod.rs:744` proves every `policies/tools.yml` name has an executor, `tool-server/src/main.rs:340` repeats it against the real registry, `response-agent/src/main.rs:459` proves every rollback target is allowlisted, and `policy-engine/tests/policies.rs` loads the shipped policy files and asserts the documented deny/approval matrix.",
+        "Pure logic in the security-critical policy gate is well covered: `policy-engine/src/lib.rs:585-821` has 14 tests (deny-by-default, schema violation, RFC1918 block, Tier-0 protection, blast radius, cooldown, kill switch, approval bypass).",
+        "Time-dependent logic is tested with injected clocks rather than sleeps: `http-limits/src/lib.rs:352-393` passes `Instant` into `RateLimiter::check`, and `policy-engine` kill-file tests use a per-test `std::env::temp_dir()/ares-kill-{uuid}` dir (lib.rs:749-756).",
+        "Large untested surfaces remain: `api-server/src/a2a.rs` (548 LOC), `acp.rs` (568), `run_stream.rs` (184), `stream.rs` (66), `kill.rs` (107), `playbooks.rs` (58) have no test module at all; `hunt-agent` (266+123 LOC), `vuln-agent` (325), `bas-runner` (309+68) have zero tests; `triage-agent` (575) and `response-agent` (495) have two tests each on leaf helpers.",
+        "No integration harness exists for Postgres, NATS, or HTTP: `grep -rn 'sqlx::test|testcontainers' crates` returns nothing, and `api-server/Cargo.toml` declares no `[dev-dependencies]` (no `tower` util for `oneshot`), so DB-backed stores and axum handlers are only reachable through `main()`.",
+        "`evals/run.sh` is a format check that ends with `TODO: replay golden sets through triage-agent and score precision/recall`; the golden corpus is 13 alerts (`evals/golden_sets/triage_seed.jsonl`) and `evals/policy_tests.md` (34 lines) is a prose matrix no test executes."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change",
+      "confidence": "high"
+    }
+  },
+  "dimension_judgment": {
+    "test_strategy": {
+      "dimension_character": "The test portfolio is deliberately shaped around pure logic and cross-module contracts: policy decisions, CVSS scoring, IOC extraction, idempotency/approval state machines, rate limiters and registry-vs-allowlist coverage all have real behavioural tests, and the seams (provider/gateway/checkpointer traits, in-memory stores, MockProvider, injected `Instant`) mean those tests need no infrastructure and run green in CI in seconds. What is missing is the other half of the pyramid: the HTTP boundary (api-server A2A/ACP/SSE, both auth middlewares), every Postgres-backed store, and the agent pipelines that consume LLM output have no tests or only leaf-helper tests, so a developer editing those areas has essentially no safety net. The pattern is consistent rather than random — helpers get tested, boundaries and I/O loops do not — which makes the risk predictable but still unvalidated.",
+      "score_rationale": "Strong, well-designed unit and contract tests push this above the 60 anchor: the policy gate, idempotency/approval semantics, retry-sleep bounds, b64url, dedupe keys and registry coverage are genuinely trustworthy, and CI runs everything. It falls well short of 80 because the highest-consequence paths are untested — the auth middlewares that gate the platform (http-limits/src/auth.rs:88, api-gateway/src/auth.rs:95), the 1.4k LOC of api-server HTTP surface, the audit hash chain, and the triage/vuln/hunt logic that turns model output into actions — with no DB/HTTP integration harness and an eval script that only validates JSON shape. The recent additions (dedupe keys, valid_cve_id, pipeline helpers, retry_sleep/b64url, invoke composition, rollback targets, severity/kill/hex, http-limits key parsing, policy integration dir) are good behaviour-level tests and lift the floor, but they extend the helper-level pattern rather than closing the boundary gaps."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "test_strategy",
+      "identifier": "auth_middleware_decision_untested",
+      "summary": "Both auth middlewares' 401/503/anonymous branches have no test; only key predicates are covered",
+      "related_files": [
+        "crates/http-limits/src/auth.rs",
+        "crates/api-gateway/src/auth.rs",
+        "crates/api-server/src/main.rs"
+      ],
+      "evidence": [
+        "`http-limits/src/auth.rs:88` `require_auth` is the gate for api-server (main.rs:299), tool-server (main.rs:299) and ingestion-gateway (main.rs:148); the only tests (lines 120-138) exercise `ApiKeys::actor_for`/`is_enabled`, never the middleware's missing-credentials 401, invalid-credentials 401, dev-mode pass-through, or `Actor` insertion.",
+        "`api-gateway/src/auth.rs:95` `middleware` owns the 401 / 503-gateway_auth_not_configured / allow-anonymous branches; tests at lines 135-174 only cover `presented_key`, `accepts`, `is_exempt`, and the test fixture's own `allow_anonymous` field.",
+        "`http-limits/src/lib.rs:394` already demonstrates the required harness (`tower` `util` dev-dep + `app.oneshot(peer_req(...))`), so the same style would drive both middlewares without new infrastructure."
+      ],
+      "suggestion": "Add oneshot middleware tests in each crate: no credentials -> 401, wrong key -> 401, valid Bearer/X-API-Key -> 200 and `Actor` present in extensions, unset key set -> pass-through with `anonymous` (and 503 for api-gateway when keys are empty and anonymous is disabled).",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "api_server_http_surface_untested",
+      "summary": "api-server's 1.4k LOC of HTTP handlers (A2A, ACP, SSE, kill, playbooks) have no handler-level tests",
+      "related_files": [
+        "crates/api-server/src/a2a.rs",
+        "crates/api-server/src/acp.rs",
+        "crates/api-server/src/main.rs",
+        "crates/api-server/Cargo.toml"
+      ],
+      "evidence": [
+        "`a2a.rs` (548 LOC) and `acp.rs` (568 LOC) contain no `#[cfg(test)]` module; the crate's 4 tests are `api_router_registers_all_routes` (main.rs:404-409, which builds the router and drops it), `classify_maps_paths_to_tiers` (ratelimit.rs:56) and two `valid_cve_id` asserts (vulns.rs:158-172).",
+        "`api-server/Cargo.toml` has no `[dev-dependencies]`, so the crate cannot do `tower::ServiceExt::oneshot` route tests or a DB-backed test — unlike api-gateway (`router_registers_all_routes`, main.rs:258) and http-limits, which do.",
+        "Even the DB-free helpers are untested: `a2a::task_uuid` (a2a.rs:226, uuid-vs-v5-hash branch), `a2a::build_payload` (a2a.rs:304, HandoffPayload branch for response-agent), `acp::input_to_text` (acp.rs:204), `acp::manifest_for` (acp.rs:61)."
+      ],
+      "suggestion": "Cover the DB-free helpers first (task_uuid with a UUID and a non-UUID id, build_payload for SUBJECT_RESPOND vs other subjects, input_to_text, manifest_for), then add a `tower` dev-dependency and oneshot tests for `/.well-known/agent.json`, `/a2a/agents`, `/a2a/{agent}` and an unknown agent's 404, following api-gateway/src/main.rs:258.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "test_coverage::crates/api-server/src/a2a.rs::transitive_only"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "shared_run_stream_db_coupled",
+      "summary": "Shared SSE state machine takes a concrete PgPool, so the module both protocols depend on cannot be unit-tested",
+      "related_files": [
+        "crates/api-server/src/run_stream.rs",
+        "crates/agent-core/src/checkpoint.rs"
+      ],
+      "evidence": [
+        "`run_stream.rs:34` `checkpoint_progress(pool: &PgPool, ..)`, `:94` `RunRecord::load(pool: &PgPool, ..)` and `:121` `activity_stream(rx, pool: PgPool, ..)` bind the replay/close state machine to `sqlx::PgPool`; the file has no test module.",
+        "`wait_for_terminal` (run_stream.rs:55-82) needs only a `broadcast::Receiver` and a timeout — lag handling, wrong `workflow_run_id`, and terminal-step matching are all testable today but untested.",
+        "The codebase already has the better pattern in `agent-core/src/checkpoint.rs:22-40`: a `CheckpointStore` trait plus `InMemoryCheckpointer`, which is why `agent_loop.rs` tests need no Postgres."
+      ],
+      "suggestion": "Replace the `PgPool` parameter with a small trait or a record-loader closure so `activity_stream` can be driven by a fake, and add direct tests for `wait_for_terminal` (lagged receiver, non-matching correlation id, terminal vs non-terminal step, timeout).",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "activity_terminal_step_contract_untested",
+      "summary": "`terminal_step` agent/step string contract has no test; renaming one emitted step silently hangs every SSE stream",
+      "related_files": [
+        "crates/agent-protocol/src/activity.rs",
+        "crates/api-server/src/run_stream.rs",
+        "crates/triage-agent/src/main.rs"
+      ],
+      "evidence": [
+        "`activity.rs:30-38` is a hard-coded agent x step table ('close', 'handoff', 'kill_switch', 'done', 'deployed', 'rejected'); the module has no `#[cfg(test)]`.",
+        "`run_stream.rs:72` is the only thing that closes an A2A/ACP stream, and the emitters are per-agent literals in triage-agent, response-agent, detection-agent and hunt-agent — a rename on the emitting side degrades to `wait_for_terminal` timing out (run_stream.rs:81) instead of a failing test.",
+        "`aborted_step` (activity.rs:41) decides whether a run is marked failed vs completed and is likewise untested."
+      ],
+      "suggestion": "Add a table test over every agent x terminal step plus a non-terminal step and an unknown agent, and a test asserting each agent's emitted step constants are members of that table (export the literals as consts so the test can reference them).",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "no_db_integration_harness",
+      "summary": "No database-backed test harness: every Postgres store is untested while its in-memory twin is tested",
+      "related_files": [
+        "crates/tool-server/src/idempotency.rs",
+        "crates/audit/src/lib.rs",
+        "crates/orchestrator/src/dedupe.rs",
+        "crates/agent-core/src/checkpoint.rs"
+      ],
+      "evidence": [
+        "`idempotency.rs:183` `Store::pg` and `:188` `Store::mem` are documented as 'identical semantics', but all 9 tests (lines 424-545) drive only `mem` and the pure `Record` helpers; `claim_pg`'s `INSERT .. ON CONFLICT` reclaim/expiry SQL (lines 217-320) is never executed.",
+        "`audit/src/lib.rs:157` `verify_chain` and `:238` `canonical_string` (the exact string whose hash is stored) are untested — the two tests cover `sha256_hex` shape and `GENESIS_HASH`, so a field-order change in `canonical_string` would invalidate every existing row's hash with no failing test.",
+        "`orchestrator/src/dedupe.rs:32` `check_and_mark`, `agent-core/src/checkpoint.rs:49` `PostgresCheckpointer` and `api-server`'s `a2a_tasks`/`acp_runs` lifecycle have no tests; `grep -rn 'sqlx::test|testcontainers' crates` returns nothing."
+      ],
+      "suggestion": "Add one `#[sqlx::test]` module (or a `DATABASE_URL`-gated module skipped when unset) per store and run the same scenario list against `mem` and `pg` to prove parity; start with audit append->verify_chain (including a tampered row) and idempotency claim/finish/expired-reclaim.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "agent_core_budget_killswitch_branches_untested",
+      "summary": "Agent loop's kill-switch branch and two of three budget stop reasons are never exercised",
+      "related_files": [
+        "crates/agent-core/src/agent_loop.rs",
+        "crates/agent-core/src/budget.rs",
+        "crates/agent-core/src/gateway.rs"
+      ],
+      "evidence": [
+        "`agent_loop.rs:142-148` blocks a tool call and stops with `kill_switch`; the three tests (lines 239-275) cover only `final`, `max_steps` and fence stripping.",
+        "`budget.rs:39` `exceeded_reason` is pure and takes an injected `Instant`, yet has no direct test, so the `max_tokens` and `wall_time` stop reasons are never asserted anywhere.",
+        "`gateway.rs:130-155` `invoke_verdict`'s retry loop (retryable flag, `MAX_RETRIES`, `backoff`) is untested — only the sleep helper in connectors has a bound test."
+      ],
+      "suggestion": "Add `exceeded_reason` tests built from a literal `AgentState` plus `Instant::now() - Duration` (the injected-clock pattern already used at http-limits/src/lib.rs:377), a loop test with a token-exhausting provider, and make the kill switch injectable (a bool field) so the block branch is testable without process env.",
+      "confidence": "high",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "core_agent_pipelines_leaf_only_tests",
+      "summary": "Triage/vuln/hunt/orchestrator business logic has 0-2 tests each, all on trivial helpers",
+      "related_files": [
+        "crates/triage-agent/src/main.rs",
+        "crates/vuln-agent/src/main.rs",
+        "crates/hunt-agent/src/main.rs",
+        "crates/orchestrator/src/main.rs"
+      ],
+      "evidence": [
+        "`triage-agent/src/main.rs` (575 LOC) tests only `severity_from_level` and `severity_gte_high` (lines 558-573); `llm_verdict` (line 142, fence stripping + `Verdict` parsing) and `decision_verdict` (line 200) are untested even though `llm_client::MockProvider` is a public seam.",
+        "`vuln-agent/src/main.rs` has zero tests: `best_cvss` (line 91) picks the severity shown in the console and `watchlist_match` (line 108) decides whether an advisory is surfaced at all.",
+        "`hunt-agent/src/main.rs` has zero tests: `score_hits` (line 64) is pure bucketing; `orchestrator/src/main.rs:49` `route_subject` (the routing table where the fixed DLQ-loop bug lived) is untested while `dedupe_key` next to it is tested."
+      ],
+      "suggestion": "Add the pure-function tests first, none of which need infrastructure: `llm_verdict` with MockProvider returning fenced JSON, bare JSON and malformed JSON; `best_cvss`/`watchlist_match` against a literal `CveRecord`; `score_hits` bucket boundaries; `route_subject` for all six `EnvelopeKind`s including `BasResult` with `detected` true/false.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "concern_verdict": "confirmed",
+      "concern_fingerprint": "test_coverage::crates/vuln-agent/src/main.rs::untested_module"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "eval_harness_is_stub",
+      "summary": "The only end-to-end evaluation of the LLM triage layer is a JSON format check",
+      "related_files": [
+        "evals/run.sh",
+        "evals/README.md",
+        "evals/golden_sets/triage_seed.jsonl",
+        ".github/workflows/ci.yml"
+      ],
+      "evidence": [
+        "`evals/run.sh` validates that each golden-set line parses and carries label tp/fp, then prints `TODO: replay golden sets through triage-agent and score precision/recall (needs ANTHROPIC_API_KEY)` and exits 0; CI runs it as the `eval` job, so a green build says nothing about verdict quality.",
+        "The corpus is 13 alerts (`evals/golden_sets/triage_seed.jsonl`) and `evals/policy_tests.md` (34 lines) is a prose negative matrix that no test executes.",
+        "Nothing exercises `triage-agent`'s `process` (main.rs:393) end-to-end; its only entry point is `main()`, so prompt/verdict/threshold regressions are invisible until runtime."
+      ],
+      "suggestion": "Make `run.sh` replay the golden set through a testable `triage_agent::process` (extract it from `main`, drive it with `MockProvider` or recorded completions) and fail below a precision/recall threshold; convert the `policy_tests.md` rows into cases in `policy-engine/tests/policies.rs`, which already loads the shipped policy files.",
+      "confidence": "medium",
+      "impact_scope": "codebase",
+      "fix_scope": "architectural_change"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "dry_run_success_contract_untested",
+      "summary": "Unconfigured executors' dry-run success and its propagation to response-agent have no test",
+      "related_files": [
+        "crates/tool-server/src/executors/mod.rs",
+        "crates/tool-server/src/main.rs",
+        "crates/response-agent/src/main.rs"
+      ],
+      "evidence": [
+        "`executors/mod.rs:35` `dry_run(args)` returns `{\"dry_run\": true}` as a *successful* result, used by the `DryRun` struct (lines 551-563, 12 allowlist entries) and by every connector-backed executor whose client is `None` (e.g. `OpensearchQuery::execute`, lines 66-70); `tool-server/src/main.rs:192-199` lifts that into `ToolResult.dry_run`.",
+        "`response-agent/src/main.rs:283` and `:300` skip the post-check and the rollback exactly when `dry_run` is set — the only guard that stops a credential-less fake success from being recorded as a real action — and neither side is asserted by a test.",
+        "`tool-server/src/main.rs:180` `run_tool` is DB-free, but only the happy `cvss.score` path is tested (main.rs:347-366)."
+      ],
+      "suggestion": "Add a tool-server test asserting `run_tool` returns ok=true + dry_run=true for a connector-less tool (e.g. `thehive.case.create` with `ConnectorConfig::default()`) and ok=false for an unregistered name; add a response-agent test that `rollback_for` is not attached for a dry-run result.",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    }
+  ],
+  "retrospective": {
+    "root_causes": [
+      "Tests are written where a seam already exists (pure functions, traits, in-memory stores) and skipped where the code binds a concrete external type (PgPool, axum handlers, NATS client), so coverage follows testability rather than risk.",
+      "No shared integration harness (sqlx::test, testcontainers, wiremock, tower oneshot dev-deps) exists in the workspace, so every DB- or HTTP-boundary behaviour is untestable by default rather than by decision.",
+      "Security and safety branches (auth middleware, dry-run success, kill switch, audit chain format) are documented in comments but not pinned by assertions, so their correctness depends on review rather than on CI."
+    ],
+    "likely_symptoms": [
+      "auth_middleware_decision_untested",
+      "no_db_integration_harness",
+      "core_agent_pipelines_leaf_only_tests"
+    ],
+    "possible_false_positives": [
+      "transitive_only test_coverage findings for small leaf modules (agent-protocol/handoff.rs, agent-core/error.rs, llm-client/error.rs) where the module is a type/error definition and coverage is genuinely achieved through importing tests",
+      "untested_module findings for binary entry points (bas-runner, hunt-agent, vuln-agent main) that mostly wire dependencies — the real gap is the specific pure functions inside them, not the `main()` wiring"
+    ]
+  },
+  "context_updates": {
+    "test_strategy": {
+      "add": [
+        {
+          "header": "Testability built in via injected traits",
+          "description": "AgentLoop takes Arc<dyn LlmProvider>/ToolGateway/CheckpointStore, llm_client::MockProvider is a public provider, and InMemoryCheckpointer plus idempotency/approval in-memory stores exist, so core logic is unit-testable with no infrastructure. This is why the green suite runs in seconds.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Cross-module contract tests pin shipped data",
+          "description": "Tests load the real policies/*.yml and assert registry coverage (tool-server/executors/mod.rs:744, main.rs:340), rollback-target allowlisting (response-agent/main.rs:459) and the deny/approval matrix (policy-engine/tests/policies.rs), catching drift between config data and code that no unit test would.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Injected clocks instead of sleeps",
+          "description": "Rate limiter tests pass an explicit Instant and policy kill-file tests use per-test temp dirs, so timing and filesystem state do not make the suite flaky — the fragility patterns the rubric warns about are largely avoided.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Coverage follows seams, not risk",
+          "description": "Where a seam exists (pure helper, trait, in-memory store) behaviour is tested; where code binds a concrete PgPool, axum handler or NATS client it is not. The result is a consistent but risk-blind portfolio: auth middleware, audit chain and api-server handlers are the least tested and the most consequential.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "No workspace integration harness",
+          "description": "There is no sqlx::test, testcontainers, wiremock or tower-oneshot dev-dependency anywhere except tower in http-limits/api-gateway, so DB-backed stores and HTTP routes are only reachable through main(). Adding one harness would unlock most of the current gaps at once.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Eval harness is a stub",
+          "description": "evals/run.sh only validates golden-set JSON shape and CI runs it as the eval gate, so the LLM verdict layer — the product's core judgement — has no behavioural evaluation despite a 13-alert labeled corpus existing.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Recent additions are behaviour-level, not snapshot",
+          "description": "The newest tests (orchestrator dedupe keys, valid_cve_id, detection pipeline helpers, connectors retry_sleep/b64url, tool-server invoke composition, rollback targets, severity/kill/hex, http-limits key parsing) assert behaviour with concrete inputs and outputs; there are no snapshot-style tests in the Rust workspace at all.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

@@ -566,3 +566,21 @@ pub async fn get_session(
         state: None,
     }))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn input_to_text_joins_messages() {
+        let input = vec![Message::agent_text("user", "one"), Message::agent_text("user", "two")];
+        assert_eq!(input_to_text(&input), "one\n\ntwo");
+    }
+
+    #[test]
+    fn input_to_text_falls_back_to_json() {
+        let input = vec![Message::agent_text("user", "")];
+        let text = input_to_text(&input);
+        assert!(text.starts_with('['), "{text}");
+    }
+}

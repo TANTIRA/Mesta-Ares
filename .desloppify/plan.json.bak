@@ -3,7 +3,6 @@
   "created": "2026-10-26T08:16:14+00:00",
   "updated": "2026-10-26T10:14:41+00:00",
   "queue_order": [
-    "review::.::holistic::initialization_coupling::cwd_relative_path_constants",
     "review::.::holistic::ai_generated_debt::agent-core-unused-framework",
     "review::.::holistic::ai_generated_debt::restating-field-docs",
     "review::.::holistic::ai_generated_debt::unwrap-or-default-on-infallible-serde",
@@ -3319,9 +3318,7 @@
       "candidates": []
     }
   },
-  "promoted_ids": [
-    "review::.::holistic::initialization_coupling::cwd_relative_path_constants"
-  ],
+  "promoted_ids": [],
   "plan_start_scores": {
     "strict": 77.7,
     "overall": 78.3,
@@ -10040,6 +10037,20 @@
       "actor": "user",
       "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
       "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T10:14:41+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::initialization_coupling::cwd_relative_path_constants"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational).",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually Consolidated shared machinery: http_limits::build_limiter (one limiter builder for both edge services, policies dir resolved by agent_protocol::paths), agent_protocol::hex for the four hex encoders, one yaml_dir loader behind /playbooks and /coverage, env-overridable content dirs (DETECTION_ACTIVE_DIR/DETECTION_PENDING_DIR/BAS_SCENARIOS_DIR/PLAYBOOKS_DIR), one policies_dir (agent_protocol::kill) used by tool-server/api-server, ModelRouter/ModelTier deleted (agents call their provider directly), and EvalCtx::asset_classes removed because no inventory ever fed it (host-class list documented as informational). and I am not gaming the score."
+      }
     }
   ],
   "epic_triage_meta": {},
@@ -10177,7 +10188,8 @@
     "review::.::holistic::abstraction_fitness::model_router_never_routes",
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
     "review::.::holistic::mid_level_elegance::evalctx_asset_classes_unwired",
-    "review::.::holistic::initialization_coupling::eval_ctx_singleton_never_initialized"
+    "review::.::holistic::initialization_coupling::eval_ctx_singleton_never_initialized",
+    "review::.::holistic::initialization_coupling::cwd_relative_path_constants"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3

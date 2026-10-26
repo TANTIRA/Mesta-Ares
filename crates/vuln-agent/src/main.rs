@@ -323,3 +323,53 @@ async fn main() -> anyhow::Result<()> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn metric(version: &str, score: f64, severity: Option<&str>) -> connectors::CvssMetric {
+        connectors::CvssMetric {
+            version: version.to_string(),
+            source: "nvd@nist.gov".to_string(),
+            kind: "Primary".to_string(),
+            vector: "CVSS:3.1/AV:N".to_string(),
+            base_score: score,
+            severity: severity.map(str::to_string),
+        }
+    }
+
+    fn record(score: f64, severity: Option<&str>) -> CveRecord {
+        let mut rec = CveRecord {
+            id: "CVE-2024-1234".to_string(),
+            source_identifier: None,
+            published: None,
+            last_modified: None,
+            vuln_status: None,
+            description: None,
+            metrics: vec![metric("3.1", score, severity)],
+            weaknesses: Vec::new(),
+            configurations: serde_json::Value::Null,
+            references: Vec::new(),
+            has_kev: false,
+            raw: serde_json::Value::Null,
+        };
+        rec.metrics.push(metric("4.0", score, severity));
+        rec
+    }
+
+    #[test]
+    fn best_cvss_takes_the_highest_metric() {
+        let mut rec = record(4.0, Some("MEDIUM"));
+        rec.metrics.push(metric("4.0", 9.8, None));
+        let (score, severity) = best_cvss(&rec).expect("metric");
+        assert_eq!(score, 9.8);
+        assert_eq!(severity, Severity::Critical, "score band when NVD omits it");
+    }
+
+    #[test]
+    fn unknown_min_severity_is_a_hard_error() {
+        assert!(Severity::parse("sev1").is_none());
+        assert_eq!(Severity::parse("HIGH"), Some(Severity::High));
+    }
+}

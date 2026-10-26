@@ -1,26 +1,590 @@
 {
-  "command": "resolve",
-  "patterns": [
-    "review::.::holistic::incomplete_migration::connector_bypass_raw_http"
-  ],
-  "status": "fixed",
-  "resolved": [
-    "review::.::holistic::incomplete_migration::connector_bypass_raw_http"
-  ],
-  "count": 1,
-  "next_command": "desloppify next",
-  "overall_score": 78.3,
-  "objective_score": 84.1,
-  "strict_score": 77.7,
-  "verified_strict_score": 84.1,
-  "prev_overall_score": 78.3,
-  "prev_objective_score": 84.1,
-  "prev_strict_score": 77.7,
-  "prev_verified_strict_score": 84.1,
-  "attestation": "I have actually Covered by the run_stream extraction: A2A and ACP share one SSE state machine (RunRecord/activity_stream), one checkpoint fold and one wait-for-terminal helper; ACP's duplicate cancel branches are collapsed and triage writes verdicts through OpensearchClient::index_doc instead of a hand-rolled _doc POST. and I am not gaming the score.",
+  "command": "show",
+  "query": "test_coverage",
+  "status_filter": "open",
+  "total": 40,
+  "summary": {
+    "by_tier": {
+      "T2": 6,
+      "T3": 34
+    },
+    "by_detector": {
+      "test_coverage": 40
+    },
+    "files": 40
+  },
+  "by_file": {
+    "crates/cvss/src/lookup_table.rs": [
+      {
+        "id": "test_coverage::crates/cvss/src/lookup_table.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (278 LOC, 2 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 278,
+          "importer_count": 2,
+          "loc_weight": 16.673332000533065
+        }
+      }
+    ],
+    "crates/llm-client/src/anthropic.rs": [
+      {
+        "id": "test_coverage::crates/llm-client/src/anthropic.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (155 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 155,
+          "importer_count": 1,
+          "loc_weight": 12.449899597988733
+        }
+      }
+    ],
+    "crates/orchestrator/src/main.rs": [
+      {
+        "id": "test_coverage::crates/orchestrator/src/main.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (146 LOC, 0 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 146,
+          "importer_count": 0,
+          "loc_weight": 12.083045973594572
+        }
+      }
+    ],
+    "crates/agent-protocol/src/audit.rs": [
+      {
+        "id": "test_coverage::crates/agent-protocol/src/audit.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (34 LOC, 2 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 34,
+          "importer_count": 2,
+          "loc_weight": 5.830951894845301
+        }
+      }
+    ],
+    "crates/bas-runner/src/main.rs": [
+      {
+        "id": "test_coverage::crates/bas-runner/src/main.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (302 LOC, 0 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 302,
+          "importer_count": 0,
+          "loc_weight": 17.378147196982766
+        }
+      }
+    ],
+    "crates/agent-core/src/error.rs": [
+      {
+        "id": "test_coverage::crates/agent-core/src/error.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (21 LOC, 4 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 21,
+          "importer_count": 4,
+          "loc_weight": 4.58257569495584
+        }
+      }
+    ],
+    "crates/response-agent/src/activity.rs": [
+      {
+        "id": "test_coverage::crates/response-agent/src/activity.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (41 LOC, 1 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 41,
+          "importer_count": 1,
+          "loc_weight": 6.4031242374328485
+        }
+      }
+    ],
+    "crates/hunt-agent/src/hypotheses.rs": [
+      {
+        "id": "test_coverage::crates/hunt-agent/src/hypotheses.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (123 LOC, 1 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 123,
+          "importer_count": 1,
+          "loc_weight": 11.090536506409418
+        }
+      }
+    ],
+    "crates/cvss/src/lib.rs": [
+      {
+        "id": "test_coverage::crates/cvss/src/lib.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (91 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 91,
+          "importer_count": 1,
+          "loc_weight": 9.539392014169456
+        }
+      }
+    ],
+    "crates/agent-protocol/src/handoff.rs": [
+      {
+        "id": "test_coverage::crates/agent-protocol/src/handoff.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (28 LOC, 4 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 28,
+          "importer_count": 4,
+          "loc_weight": 5.291502622129181
+        }
+      }
+    ],
+    "crates/api-server/src/stream.rs": [
+      {
+        "id": "test_coverage::crates/api-server/src/stream.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (68 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 68,
+          "importer_count": 1,
+          "loc_weight": 8.246211251235321
+        }
+      }
+    ],
+    "crates/response-agent/src/main.rs": [
+      {
+        "id": "test_coverage::crates/response-agent/src/main.rs::untested_critical",
+        "tier": 2,
+        "confidence": "high",
+        "summary": "Untested critical module (429 LOC, 0 importers) \u2014 high blast radius",
+        "detail": {
+          "kind": "untested_critical",
+          "loc": 429,
+          "importer_count": 0,
+          "loc_weight": 20.71231517720798,
+          "complexity_score": 24
+        }
+      }
+    ],
+    "crates/api-server/src/a2a.rs": [
+      {
+        "id": "test_coverage::crates/api-server/src/a2a.rs::transitive_only",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "No direct tests (640 LOC, 2 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 640,
+          "importer_count": 2,
+          "loc_weight": 25.298221281347036,
+          "complexity_score": 57
+        }
+      }
+    ],
+    "crates/agent-protocol/src/envelope.rs": [
+      {
+        "id": "test_coverage::crates/agent-protocol/src/envelope.rs::transitive_only",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "No direct tests (59 LOC, 14 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 59,
+          "importer_count": 14,
+          "loc_weight": 7.681145747868608
+        }
+      }
+    ],
+    "crates/llm-client/src/error.rs": [
+      {
+        "id": "test_coverage::crates/llm-client/src/error.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (22 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 22,
+          "importer_count": 1,
+          "loc_weight": 4.69041575982343
+        }
+      }
+    ],
+    "crates/orchestrator/src/dedupe.rs": [
+      {
+        "id": "test_coverage::crates/orchestrator/src/dedupe.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (87 LOC, 1 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 87,
+          "importer_count": 1,
+          "loc_weight": 9.327379053088816
+        }
+      }
+    ],
+    "crates/agent-core/src/budget.rs": [
+      {
+        "id": "test_coverage::crates/agent-core/src/budget.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (54 LOC, 2 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 54,
+          "importer_count": 2,
+          "loc_weight": 7.3484692283495345
+        }
+      }
+    ],
+    "crates/agent-core/src/checkpoint.rs": [
+      {
+        "id": "test_coverage::crates/agent-core/src/checkpoint.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (84 LOC, 2 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 84,
+          "importer_count": 2,
+          "loc_weight": 9.16515138991168
+        }
+      }
+    ],
+    "crates/api-server/src/coverage.rs": [
+      {
+        "id": "test_coverage::crates/api-server/src/coverage.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (62 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 62,
+          "importer_count": 1,
+          "loc_weight": 7.874007874011811
+        }
+      }
+    ],
+    "crates/vuln-agent/src/main.rs": [
+      {
+        "id": "test_coverage::crates/vuln-agent/src/main.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (322 LOC, 0 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 322,
+          "importer_count": 0,
+          "loc_weight": 17.944358444926362
+        }
+      }
+    ],
+    "crates/bas-runner/src/scenario.rs": [
+      {
+        "id": "test_coverage::crates/bas-runner/src/scenario.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (63 LOC, 1 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 63,
+          "importer_count": 1,
+          "loc_weight": 7.937253933193772
+        }
+      }
+    ],
+    "crates/detection-agent/src/activity.rs": [
+      {
+        "id": "test_coverage::crates/detection-agent/src/activity.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (41 LOC, 1 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 41,
+          "importer_count": 1,
+          "loc_weight": 6.4031242374328485
+        }
+      }
+    ],
+    "crates/orchestrator/src/nats_bus.rs": [
+      {
+        "id": "test_coverage::crates/orchestrator/src/nats_bus.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (41 LOC, 1 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 41,
+          "importer_count": 1,
+          "loc_weight": 6.4031242374328485
+        }
+      }
+    ],
+    "crates/a2a/src/card.rs": [
+      {
+        "id": "test_coverage::crates/a2a/src/card.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (67 LOC, 2 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 67,
+          "importer_count": 2,
+          "loc_weight": 8.18535277187245
+        }
+      }
+    ],
+    "crates/api-server/src/playbooks.rs": [
+      {
+        "id": "test_coverage::crates/api-server/src/playbooks.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (83 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 83,
+          "importer_count": 1,
+          "loc_weight": 9.1104335791443
+        }
+      }
+    ],
+    "crates/agent-core/src/gateway.rs": [
+      {
+        "id": "test_coverage::crates/agent-core/src/gateway.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (134 LOC, 2 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 134,
+          "importer_count": 2,
+          "loc_weight": 11.575836902790225
+        }
+      }
+    ],
+    "crates/agent-protocol/src/tool.rs": [
+      {
+        "id": "test_coverage::crates/agent-protocol/src/tool.rs::transitive_only",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "No direct tests (88 LOC, 10 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 88,
+          "importer_count": 10,
+          "loc_weight": 9.38083151964686
+        }
+      }
+    ],
+    "crates/api-server/src/vulns.rs": [
+      {
+        "id": "test_coverage::crates/api-server/src/vulns.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (147 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 147,
+          "importer_count": 1,
+          "loc_weight": 12.12435565298214
+        }
+      }
+    ],
+    "crates/agent-core/src/state.rs": [
+      {
+        "id": "test_coverage::crates/agent-core/src/state.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (45 LOC, 4 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 45,
+          "importer_count": 4,
+          "loc_weight": 6.708203932499369
+        }
+      }
+    ],
+    "crates/hunt-agent/src/activity.rs": [
+      {
+        "id": "test_coverage::crates/hunt-agent/src/activity.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (41 LOC, 1 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 41,
+          "importer_count": 1,
+          "loc_weight": 6.4031242374328485
+        }
+      }
+    ],
+    "crates/api-server/src/kill.rs": [
+      {
+        "id": "test_coverage::crates/api-server/src/kill.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (73 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 73,
+          "importer_count": 1,
+          "loc_weight": 8.54400374531753
+        }
+      }
+    ],
+    "crates/hunt-agent/src/main.rs": [
+      {
+        "id": "test_coverage::crates/hunt-agent/src/main.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (248 LOC, 0 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 248,
+          "importer_count": 0,
+          "loc_weight": 15.748015748023622
+        }
+      }
+    ],
+    "crates/detection-agent/src/main.rs": [
+      {
+        "id": "test_coverage::crates/detection-agent/src/main.rs::untested_critical",
+        "tier": 2,
+        "confidence": "high",
+        "summary": "Untested critical module (280 LOC, 0 importers) \u2014 high blast radius",
+        "detail": {
+          "kind": "untested_critical",
+          "loc": 280,
+          "importer_count": 0,
+          "loc_weight": 16.73320053068151,
+          "complexity_score": 23
+        }
+      }
+    ],
+    "crates/detection-agent/src/pipeline.rs": [
+      {
+        "id": "test_coverage::crates/detection-agent/src/pipeline.rs::untested_module",
+        "tier": 3,
+        "confidence": "high",
+        "summary": "Untested module (293 LOC, 1 importers)",
+        "detail": {
+          "kind": "untested_module",
+          "loc": 293,
+          "importer_count": 1,
+          "loc_weight": 17.11724276862369
+        }
+      }
+    ],
+    "crates/ingestion-gateway/src/nats_sink.rs": [
+      {
+        "id": "test_coverage::crates/ingestion-gateway/src/nats_sink.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (82 LOC, 2 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 82,
+          "importer_count": 2,
+          "loc_weight": 9.055385138137417
+        }
+      }
+    ],
+    "crates/api-server/src/acp.rs": [
+      {
+        "id": "test_coverage::crates/api-server/src/acp.rs::transitive_only",
+        "tier": 2,
+        "confidence": "medium",
+        "summary": "No direct tests (634 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 634,
+          "importer_count": 1,
+          "loc_weight": 25.179356624028344,
+          "complexity_score": 56
+        }
+      }
+    ],
+    "crates/triage-agent/src/activity.rs": [
+      {
+        "id": "test_coverage::crates/triage-agent/src/activity.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (44 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 44,
+          "importer_count": 1,
+          "loc_weight": 6.6332495807108
+        }
+      }
+    ],
+    "crates/tool-server/src/main.rs": [
+      {
+        "id": "test_coverage::crates/tool-server/src/main.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (291 LOC, 3 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 291,
+          "importer_count": 3,
+          "loc_weight": 17.05872210923198
+        }
+      }
+    ],
+    "crates/ingestion-gateway/src/pollers.rs": [
+      {
+        "id": "test_coverage::crates/ingestion-gateway/src/pollers.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (115 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 115,
+          "importer_count": 1,
+          "loc_weight": 10.723805294763608
+        }
+      }
+    ],
+    "crates/ingestion-gateway/src/main.rs": [
+      {
+        "id": "test_coverage::crates/ingestion-gateway/src/main.rs::transitive_only",
+        "tier": 3,
+        "confidence": "medium",
+        "summary": "No direct tests (154 LOC, 1 importers) \u2014 covered only via imports from tested modules",
+        "detail": {
+          "kind": "transitive_only",
+          "loc": 154,
+          "importer_count": 1,
+          "loc_weight": 12.409673645990857
+        }
+      }
+    ]
+  },
+  "total_matching": 40,
+  "noise_budget": 0,
+  "noise_global_budget": 0,
   "narrative": {
     "phase": "early_momentum",
-    "headline": "Score 77.7/100 with 370 issues open. Keep the momentum going. (49 review work items \u2014 run `desloppify show review --status open`)",
+    "headline": "Score 78.3/100 with 392 issues open. Keep the momentum going. (71 review work items \u2014 run `desloppify show review --status open`)",
     "dimensions": {
       "lowest_dimensions": [
         {
@@ -66,7 +630,7 @@
         {
           "name": "Security",
           "strict": 100.0,
-          "stuck_scans": 3
+          "stuck_scans": 4
         }
       ]
     },
@@ -129,8 +693,8 @@
       {
         "type": "refactor",
         "detector": "review",
-        "count": 49,
-        "description": "49 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
+        "count": 71,
+        "description": "71 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
         "command": "desloppify show review --status open",
         "impact": 0.0,
         "dimension": "Unknown",
@@ -196,7 +760,7 @@
     "strategy": {
       "fixer_leverage": {
         "auto_fixable_count": 0,
-        "total_count": 468,
+        "total_count": 534,
         "coverage": 0.0,
         "impact_ratio": 0.0,
         "recommendation": "none"
@@ -247,7 +811,7 @@
         }
       },
       "can_parallelize": true,
-      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 49 issue(s) \u2014 `desloppify show review --status open`."
+      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 71 issue(s) \u2014 `desloppify show review --status open`."
     },
     "tools": {
       "fixers": [],
@@ -280,7 +844,7 @@
       "command": "desloppify show structural --status open",
       "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable"
     },
-    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 49 issue(s) \u2014 `desloppify show review --status open`.",
+    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 71 issue(s) \u2014 `desloppify show review --status open`.",
     "verification_step": {
       "command": "desloppify scan",
       "reason": "revalidate after changes"
@@ -294,36 +858,22 @@
     ],
     "strict_target": {
       "target": 85.0,
-      "current": 77.7,
-      "gap": 7.3,
+      "current": 78.3,
+      "gap": 6.7,
       "state": "below",
       "warning": null
     },
     "reminders": [
       {
-        "type": "rereview_needed",
-        "message": "Subjective results may be stale after resolve. Re-run `desloppify review --prepare` to refresh, or reset with `desloppify scan --reset-subjective` before a clean rerun.",
-        "command": "desloppify review --prepare",
-        "priority": 1,
-        "severity": "high"
-      },
-      {
-        "type": "rescan_needed",
-        "message": "Rescan to verify \u2014 cascading effects may create new issues.",
-        "command": "desloppify scan",
-        "priority": 1,
-        "severity": "high"
-      },
-      {
         "type": "review_issues_pending",
-        "message": "49 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
+        "message": "71 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
         "command": "desloppify show review --status open",
         "priority": 1,
         "severity": "high"
       },
       {
         "type": "stagnant_nudge",
-        "message": "Security has been at 100.0% for 3 scans. The remaining items may be worth marking as wontfix if they're intentional.",
+        "message": "Security has been at 100.0% for 4 scans. The remaining items may be worth marking as wontfix if they're intentional.",
         "command": null,
         "priority": 2,
         "severity": "medium"
@@ -341,9 +891,7 @@
       "review_issues_pending": 2,
       "stagnant_nudge": 2,
       "wontfix_growing": 2,
-      "feedback_nudge": 1,
-      "rereview_needed": 1,
-      "rescan_needed": 1
+      "feedback_nudge": 1
     }
   },
   "config": {

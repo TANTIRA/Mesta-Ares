@@ -264,3 +264,24 @@ async fn main() -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn score_rewards_distinct_hosts() {
+        let one_host = json!({"hits": {"total": {"value": 5}, "hits": [
+            {"_source": {"agent": {"name": "web-01"}}},
+        ]}});
+        let three_hosts = json!({"hits": {"total": {"value": 5}, "hits": [
+            {"_source": {"agent": {"name": "web-01"}}},
+            {"_source": {"agent": {"name": "web-02"}}},
+            {"_source": {"agent": {"name": "web-03"}}},
+        ]}});
+        assert!(score_hits(&three_hosts) > score_hits(&one_host));
+        assert_eq!(score_hits(&json!({})), 0);
+    }
+}
+}
