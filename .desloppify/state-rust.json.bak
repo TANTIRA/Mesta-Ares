@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 113,
-    "open": 403,
+    "fixed": 119,
+    "open": 397,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 63,
-        "open": 44,
+        "fixed": 68,
+        "open": 39,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 30,
-        "open": 222,
+        "fixed": 31,
+        "open": 221,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -8332,11 +8332,11 @@
         "reasoning": "",
         "summary_hash": "117f858a"
       },
-      "status": "open",
-      "note": "One agent-core::NatsSink (JetStream-first, plain fallback) replaces the ingestion-gateway copy, api-server's ensure_jetstream + inline publish and the orchestrator's NatsBus; all producers and the orchestrator now share it. Orchestrator subscribes to the six explicit envelope subjects (no ares.* wildcard, so ares.activity/ares.vulns/ares.dlq can never be re-routed or self-fed), dead-letters with a logged publish on both parse and routing failures, and vuln-agent publishes a real Envelope on ares.vulns (SUBJECT_VULNS/SUBJECT_DLQ now live in agent-protocol).",
+      "status": "fixed",
+      "note": "bas-runner now publishes one BasResult envelope on ares.bas; the orchestrator routes it to ares.detection only when payload.detected is false, so detection-agent no longer receives each coverage gap twice.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:53:33+00:00",
       "reopen_count": 1,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8346,11 +8346,10 @@
       "suppressed_at": null,
       "suppression_pattern": null,
       "resolution_attestation": {
-        "kind": "manual_reopen",
-        "text": null,
-        "attested_at": "2026-10-26T09:53:27+00:00",
-        "scan_verified": false,
-        "previous_status": "fixed"
+        "kind": "manual",
+        "text": "I have actually bas-runner now publishes one BasResult envelope on ares.bas; the orchestrator routes it to ares.detection only when payload.detected is false, so detection-agent no longer receives each coverage gap twice. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:53:33+00:00",
+        "scan_verified": false
       }
     },
     "review::.::holistic::cross_module_architecture::jetstream_publish_duplicated": {
@@ -11945,11 +11944,11 @@
         "reasoning": "",
         "summary_hash": "4b08270f"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:00:45+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11957,7 +11956,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:00:45+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::authorization_consistency::a2a-cards-advertise-unenforced-bearer": {
       "id": "review::.::holistic::authorization_consistency::a2a-cards-advertise-unenforced-bearer",
@@ -11981,11 +11986,11 @@
         "reasoning": "",
         "summary_hash": "897f07c7"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:00:50+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11993,7 +11998,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:00:50+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::authorization_consistency::kill-switch-unauthenticated-unaudited-disconnected": {
       "id": "review::.::holistic::authorization_consistency::kill-switch-unauthenticated-unaudited-disconnected",
@@ -12020,11 +12031,11 @@
         "reasoning": "",
         "summary_hash": "cb9ad09f"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:00:46+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12032,7 +12043,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:00:46+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::authorization_consistency::side-effects-bypass-policy-engine": {
       "id": "review::.::holistic::authorization_consistency::side-effects-bypass-policy-engine",
@@ -12106,11 +12123,11 @@
         "reasoning": "",
         "summary_hash": "c64d6c22"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:00:48+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12118,7 +12135,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:00:48+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy": {
       "id": "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy",
@@ -12183,11 +12206,11 @@
         "reasoning": "",
         "summary_hash": "fde541ff"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:00:51+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12195,7 +12218,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:00:51+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::authorization_consistency::acp-routes-missing-rate-tier": {
       "id": "review::.::holistic::authorization_consistency::acp-routes-missing-rate-tier",
@@ -17979,7 +18008,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:40:25+00:00"
+      "stale_since": "2026-10-26T10:00:51+00:00"
     },
     "contract_coherence": {
       "score": 80.0,
@@ -18002,8 +18031,8 @@
       "source": "holistic",
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
-      "refresh_reason": "review_issue_open",
-      "stale_since": "2026-10-26T09:53:27+00:00"
+      "refresh_reason": "review_issue_fixed",
+      "stale_since": "2026-10-26T09:53:33+00:00"
     },
     "dependency_health": {
       "score": 78.0,
@@ -22649,13 +22678,13 @@
       "strict": 58.0,
       "verified_strict_score": 58.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 3,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.58,
-          "failing": 8,
+          "failing": 3,
           "weighted_failures": 4.2,
           "assessment_score": 58.0,
           "placeholder": false,
@@ -22712,13 +22741,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 2,
+      "failing": 1,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 2,
+          "failing": 1,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,

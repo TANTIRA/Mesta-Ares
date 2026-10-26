@@ -143,6 +143,87 @@ impl AuditWriter {
         })
     }
 
+    /// Walks the chain and reports the first break, if any.
+    ///
+    /// The hash covers `prev_hash|actor|tool|args_sha256|decision|reason|
+    /// correlation_id|ts`, so a mutated row or a missing link is detectable.
+    pub async fn verify_chain(pg: &PgPool) -> Result<ChainReport, AuditError> {
+        let rows = sqlx::query_as::<_, ChainRow>(
+            "SELECT seq, ts, actor, tool, args_sha256, decision, reason, \
+                    correlation_id, prev_hash, hash \
+             FROM audit_log ORDER BY seq",
+        )
+        .fetch_all(pg)
+        .await?;
+
+        let mut expected_prev = GENESIS_HASH.to_string();
+        let mut verified = 0u64;
+        for row in &rows {
+            let canonical = format!(
+                "{}|{}|{}|{}|{}|{}|{}|{}",
+                row.prev_hash,
+                row.actor,
+                row.tool,
+                row.args_sha256,
+                row.decision,
+                row.reason,
+                row.correlation_id,
+                row.ts.to_rfc3339(),
+            );
+            if row.prev_hash != expected_prev {
+                return Ok(ChainReport {
+                    rows: rows.len() as u64,
+                    verified,
+                    broken_at: Some(row.seq),
+                    reason: Some("prev_hash does not match the previous row".to_string()),
+                });
+            }
+            if sha256_hex(canonical.as_bytes()) != row.hash {
+                return Ok(ChainReport {
+                    rows: rows.len() as u64,
+                    verified,
+                    broken_at: Some(row.seq),
+                    reason: Some("hash does not match row contents".to_string()),
+                });
+            }
+            expected_prev = row.hash.clone();
+            verified += 1;
+        }
+        Ok(ChainReport {
+            rows: rows.len() as u64,
+            verified,
+            broken_at: None,
+            reason: None,
+        })
+    }
+}
+
+/// One `audit_log` row, as read by [`AuditWriter::verify_chain`].
+#[derive(sqlx::FromRow)]
+struct ChainRow {
+    seq: i64,
+    ts: chrono::DateTime<Utc>,
+    actor: String,
+    tool: String,
+    args_sha256: String,
+    decision: String,
+    reason: String,
+    correlation_id: Uuid,
+    prev_hash: String,
+    hash: String,
+}
+
+/// Result of a chain verification pass.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ChainReport {
+    /// Rows inspected.
+    pub rows: u64,
+    /// Rows that verified before the first break.
+    pub verified: u64,
+    /// `seq` of the first broken row, if any.
+    pub broken_at: Option<i64>,
+    /// Why that row failed.
+    pub reason: Option<String>,
 }
 
 fn sha256_hex(bytes: &[u8]) -> String {

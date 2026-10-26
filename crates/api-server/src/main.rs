@@ -6,6 +6,7 @@
 //! - `GET  /alerts/:id`               — single alert by `_id`.
 //! - `GET  /cases`, `GET /cases/:id`  — TheHive case list/detail.
 //! - `GET  /audit?limit`              — `audit_log` rows, newest first.
+//! - `GET  /audit/verify`             — re-walk the audit hash chain.
 //! - `GET  /metrics`                  — alerts/hr, verdict mix, MTTD/MTTR.
 //! - `GET  /coverage`                 — ATT&CK techniques in active content.
 //! - `GET  /playbooks`, `GET /playbooks/:name` — playbook YAMLs from disk.
@@ -181,6 +182,16 @@ struct AuditQuery {
     limit: Option<i64>,
 }
 
+/// `GET /audit/verify` — re-walks the hash chain and reports the first break.
+async fn verify_audit(
+    State(s): State<Arc<AppState>>,
+) -> Result<Json<audit::ChainReport>, (StatusCode, String)> {
+    audit::AuditWriter::verify_chain(&s.pool)
+        .await
+        .map(Json)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+}
+
 /// `GET /audit` — newest `audit_log` rows.
 async fn list_audit(
     State(s): State<Arc<AppState>>,
@@ -302,6 +313,7 @@ fn protected_router() -> Router<Arc<AppState>> {
         .route("/cases", get(list_cases))
         .route("/cases/{id}", get(get_case))
         .route("/audit", get(list_audit))
+        .route("/audit/verify", get(verify_audit))
         .route("/metrics", get(metrics))
         .route("/coverage", get(coverage::get_coverage))
         .route("/playbooks", get(playbooks::list_playbooks))

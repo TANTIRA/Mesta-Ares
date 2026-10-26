@@ -61,8 +61,12 @@ fn idem_key(call: &ToolCall) -> Option<String> {
 
 async fn invoke(
     State(state): State<Arc<AppState>>,
-    Json(call): Json<ToolCall>,
+    axum::extract::Extension(actor): axum::extract::Extension<http_limits::auth::Actor>,
+    Json(mut call): Json<ToolCall>,
 ) -> (StatusCode, Json<InvokeResponse>) {
+    // The body's actor is advisory; the authenticated identity wins so policy
+    // and audit see a verified caller.
+    call.actor = actor.0;
     info!(tool = %call.tool, actor = %call.actor, "invoke received");
 
     let decision = {
