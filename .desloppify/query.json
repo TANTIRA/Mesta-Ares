@@ -1,1901 +1,1552 @@
 {
-  "command": "show",
-  "query": "review",
-  "status_filter": "open",
-  "total": 80,
-  "summary": {
-    "by_tier": {
-      "T1": 41,
-      "T2": 37,
-      "T3": 2
+  "command": "status",
+  "overall_score": 80.6,
+  "objective_score": 90.9,
+  "strict_score": 78.6,
+  "verified_strict_score": 90.9,
+  "dimension_scores": {
+    "Code quality": {
+      "score": 91.6,
+      "strict": 88.4,
+      "verified_strict_score": 91.6,
+      "checks": 2228,
+      "failing": 270,
+      "tier": 3,
+      "detectors": {
+        "smells": {
+          "potential": 73,
+          "pass_rate": 0.9534246575342465,
+          "failing": 6,
+          "weighted_failures": 3.4
+        },
+        "orphaned": {
+          "potential": 74,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "flat_dirs": {
+          "potential": 47,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "single_use": {
+          "potential": 33,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "clippy_warning": {
+          "potential": 1409,
+          "pass_rate": 0.9001419446415896,
+          "failing": 201,
+          "weighted_failures": 140.70000000000016
+        },
+        "rust_import_hygiene": {
+          "potential": 74,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "rust_feature_hygiene": {
+          "potential": 74,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "rust_api_convention": {
+          "potential": 74,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "rust_error_boundary": {
+          "potential": 74,
+          "pass_rate": 0.9621621621621622,
+          "failing": 4,
+          "weighted_failures": 2.8
+        },
+        "rust_future_proofing": {
+          "potential": 74,
+          "pass_rate": 0.46081081081081066,
+          "failing": 57,
+          "weighted_failures": 39.90000000000001
+        },
+        "rust_async_locking": {
+          "potential": 74,
+          "pass_rate": 0.981081081081081,
+          "failing": 2,
+          "weighted_failures": 1.4
+        },
+        "rust_drop_safety": {
+          "potential": 74,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "rust_unsafe_api": {
+          "potential": 74,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        }
+      }
     },
-    "by_detector": {
-      "review": 80
+    "Security": {
+      "score": 100.0,
+      "strict": 100.0,
+      "verified_strict_score": 100.0,
+      "checks": 74,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "security": {
+          "potential": 74,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        }
+      }
     },
-    "files": 1
+    "File health": {
+      "score": 93.4,
+      "strict": 92.4,
+      "verified_strict_score": 93.4,
+      "checks": 74,
+      "failing": 7,
+      "tier": 3,
+      "detectors": {
+        "structural": {
+          "potential": 74,
+          "pass_rate": 0.9337837837837837,
+          "failing": 7,
+          "weighted_failures": 4.9
+        }
+      }
+    },
+    "Duplication": {
+      "score": 97.8,
+      "strict": 95.4,
+      "verified_strict_score": 97.8,
+      "checks": 693,
+      "failing": 25,
+      "tier": 3,
+      "detectors": {
+        "dupes": {
+          "potential": 673,
+          "pass_rate": 0.9977711738484398,
+          "failing": 5,
+          "weighted_failures": 1.5
+        },
+        "boilerplate_duplication": {
+          "potential": 20,
+          "pass_rate": 0.30000000000000027,
+          "failing": 20,
+          "weighted_failures": 13.999999999999995
+        }
+      }
+    },
+    "Test health": {
+      "score": 77.9,
+      "strict": 52.0,
+      "verified_strict_score": 77.9,
+      "checks": 1153,
+      "failing": 29,
+      "tier": 4,
+      "detectors": {
+        "test_coverage": {
+          "potential": 1004,
+          "pass_rate": 0.7469851265287349,
+          "failing": 28,
+          "weighted_failures": 254.0269329651501
+        },
+        "rustdoc_warning": {
+          "potential": 1,
+          "pass_rate": 0.30000000000000004,
+          "failing": 1,
+          "weighted_failures": 0.7
+        },
+        "rust_doctest": {
+          "potential": 74,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        },
+        "rust_thread_safety": {
+          "potential": 74,
+          "pass_rate": 1.0,
+          "failing": 0,
+          "weighted_failures": 0.0
+        }
+      }
+    },
+    "Abstraction fit": {
+      "score": 81.0,
+      "strict": 81.0,
+      "verified_strict_score": 81.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.81,
+          "failing": 2,
+          "weighted_failures": 1.9,
+          "assessment_score": 81.0,
+          "placeholder": false,
+          "dimension_key": "abstraction_fitness",
+          "configured_weight": 8.0,
+          "components": [
+            "Abstraction Leverage",
+            "Indirection Cost",
+            "Interface Honesty",
+            "Delegation Density",
+            "Definition Directness",
+            "Type Discipline"
+          ],
+          "component_scores": {
+            "Abstraction Leverage": 84.0,
+            "Indirection Cost": 86.0,
+            "Interface Honesty": 72.0,
+            "Delegation Density": 88.0,
+            "Definition Directness": 80.0,
+            "Type Discipline": 78.0
+          }
+        }
+      }
+    },
+    "AI generated debt": {
+      "score": 79.0,
+      "strict": 79.0,
+      "verified_strict_score": 79.0,
+      "checks": 10,
+      "failing": 3,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.79,
+          "failing": 3,
+          "weighted_failures": 2.1,
+          "assessment_score": 79.0,
+          "placeholder": false,
+          "dimension_key": "ai_generated_debt",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "API coherence": {
+      "score": 74.0,
+      "strict": 74.0,
+      "verified_strict_score": 74.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.74,
+          "failing": 2,
+          "weighted_failures": 2.6,
+          "assessment_score": 74.0,
+          "placeholder": false,
+          "dimension_key": "api_surface_coherence",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Auth consistency": {
+      "score": 58.0,
+      "strict": 58.0,
+      "verified_strict_score": 58.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.58,
+          "failing": 1,
+          "weighted_failures": 4.2,
+          "assessment_score": 58.0,
+          "placeholder": false,
+          "dimension_key": "authorization_consistency",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Contracts": {
+      "score": 80.0,
+      "strict": 80.0,
+      "verified_strict_score": 80.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.8,
+          "failing": 2,
+          "weighted_failures": 2.0,
+          "assessment_score": 80.0,
+          "placeholder": false,
+          "dimension_key": "contract_coherence",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    },
+    "Convention drift": {
+      "score": 79.5,
+      "strict": 79.5,
+      "verified_strict_score": 79.5,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.795,
+          "failing": 2,
+          "weighted_failures": 2.05,
+          "assessment_score": 79.5,
+          "placeholder": false,
+          "dimension_key": "convention_outlier",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Cross-module arch": {
+      "score": 74.0,
+      "strict": 74.0,
+      "verified_strict_score": 74.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.74,
+          "failing": 1,
+          "weighted_failures": 2.6,
+          "assessment_score": 74.0,
+          "placeholder": false,
+          "dimension_key": "cross_module_architecture",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Dep health": {
+      "score": 79.0,
+      "strict": 79.0,
+      "verified_strict_score": 79.0,
+      "checks": 10,
+      "failing": 4,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.79,
+          "failing": 4,
+          "weighted_failures": 2.1,
+          "assessment_score": 79.0,
+          "placeholder": false,
+          "dimension_key": "dependency_health",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Design coherence": {
+      "score": 73.0,
+      "strict": 73.0,
+      "verified_strict_score": 73.0,
+      "checks": 10,
+      "failing": 3,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.73,
+          "failing": 3,
+          "weighted_failures": 2.7,
+          "assessment_score": 73.0,
+          "placeholder": false,
+          "dimension_key": "design_coherence",
+          "configured_weight": 10.0,
+          "components": []
+        }
+      }
+    },
+    "Error consistency": {
+      "score": 83.0,
+      "strict": 83.0,
+      "verified_strict_score": 83.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.83,
+          "failing": 0,
+          "weighted_failures": 1.7,
+          "assessment_score": 83.0,
+          "placeholder": false,
+          "dimension_key": "error_consistency",
+          "configured_weight": 3.0,
+          "components": []
+        }
+      }
+    },
+    "High elegance": {
+      "score": 78.0,
+      "strict": 78.0,
+      "verified_strict_score": 78.0,
+      "checks": 10,
+      "failing": 3,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.78,
+          "failing": 3,
+          "weighted_failures": 2.2,
+          "assessment_score": 78.0,
+          "placeholder": false,
+          "dimension_key": "high_level_elegance",
+          "configured_weight": 22.0,
+          "components": []
+        }
+      }
+    },
+    "Stale migration": {
+      "score": 74.0,
+      "strict": 74.0,
+      "verified_strict_score": 74.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.74,
+          "failing": 1,
+          "weighted_failures": 2.6,
+          "assessment_score": 74.0,
+          "placeholder": false,
+          "dimension_key": "incomplete_migration",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Init coupling": {
+      "score": 74.0,
+      "strict": 74.0,
+      "verified_strict_score": 74.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.74,
+          "failing": 2,
+          "weighted_failures": 2.6,
+          "assessment_score": 74.0,
+          "placeholder": false,
+          "dimension_key": "initialization_coupling",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Logic clarity": {
+      "score": 79.5,
+      "strict": 79.5,
+      "verified_strict_score": 79.5,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.795,
+          "failing": 0,
+          "weighted_failures": 2.05,
+          "assessment_score": 79.5,
+          "placeholder": false,
+          "dimension_key": "logic_clarity",
+          "configured_weight": 6.0,
+          "components": []
+        }
+      }
+    },
+    "Low elegance": {
+      "score": 84.0,
+      "strict": 84.0,
+      "verified_strict_score": 84.0,
+      "checks": 10,
+      "failing": 4,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.84,
+          "failing": 4,
+          "weighted_failures": 1.6,
+          "assessment_score": 84.0,
+          "placeholder": false,
+          "dimension_key": "low_level_elegance",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    },
+    "Mid elegance": {
+      "score": 70.0,
+      "strict": 70.0,
+      "verified_strict_score": 70.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.7,
+          "failing": 1,
+          "weighted_failures": 3.0,
+          "assessment_score": 70.0,
+          "placeholder": false,
+          "dimension_key": "mid_level_elegance",
+          "configured_weight": 22.0,
+          "components": []
+        }
+      }
+    },
+    "Naming quality": {
+      "score": 88.5,
+      "strict": 88.5,
+      "verified_strict_score": 88.5,
+      "checks": 10,
+      "failing": 5,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.885,
+          "failing": 5,
+          "weighted_failures": 1.15,
+          "assessment_score": 88.5,
+          "placeholder": false,
+          "dimension_key": "naming_quality",
+          "configured_weight": 2.0,
+          "components": []
+        }
+      }
+    },
+    "Structure nav": {
+      "score": 78.0,
+      "strict": 78.0,
+      "verified_strict_score": 78.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.78,
+          "failing": 7,
+          "weighted_failures": 2.2,
+          "assessment_score": 78.0,
+          "placeholder": false,
+          "dimension_key": "package_organization",
+          "configured_weight": 5.0,
+          "components": []
+        }
+      }
+    },
+    "Test strategy": {
+      "score": 64.0,
+      "strict": 64.0,
+      "verified_strict_score": 64.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.64,
+          "failing": 7,
+          "weighted_failures": 3.6,
+          "assessment_score": 64.0,
+          "placeholder": false,
+          "dimension_key": "test_strategy",
+          "configured_weight": 1.0,
+          "components": []
+        }
+      }
+    },
+    "Type safety": {
+      "score": 78.0,
+      "strict": 78.0,
+      "verified_strict_score": 78.0,
+      "checks": 10,
+      "failing": 3,
+      "tier": 4,
+      "detectors": {
+        "subjective_assessment": {
+          "potential": 10,
+          "pass_rate": 0.78,
+          "failing": 3,
+          "weighted_failures": 2.2,
+          "assessment_score": 78.0,
+          "placeholder": false,
+          "dimension_key": "type_safety",
+          "configured_weight": 12.0,
+          "components": []
+        }
+      }
+    }
   },
-  "by_file": {
-    ".": [
-      {
-        "id": "review::.::holistic::cross_module_architecture::agent_runtime_duplicated",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Four agents copy the same subscribe->spawn->envelope->span->process runtime while agent-core's runtime abstractions have zero production callers",
-        "detail": {
-          "holistic": true,
-          "dimension": "cross_module_architecture",
-          "related_files": [
-            "crates/detection-agent/src/main.rs",
-            "crates/triage-agent/src/main.rs",
-            "crates/hunt-agent/src/main.rs",
-            "crates/response-agent/src/main.rs",
-            "crates/agent-core/src/agent_loop.rs",
-            "crates/agent-core/src/checkpoint.rs",
-            "crates/api-server/src/a2a.rs"
-          ],
-          "evidence": [
-            "Each agent main.rs repeats the same ~50-line runtime: tracing_subscriber init, clap Config, async_nats::connect, ConnectorConfig::from_env, nats.subscribe(SUBJECT_X), `while let Some(msg)` spawn-per-message envelope parse + info_span + process (detection-agent/main.rs:209-280, triage-agent/main.rs:362-413, hunt-agent/main.rs:181-248, response-agent/main.rs:371-429) plus the identical emit() helper",
-            "agent-core exports AgentLoop + CheckpointStore + PostgresCheckpointer + ToolGateway + Budgets, yet no production code outside the crate instantiates any of them \u2014 the intended shared boundary is bypassed in favor of per-binary machinery",
-            "api-server creates agent_checkpoints (a2a.rs:221-228 'owned by agent-core') and joins it in load_task/load_run (a2a.rs:320-346, acp.rs:159-180) to detect completed runs, but nothing writes the table \u2014 a generated-but-never-fed data path; docs/services.md:75-77 promises 'agent loop checkpoints to Postgres so restart resumes, not restarts', which is unimplemented"
-          ],
-          "suggestion": "Extract the shared agent runtime where it belongs: add an `emit_activity`/subscribe-and-dispatch helper to agent-core (or the new activity contract module) and have the four agents adopt it; then either wire PostgresCheckpointer into a real agent loop or delete the checkpoint join in api-server and the resume-on-restart doc claim so the boundary reflects reality.",
-          "reasoning": "",
-          "summary_hash": "ddf89edd"
-        }
-      },
-      {
-        "id": "review::.::holistic::high_level_elegance::agent_core_role_unfilled",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "agent-core promises the agent runtime but has no role in the running system, so 'where does an agent live?' has no answer",
-        "detail": {
-          "holistic": true,
-          "dimension": "high_level_elegance",
-          "related_files": [
-            "crates/agent-core/src/lib.rs",
-            "crates/agent-core/src/agent_loop.rs",
-            "crates/agent-core/src/gateway.rs",
-            "crates/agent-core/src/checkpoint.rs",
-            "crates/agent-core/Cargo.toml"
-          ],
-          "evidence": [
-            "crates/agent-core/src/lib.rs:1-7 and Cargo.toml describe the crate as 'Agent control loop, checkpointing, tool gateway and kill switch for ARES'",
-            "AgentLoop::new has zero non-test callers; HttpToolGateway, PostgresCheckpointer, Budgets, CheckpointStore, AgentError and LoopOutcome appear nowhere outside crates/agent-core (grep over crates/)",
-            "The only exports reaching production code are kill_switch_engaged (api-server/kill.rs, triage/response/vuln-agent) and the AgentState/Step types read as a DB column in api-server/src/a2a.rs:320 and api-server/src/acp.rs:159",
-            "Each of the five agents instead hand-rolls its own subscribe/spawn/LLM/tool-invoke body in main.rs (triage 413 LOC, response 429, detection 280+293, hunt 248, vuln 322)"
-          ],
-          "suggestion": "Pick one owner for agent execution and make the crate honest about it: either wire AgentLoop/HttpToolGateway/PostgresCheckpointer into the agents (which also gives one resilience policy for /invoke), or delete agent_loop.rs, gateway.rs, budget.rs and checkpoint.rs and move AgentState/Step into agent-protocol next to Envelope, leaving agent-core as the kill-switch module or removing the crate. Do not leave a capability crate whose entire surface is unimported.",
-          "reasoning": "",
-          "summary_hash": "5f0569f7"
-        }
-      },
-      {
-        "id": "review::.::holistic::high_level_elegance::acp_subsystem_did_not_localize",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "ACP landed as a second 634-line protocol front-end in api-server with no matching change to the sibling crate's shape, the rate-limit tiers, or the docs",
-        "detail": {
-          "holistic": true,
-          "dimension": "high_level_elegance",
-          "related_files": [
-            "crates/api-server/src/acp.rs",
-            "crates/api-server/src/a2a.rs",
-            "crates/acp/src/lib.rs",
-            "crates/a2a/src/rpc.rs",
-            "crates/api-server/src/ratelimit.rs"
-          ],
-          "evidence": [
-            "The two protocol crates have asymmetric responsibilities: a2a owns the dispatcher and the TaskBackend seam (crates/a2a/src/rpc.rs:135-157), acp owns wire types only (crates/acp/src/lib.rs:1-11), so all ACP lifecycle logic (ensure_schema, load_run, wait_terminal, SSE, cancel) sits in api-server/src/acp.rs",
-            "acp.rs reaches into a2a internals (crate::a2a::AgentDef, task_uuid, terminal_step, build_payload) rather than through a shared abstraction, so the second protocol is a sibling module of the first rather than a peer",
-            "Adding ACP required no update to crates/api-server/src/ratelimit.rs:37-45 \u2014 POST /a2a/* is Expensive but /acp/runs falls through to Tier::General, under-metering the LLM-backed run path that the rate table was written to protect (docs/services.md:97)",
-            "docs/services.md rate and contract sections gained no ACP rows (docs/services.md:94-101)"
-          ],
-          "suggestion": "Make the two protocols peers: give acp the same shape as a2a (a transport-agnostic dispatcher + a backend trait in the acp crate, implemented by api-server) so both crates own their protocol and api-server owns only transport/persistence. Extend classify() with the ACP run/SSE routes in the same edit that adds a route, or drive tiers from the router table so the next protocol cannot skip them.",
-          "reasoning": "",
-          "summary_hash": "59062943"
-        }
-      },
-      {
-        "id": "review::.::holistic::high_level_elegance::agent_roster_duplicated",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "The agent roster (name, subject, envelope kind, activity name) is declared in three places and is already incomplete \u2014 vuln-agent is not in it",
-        "detail": {
-          "holistic": true,
-          "dimension": "high_level_elegance",
-          "related_files": [
-            "crates/api-server/src/a2a.rs",
-            "crates/orchestrator/src/main.rs",
-            "crates/agent-protocol/src/lib.rs",
-            "crates/vuln-agent/src/main.rs"
-          ],
-          "evidence": [
-            "crates/api-server/src/a2a.rs:76-124 hardcodes AGENTS with subject + EnvelopeKind + activity_name + skills for exactly four agents ('The four invocable Ares agents')",
-            "crates/orchestrator/src/main.rs:49-58 separately encodes the same EnvelopeKind -> subject mapping (route_subject), so routing knowledge has two owners that can disagree silently",
-            "crates/agent-protocol/src/lib.rs:16-26 holds the subject constants but not the roster, and vuln-agent declares its own subjects locally (crates/vuln-agent/src/main.rs:27-29)",
-            "vuln-agent is a full pipeline agent (322 LOC, publishes advisories, opens cases) that never entered AGENTS, so it is invisible to /a2a/agents, /acp/agents and the well-known cards"
-          ],
-          "suggestion": "Put the roster in agent-protocol next to the subject constants (name, subject, kind, activity name, description) and have both api-server's cards and orchestrator's route_subject read from it; then adding an agent is one entry, and the compiler forces the router and the interop surface to agree. Add vuln-agent as part of that move.",
-          "reasoning": "",
-          "summary_hash": "d1c2e486"
-        }
-      },
-      {
-        "id": "review::.::holistic::convention_outlier::cargo-manifest-style-split",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Cargo manifests split 7/14 between brace-style workspace deps with metadata and dotted-style without",
-        "detail": {
-          "holistic": true,
-          "dimension": "convention_outlier",
-          "related_files": [
-            "crates/a2a/Cargo.toml",
-            "crates/agent-core/Cargo.toml",
-            "crates/connectors/Cargo.toml",
-            "crates/api-server/Cargo.toml",
-            "crates/policy-engine/Cargo.toml"
-          ],
-          "evidence": [
-            "a2a, acp, agent-core, agent-protocol, audit, cvss, llm-client declare `serde = { workspace = true }` plus a `description` and `rust-version.workspace = true` (e.g. crates/a2a/Cargo.toml:6-14).",
-            "The other 14 declare `serde.workspace = true` with no `description` and no `rust-version` (e.g. crates/connectors/Cargo.toml:9-16, crates/api-server/Cargo.toml:6-26).",
-            "The split is not lib-vs-bin: connectors, enrichment-lib, http-limits and policy-engine are libraries that follow the bin style, so 4 of 11 libraries contradict the other 7.",
-            "`#![warn(missing_docs)]` tracks the same 7-crate group (present in agent-protocol:8, agent-core:9, a2a:8, acp:9, audit:12, llm-client:8; absent from cvss, connectors, enrichment-lib, http-limits, policy-engine), so the doc-completeness lint covers only part of the library surface.",
-            "agent-core/Cargo.toml:17-19 and audit/Cargo.toml:15-17 both re-declare sqlx inline with a comment explaining that the workspace spec requests a nonexistent `pgvector` feature \u2014 a documented workaround that leaves two crates outside the centralised-dependency convention."
-          ],
-          "suggestion": "Pick one manifest style (dotted is the majority at 14/21) and apply it to all 21 crates, add `description` to the 14 that lack one, and add `#![warn(missing_docs)]` to the five libraries that already document everything by hand.",
-          "reasoning": "",
-          "summary_hash": "cc3b45dd"
-        }
-      },
-      {
-        "id": "review::.::holistic::convention_outlier::llm-json-completion-protocol-duplicated",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Three agents re-implement the LLM completion + fence-strip + parse sequence with different fence handling",
-        "detail": {
-          "holistic": true,
-          "dimension": "convention_outlier",
-          "related_files": [
-            "crates/detection-agent/src/pipeline.rs",
-            "crates/triage-agent/src/main.rs",
-            "crates/response-agent/src/main.rs",
-            "crates/llm-client/src/lib.rs"
-          ],
-          "evidence": [
-            "detection-agent/src/pipeline.rs:32-56, triage-agent/src/main.rs:105-127 and response-agent/src/main.rs:136-157 each build a `CompletionRequest`, call `router.complete`, then hand-roll `.trim().trim_start_matches(\"```json\")...trim_end_matches(\"```\")` before parsing.",
-            "The three copies have already diverged: pipeline.rs:48-50 also strips ```yaml and ```yml (needed for Sigma drafting) while the two JSON consumers strip only ```json and ``` \u2014 so an uppercase ```JSON fence or a ` ``` json` variant is handled by none of them.",
-            "llm-client (the crate that owns provider interaction) exposes no helper for this, so each agent re-derives the protocol; detection-agent/src/pipeline.rs:35 and response-agent/src/main.rs:139 are also flagged as a boilerplate-duplication pair."
-          ],
-          "suggestion": "Add one `llm_client::complete_json<T: DeserializeOwned>(router, tier, req) -> Result<T>` (or a `strip_fences` + `complete_text` pair, ~15 lines) that strips an optional case-insensitive fence with an optional language tag, and call it from the three sites.",
-          "reasoning": "",
-          "summary_hash": "39bf8386"
-        }
-      },
-      {
-        "id": "review::.::holistic::error_consistency::http_error_shape_drift",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Documented `{error: string}` envelope is honored only by the rate limiter; siblings return plain text, bare status, or `{code, message}`",
-        "detail": {
-          "holistic": true,
-          "dimension": "error_consistency",
-          "related_files": [
-            "crates/api-server/src/main.rs",
-            "crates/api-server/src/vulns.rs",
-            "crates/api-server/src/acp.rs",
-            "crates/api-server/src/a2a.rs",
-            "crates/ingestion-gateway/src/main.rs",
-            "docs/services.md"
-          ],
-          "evidence": [
-            "docs/services.md:37-38 states the contract: \"Errors: JSON `{error: string}`; 4xx = caller fixable, 5xx = retryable.\"",
-            "15 handlers in crates/api-server/src/main.rs, vulns.rs, playbooks.rs and coverage.rs return `(StatusCode, String)` (e.g. main.rs:125, vulns.rs:73), which axum serializes as text/plain \u2014 not JSON.",
-            "crates/api-server/src/acp.rs:50-56 and its nine `(StatusCode, Json<AcpError>)` sites return `{code, message}`; crates/api-server/src/a2a.rs:508-513 returns a bare `StatusCode::NOT_FOUND` with an empty body while a2a.rs:548 returns `(StatusCode, String)`.",
-            "crates/ingestion-gateway/src/main.rs:110-121 returns `{id, status, error}` and uses 502 where docs/services.md:36 specifies 503 when NATS is down.",
-            "Internal failures are reported as gateway errors: `list_audit` (crates/api-server/src/main.rs:197) and `get_plan` (main.rs:268) map Postgres errors to BAD_GATEWAY, so a 5xx no longer tells the caller whether to retry a dependency or report a server bug."
-          ],
-          "suggestion": "Add one `ApiError` type in api-server implementing `IntoResponse` (status + `{error}` body, internals logged not echoed) and convert the 15 `(StatusCode, String)` handlers plus the ACP/a2a error returns to it; that is fewer shapes than exist today, not more.",
-          "reasoning": "",
-          "summary_hash": "7ff31343"
-        }
-      },
-      {
-        "id": "review::.::holistic::naming_quality::generic_process_envelope_handlers",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "`process` names the whole per-envelope handler in two agents while three sibling binaries use distinct, descriptive verbs",
-        "detail": {
-          "holistic": true,
-          "dimension": "naming_quality",
-          "related_files": [
-            "crates/triage-agent/src/main.rs",
-            "crates/response-agent/src/main.rs",
-            "crates/detection-agent/src/main.rs",
-            "crates/hunt-agent/src/main.rs",
-            "crates/orchestrator/src/main.rs"
-          ],
-          "evidence": [
-            "crates/triage-agent/src/main.rs:253 `async fn process(deps: &Deps, envelope: &Envelope)` runs IOC extraction, enrichment, the LLM verdict, case creation and handoff",
-            "crates/response-agent/src/main.rs:235 `async fn process(deps: &Deps, envelope: &Envelope)` builds a plan and executes every action",
-            "Siblings name the same concept concretely: `run_cycle` (crates/detection-agent/src/main.rs:138), `run_sweep` (crates/hunt-agent/src/main.rs:131), `handle_message` (crates/orchestrator/src/main.rs:61)",
-            "The triage call site reads `process(&deps, &envelope).instrument(span).await` (main.rs:404), giving no hint of what is processed or into what"
-          ],
-          "suggestion": "Rename both to `handle_envelope` (or `triage_envelope` / `respond_to_envelope`) and use one verb for the per-envelope entry point across the five binaries, so a reader moving between agent crates finds the same name for the same role.",
-          "reasoning": "",
-          "summary_hash": "a0fdbb5f"
-        }
-      },
-      {
-        "id": "review::.::holistic::naming_quality::impact_enum_mixed_axes",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "`Impact::{Read, Write, High}` mixes an access kind with an intensity, so `Impact::High` reads wrong at every guard",
-        "detail": {
-          "holistic": true,
-          "dimension": "naming_quality",
-          "related_files": [
-            "crates/policy-engine/src/lib.rs"
-          ],
-          "evidence": [
-            "crates/policy-engine/src/lib.rs:69-73 `pub enum Impact { Read, Write, High }` \u2014 two variants classify access, the third classifies severity",
-            "crates/policy-engine/src/lib.rs:375 `if tool.policy.impact != Impact::Read` reads as \"not read\" but means \"write or high impact\"",
-            "The YAML vocabulary in policies/tools.yml uses `high` alongside `read`/`write`, so the wire value is fixed even if the Rust variant is clarified"
-          ],
-          "suggestion": "Rename the variant to `HighImpact` (keeping `#[serde(rename = \"high\")]` so policies/tools.yml is unchanged) so the enum reads as one axis: Read, Write, HighImpact.",
-          "reasoning": "",
-          "summary_hash": "8a7ab2ea"
-        }
-      },
-      {
-        "id": "review::.::holistic::naming_quality::insert_helper_boolean_polarity",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Two insert-and-report helpers return bools with opposite meanings (true = duplicate vs true = newly inserted)",
-        "detail": {
-          "holistic": true,
-          "dimension": "naming_quality",
-          "related_files": [
-            "crates/orchestrator/src/dedupe.rs",
-            "crates/vuln-agent/src/main.rs"
-          ],
-          "evidence": [
-            "crates/orchestrator/src/dedupe.rs:33-41 `check_and_mark` inserts the key and returns `Ok(res.rows_affected() == 0)`, i.e. true means already seen",
-            "crates/vuln-agent/src/main.rs:161-185 `record_advisory` inserts the advisory and returns `Ok(inserted.is_some())`, i.e. true means new",
-            "The orchestrator call site needs the doc comment to disambiguate: `Ok(true) => { info!(\"duplicate alert; skipped\") }` (orchestrator/src/main.rs:94-98)"
-          ],
-          "suggestion": "Put the polarity in the name: `mark_seen_and_report_duplicate` in dedupe.rs (still true = duplicate) and `insert_advisory_if_new` in vuln-agent, so both call sites read correctly without consulting the docstring.",
-          "reasoning": "",
-          "summary_hash": "7dbcf485"
-        }
-      },
-      {
-        "id": "review::.::holistic::naming_quality::executor_type_name_drift",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Executor structs drift from the tool names they serve, and only 2 of ~20 carry a `Tool` suffix",
-        "detail": {
-          "holistic": true,
-          "dimension": "naming_quality",
-          "related_files": [
-            "crates/tool-server/src/executors/mod.rs"
-          ],
-          "evidence": [
-            "crates/tool-server/src/executors/mod.rs:564 `struct NvdTool` and :633 `struct CvssScoreTool` are the only two executor types with a `Tool` suffix; the rest are MispSearch (:183), ThehiveCase (:103), WazuhAgents (:314), SlackNotify (:532)",
-            "crates/tool-server/src/executors/mod.rs:649 `struct DryRun` is the stub executor for tools with no backend; its name describes the JSON payload it returns (`dry_run(args)` at :35) rather than the executor",
-            "crates/tool-server/src/executors/mod.rs:103 `ThehiveCase` serves the tool name `thehive.case.create` (returned at :108), so the type name and the tool name diverge",
-            "The registry at :668-779 pairs each type with a different tool name in some cases (MispAttribute serves both `misp.attribute.add` and `misp.ioc.block`)"
-          ],
-          "suggestion": "Drop the suffix (`NvdLookup`, `CvssScore`) so all executors follow the verb/noun pattern of their neighbours, rename `DryRun` to `StubExecutor`, and make each struct name a readable contraction of the tool it registers (`ThehiveCaseCreate`).",
-          "reasoning": "",
-          "summary_hash": "f971e375"
-        }
-      },
-      {
-        "id": "review::.::holistic::naming_quality::tool_arg_alias_vocabulary",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Tool argument names drift per executor and are masked by alias lists of two to six keys",
-        "detail": {
-          "holistic": true,
-          "dimension": "naming_quality",
-          "related_files": [
-            "crates/tool-server/src/executors/mod.rs"
-          ],
-          "evidence": [
-            "crates/tool-server/src/executors/mod.rs:194 and :241 the MISP search tools accept `[\"value\", \"ioc\", \"query\"]` for the same argument",
-            "crates/tool-server/src/executors/mod.rs:398 ProviderLookup accepts `[\"ioc\", \"value\", \"ip\", \"domain\", \"hash\", \"url\"]` \u2014 six names for one input",
-            "crates/tool-server/src/executors/mod.rs:177 CortexAnalyzer accepts `[\"data\", \"observable\"]` and :131 accepts `[\"case_id\", \"id\"]`, so no single canonical name exists per concept"
-          ],
-          "suggestion": "Declare one canonical argument name per concept in each executor's doc comment (`ioc`, `case_id`, `data`) and trim the alias lists to canonical + at most one legacy spelling, so a developer or planner prompt has a single name to target.",
-          "reasoning": "",
-          "summary_hash": "1fda1b1e"
-        }
-      },
-      {
-        "id": "review::.::holistic::mid_level_elegance::case_id_encoded_in_uri_string",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Triage passes the case id to response only inside a thehive:// URI; the receiver defaults the id to \"unknown\"",
-        "detail": {
-          "holistic": true,
-          "dimension": "mid_level_elegance",
-          "related_files": [
-            "crates/triage-agent/src/main.rs",
-            "crates/response-agent/src/main.rs"
-          ],
-          "evidence": [
-            "Producer: crates/triage-agent/src/main.rs:218-223 carries the case id only as ref_uri: format!(\"thehive://case/{case_id}\") with kind: \"case\"; no field on Artifact or HandoffPayload holds an identifier.",
-            "Consumer: crates/response-agent/src/main.rs:175-186 recovers it with find(|a| a.kind == \"case\").strip_prefix(\"thehive://case/\")...unwrap_or_else(|| \"unknown\"), so any producer that changes the URI scheme silently degrades to the literal \"unknown\".",
-            "That literal then becomes response_actions.case_id (response-agent/src/main.rs:319) and the TheHive case patched at line 347, so a mismatch writes plan data under a case that does not exist."
-          ],
-          "suggestion": "Add a typed case identifier (or a CaseRef struct) to HandoffPayload/Artifact so the id crosses the boundary as data; keep ref_uri purely for retrieval.",
-          "reasoning": "",
-          "summary_hash": "2ba43e5e"
-        }
-      },
-      {
-        "id": "review::.::holistic::api_surface_coherence::http_error_body_conventions",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "api-server returns three different error-body shapes (plain text, typed ACP error, empty) despite one documented contract",
-        "detail": {
-          "holistic": true,
-          "dimension": "api_surface_coherence",
-          "related_files": [
-            "crates/api-server/src/main.rs",
-            "crates/api-server/src/a2a.rs",
-            "crates/api-server/src/acp.rs",
-            "crates/api-server/src/kill.rs",
-            "crates/api-server/src/coverage.rs",
-            "docs/services.md"
-          ],
-          "evidence": [
-            "docs/services.md:37 states the contract: 'Errors: JSON `{error: string}`; 4xx = caller fixable, 5xx = retryable.'",
-            "Console/vuln/playbook handlers return `(StatusCode, String)` -> `text/plain` bodies (crates/api-server/src/main.rs:111-137, vulns.rs:49-121, playbooks.rs:70-82).",
-            "ACP handlers return `(StatusCode, Json<AcpError>)` with `{code, message, data}` (crates/api-server/src/acp.rs:51-56).",
-            "`GET /a2a/{agent}/.well-known/agent.json` returns a bare `StatusCode::NOT_FOUND` with no body (crates/api-server/src/a2a.rs:508-511).",
-            "`GET /coverage` returns HTTP 200 with a `note` field when the content directory is unreadable (crates/api-server/src/coverage.rs:22-28), so failures are indistinguishable from empty coverage without key sniffing.",
-            "Only the kill-switch handler emits an `error` key (crates/api-server/src/kill.rs:66-70), and it adds a `path` field no other endpoint has."
-          ],
-          "suggestion": "Add one `ApiError` type to api-server (e.g. `(StatusCode, Json<ApiError{error: String}>)` with `impl IntoResponse`) and make every handler, including a2a's `agent_card` and `coverage`, return it; keep ACP's `{code,message,data}` only behind the `/acp` prefix where the spec requires it, and convert coverage's 'cannot read' case into a 500.",
-          "reasoning": "",
-          "summary_hash": "f4261d89"
-        }
-      },
-      {
-        "id": "review::.::holistic::api_surface_coherence::tool_args_two_sources_of_truth",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Tool arguments are specified twice \u2014 JSON Schema in policies/tools.yml and alias lists in executors \u2014 and no schema is exposed by the API",
-        "detail": {
-          "holistic": true,
-          "dimension": "api_surface_coherence",
-          "related_files": [
-            "crates/tool-server/src/executors/mod.rs",
-            "crates/tool-server/src/main.rs",
-            "crates/policy-engine/src/lib.rs",
-            "policies/tools.yml"
-          ],
-          "evidence": [
-            "17 tools carry `args_schema` with `additionalProperties: false` (policies/tools.yml:32-38,42-47,81-116,122-167), so only the canonical key names can ever reach an executor.",
-            "Executors nonetheless accept undocumented aliases: `arg_str(args, &[\"value\", \"ioc\", \"query\"])` (executors/mod.rs:190), `&[\"case_id\", \"id\"]` (:126), `&[\"q\", \"query_string\"]` (:97), `&[\"cve_id\", \"id\", \"cve\"]` (:583), plus shape polymorphism ('`{case_id, observable}` or flat fields', :131-136) and `values` vs `value` fallbacks (:280-296).",
-            "The trait exposes no schema: `fn name()` + `async fn execute(&self, args: &Value)` (executors/mod.rs:36-38).",
-            "`GET /tools` returns names only (`Json<Vec<String>>`, crates/tool-server/src/main.rs:208), and `PolicyEngine` keeps validators private, exposing only `tool_names()` (crates/policy-engine/src/lib.rs:305)."
-          ],
-          "suggestion": "Add `fn schema(&self) -> Option<&serde_json::Value>` to the `Tool` trait (or have tool-server serve the policy's `args_schema`), return `[{name, schema}]` from `GET /tools`, and drop the alias lists from the executors so policy YAML is the single arg contract.",
-          "reasoning": "",
-          "summary_hash": "e3e5d2bc"
-        }
-      },
-      {
-        "id": "review::.::holistic::api_surface_coherence::audit_append_positional_sprawl",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "AuditWriter::append takes six positional parameters, four of them adjacent &str, and takes the decision as a string",
-        "detail": {
-          "holistic": true,
-          "dimension": "api_surface_coherence",
-          "related_files": [
-            "crates/audit/src/lib.rs",
-            "crates/tool-server/src/main.rs",
-            "crates/tool-server/src/approvals.rs"
-          ],
-          "evidence": [
-            "`pub async fn append(&self, actor: &str, tool: &str, args: &Value, decision: &str, reason: &str, correlation_id: Uuid)` (crates/audit/src/lib.rs:59-67) \u2014 six parameters, with `actor`/`tool`/`decision`/`reason` all plain `&str`.",
-            "Callers must pre-convert the domain enum: `decision_label(&decision.kind)` at crates/tool-server/src/main.rs:90-98, and the reject path hardcodes the literal `\"deny\"` (crates/tool-server/src/approvals.rs:349).",
-            "Transposing `decision` and `reason` compiles silently and corrupts the hash-chained row; the audit table is the tamper-evident record, so a mis-order is unrecoverable."
-          ],
-          "suggestion": "Replace the parameter list with one struct \u2014 `AuditEntry { actor, tool, args, decision: DecisionKind, reason, correlation_id }` \u2014 so the compiler enforces field names and the enum, and delete `decision_label` from the call sites.",
-          "reasoning": "",
-          "summary_hash": "d4cadbbf"
-        }
-      },
-      {
-        "id": "review::.::holistic::authorization_consistency::audit-decision-label-hardcoded-deny",
-        "tier": 3,
-        "confidence": "low",
-        "summary": "Reject path hardcodes the \"deny\" decision label instead of the shared decision_label()",
-        "detail": {
-          "holistic": true,
-          "dimension": "authorization_consistency",
-          "related_files": [
-            "crates/tool-server/src/approvals.rs",
-            "crates/tool-server/src/main.rs"
-          ],
-          "evidence": [
-            "crates/tool-server/src/main.rs:63-69 centralizes the audit vocabulary in decision_label().",
-            "crates/tool-server/src/approvals.rs:252 calls crate::decision_label(&decision.kind) on approve, but approvals.rs:304 passes the literal \"deny\" on reject.",
-            "The label is a query key for audit_log rows (crates/api-server/src/main.rs:187-197 returns `decision` verbatim), so a typo or rename in one path silently splits the audit vocabulary."
-          ],
-          "suggestion": "Replace the literal with crate::decision_label(&DecisionKind::Deny) so both approval outcomes go through the single label function.",
-          "reasoning": "",
-          "summary_hash": "c7db0a70"
-        }
-      },
-      {
-        "id": "review::.::holistic::ai_generated_debt::agent-core-unused-framework",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "agent-core ships ~545 LOC of framework (AgentLoop, HttpToolGateway, CheckpointStore, Budgets) that no binary instantiates",
-        "detail": {
-          "holistic": true,
-          "dimension": "ai_generated_debt",
-          "related_files": [
-            "crates/agent-core/src/agent_loop.rs",
-            "crates/agent-core/src/gateway.rs",
-            "crates/agent-core/src/checkpoint.rs",
-            "crates/agent-core/src/budget.rs",
-            "crates/agent-core/src/lib.rs",
-            "crates/api-server/src/a2a.rs",
-            "crates/api-server/src/acp.rs"
-          ],
-          "evidence": [
-            "grep for `agent_core::` outside the crate returns only `kill_switch_engaged` (api-server/main.rs:39, kill.rs:9, response-agent:22, triage-agent:24, vuln-agent:18) and the `AgentState`/`Step` types read by api-server (a2a.rs:320-329, acp.rs:159-167).",
-            "`AgentLoop` (agent_loop.rs:93), `HttpToolGateway` (gateway.rs:57), `CheckpointStore`/`PostgresCheckpointer`/`InMemoryCheckpointer` (checkpoint.rs) and `Budgets` are exported from lib.rs but never constructed by any service; each agent hand-rolls its own loop instead.",
-            "Nothing writes `agent_checkpoints` in production: the only INSERT is checkpoint.rs:62-72 inside the unused `PostgresCheckpointer`, while api-server creates and reads the table (a2a.rs:222, 321; acp.rs:160), so the `Step::Final` folding at a2a.rs:328-346 and acp.rs:167-179 can never fire.",
-            "The documented retry contract in gateway.rs:1-90 (MAX_RETRIES, full-jitter backoff, retryable hint) is not in effect: response-agent/src/main.rs:210-232 posts to `/invoke` with no retry and its own duplicated `InvokeResponse { decision, result }` struct (response-agent:190 vs gateway.rs:27)."
-          ],
-          "suggestion": "Either wire the agents through `AgentLoop`/`HttpToolGateway` (making checkpoints real and deleting the per-agent invoke code), or delete agent_loop.rs, gateway.rs, checkpoint.rs and budget.rs and keep agent-core to kill.rs + state.rs. The middle state \u2014 published framework nothing calls, plus read paths that can never fire \u2014 is the expensive one.",
-          "reasoning": "",
-          "summary_hash": "75db900e"
-        }
-      },
-      {
-        "id": "review::.::holistic::ai_generated_debt::restating-field-docs",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "~9% of all lines are doc comments, most restating the identifier they document",
-        "detail": {
-          "holistic": true,
-          "dimension": "ai_generated_debt",
-          "related_files": [
-            "crates/a2a/src/card.rs",
-            "crates/a2a/src/task.rs",
-            "crates/api-server/src/acp.rs",
-            "crates/agent-core/src/state.rs",
-            "crates/llm-client/src/lib.rs",
-            "crates/tool-server/src/approvals.rs"
-          ],
-          "evidence": [
-            "`#![warn(missing_docs)]` in six crates (agent-protocol/lib.rs:8, a2a/lib.rs:8, llm-client/lib.rs:8, audit/lib.rs:12, agent-core/lib.rs:9, acp/lib.rs:9) forces a doc line on every public item, including struct fields.",
-            "Result: `/// Agent name.` above `pub name: String` (a2a/src/card.rs:47, acp.rs:107), `/// The plan text.` above `text` (agent-core/src/state.rs:14), `/// The observation text.` (:24), `/// The final answer text.` (:29), `/// The text payload.` (a2a/src/task.rs:87), `/// Optional session id.` (acp.rs:109), `/// Terminal time.` (acp.rs:119).",
-            "Trivial constructors get prose: `/// Create a router from a fast and a strong provider.` on `new(fast, strong)` (llm-client/src/lib.rs:120), `/// Empty queue.` on `Store::new` (approvals.rs:74), `/// Create a writer bound to `pool`.` on `AuditWriter::new` (audit/src/lib.rs:48).",
-            "1279 `///` lines total against 14,394 LOC; the comments that do add value (policy order, TTL rationale, retry budget) are a small minority."
-          ],
-          "suggestion": "Drop `#![warn(missing_docs)]` to module/type level (or keep it for public APIs but not fields) and delete the restating one-liners. Keep the docs that carry a constraint \u2014 the order of policy checks, the 72h TTL rationale, the dry-run contract.",
-          "reasoning": "",
-          "summary_hash": "c248155d"
-        }
-      },
-      {
-        "id": "review::.::holistic::ai_generated_debt::unwrap-or-default-on-infallible-serde",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Infallible serialization is guarded with unwrap_or_default, turning bugs into empty 200 bodies and empty SSE data",
-        "detail": {
-          "holistic": true,
-          "dimension": "ai_generated_debt",
-          "related_files": [
-            "crates/api-server/src/acp.rs",
-            "crates/api-server/src/a2a.rs",
-            "crates/api-server/src/stream.rs"
-          ],
-          "evidence": [
-            "acp.rs:342: `serde_yaml::to_string(&manifest).unwrap_or_default()` \u2014 `AgentManifest` derives `Serialize`, so failure is impossible; if it ever happened the endpoint would answer 200 with an empty YAML body.",
-            "a2a.rs:592 and a2a.rs:598: `serde_json::to_string(&task).unwrap_or_default()` \u2014 same derived-`Serialize` situation, producing an empty `task` SSE frame.",
-            "a2a.rs:379 and acp.rs:229 use the same `unwrap_or_default()` shape when serializing a message that always serializes.",
-            "27 `unwrap_or_default()` call sites in the workspace; the ones above are the defensive subset guarding pure expressions rather than genuine `Option`/parse boundaries."
-          ],
-          "suggestion": "Serialize these infallible values once at the top of the handler (or use `serde_json::to_string(&x).expect(\"Task is Serialize\")`) so a failure is loud, instead of emitting an empty body that looks like a valid empty response.",
-          "reasoning": "",
-          "summary_hash": "7ccd7c9c"
-        }
-      },
-      {
-        "id": "review::.::holistic::incomplete_migration::agent_runtime_never_adopted",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "agent-core's AgentLoop/ToolGateway/CheckpointStore runtime has zero production consumers; every agent hand-rolls its own loop",
-        "detail": {
-          "holistic": true,
-          "dimension": "incomplete_migration",
-          "related_files": [
-            "crates/agent-core/src/agent_loop.rs",
-            "crates/agent-core/src/gateway.rs",
-            "crates/agent-core/src/checkpoint.rs",
-            "crates/agent-core/src/budget.rs",
-            "crates/api-server/src/a2a.rs"
-          ],
-          "evidence": [
-            "A grep for AgentLoop, ToolGateway, HttpToolGateway, CheckpointStore, PostgresCheckpointer and InMemoryCheckpointer across crates/ returns hits only inside crates/agent-core/src (agent_loop.rs:64,70; gateway.rs:36,47; checkpoint.rs:11,49) \u2014 no service crate constructs any of them.",
-            "The only implementors are test doubles: agent_loop.rs:218 `EchoGateway` implements ToolGateway and agent_loop.rs:232 uses `InMemoryCheckpointer`, so the runtime is exercised solely by its own unit tests.",
-            "crates/agent-core/src/lib.rs:3-8 documents AgentLoop as the way ARES agents run, which contradicts every agent's actual main.rs (triage-agent/src/main.rs:329-337, response-agent/src/main.rs:198-206, detection-agent/src/main.rs:62-63).",
-            "The new API's storage contract is bypassed too: api-server reads checkpoints with raw SQL (`SELECT state FROM agent_checkpoints WHERE thread_id = $1`) at a2a.rs:320 and acp.rs:159 instead of `PostgresCheckpointer`."
-          ],
-          "suggestion": "Resolve the dual path in one direction. Either delete AgentLoop/ToolGateway/CheckpointStore/Budgets plus their tests (crates/agent-core/src/{agent_loop,gateway,checkpoint,budget}.rs) and let agent-core keep only kill switch, state and error, or migrate triage-agent and response-agent onto AgentLoop + HttpToolGateway first and then retire their hand-rolled loops. Also point api-server's two checkpoint reads at `PostgresCheckpointer` so the table has one reader contract.",
-          "reasoning": "",
-          "summary_hash": "566853a2"
-        }
-      },
-      {
-        "id": "review::.::holistic::package_organization::connectors-single-module",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "crates/connectors/src/lib.rs is 1189 LOC holding 7 external API clients, config and HTTP helpers with no submodule boundary",
-        "detail": {
-          "holistic": true,
-          "dimension": "package_organization",
-          "related_files": [
-            "crates/connectors/src/lib.rs",
-            "docs/services.md"
-          ],
-          "evidence": [
-            "One module defines OpensearchClient (line 130), ThehiveClient (214), CortexClient (277), MispClient (429), WazuhClient (562), ShuffleClient (649) and NvdClient (885), plus ConnectorConfig (683) and the shared retry/send helpers (79-128).",
-            "Because there are no module names to point at, docs/services.md:128 has to cite raw line numbers for it (`connectors/lib.rs:695-740`, `lib.rs:773`), which is the navigation cost of the monolith in practice.",
-            "The scan evidence flags it as the top complexity hotspot (928 LOC at scan time, complexity score 85) and it is the crate with the most consumers (api-server, tool-server, bas-runner, detection-agent, hunt-agent, response-agent, triage-agent, enrichment-lib)."
-          ],
-          "suggestion": "Turn lib.rs into a facade and split by upstream system: http.rs (Auth, env, join, json_ok, retry_sleep, send_with_retry), opensearch.rs, thehive.rs, cortex.rs, misp.rs, wazuh.rs, shuffle.rs, nvd.rs (incl. parse_cve/parse_cve_page) and config.rs (ConnectorConfig), with `pub use` re-exports so no caller changes. Move in that order (helpers first, then one client per commit), validating with `cargo test -p connectors` after each step and `cargo build --workspace` at the end.",
-          "reasoning": "",
-          "summary_hash": "27957f43"
-        }
-      },
-      {
-        "id": "review::.::holistic::package_organization::executors-flat-in-mod",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "executors/mod.rs keeps 20 of 21 tool executors inline while only openshell.rs is extracted",
-        "detail": {
-          "holistic": true,
-          "dimension": "package_organization",
-          "related_files": [
-            "crates/tool-server/src/executors/mod.rs",
-            "crates/tool-server/src/executors/openshell.rs"
-          ],
-          "evidence": [
-            "crates/tool-server/src/executors/mod.rs is 816 LOC and contains 20 `impl Tool for ...` blocks (OpensearchQuery, ThehiveCase, ThehiveCaseUpdate, ThehiveObservable, CortexAnalyzer, MispSearch, MispAttribute, MispAttributeSearch, MispEventView, MispWarninglist, MispSighting, WazuhAgents, WazuhActiveResponse, ShuffleWorkflow, ProviderLookup, EntraUser, SlackNotify, NvdTool, CvssScoreTool, DryRun) plus the Tool trait, arg helpers, build_registry (674) and missing_executors (788).",
-            "Only `mod openshell;` (line 8) follows the one-file-per-executor pattern, so a developer adding an executor has two competing precedents and no rule for which to follow.",
-            "The module docstring states the invariant 'Every entry in policies/tools.yml maps to one Tool implementation', but the file gives no per-executor boundary to verify that mapping against."
-          ],
-          "suggestion": "Keep mod.rs as trait + helpers + registry and move each executor family into its own file next to openshell.rs: opensearch.rs, thehive.rs, cortex.rs, misp.rs, wazuh.rs, shuffle.rs, providers.rs (ProviderLookup/EntraUser), notify.rs (SlackNotify), nvd.rs, cvss.rs, dry_run.rs. Move one family per commit; validate with `cargo test -p tool-server` (the registry_tests module at line 800 already asserts the name-to-executor mapping).",
-          "reasoning": "",
-          "summary_hash": "c2d3e046"
-        }
-      },
-      {
-        "id": "review::.::holistic::package_organization::api-server-module-shadows-crate",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "api-server's `mod a2a` and `mod acp` shadow the a2a and acp crates, forcing `::a2a::` escapes",
-        "detail": {
-          "holistic": true,
-          "dimension": "package_organization",
-          "related_files": [
-            "crates/api-server/src/a2a.rs",
-            "crates/api-server/src/acp.rs",
-            "crates/api-server/src/main.rs"
-          ],
-          "evidence": [
-            "crates/api-server/src/main.rs:29-30 declares `mod a2a; mod acp;` while crates/api-server/Cargo.toml depends on the crates `a2a = { path = \"../a2a\" }` and `acp = { path = \"../acp\" }`.",
-            "crates/api-server/src/acp.rs:44 imports the sibling module (`use crate::a2a;`) and line 244 must write `::a2a::task::Message` to reach the external crate, so the same identifier means two different things one line apart.",
-            "crates/api-server/src/a2a.rs:22-24 imports `a2a::card`, `a2a::rpc` and `a2a::task`, which only resolve because the module itself does not shadow at that scope \u2014 a reader cannot tell which `a2a` any given `a2a::` refers to."
-          ],
-          "suggestion": "Rename the two route modules to a2a_routes.rs / acp_routes.rs (module names `a2a_routes`, `acp_routes`) and update main.rs:29-30, the router references and the doc links. That removes the `::a2a::` escape and makes `a2a::` unambiguously the protocol crate. Validate with `cargo clippy -p api-server --all-targets -- -D warnings` and a grep that `::a2a` no longer appears.",
-          "reasoning": "",
-          "summary_hash": "1b485d48"
-        }
-      },
-      {
-        "id": "review::.::holistic::package_organization::agent-registry-inside-a2a-routes",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "The platform agent routing table lives in the A2A route module, so ACP routes depend on a sibling route module",
-        "detail": {
-          "holistic": true,
-          "dimension": "package_organization",
-          "related_files": [
-            "crates/api-server/src/a2a.rs",
-            "crates/api-server/src/acp.rs"
-          ],
-          "evidence": [
-            "AgentDef, the AGENTS table, find_agent and the activity_name mapping are defined in crates/api-server/src/a2a.rs (around lines 50-145) as `pub(crate)`, not in a neutral module.",
-            "crates/api-server/src/acp.rs:44 `use crate::a2a;` and line 302 `a2a::AGENTS` make the ACP surface depend on the A2A route module for the registry, so the two protocol surfaces are coupled through one of them rather than through a shared owner.",
-            "The table encodes platform-level facts (agent name, NATS subject, EnvelopeKind, activity name) that both protocols and the SSE relay need, i.e. ownership is broader than the file it sits in."
-          ],
-          "suggestion": "Extract crates/api-server/src/agents.rs holding AgentDef, AGENTS, find_agent and the activity-name mapping; have a2a.rs, acp.rs and stream.rs import it. Keep a2a-specific helpers (build_payload, publish, task_uuid) where they are. Validate with `cargo test -p api-server` and `cargo clippy -p api-server --all-targets -- -D warnings`.",
-          "reasoning": "",
-          "summary_hash": "2ff4389d"
-        }
-      },
-      {
-        "id": "review::.::holistic::package_organization::api-server-handlers-in-main",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "main.rs keeps 9 console handlers inline while sibling route groups live in modules, and route modules also hold SQL DDL",
-        "detail": {
-          "holistic": true,
-          "dimension": "package_organization",
-          "related_files": [
-            "crates/api-server/src/main.rs",
-            "crates/api-server/src/acp.rs",
-            "crates/api-server/src/a2a.rs"
-          ],
-          "evidence": [
-            "crates/api-server/src/main.rs (389 LOC) defines health (94), list_alerts (108), get_alert (129), thehive_query (141), list_cases (156), get_case (164), list_audit (182), metrics (202) and get_plan (255) alongside Config, AppState, api_router (283) and main (328).",
-            "Eight sibling route groups were extracted instead (coverage.rs, playbooks.rs, kill.rs, vulns.rs, stream.rs, a2a.rs, acp.rs, ratelimit.rs), so the answer to 'where does a handler live?' differs per endpoint.",
-            "crates/api-server/src/acp.rs mixes routing, SSE and persistence: ensure_schema with CREATE TABLE (line 79) and load_run row loading (line 144), while its sibling crates/api-server/src/a2a.rs:396 introduces a TaskBackend/PgBackend seam for the same job \u2014 two placements for the same kind of code."
-          ],
-          "suggestion": "Move the console read-model handlers out of main.rs into alerts.rs, cases.rs, audit.rs, metrics.rs and plans.rs (leaving main.rs with Config, AppState, router and bootstrap), and move acp.rs's ensure_schema/load_run SQL next to the a2a backend seam (or into a store.rs per protocol). Validate with `cargo test -p api-server` and `cargo clippy -p api-server --all-targets -- -D warnings`; the route table in main.rs:283-327 is the checklist for which paths must still resolve.",
-          "reasoning": "",
-          "summary_hash": "dd91fc44"
-        }
-      },
-      {
-        "id": "review::.::holistic::package_organization::policy-engine-single-module",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "policy-engine/src/lib.rs is 779 LOC holding CIDR parsing, protected-asset compilation, policy compilation and evaluation",
-        "detail": {
-          "holistic": true,
-          "dimension": "package_organization",
-          "related_files": [
-            "crates/policy-engine/src/lib.rs"
-          ],
-          "evidence": [
-            "One module contains the CIDR type and mask helpers (154-217), Protected compilation from protected-assets.yml (218-252), CompiledTool/PolicyEngine loading (253-330), the 9-step evaluate/evaluate_inner decision order (340-441), the private kill-switch copy (443-457), check_protected (459-490), extract_targets (490-508) and check_forbidden_args (509-546).",
-            "The crate is the security boundary for every tool call (docstring: 'the order of checks in evaluate is load-bearing and must not be reordered'), so a reviewer must read a 779-line file to audit the order instead of seeing it as a numbered sequence across modules.",
-            "Scan evidence flags it as a complexity hotspot (723 LOC, complexity score 54) with clippy and future-proofing signals."
-          ],
-          "suggestion": "Split into cidr.rs (Cidr, mask4/mask6), protected.rs (Protected + compilation), compile.rs (ToolsFile/ToolPolicy/CompiledTool loading), evaluate.rs (PolicyEngine::evaluate and the numbered checks) and args.rs (extract_targets, check_forbidden_args), keeping lib.rs as the facade. Move in dependency order (cidr, args, protected, compile, evaluate); validate with `cargo test -p policy-engine` and `cargo test -p tool-server` since tool-server is the main consumer.",
-          "reasoning": "",
-          "summary_hash": "94e44413"
-        }
-      },
-      {
-        "id": "review::.::holistic::package_organization::crate-naming-suffix-drift",
-        "tier": 3,
-        "confidence": "low",
-        "summary": "Crate names mix domain nouns with uninformative -lib/-limits suffixes, so a name does not predict a crate's responsibility",
-        "detail": {
-          "holistic": true,
-          "dimension": "package_organization",
-          "related_files": [
-            "crates/enrichment-lib/src/lib.rs",
-            "crates/http-limits/src/lib.rs"
-          ],
-          "evidence": [
-            "Every workspace member is a library, yet two are named with suffixes: crates/enrichment-lib (actually IoC extraction + 5-provider enrichment fan-out + Redis caching) and crates/http-limits (per-key token buckets + SSE concurrency caps + tier config).",
-            "Sibling crates are named after the domain they own (connectors, cvss, audit, policy-engine, agent-protocol), so the suffix pattern gives no signal about contents and does not match the documented ownership model in docs/services.md.",
-            "enrichment-lib is also a single 579-line module holding three responsibilities (extract_iocs, Enricher::enrich fan-out, cache_key), so the vague name hides a flat file as well."
-          ],
-          "suggestion": "Rename crates/enrichment-lib to crates/enrichment (or crates/ioc-enrichment) and split its lib.rs into iocs.rs, providers.rs and cache.rs; leave http-limits as-is if the name is meant to mark it as a mechanism crate, otherwise rename to http-ratelimit. Renames touch Cargo.toml members, the 4 dependent Cargo.toml path deps and `use enrichment_lib` call sites; validate with `cargo metadata --no-deps` and `cargo test --workspace`.",
-          "reasoning": "",
-          "summary_hash": "d45aaa72"
-        }
-      },
-      {
-        "id": "review::.::holistic::initialization_coupling::two_config_planes",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Boot-time ConnectorConfig and per-call env::var resolve the same keys with different semantics",
-        "detail": {
-          "holistic": true,
-          "dimension": "initialization_coupling",
-          "related_files": [
-            "crates/api-server/src/main.rs",
-            "crates/triage-agent/src/main.rs",
-            "crates/detection-agent/src/pipeline.rs",
-            "crates/tool-server/src/executors/mod.rs",
-            "crates/connectors/src/lib.rs"
-          ],
-          "evidence": [
-            "crates/connectors/src/lib.rs:42-44 filters empty env values, so `ConnectorConfig` maps an empty `THEHIVE_API_KEY` to `Auth::None`; crates/api-server/src/main.rs:142-143 uses `env::var(\"THEHIVE_API_KEY\").unwrap_or_default()` and always calls `.bearer_auth(key)`, sending an empty bearer token.",
-            "crates/triage-agent/src/main.rs:233-238 re-reads `OPENSEARCH_USER`/`OPENSEARCH_PASS` per verdict write while `deps.os` was built from `ConnectorConfig` at boot (main.rs:461-470), so the raw write path and the client path can authenticate differently.",
-            "crates/detection-agent/src/pipeline.rs:208-216 re-reads `OPENSEARCH_URL`/`USER`/`PASS` per monitor deploy, duplicating the boot-resolved `deps.os` config.",
-            "crates/tool-server/src/executors/mod.rs:378 and :388 decide dry-run vs real execution from `env(..)` inside `execute`, so credentials are resolved at request time while connector clients were resolved at boot in `build_registry` (:674)."
-          ],
-          "suggestion": "Resolve every credential once at boot and carry it: store `conn_cfg` in `AppState`/`Deps` and pass the resolved base URL and `Auth` into `thehive_query`, `write_fp_verdict`, `deploy_monitor`, and the executor structs (as `Option<String>` fields set in `build_registry`) instead of calling `env::var` inside handlers and `execute`.",
-          "reasoning": "",
-          "summary_hash": "d29069ed"
-        }
-      },
-      {
-        "id": "review::.::holistic::initialization_coupling::enricher_new_hidden_env",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Enricher::new() reads env and builds ConnectorConfig internally with no injection point",
-        "detail": {
-          "holistic": true,
-          "dimension": "initialization_coupling",
-          "related_files": [
-            "crates/enrichment-lib/src/lib.rs",
-            "crates/llm-client/src/anthropic.rs",
-            "crates/triage-agent/src/main.rs"
-          ],
-          "evidence": [
-            "crates/enrichment-lib/src/lib.rs:213-230 reads `REDIS_URL`, `VIRUSTOTAL_API_KEY`, `ABUSEIPDB_API_KEY`, `SHODAN_API_KEY`, `GREYNOISE_API_KEY` and calls `ConnectorConfig::from_env()` inside `new()`, so construction silently depends on ambient process state.",
-            "There is no constructor taking explicit config, and no test constructs an `Enricher` (crates/enrichment-lib/src/lib.rs:525-579 covers only pure helpers), so the env-dependent construction is untestable.",
-            "`redis::Client::open(u).ok()` at :218 silently drops a malformed `REDIS_URL`, leaving caching disabled with no log.",
-            "The codebase's own convention is the opposite: `AnthropicProvider::new(api_key)` plus a separate `from_env()` (crates/llm-client/src/anthropic.rs:23-42)."
-          ],
-          "suggestion": "Split into `Enricher::new(cfg: EnricherConfig)` (explicit keys and redis URL) plus `Enricher::from_env()`, and call `from_env()` only from the service `main` functions that build `Deps`/`AppState`; log instead of dropping an unparsable `REDIS_URL`.",
-          "reasoning": "",
-          "summary_hash": "7a347355"
-        }
-      },
-      {
-        "id": "review::.::holistic::design_coherence::agent_scaffolding_copied_per_crate",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Four agent crates copy-paste the same activity event, emit helper and envelope subscribe loop; a fifth emits an incompatible shape",
-        "detail": {
-          "holistic": true,
-          "dimension": "design_coherence",
-          "related_files": [
-            "crates/detection-agent/src/activity.rs",
-            "crates/hunt-agent/src/activity.rs",
-            "crates/response-agent/src/activity.rs",
-            "crates/triage-agent/src/activity.rs",
-            "crates/detection-agent/src/main.rs",
-            "crates/hunt-agent/src/main.rs",
-            "crates/response-agent/src/main.rs",
-            "crates/triage-agent/src/main.rs",
-            "crates/vuln-agent/src/main.rs"
-          ],
-          "evidence": [
-            "crates/{detection,hunt,response}-agent/src/activity.rs are byte-identical 44-line modules (same SUBJECT_ACTIVITY, same ActivityEvent); triage-agent/src/activity.rs:27 differs only by `step: &'static str`, so the copies have already drifted.",
-            "crates/vuln-agent/src/main.rs:29 declares a fifth SUBJECT_ACTIVITY constant and crates/vuln-agent/src/main.rs:120-133 emits an ad-hoc json! without workflow_run_id, which the run filters at api-server/src/a2a.rs:610 and acp.rs:559 can never match.",
-            "`async fn emit` is duplicated verbatim at detection-agent/main.rs:72, hunt-agent/main.rs:55, response-agent/main.rs:86 and triage-agent/main.rs:79.",
-            "The subscribe -> tokio::spawn -> parse Envelope -> info_span!(workflow_run_id, envelope_id) block is duplicated at detection-agent/main.rs:258-278, hunt-agent/main.rs:213-239, response-agent/main.rs:409-427 and triage-agent/main.rs:483-504."
-          ],
-          "suggestion": "Move ActivityEvent, SUBJECT_ACTIVITY and emit into agent-protocol (already the shared protocol crate) and make all five agents \u2014 including vuln-agent \u2014 use it; then add one `spawn_envelope_consumer(nats, subject, span_name, handler)` in agent-core so each main's consume loop is ~10 lines.",
-          "reasoning": "",
-          "summary_hash": "2df3a2f8"
-        }
-      },
-      {
-        "id": "review::.::holistic::design_coherence::llm_request_boilerplate_repeated",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Three agents repeat the same CompletionRequest construction and markdown-fence stripping; llm-client offers no helper",
-        "detail": {
-          "holistic": true,
-          "dimension": "design_coherence",
-          "related_files": [
-            "crates/triage-agent/src/main.rs",
-            "crates/response-agent/src/main.rs",
-            "crates/detection-agent/src/pipeline.rs",
-            "crates/llm-client/src/lib.rs",
-            "crates/agent-core/src/agent_loop.rs"
-          ],
-          "evidence": [
-            "triage-agent/src/main.rs:106-124, response-agent/src/main.rs:138-155 and detection-agent/src/pipeline.rs:33-52 each build CompletionRequest { system, one user message of serde_json::to_string(context), max_tokens, temperature: 0.0 }, call router.complete(tier), then run the trim/trim_start_matches(\"```json\")/trim_end_matches(\"```\") chain and parse.",
-            "agent-core/src/agent_loop.rs:121-130 is a fourth copy of the request construction.",
-            "The fence-strip chain differs only in which language tags each site lists, so any fix (e.g. an unterminated fence) has to be applied three times."
-          ],
-          "suggestion": "Add `ModelRouter::complete_json(tier, system: &str, context: &Value, max_tokens: u32) -> Result<String, LlmError>` to crates/llm-client/src/lib.rs that builds the request and strips code fences once; the three call sites collapse to a single line each.",
-          "reasoning": "",
-          "summary_hash": "9b03ee22"
-        }
-      },
-      {
-        "id": "review::.::holistic::design_coherence::cvss_metric_validation_duplicated",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "v31::score and v40::score duplicate the same metric-map validation loop",
-        "detail": {
-          "holistic": true,
-          "dimension": "design_coherence",
-          "related_files": [
-            "crates/cvss/src/v31.rs",
-            "crates/cvss/src/v40.rs"
-          ],
-          "evidence": [
-            "cvss/src/v31.rs:135-152 and cvss/src/v40.rs:213-228 both split the vector, look each key up in their VALID table (InvalidToken), check the value list (InvalidValue) and insert into a HashMap (Duplicate on overwrite).",
-            "The two copies differ only in the local variable name (map vs sel) and the table constant."
-          ],
-          "suggestion": "Move the loop into crates/cvss/src/lib.rs as `fn metric_map(pairs: MetricPairs, valid: &[(&str, &[&str])]) -> Result<HashMap<String, String>, CvssError>` and call it from both scorers.",
-          "reasoning": "",
-          "summary_hash": "517866b9"
-        }
-      },
-      {
-        "id": "review::.::holistic::contract_coherence::approvals_approved_means_executed",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Status::Approved is documented as 'approved and the call was executed' but is set before the post-approval policy re-check",
-        "detail": {
-          "holistic": true,
-          "dimension": "contract_coherence",
-          "related_files": [
-            "crates/tool-server/src/approvals.rs"
-          ],
-          "evidence": [
-            "Status::Approved doc: 'A human approved and the call was executed' (crates/tool-server/src/approvals.rs:39-40)",
-            "approve() settles the record to Approved first (218-227) and only then re-evaluates policy (230-233); when the re-check returns Deny the result is a failure stub and nothing executes (235-243)",
-            "The record keeps status Approved with an error result, so `GET /approvals?status=approved` lists calls that were never performed"
-          ],
-          "suggestion": "Either add a distinct terminal status for 'approved but blocked by re-check' (or set Rejected/Failed when the re-check denies), or soften the doc to 'a human approved and execution was attempted'.",
-          "reasoning": "",
-          "summary_hash": "2c7dc564"
-        }
-      },
-      {
-        "id": "review::.::holistic::contract_coherence::acp_sync_mode_timeout",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "RunMode::Sync promises to block until a terminal state, but api-server returns after 120s with a non-terminal run and HTTP 200",
-        "detail": {
-          "holistic": true,
-          "dimension": "contract_coherence",
-          "related_files": [
-            "crates/acp/src/lib.rs",
-            "crates/api-server/src/acp.rs"
-          ],
-          "evidence": [
-            "RunMode::Sync doc: 'Block until the run reaches a terminal state' (crates/acp/src/lib.rs:186-190)",
-            "api-server wraps the wait in `tokio::time::timeout(SYNC_TIMEOUT, ...)` and ignores the elapsed result, then returns whatever state the row is in with StatusCode::OK (crates/api-server/src/acp.rs:47-48, 185-218, 390-395)",
-            "A client following the type contract cannot distinguish 'finished' from 'still running' without re-reading `status`"
-          ],
-          "suggestion": "Document the timeout in the RunMode::Sync contract (e.g. 'blocks until terminal or SYNC_TIMEOUT, returning the live run') or return 202 instead of 200 when the timeout elapses so the wire response matches the promised semantics.",
-          "reasoning": "",
-          "summary_hash": "ac4272a3"
-        }
-      },
-      {
-        "id": "review::.::holistic::type_safety::policy_forbidden_class_strings",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "forbidden_args classes are raw strings matched with `_ => false`, so a typo silently disables the IP-class check",
-        "detail": {
-          "holistic": true,
-          "dimension": "type_safety",
-          "related_files": [
-            "crates/policy-engine/src/lib.rs",
-            "policies/tools.yml"
-          ],
-          "evidence": [
-            "crates/policy-engine/src/lib.rs:521-537 dispatches on class name literals (\"RFC1918\", \"loopback\", \"multicast\", \"link_local\", \"unspecified\", \"cgNAT\"/\"shared\") and returns `false` for anything else, so the check passes by default.",
-            "policies/tools.yml:129-130 supplies those names as free-form YAML (`ip: [RFC1918, loopback, multicast]`); `PolicyEngine::load` (lib.rs:268-301) never validates them.",
-            "The same file already types the sibling policy fields as serde enums (`Impact`, `Autonomy` at lib.rs:67-82), so the stricter pattern is right there."
-          ],
-          "suggestion": "Add `#[derive(Deserialize)] #[serde(rename_all = \"...\")] enum IpClass { Rfc1918, Loopback, Multicast, LinkLocal, Unspecified, Cgnat }`, type `forbidden_args: HashMap<String, Vec<IpClass>>`, and match on the enum exhaustively \u2014 an unknown class in tools.yml then fails `PolicyEngine::load` instead of quietly allowing the call.",
-          "reasoning": "",
-          "summary_hash": "7493b8c6"
-        }
-      },
-      {
-        "id": "review::.::holistic::type_safety::cvss_metric_fields_default_not_option",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "CvssMetric fields are non-Option but parse_cve fills them with \"\"/0.0, and 0.0 is itself a valid CVSS score",
-        "detail": {
-          "holistic": true,
-          "dimension": "type_safety",
-          "related_files": [
-            "crates/connectors/src/lib.rs",
-            "crates/vuln-agent/src/main.rs"
-          ],
-          "evidence": [
-            "crates/connectors/src/lib.rs:813-826 declares `version: String, source: String, kind: String, vector: String, base_score: f64` with no `Option`, promising fields the NVD payload may omit.",
-            "crates/connectors/src/lib.rs:1056-1063 fills them with `unwrap_or(\"\")` / `unwrap_or(0.0)`, so 'absent' and 'empty'/'0.0' are indistinguishable at the type level.",
-            "crates/vuln-agent/src/main.rs:100 filters `m.base_score > 0.0`, which drops a genuine CVSS 0.0 (severity None) record and cannot distinguish it from a parse default."
-          ],
-          "suggestion": "Type the genuinely optional parts as `Option<String>`/`Option<f64>` (or have `parse_cve` skip a metric when `cvssData` is missing) and let callers decide the policy for an absent score instead of encoding absence as 0.0.",
-          "reasoning": "",
-          "summary_hash": "55503c03"
-        }
-      },
-      {
-        "id": "review::.::holistic::type_safety::persisted_state_bypasses_enums",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "a2a/acp write protocol states as SQL literals and re-parse with lossy fallbacks instead of using the enums",
-        "detail": {
-          "holistic": true,
-          "dimension": "type_safety",
-          "related_files": [
-            "crates/api-server/src/a2a.rs",
-            "crates/api-server/src/acp.rs",
-            "crates/a2a/src/task.rs",
-            "crates/acp/src/lib.rs"
-          ],
-          "evidence": [
-            "crates/api-server/src/a2a.rs writes `'working'` (:418), `'failed'` (:442), `'canceled'` (:486-487) and `'completed'` (:337, :617) while `TaskState::as_str()` (a2a/src/task.rs:44-53) is the canonical mapping and is only used for display (:441 in acp.rs, run_event).",
-            "crates/api-server/src/a2a.rs:316 reads back with `TaskState::parse(&row.state).unwrap_or(TaskState::Submitted)`, so an unrecognised stored value becomes a live 'submitted' task that a client can re-drive.",
-            "crates/acp/src/lib.rs:172-182 maps every unknown status to `InProgress` (a completed run could be resurrected), and crates/api-server/src/acp.rs:85,452 keeps the same literals in the DDL and the cancel UPDATE."
-          ],
-          "suggestion": "Bind `TaskState::as_str()`/`RunStatus::as_str()` in the SQL statements, propagate parse failure instead of defaulting (`?` on the `Option` or `BackendError::Internal`), and add a CHECK constraint listing the enum's values so the TEXT column cannot drift from the enum.",
-          "reasoning": "",
-          "summary_hash": "ab7ea6d0"
-        }
-      },
-      {
-        "id": "review::.::holistic::abstraction_fitness::activity_event_not_deserializable",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "ActivityEvent is serialize-only, so every consumer filters activity payloads as untyped JSON",
-        "detail": {
-          "holistic": true,
-          "dimension": "abstraction_fitness",
-          "related_files": [
-            "crates/agent-protocol/src/activity.rs",
-            "crates/api-server/src/run_stream.rs",
-            "crates/api-server/src/stream.rs"
-          ],
-          "evidence": [
-            "crates/agent-protocol/src/activity.rs:14 derives only Debug, Clone and Serialize; there is no Deserialize, so no service can parse the type it is meant to share.",
-            "crates/api-server/src/run_stream.rs:62-71 and 157-168 parse each ares.activity payload into serde_json::Value and compare v.get(\"workflow_run_id\").and_then(Value::as_str) != Some(corr) plus v.get(\"step\"), restating the type's field names in two places.",
-            "crates/api-server/src/stream.rs:37 forwards raw UTF-8 payload text straight to the console SSE feed, so the frontend also depends on the untyped shape.",
-            "ActivityEvent.workflow_run_id is a Uuid and ts a DateTime<Utc>, but consumers compare the serialized string form, so a field rename or type change is invisible to the compiler at every consumer."
-          ],
-          "suggestion": "Add Deserialize to ActivityEvent and replace both Value traversals in run_stream.rs with serde_json::from_str::<ActivityEvent>(&text) followed by typed field access; leave stream.rs forwarding raw text (the console wants the original bytes) but let it import the type for documentation.",
-          "reasoning": "",
-          "summary_hash": "c0153239"
-        }
-      },
-      {
-        "id": "review::.::holistic::abstraction_fitness::terminal_step_vocabulary_misplaced",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Terminal-step registry lives in the API server as magic strings and hunt runs never terminate",
-        "detail": {
-          "holistic": true,
-          "dimension": "abstraction_fitness",
-          "related_files": [
-            "crates/api-server/src/a2a.rs",
-            "crates/api-server/src/run_stream.rs",
-            "crates/hunt-agent/src/main.rs",
-            "crates/triage-agent/src/main.rs"
-          ],
-          "evidence": [
-            "crates/api-server/src/a2a.rs:124-131 terminal_step matches only \"triage\", \"response\" and \"detection\" and returns false for every other agent, so hunt-agent's steps (\"run\", \"finding\", \"clear\", \"kill_switch\" at crates/hunt-agent/src/main.rs:140-185) never close an SSE stream; a2a.rs:122-123 documents this as a known gap instead of fixing the contract.",
-            "crates/api-server/src/run_stream.rs:18 imports aborted_step, task_uuid and terminal_step from crate::a2a, so the module documented as shared A2A+ACP machinery depends on one protocol module for the step vocabulary.",
-            "Step names are free string literals at the emit sites (crates/triage-agent/src/main.rs:397-490, crates/detection-agent/src/main.rs:126-202, crates/response-agent/src/main.rs:193-347) with no shared constant, so a renamed step silently stops terminating its run.",
-            "aborted_step (a2a.rs:134-136) encodes a second cross-agent rule (\"kill_switch\" | \"rejected\") in the same API-server module rather than next to the emitters."
-          ],
-          "suggestion": "Move the vocabulary into agent-protocol::activity as an ActivityStep enum (or per-agent const slices) plus ActivityEvent::is_terminal()/is_aborted(), have agents construct steps from it and run_stream call it directly; add hunt's terminal step in the same change so hunt SSE streams close.",
-          "reasoning": "",
-          "summary_hash": "c82c7043"
-        }
-      },
-      {
-        "id": "review::.::holistic::abstraction_fitness::nats_sink_bypassed_by_producers",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "NatsSink's publish policy is bypassed by publish_activity and by bas-runner's local publish helper",
-        "detail": {
-          "holistic": true,
-          "dimension": "abstraction_fitness",
-          "related_files": [
-            "crates/agent-core/src/lib.rs",
-            "crates/agent-core/src/nats_sink.rs",
-            "crates/bas-runner/src/main.rs",
-            "crates/vuln-agent/src/main.rs"
-          ],
-          "evidence": [
-            "crates/agent-core/src/lib.rs:30-48 publish_activity serializes an ActivityEvent and publishes on a raw async_nats::Client, so the JetStream-first policy in NatsSink::publish_bytes (crates/agent-core/src/nats_sink.rs:92-107) never applies to activity events.",
-            "crates/bas-runner/src/main.rs:180-190 re-implements serialize + publish + warn for SUBJECT_BAS envelopes on a raw client, so BAS results are the only envelope kind never written to the ARES stream.",
-            "Six services open a raw client only for this path (crates/triage-agent/src/main.rs:506, response-agent/src/main.rs:382, detection-agent/src/main.rs:216, hunt-agent/src/main.rs:201, vuln-agent/src/main.rs:310, bas-runner/src/main.rs:278) while ingestion-gateway, orchestrator and api-server use NatsSink.",
-            "NatsSink's own doc comment (nats_sink.rs:1-4) claims 'one implementation for every producer', which the raw-client call sites contradict."
-          ],
-          "suggestion": "Add NatsSink::publish_activity(&ActivityEvent) (and use publish() for BAS envelopes), have publish_activity take &NatsSink instead of &async_nats::Client, and replace the six raw connects with NatsSink::connect; if activity is deliberately best-effort, say so in one comment on the new method so the two policies are explicit.",
-          "reasoning": "",
-          "summary_hash": "a3c40899"
-        }
-      },
-      {
-        "id": "review::.::holistic::abstraction_fitness::duplicate_paths_helper_module",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "api-server re-declares agent-protocol's dir_from_env in its own paths module",
-        "detail": {
-          "holistic": true,
-          "dimension": "abstraction_fitness",
-          "related_files": [
-            "crates/api-server/src/paths.rs",
-            "crates/agent-protocol/src/paths.rs",
-            "crates/api-server/src/coverage.rs",
-            "crates/api-server/src/playbooks.rs"
-          ],
-          "evidence": [
-            "crates/api-server/src/paths.rs:9-11 is byte-identical to crates/agent-protocol/src/paths.rs:9-11 (same signature, same env-or-default body, same doc line).",
-            "crates/api-server/src/coverage.rs:17 and crates/api-server/src/playbooks.rs:14 call crate::paths::dir_from_env while detection-agent/src/pipeline.rs:16,20, bas-runner/src/scenario.rs:12 and http-limits/src/lib.rs:463 call agent_protocol::paths::dir_from_env.",
-            "api-server already depends on agent-protocol (a2a.rs:24-26, kill.rs:40), so the copy buys nothing."
-          ],
-          "suggestion": "Delete crates/api-server/src/paths.rs (and its mod line at main.rs:31) and import agent_protocol::paths::dir_from_env in coverage.rs and playbooks.rs.",
-          "reasoning": "",
-          "summary_hash": "7669b3fc"
-        }
-      },
-      {
-        "id": "review::.::holistic::abstraction_fitness::duplicate_subject_activity_const",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "api-server re-declares SUBJECT_ACTIVITY locally instead of importing the shared constant",
-        "detail": {
-          "holistic": true,
-          "dimension": "abstraction_fitness",
-          "related_files": [
-            "crates/api-server/src/stream.rs",
-            "crates/agent-protocol/src/activity.rs"
-          ],
-          "evidence": [
-            "crates/api-server/src/stream.rs:22 defines const SUBJECT_ACTIVITY: &str = \"ares.activity\"; duplicating crates/agent-protocol/src/activity.rs:11.",
-            "Every other subject now lives once in agent-protocol/src/lib.rs:20-35 and is imported by producers, so this is the single remaining local copy of a subject name.",
-            "A rename or subject change in agent-protocol would leave api-server silently subscribed to a dead subject with no compile error."
-          ],
-          "suggestion": "Import agent_protocol::activity::SUBJECT_ACTIVITY in stream.rs and delete the local const at line 22.",
-          "reasoning": "",
-          "summary_hash": "af794fbf"
-        }
-      },
-      {
-        "id": "review::.::holistic::abstraction_fitness::a2a_publish_pass_through_wrapper",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "a2a::publish is a pass-through wrapper over NatsSink::publish with no policy of its own",
-        "detail": {
-          "holistic": true,
-          "dimension": "abstraction_fitness",
-          "related_files": [
-            "crates/api-server/src/a2a.rs",
-            "crates/api-server/src/acp.rs"
-          ],
-          "evidence": [
-            "crates/api-server/src/a2a.rs:242-248 the body is a single s.sink.publish(subject, envelope).await; it adds no logging, translation or policy, only a doc comment.",
-            "Its doc still claims 'same policy as ingestion-gateway's NatsSink' even though the sink moved to agent-core, so the wrapper's only content is already stale.",
-            "Call sites are a2a.rs:401 and acp.rs:248, both of which already hold &AppState and can reach s.sink directly."
-          ],
-          "suggestion": "Call s.sink.publish(def.subject, &env) directly at both call sites and delete the wrapper, so the publish policy has exactly one definition (agent-core::NatsSink).",
-          "reasoning": "",
-          "summary_hash": "3c976d12"
-        }
-      },
-      {
-        "id": "review::.::holistic::abstraction_fitness::tool_gateway_bypassed_for_thehive_writes",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "vuln-agent and response-agent write to TheHive through ThehiveClient, bypassing the ToolGateway used for every other side effect",
-        "detail": {
-          "holistic": true,
-          "dimension": "abstraction_fitness",
-          "related_files": [
-            "crates/vuln-agent/src/main.rs",
-            "crates/response-agent/src/main.rs",
-            "crates/agent-core/src/gateway.rs",
-            "crates/tool-server/src/executors/mod.rs"
-          ],
-          "evidence": [
-            "crates/vuln-agent/src/main.rs:266 calls hive.create_case(&case) directly although thehive.case.create is a registered policy-gated tool (crates/tool-server/src/executors/mod.rs:79) that triage-agent uses via gateway.invoke_allowed (crates/triage-agent/src/main.rs:310-320).",
-            "crates/response-agent/src/main.rs:339 updates the TheHive case directly for the run summary while every other response side effect goes through deps.gateway.invoke_verdict (main.rs:236).",
-            "ToolGateway (crates/agent-core/src/gateway.rs:41-44) returns a ToolResult whose output is untyped Value, so agents that need a typed case id must re-parse it (crates/triage-agent/src/main.rs:318-321) - the cheap path to typed results is the direct client, which is why the bypass keeps reappearing."
-          ],
-          "suggestion": "Route vuln-agent's case creation through HttpToolGateway::invoke_allowed(\"thehive.case.create\") so kill switch, policy and audit apply uniformly; keep response-agent's summary write only if it is documented as bookkeeping, otherwise add a policy-gated tool for it. If typed returns are the blocker, add a typed helper next to invoke_allowed rather than another direct client.",
-          "reasoning": "",
-          "summary_hash": "aad1878c"
-        }
-      },
-      {
-        "id": "review::.::holistic::dependency_health::unused_dep_declarations",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "15 dependency declarations across 9 crates have no reference in their crate's source",
-        "detail": {
-          "holistic": true,
-          "dimension": "dependency_health",
-          "related_files": [
-            "crates/api-gateway/Cargo.toml",
-            "crates/api-server/Cargo.toml",
-            "crates/audit/Cargo.toml",
-            "crates/detection-agent/Cargo.toml",
-            "crates/enrichment-lib/Cargo.toml",
-            "crates/hunt-agent/Cargo.toml",
-            "crates/ingestion-gateway/Cargo.toml",
-            "crates/response-agent/Cargo.toml",
-            "crates/triage-agent/Cargo.toml"
-          ],
-          "evidence": [
-            "crates/api-gateway/Cargo.toml declares serde and futures; neither identifier appears anywhere in crates/api-gateway/src (0 matches, no Serialize/Deserialize derive either).",
-            "crates/api-server/Cargo.toml:24 declares reqwest; `grep -rn reqwest crates/api-server/` matches only the manifest line.",
-            "crates/audit/Cargo.toml declares sha2, but the crate now hashes through `agent_protocol::hex::sha256_hex` (crates/audit/src/lib.rs:228) after commit 9c765f8 moved the helper.",
-            "crates/detection-agent declares serde, chrono and reqwest; crates/hunt-agent declares serde and chrono; crates/response-agent declares chrono and reqwest; crates/triage-agent declares reqwest \u2014 none of those identifiers occur in the respective src trees.",
-            "crates/enrichment-lib declares reqwest and anyhow; HTTP now goes through the connectors crate and errors are a local type, so both names are absent from src.",
-            "crates/ingestion-gateway declares async-nats but publishes through `agent_core::NatsSink` (crates/ingestion-gateway/src/main.rs:126); the crate name never appears."
-          ],
-          "suggestion": "Delete the 15 dead declarations (api-gateway: serde, futures; api-server: reqwest; audit: sha2; detection-agent: serde, chrono, reqwest; enrichment-lib: reqwest, anyhow; hunt-agent: serde, chrono; ingestion-gateway: async-nats; response-agent: chrono, reqwest; triage-agent: reqwest), then add `unused_crate_dependencies = \"warn\"` to a shared `[workspace.lints.rust]` table so the next refactor cannot leave a manifest lying again.",
-          "reasoning": "",
-          "summary_hash": "7a872b87"
-        }
-      },
-      {
-        "id": "review::.::holistic::dependency_health::audit_reqwest_dead_error_variant",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "audit keeps the full reqwest stack only for an error variant it can never construct, and its description still claims OpenSearch shipping",
-        "detail": {
-          "holistic": true,
-          "dimension": "dependency_health",
-          "related_files": [
-            "crates/audit/Cargo.toml",
-            "crates/audit/src/lib.rs"
-          ],
-          "evidence": [
-            "crates/audit/src/lib.rs:30-33 defines `AuditError::Http(#[from] reqwest::Error)` documented as 'HTTP failure shipping an event to OpenSearch'.",
-            "No other reqwest reference exists in crates/audit/src; AuditWriter holds only a PgPool (crates/audit/src/lib.rs:43-46) and performs zero HTTP, so the variant is unreachable and the `#[from]` conversion is dead.",
-            "crates/audit/Cargo.toml:6 still describes the crate as 'Hash-chained Postgres audit log with OpenSearch shipping for ARES', which no longer matches the code.",
-            "This is the only reason reqwest is a dependency of audit, so the crate pays for a manifest entry whose only consumer is an impossible error path."
-          ],
-          "suggestion": "Drop the `Http` variant and the reqwest dependency from crates/audit, and correct the crate description to 'Hash-chained Postgres audit log for ARES'. If OpenSearch shipping is still planned, land it in connectors (where the OpenSearch client already lives) rather than reserving an error variant for it.",
-          "reasoning": "",
-          "summary_hash": "f259d1c1"
-        }
-      },
-      {
-        "id": "review::.::holistic::dependency_health::jsonschema_default_features",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "policy-engine inherits jsonschema's HTTP resolver, reqwest-blocking and fancy-regex for in-memory schema validation",
-        "detail": {
-          "holistic": true,
-          "dimension": "dependency_health",
-          "related_files": [
-            "Cargo.toml",
-            "crates/policy-engine/Cargo.toml",
-            "crates/policy-engine/src/lib.rs"
-          ],
-          "evidence": [
-            "jsonschema 0.30's default features are [\"resolve-http\", \"resolve-file\"]; `resolve-http` turns on the optional reqwest dependency with the `blocking` and `json` features (verified in the crate manifest and in `cargo tree -e features -i reqwest`, which shows `reqwest feature \"blocking\"` reached from `jsonschema feature \"default\"`).",
-            "policy-engine only builds validators from an in-memory schema value: crates/policy-engine/src/lib.rs:288-292 does `serde_json::to_value(schema)` then `jsonschema::validator_for(&json_schema)` \u2014 no $ref resolution, no file or URL retrieval.",
-            "The default feature set also pulls fancy-regex (a second regex engine alongside policy-engine's direct `regex` dependency), email_address, idna, uuid-simd, bytecount and fraction into every binary that links policy-engine (tool-server, api-server).",
-            "The workspace pin at Cargo.toml:63 (`jsonschema = \"0.30\"`) does not disable default features, so the cost is paid by default for every consumer."
-          ],
-          "suggestion": "Pin `jsonschema = { version = \"0.30\", default-features = false }` in [workspace.dependencies] (crates/policy-engine/Cargo.toml:18 already uses `workspace = true`, so no per-crate change is needed). `validator_for` needs no feature, so this removes reqwest-blocking and fancy-regex from the tree without touching call sites.",
-          "reasoning": "",
-          "summary_hash": "b8f4b5f5"
-        }
-      },
-      {
-        "id": "review::.::holistic::dependency_health::unused_workspace_features",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Workspace feature lists enable tokio signal/fs, tracing-subscriber json and redis's default feature set that no code uses",
-        "detail": {
-          "holistic": true,
-          "dimension": "dependency_health",
-          "related_files": [
-            "Cargo.toml",
-            "crates/enrichment-lib/src/lib.rs"
-          ],
-          "evidence": [
-            "Cargo.toml:33 enables tokio features [\"rt-multi-thread\", \"macros\", \"net\", \"time\", \"sync\", \"signal\", \"process\", \"io-util\", \"fs\"]; `tokio::signal` and `tokio::fs` have 0 occurrences workspace-wide (all file IO is std::fs), while `process` is used once in crates/tool-server/src/executors/openshell.rs:37.",
-            "Cargo.toml:50 enables tracing-subscriber [\"env-filter\", \"json\"], but all 11 binaries initialize with plain `tracing_subscriber::fmt().with_env_filter(..).init()` (e.g. crates/api-server/src/main.rs:351-353) and nothing calls `.json()`, so the json feature (tracing-serde) is dead.",
-            "Cargo.toml:41 pins `redis = { version = \"0.27\", features = [\"tokio-comp\"] }` without default-features = false; redis defaults are acl, streams, geospatial, script, keep-alive, yet enrichment-lib only calls `set_ex` and `get` for the IOC cache (crates/enrichment-lib/src/lib.rs:244,381).",
-            "Cargo.toml:43 enables schemars features [\"chrono\", \"uuid1\"] although no code emits a schema and UUID v1 is never used (uuid v4/v5 only)."
-          ],
-          "suggestion": "Trim the workspace feature lists to what the code actually calls: drop `signal` and `fs` from tokio, drop `json` from tracing-subscriber (keep env-filter), set `redis = { version = \"0.27\", default-features = false, features = [\"tokio-comp\"] }`, and reduce schemars to `features = [\"chrono\"]`. Each change is one line in Cargo.toml and cannot break callers, because the removed APIs are unreferenced.",
-          "reasoning": "",
-          "summary_hash": "f077d50e"
-        }
-      },
-      {
-        "id": "review::.::holistic::dependency_health::console_lockfile_ignored_by_ci",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Console commits an npm package-lock.json while CI installs with pnpm and --frozen-lockfile=false",
-        "detail": {
-          "holistic": true,
-          "dimension": "dependency_health",
-          "related_files": [
-            "apps/console/package.json",
-            "apps/console/package-lock.json",
-            ".github/workflows/ci.yml"
-          ],
-          "evidence": [
-            "apps/console/package-lock.json (234 KB, npm) is tracked in git; there is no pnpm-lock.yaml in the repo.",
-            ".github/workflows/ci.yml console job runs `pnpm -C apps/console install --frozen-lockfile=false`, so pnpm neither reads the npm lockfile nor is constrained by any lockfile \u2014 dependency versions can drift between CI runs and between developers.",
-            "The same job also uses `corepack enable` without a pinned `packageManager` field in apps/console/package.json, so the pnpm major version itself is whatever corepack resolves."
-          ],
-          "suggestion": "Pick one package manager, commit its lockfile and enforce it: add `\"packageManager\": \"pnpm@<version>\"` to apps/console/package.json, generate and commit pnpm-lock.yaml, delete package-lock.json, and change the CI step to `pnpm -C apps/console install --frozen-lockfile`.",
-          "reasoning": "",
-          "summary_hash": "96b8a5af"
-        }
-      },
-      {
-        "id": "review::.::holistic::dependency_health::console_duplicate_icon_libraries",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Console ships two icon libraries; lucide-react is used in exactly one file",
-        "detail": {
-          "holistic": true,
-          "dimension": "dependency_health",
-          "related_files": [
-            "apps/console/package.json",
-            "apps/console/app/(console)/playbooks/page.tsx"
-          ],
-          "evidence": [
-            "apps/console/package.json depends on @hugeicons/react, @hugeicons/core-free-icons and lucide-react.",
-            "@hugeicons is the established convention: it is imported in ~20 components under components/blocks/ and app/(console)/page.tsx, app/(console)/alerts/[id]/page.tsx.",
-            "lucide-react appears only at apps/console/app/(console)/playbooks/page.tsx:20 (`import { Zap, Wrench, GitFork, Flag } from \"lucide-react\"`), so an entire icon package (plus its transitive icon data) ships for four glyphs in one screen."
-          ],
-          "suggestion": "Replace the four lucide-react icons in app/(console)/playbooks/page.tsx with their @hugeicons equivalents and remove lucide-react from package.json, leaving one icon system for the whole console.",
-          "reasoning": "",
-          "summary_hash": "a13a6f7f"
-        }
-      },
-      {
-        "id": "review::.::holistic::dependency_health::compose_latest_tags",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Eight infra services run on mutable :latest image tags, so compose stacks are not reproducible",
-        "detail": {
-          "holistic": true,
-          "dimension": "dependency_health",
-          "related_files": [
-            "infra/docker-compose.yml"
-          ],
-          "evidence": [
-            "infra/docker-compose.yml pins several images by version (opensearch:2.17.1, wazuh/wazuh-manager:4.9.2, cortex:3.2.1-1, nats:2.11-alpine, redis:7-alpine) but leaves thehiveproject/thehive:latest (line 168), ghcr.io/misp/misp-docker/misp-core:latest (201), misp-modules:latest (257), shuffle-backend/frontend/orborus:latest (265/282/290) and ghcr.io/nvidia/openshell/gateway:latest (478, 491).",
-            "The shuffle and openshell lines carry inline comments ('verify tag on first pull', 'verify tag'), which acknowledges the tags are unverified.",
-            "Because the CI docker job only runs `docker compose config -q`, an upstream :latest push changes the deployed stack without any diff in this repository."
-          ],
-          "suggestion": "Pin the eight remaining services to concrete tags or digests (e.g. `thehiveproject/thehive:4.1.24`, `ghcr.io/nvidia/openshell/gateway@sha256:...`) the same way opensearch and wazuh already are, and resolve the 'verify tag' comments at the same time.",
-          "reasoning": "",
-          "summary_hash": "76d2ef06"
-        }
-      },
-      {
-        "id": "review::.::holistic::low_level_elegance::api_gateway_handbuilt_limiter",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "api-gateway still hand-builds the rate limiter that http_limits::build_limiter now provides",
-        "detail": {
-          "holistic": true,
-          "dimension": "low_level_elegance",
-          "related_files": [
-            "crates/api-gateway/src/main.rs",
-            "crates/http-limits/src/lib.rs"
-          ],
-          "evidence": [
-            "crates/api-gateway/src/main.rs:174-177: `let policies_dir = std::env::var(\"POLICIES_DIR\")...; let limits = RateLimits::load(&PathBuf::from(&policies_dir).join(\"rate-limits.yml\")); let rl = Arc::new(RateLimiter::new(limits, classify)); rl.spawn_idle_purge();`",
-            "crates/http-limits/src/lib.rs:462-467 adds `pub fn build_limiter(classify)` doing exactly those four steps, and the same commit (9c765f8) deleted the identical block from crates/api-server/src/ratelimit.rs:13 and crates/ingestion-gateway/src/ratelimit.rs:14."
-          ],
-          "suggestion": "Replace lines 174-177 with `let rl = http_limits::build_limiter(classify);` and drop the now-unused `RateLimits`/`RateLimiter`/`PathBuf` imports.",
-          "reasoning": "",
-          "summary_hash": "6e8acf2d"
-        }
-      },
-      {
-        "id": "review::.::holistic::low_level_elegance::dedupe_hex_passthrough_module",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "orchestrator dedupe keeps a pass-through `mod hex` shim whose comment is no longer true",
-        "detail": {
-          "holistic": true,
-          "dimension": "low_level_elegance",
-          "related_files": [
-            "crates/orchestrator/src/dedupe.rs"
-          ],
-          "evidence": [
-            "crates/orchestrator/src/dedupe.rs:81-86: `/// Minimal hex encoder to avoid an extra dependency.` followed by `mod hex { pub fn encode(bytes: impl AsRef<[u8]>) -> String { agent_protocol::hex::hex_lower(bytes.as_ref()) } }` - the module no longer encodes anything, it forwards.",
-            "The single call site is crates/orchestrator/src/dedupe.rs:73 `hex::encode(hasher.finalize())`, inside a function that already imports `sha2::{Digest, Sha256}`.",
-            "The nested module is declared mid-file between `day_bucket` and `mod tests`, so a reader meets a module definition where a function was expected."
-          ],
-          "suggestion": "Delete `mod hex` and hash the four fields into one buffer, then call `agent_protocol::hex::sha256_hex(&buf)` at line 73 - one line, one helper, no shim.",
-          "reasoning": "",
-          "summary_hash": "9837ec49"
-        }
-      },
-      {
-        "id": "review::.::holistic::low_level_elegance::orphan_doc_comments_enrichment",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Two doc comments in enrichment-lib now document the wrong items after their functions were removed",
-        "detail": {
-          "holistic": true,
-          "dimension": "low_level_elegance",
-          "related_files": [
-            "crates/enrichment-lib/src/lib.rs"
-          ],
-          "evidence": [
-            "crates/enrichment-lib/src/lib.rs:170 `/// Base64-url (unpadded) encoding for VirusTotal URL ids.` is followed by a blank line and `fn env(key: &str) -> Option<String>` (line 172), so it reads as `env`'s documentation.",
-            "crates/enrichment-lib/src/lib.rs:448 `/// Convenience wrapper: enrich one indicator through a shared Enricher.` sits directly above `#[cfg(test)] mod tests` (line 449); no such wrapper exists in the file."
-          ],
-          "suggestion": "Delete both doc lines (the functions they described are gone); keep `env` undocumented or give it a one-line doc of its own.",
-          "reasoning": "",
-          "summary_hash": "ed29f92e"
-        }
-      },
-      {
-        "id": "review::.::holistic::low_level_elegance::audit_canonical_string_duplicated",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Audit chain canonical string is built twice and must stay byte-identical",
-        "detail": {
-          "holistic": true,
-          "dimension": "low_level_elegance",
-          "related_files": [
-            "crates/audit/src/lib.rs"
-          ],
-          "evidence": [
-            "crates/audit/src/lib.rs:104-108 builds `format!(\"{prev_hash}|{actor}|{tool}|{args_sha256}|{decision_label}|{reason}|{correlation_id}|{ts}\")` for the write path.",
-            "crates/audit/src/lib.rs:161-170 rebuilds the same eight fields positionally in `verify_chain`; a field added or reordered in one place silently invalidates every stored hash, and the only detector is the `/audit/verify` endpoint.",
-            "The two versions already differ cosmetically (named vs positional args, `decision_label` vs `row.decision`), which is exactly how the next drift starts."
-          ],
-          "suggestion": "Extract one `fn canonical(prev_hash: &str, actor: &str, tool: &str, args_sha256: &str, decision: &str, reason: &str, correlation_id: Uuid, ts: DateTime<Utc>) -> String` and call it from both `append` and `verify_chain`.",
-          "reasoning": "",
-          "summary_hash": "aedceea5"
-        }
-      },
-      {
-        "id": "review::.::holistic::low_level_elegance::run_stream_duplicate_activity_filter",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "The activity-filter predicate is written twice in run_stream.rs",
-        "detail": {
-          "holistic": true,
-          "dimension": "low_level_elegance",
-          "related_files": [
-            "crates/api-server/src/run_stream.rs"
-          ],
-          "evidence": [
-            "crates/api-server/src/run_stream.rs:60-72 (inside `wait_for_terminal`) parses the payload, compares `workflow_run_id`, extracts `step`, and tests `terminal_step(agent, step)`.",
-            "crates/api-server/src/run_stream.rs:155-166 (inside the `activity_stream` unfold) repeats the same five steps against `st.corr`/`st.agent`, with the only difference being that one `continue`s and the other returns an event.",
-            "The two copies must agree on the correlation field name and the terminal-step rule; today they do, by inspection only."
-          ],
-          "suggestion": "Extract `fn terminal_activity(text: &str, corr: &str, agent: &str) -> Option<Value>` returning the parsed event when it matches and is terminal, and call it from both loops.",
-          "reasoning": "",
-          "summary_hash": "fd5098a9"
-        }
-      },
-      {
-        "id": "review::.::holistic::low_level_elegance::policy_duplicate_decision_log",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "evaluate and evaluate_approved duplicate the same 8-line decision log block",
-        "detail": {
-          "holistic": true,
-          "dimension": "low_level_elegance",
-          "related_files": [
-            "crates/policy-engine/src/lib.rs"
-          ],
-          "evidence": [
-            "crates/policy-engine/src/lib.rs:324-339 (`evaluate`) and 341-356 (`evaluate_approved`) each run `evaluate_inner` and then repeat the identical `info!(tool, actor, correlation_id, decision = ?decision.kind, reason, \"policy decision\")` call.",
-            "The only difference is the trailing message string (\"policy decision\" vs \"policy decision (approved call)\"), so the two public methods differ by one literal.",
-            "crates/policy-engine/src/lib.rs:451-454 compounds this with `fn kill_switch_engaged(&self, ctx: &EvalCtx) -> bool { ctx.kill_switch }` - a pass-through that ignores `&self` and reads like the live `agent_protocol::kill::kill_switch_engaged` check it is not."
-          ],
-          "suggestion": "Add one private `fn evaluate_logged(&self, call, ctx, approved, label: &str) -> Decision` that calls `evaluate_inner` and emits the log, have both public methods delegate to it, and inline `ctx.kill_switch` at the single call site in `evaluate_inner` instead of the pass-through method.",
-          "reasoning": "",
-          "summary_hash": "fdd96110"
-        }
-      },
-      {
-        "id": "review::.::holistic::low_level_elegance::wazuh_token_lock_across_io",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "WazuhClient::token holds the token mutex across the authenticate HTTP round-trip",
-        "detail": {
-          "holistic": true,
-          "dimension": "low_level_elegance",
-          "related_files": [
-            "crates/connectors/src/lib.rs"
-          ],
-          "evidence": [
-            "crates/connectors/src/lib.rs:621-641: `let mut guard = self.token.lock().await;` then `send_with_retry(req).await` (which retries with full-jitter sleeps under a 15s `CALL_BUDGET`, lines 88-140) and `json_ok(resp).await` all execute while `guard` is alive; it is only written at line 637.",
-            "Every concurrent `authed()` caller (list_agents line 648, active_response line 660) blocks on that mutex for the duration of the network call, so one slow authenticate stalls the whole client instead of just the callers that need a token.",
-            "crates/connectors/src/lib.rs:966 has the same shape in `NvdClient::get`, where `let _guard = self.throttle().await` stays alive through the retry `sleep` at line 1000 and the response decode."
-          ],
-          "suggestion": "Fetch the token outside the lock (authenticate is idempotent) and only take the mutex to store it: check `self.token.lock().await.clone()`, drop the guard, do the request, then `if guard.is_none() { *guard = Some(token) }`. In `NvdClient::get`, scope the throttle guard to the spacing decision so it is dropped before the send and the backoff sleep.",
-          "reasoning": "",
-          "summary_hash": "8759aa18"
-        }
-      },
-      {
-        "id": "review::.::holistic::low_level_elegance::inline_activity_emission_agents",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Activity emission is inlined 20 times across three agents while sibling helpers are extracted",
-        "detail": {
-          "holistic": true,
-          "dimension": "low_level_elegance",
-          "related_files": [
-            "crates/triage-agent/src/main.rs",
-            "crates/hunt-agent/src/main.rs",
-            "crates/response-agent/src/main.rs"
-          ],
-          "evidence": [
-            "crates/triage-agent/src/main.rs:395,405,422,445,459,471,481,488 each spell `publish_activity(&deps.nats, &ActivityEvent::new(run_id, \"triage\", <step>, <detail>)).await;`, 3-6 lines per step.",
-            "crates/hunt-agent/src/main.rs:138,147,168,179 and crates/response-agent/src/main.rs:193,202,217,225,267,320,326,345 repeat the same shape with \"hunt\"/\"response\".",
-            "The same files do extract helpers for the other repeated shapes (`tool_call` triage:265, `typed_iocs` triage:139, `open_case` triage:277, `save_final_checkpoint` response:365), so the extraction level is inconsistent within a single file.",
-            "In `run_sweep` (hunt-agent:134-192) the four activity calls are longer than the query/score logic they surround, which buries the control flow the function exists to express."
-          ],
-          "suggestion": "Add one per-agent helper `async fn activity(deps: &Deps, run_id: Uuid, step: &str, detail: impl Into<String>)` that fixes the agent name and discards the publish result, and replace the 20 call sites with one line each.",
-          "reasoning": "",
-          "summary_hash": "9c1249f9"
-        }
-      },
-      {
-        "id": "review::.::holistic::low_level_elegance::tool_result_failure_literals",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Seven sites hand-spell the failure ToolResult while its sibling constructor exists",
-        "detail": {
-          "holistic": true,
-          "dimension": "low_level_elegance",
-          "related_files": [
-            "crates/tool-server/src/main.rs",
-            "crates/tool-server/src/approvals.rs",
-            "crates/agent-protocol/src/tool.rs"
-          ],
-          "evidence": [
-            "crates/agent-protocol/src/tool.rs:93 provides `ToolResult::retryable(call_id, error)` for the retryable failure shape, but there is no constructor for the ordinary failure shape.",
-            "crates/tool-server/src/main.rs:99-113 (deny), 158-166 (no executor), 178-190 (executor error), 203-212 (mismatch) and approvals.rs:232-244 (denied after approval) each write out `ToolResult { call_id, ok: false, output: Value::Null, error: Some(..), dry_run: false }` by hand.",
-            "crates/agent-core/src/gateway.rs:88-100 does the same for the non-2xx upstream case, so the six-field literal is a cross-crate copy pattern."
-          ],
-          "suggestion": "Add `ToolResult::failed(call_id: Uuid, error: impl Into<String>) -> Self` next to `retryable` in agent-protocol/src/tool.rs:93 and use it at the seven sites; each call collapses from six fields to one line.",
-          "reasoning": "",
-          "summary_hash": "17e64e6d"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::orchestrator_unreachable_delivery_guard",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "MAX_DELIVERIES guard can never fire; the redelivery DLQ path is dead code",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/orchestrator/src/main.rs"
-          ],
-          "evidence": [
-            "main.rs:152-159 reads `Nats-Delivery-Count` from message headers; no NATS producer or JetStream consumer metadata sets that header, and `delivery_count` returns 1 when it is absent.",
-            "main.rs:182 subscribes with `client.subscribe(...)` (core NATS), which carries no delivery metadata, so `handle_message`'s `deliveries > MAX_DELIVERIES` check at line 71 is always false.",
-            "The module doc at line 15 states 'Messages redelivered more than MAX_DELIVERIES times are dropped to ares.dlq', and lines 31-32 define the constant \u2014 both describe behaviour that cannot occur."
-          ],
-          "suggestion": "Delete the guard, `delivery_count` and `MAX_DELIVERIES` (and the doc line), or replace the core subscribe with a JetStream consumer and read the delivery count from `message.info()`; do not keep a dead branch that implies poison-message protection.",
-          "reasoning": "",
-          "summary_hash": "e7e43f67"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::gateway_layer_order_comment_inverted",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Gateway comment says rate limiting is outermost; the layer chain puts auth outermost",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/api-gateway/src/main.rs",
-            "crates/api-server/src/main.rs"
-          ],
-          "evidence": [
-            "main.rs:159-160 applies `.layer(middleware::from_fn_with_state(rl, ...))` then `.layer(middleware::from_fn_with_state(auth, ...))`; in axum the last layer is outermost, so `auth::middleware` runs before `http_limits::middleware`.",
-            "The comment at lines 157-158 asserts the opposite: 'Rate limiting outermost so unauthenticated floods are still metered; authentication then gates everything except the exempt paths.'",
-            "crates/api-server/src/main.rs:383-388 relies on the correct rule ('CORS stays outermost') when it puts `CorsLayer` last, so the two files disagree about ordering semantics.",
-            "Consequence: unauthenticated requests are rejected with 401 before the limiter sees them, so unauthenticated floods are not metered and only authenticated traffic consumes buckets."
-          ],
-          "suggestion": "Swap the two `.layer` calls so the rate limiter is applied last (outermost), or fix the comment to state that auth runs first; pick one and make the comment match the code.",
-          "reasoning": "",
-          "summary_hash": "ebd5c214"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::audit_chain_timestamp_precision_mismatch",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Audit hash uses nanosecond timestamp, verification re-hashes the microsecond DB value",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/audit/src/lib.rs"
-          ],
-          "evidence": [
-            "lib.rs:103-109 builds the canonical string with `ts = ts.to_rfc3339()` where `ts = Utc::now()` (nanosecond precision), then hashes it.",
-            "The same `ts` is bound into a `timestamptz` column (lines 111-128); PostgreSQL/sqlx store microseconds, so the value read back differs from the hashed one whenever the sub-microsecond digits are non-zero.",
-            "verify_chain (lines 161-180) recomputes the canonical string from the stored `row.ts.to_rfc3339()`, so it reports `broken_at` with 'hash does not match row contents' for essentially every intact row."
-          ],
-          "suggestion": "Truncate the timestamp before hashing and storing, e.g. `let ts = Utc::now().trunc_subsecs(6)` (or hash `ts.timestamp_micros()`), so the canonical string is identical on insert and verify.",
-          "reasoning": "",
-          "summary_hash": "e6269db3"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::nvd_404_detected_by_string_match",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "NVD 404 is detected by substring-matching a formatted error message",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/connectors/src/lib.rs"
-          ],
-          "evidence": [
-            "lib.rs:983 returns `anyhow::bail!(\"NVD HTTP {status}\")` for every non-retryable status, discarding the structured status code.",
-            "lib.rs:1008 branches on `Err(e) if e.to_string().contains(\"404\")` to decide that the CVE is a miss rather than an outage.",
-            "Any error whose text happens to contain '404' (a URL, a body echo, a wrapped context line) is treated as 'CVE not found' and negative-cached by callers."
-          ],
-          "suggestion": "Have `NvdClient::get` return a typed failure (e.g. `Err(NvdError::Status(u16))` or `Ok(None)` for 404) so `get_cve` matches on the variant instead of the message string.",
-          "reasoning": "",
-          "summary_hash": "26324d36"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::gateway_fabricates_deny_for_http_failures",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Non-2xx /invoke responses become a synthetic 'deny' policy verdict",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/agent-core/src/gateway.rs",
-            "crates/response-agent/src/main.rs"
-          ],
-          "evidence": [
-            "gateway.rs:85-106 builds `Decision { kind: DecisionKind::Deny, reason: \"gateway returned {status}: {body}\" }` for any non-success HTTP status, so a 502/503/504 is reported as a policy denial.",
-            "response-agent/src/main.rs:277-300 persists `decision.kind` in `response_actions.result`, so an outage is recorded as 'denied by policy' and the activity step at line 322 reads 'denied by policy; recorded'.",
-            "`invoke_allowed` (gateway.rs:121-135) returns `AgentError::Denied` for these, so callers cannot distinguish 'the tool server refused' from 'the tool server was unreachable'."
-          ],
-          "suggestion": "Return `Err(AgentError::Http(...))` (or a dedicated `AgentError::Upstream(status)`) for non-2xx responses and let retry/abort logic handle it; reserve `DecisionKind::Deny` for verdicts the policy engine actually produced.",
-          "reasoning": "",
-          "summary_hash": "7fc211ed"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::bas_execute_dry_param_always_false",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "bas-runner passes dry=false to execute(); its dry-run branch is unreachable",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/bas-runner/src/main.rs"
-          ],
-          "evidence": [
-            "main.rs:197-203 returns early from `run_scenario` when `deps.dry`, so the later `execute(scenario, deps.dry)` at line 204 is only reached with `dry == false`.",
-            "Inside `execute` (lines 86-100) the `match (target, dry)` arm that logs 'dry run (no {env_var} or --dry)' and returns Ok(()) can therefore never run.",
-            "The `dry` field on `Deps` (line 82) exists only to be re-passed to a function that can no longer use it."
-          ],
-          "suggestion": "Drop the `dry` parameter from `execute` and keep the single dry-run gate in `run_scenario` (the arm then collapses to `match std::env::var(env_var) { Ok(t) => t, Err(_) => { log; return Ok(()) } }`).",
-          "reasoning": "",
-          "summary_hash": "b0c45618"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::response_agent_redundant_option_decision",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "`denied` is unwrapped from an Option that is always Some",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/response-agent/src/main.rs"
-          ],
-          "evidence": [
-            "main.rs:241-242 builds the tuple `(Some(v.decision), v.result)` in the only success arm; the error arm returns early at line 274.",
-            "main.rs:277-280 then computes `decision.as_ref().map(|d| d.kind == DecisionKind::Deny).unwrap_or(false)` \u2014 an unwrap_or on a value that cannot be None.",
-            "main.rs:293-294 also stores `decision.as_ref().map(|d| d.kind)` and `decision.as_ref().map(|d| d.reason.clone())`, adding an Option layer to the persisted record for no reason."
-          ],
-          "suggestion": "Make the tuple `(v.decision, v.result)` and use `decision.kind == DecisionKind::Deny` / `decision.kind` / `decision.reason` directly.",
-          "reasoning": "",
-          "summary_hash": "10d19506"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::response_agent_killswitch_reports_success",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Kill-switch halt breaks the loop and then reports 'done' with a Final checkpoint",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/response-agent/src/main.rs",
-            "crates/api-server/src/a2a.rs"
-          ],
-          "evidence": [
-            "main.rs:215-223 publishes the `kill_switch` activity and `break`s, so execution continues to the summary block.",
-            "main.rs:345-356 then publishes `done` ('{n} actions executed') and `save_final_checkpoint`, which writes `Step::Final`.",
-            "The invoke-failure path (lines 243-275) instead writes `aborted: ... invoke failed` and returns, so the two halt paths disagree about whether the run completed.",
-            "api-server/src/a2a.rs:291-307 treats a checkpoint whose last step is `Final` as `Completed`, so the halted run can be folded back to completed."
-          ],
-          "suggestion": "On the kill-switch halt, save an `aborted` checkpoint and skip the `done` activity (or emit a distinct `halted` terminal step), matching the invoke-failure path.",
-          "reasoning": "",
-          "summary_hash": "b974d4a3"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::policy_blast_radius_counts_denials",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Blast-radius counter increments before the cap check, so denied calls consume the quota",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/policy-engine/src/lib.rs"
-          ],
-          "evidence": [
-            "lib.rs:412-416 increments `ctx.counters` and returns the new count before any check runs.",
-            "lib.rs:417-427 compares `count > max` afterwards, so the call that is rejected has already been counted.",
-            "lib.rs:428-442 returns early on cooldown before the cooldown timestamp is written, but the hourly counter increment from line 414 is not rolled back, so repeated denied attempts can exhaust the hourly budget for legitimate calls."
-          ],
-          "suggestion": "Read the current count, decide, and only increment on the allow path (or increment-and-compare but roll back the increment on every deny branch).",
-          "reasoning": "",
-          "summary_hash": "472decfe"
-        }
-      },
-      {
-        "id": "review::.::holistic::logic_clarity::vulns_error_mapped_to_404",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "`GET /vulns/{id}` answers 404 for NVD outages because errors collapse into None",
-        "detail": {
-          "holistic": true,
-          "dimension": "logic_clarity",
-          "related_files": [
-            "crates/api-server/src/vulns.rs",
-            "crates/enrichment-lib/src/lib.rs"
-          ],
-          "evidence": [
-            "enrichment-lib/src/lib.rs:388-400 returns `None` for 'NVD has no record' (Ok(None)) and also for 'NVD lookup failed' (Err), after only a warn log.",
-            "vulns.rs:85-91 turns every None into `404 'no NVD record (unknown, reserved, or rejected)'`, so a rate-limited or unreachable NVD is reported as a nonexistent CVE.",
-            "The connector's own doc (connectors/src/lib.rs:997-999) is careful to distinguish a miss from an outage, but that distinction is dropped one layer up."
-          ],
-          "suggestion": "Return a three-state result from `enrich_cve` (e.g. `Result<Option<CveRecord>, NvdUnavailable>`) and map the error arm to 502/503 in `get_vuln` instead of 404.",
-          "reasoning": "",
-          "summary_hash": "114cb5c3"
-        }
-      },
-      {
-        "id": "review::.::holistic::test_strategy::auth_middleware_decision_untested",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Both auth middlewares' 401/503/anonymous branches have no test; only key predicates are covered",
-        "detail": {
-          "holistic": true,
-          "dimension": "test_strategy",
-          "related_files": [
-            "crates/http-limits/src/auth.rs",
-            "crates/api-gateway/src/auth.rs",
-            "crates/api-server/src/main.rs"
-          ],
-          "evidence": [
-            "`http-limits/src/auth.rs:88` `require_auth` is the gate for api-server (main.rs:299), tool-server (main.rs:299) and ingestion-gateway (main.rs:148); the only tests (lines 120-138) exercise `ApiKeys::actor_for`/`is_enabled`, never the middleware's missing-credentials 401, invalid-credentials 401, dev-mode pass-through, or `Actor` insertion.",
-            "`api-gateway/src/auth.rs:95` `middleware` owns the 401 / 503-gateway_auth_not_configured / allow-anonymous branches; tests at lines 135-174 only cover `presented_key`, `accepts`, `is_exempt`, and the test fixture's own `allow_anonymous` field.",
-            "`http-limits/src/lib.rs:394` already demonstrates the required harness (`tower` `util` dev-dep + `app.oneshot(peer_req(...))`), so the same style would drive both middlewares without new infrastructure."
-          ],
-          "suggestion": "Add oneshot middleware tests in each crate: no credentials -> 401, wrong key -> 401, valid Bearer/X-API-Key -> 200 and `Actor` present in extensions, unset key set -> pass-through with `anonymous` (and 503 for api-gateway when keys are empty and anonymous is disabled).",
-          "reasoning": "",
-          "summary_hash": "242f77df"
-        }
-      },
-      {
-        "id": "review::.::holistic::test_strategy::api_server_http_surface_untested",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "api-server's 1.4k LOC of HTTP handlers (A2A, ACP, SSE, kill, playbooks) have no handler-level tests",
-        "detail": {
-          "holistic": true,
-          "dimension": "test_strategy",
-          "related_files": [
-            "crates/api-server/src/a2a.rs",
-            "crates/api-server/src/acp.rs",
-            "crates/api-server/src/main.rs",
-            "crates/api-server/Cargo.toml"
-          ],
-          "evidence": [
-            "`a2a.rs` (548 LOC) and `acp.rs` (568 LOC) contain no `#[cfg(test)]` module; the crate's 4 tests are `api_router_registers_all_routes` (main.rs:404-409, which builds the router and drops it), `classify_maps_paths_to_tiers` (ratelimit.rs:56) and two `valid_cve_id` asserts (vulns.rs:158-172).",
-            "`api-server/Cargo.toml` has no `[dev-dependencies]`, so the crate cannot do `tower::ServiceExt::oneshot` route tests or a DB-backed test \u2014 unlike api-gateway (`router_registers_all_routes`, main.rs:258) and http-limits, which do.",
-            "Even the DB-free helpers are untested: `a2a::task_uuid` (a2a.rs:226, uuid-vs-v5-hash branch), `a2a::build_payload` (a2a.rs:304, HandoffPayload branch for response-agent), `acp::input_to_text` (acp.rs:204), `acp::manifest_for` (acp.rs:61)."
-          ],
-          "suggestion": "Cover the DB-free helpers first (task_uuid with a UUID and a non-UUID id, build_payload for SUBJECT_RESPOND vs other subjects, input_to_text, manifest_for), then add a `tower` dev-dependency and oneshot tests for `/.well-known/agent.json`, `/a2a/agents`, `/a2a/{agent}` and an unknown agent's 404, following api-gateway/src/main.rs:258.",
-          "reasoning": "",
-          "summary_hash": "c63fa3b1"
-        }
-      },
-      {
-        "id": "review::.::holistic::test_strategy::shared_run_stream_db_coupled",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Shared SSE state machine takes a concrete PgPool, so the module both protocols depend on cannot be unit-tested",
-        "detail": {
-          "holistic": true,
-          "dimension": "test_strategy",
-          "related_files": [
-            "crates/api-server/src/run_stream.rs",
-            "crates/agent-core/src/checkpoint.rs"
-          ],
-          "evidence": [
-            "`run_stream.rs:34` `checkpoint_progress(pool: &PgPool, ..)`, `:94` `RunRecord::load(pool: &PgPool, ..)` and `:121` `activity_stream(rx, pool: PgPool, ..)` bind the replay/close state machine to `sqlx::PgPool`; the file has no test module.",
-            "`wait_for_terminal` (run_stream.rs:55-82) needs only a `broadcast::Receiver` and a timeout \u2014 lag handling, wrong `workflow_run_id`, and terminal-step matching are all testable today but untested.",
-            "The codebase already has the better pattern in `agent-core/src/checkpoint.rs:22-40`: a `CheckpointStore` trait plus `InMemoryCheckpointer`, which is why `agent_loop.rs` tests need no Postgres."
-          ],
-          "suggestion": "Replace the `PgPool` parameter with a small trait or a record-loader closure so `activity_stream` can be driven by a fake, and add direct tests for `wait_for_terminal` (lagged receiver, non-matching correlation id, terminal vs non-terminal step, timeout).",
-          "reasoning": "",
-          "summary_hash": "41ebba15"
-        }
-      },
-      {
-        "id": "review::.::holistic::test_strategy::activity_terminal_step_contract_untested",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "`terminal_step` agent/step string contract has no test; renaming one emitted step silently hangs every SSE stream",
-        "detail": {
-          "holistic": true,
-          "dimension": "test_strategy",
-          "related_files": [
-            "crates/agent-protocol/src/activity.rs",
-            "crates/api-server/src/run_stream.rs",
-            "crates/triage-agent/src/main.rs"
-          ],
-          "evidence": [
-            "`activity.rs:30-38` is a hard-coded agent x step table ('close', 'handoff', 'kill_switch', 'done', 'deployed', 'rejected'); the module has no `#[cfg(test)]`.",
-            "`run_stream.rs:72` is the only thing that closes an A2A/ACP stream, and the emitters are per-agent literals in triage-agent, response-agent, detection-agent and hunt-agent \u2014 a rename on the emitting side degrades to `wait_for_terminal` timing out (run_stream.rs:81) instead of a failing test.",
-            "`aborted_step` (activity.rs:41) decides whether a run is marked failed vs completed and is likewise untested."
-          ],
-          "suggestion": "Add a table test over every agent x terminal step plus a non-terminal step and an unknown agent, and a test asserting each agent's emitted step constants are members of that table (export the literals as consts so the test can reference them).",
-          "reasoning": "",
-          "summary_hash": "7ab681f3"
-        }
-      },
-      {
-        "id": "review::.::holistic::test_strategy::no_db_integration_harness",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "No database-backed test harness: every Postgres store is untested while its in-memory twin is tested",
-        "detail": {
-          "holistic": true,
-          "dimension": "test_strategy",
-          "related_files": [
-            "crates/tool-server/src/idempotency.rs",
-            "crates/audit/src/lib.rs",
-            "crates/orchestrator/src/dedupe.rs",
-            "crates/agent-core/src/checkpoint.rs"
-          ],
-          "evidence": [
-            "`idempotency.rs:183` `Store::pg` and `:188` `Store::mem` are documented as 'identical semantics', but all 9 tests (lines 424-545) drive only `mem` and the pure `Record` helpers; `claim_pg`'s `INSERT .. ON CONFLICT` reclaim/expiry SQL (lines 217-320) is never executed.",
-            "`audit/src/lib.rs:157` `verify_chain` and `:238` `canonical_string` (the exact string whose hash is stored) are untested \u2014 the two tests cover `sha256_hex` shape and `GENESIS_HASH`, so a field-order change in `canonical_string` would invalidate every existing row's hash with no failing test.",
-            "`orchestrator/src/dedupe.rs:32` `check_and_mark`, `agent-core/src/checkpoint.rs:49` `PostgresCheckpointer` and `api-server`'s `a2a_tasks`/`acp_runs` lifecycle have no tests; `grep -rn 'sqlx::test|testcontainers' crates` returns nothing."
-          ],
-          "suggestion": "Add one `#[sqlx::test]` module (or a `DATABASE_URL`-gated module skipped when unset) per store and run the same scenario list against `mem` and `pg` to prove parity; start with audit append->verify_chain (including a tampered row) and idempotency claim/finish/expired-reclaim.",
-          "reasoning": "",
-          "summary_hash": "6643636f"
-        }
-      },
-      {
-        "id": "review::.::holistic::test_strategy::agent_core_budget_killswitch_branches_untested",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Agent loop's kill-switch branch and two of three budget stop reasons are never exercised",
-        "detail": {
-          "holistic": true,
-          "dimension": "test_strategy",
-          "related_files": [
-            "crates/agent-core/src/agent_loop.rs",
-            "crates/agent-core/src/budget.rs",
-            "crates/agent-core/src/gateway.rs"
-          ],
-          "evidence": [
-            "`agent_loop.rs:142-148` blocks a tool call and stops with `kill_switch`; the three tests (lines 239-275) cover only `final`, `max_steps` and fence stripping.",
-            "`budget.rs:39` `exceeded_reason` is pure and takes an injected `Instant`, yet has no direct test, so the `max_tokens` and `wall_time` stop reasons are never asserted anywhere.",
-            "`gateway.rs:130-155` `invoke_verdict`'s retry loop (retryable flag, `MAX_RETRIES`, `backoff`) is untested \u2014 only the sleep helper in connectors has a bound test."
-          ],
-          "suggestion": "Add `exceeded_reason` tests built from a literal `AgentState` plus `Instant::now() - Duration` (the injected-clock pattern already used at http-limits/src/lib.rs:377), a loop test with a token-exhausting provider, and make the kill switch injectable (a bool field) so the block branch is testable without process env.",
-          "reasoning": "",
-          "summary_hash": "d3b723ab"
-        }
-      },
-      {
-        "id": "review::.::holistic::test_strategy::core_agent_pipelines_leaf_only_tests",
-        "tier": 1,
-        "confidence": "high",
-        "summary": "Triage/vuln/hunt/orchestrator business logic has 0-2 tests each, all on trivial helpers",
-        "detail": {
-          "holistic": true,
-          "dimension": "test_strategy",
-          "related_files": [
-            "crates/triage-agent/src/main.rs",
-            "crates/vuln-agent/src/main.rs",
-            "crates/hunt-agent/src/main.rs",
-            "crates/orchestrator/src/main.rs"
-          ],
-          "evidence": [
-            "`triage-agent/src/main.rs` (575 LOC) tests only `severity_from_level` and `severity_gte_high` (lines 558-573); `llm_verdict` (line 142, fence stripping + `Verdict` parsing) and `decision_verdict` (line 200) are untested even though `llm_client::MockProvider` is a public seam.",
-            "`vuln-agent/src/main.rs` has zero tests: `best_cvss` (line 91) picks the severity shown in the console and `watchlist_match` (line 108) decides whether an advisory is surfaced at all.",
-            "`hunt-agent/src/main.rs` has zero tests: `score_hits` (line 64) is pure bucketing; `orchestrator/src/main.rs:49` `route_subject` (the routing table where the fixed DLQ-loop bug lived) is untested while `dedupe_key` next to it is tested."
-          ],
-          "suggestion": "Add the pure-function tests first, none of which need infrastructure: `llm_verdict` with MockProvider returning fenced JSON, bare JSON and malformed JSON; `best_cvss`/`watchlist_match` against a literal `CveRecord`; `score_hits` bucket boundaries; `route_subject` for all six `EnvelopeKind`s including `BasResult` with `detected` true/false.",
-          "reasoning": "",
-          "summary_hash": "02cf1aa2"
-        }
-      },
-      {
-        "id": "review::.::holistic::test_strategy::eval_harness_is_stub",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "The only end-to-end evaluation of the LLM triage layer is a JSON format check",
-        "detail": {
-          "holistic": true,
-          "dimension": "test_strategy",
-          "related_files": [
-            "evals/run.sh",
-            "evals/README.md",
-            "evals/golden_sets/triage_seed.jsonl",
-            ".github/workflows/ci.yml"
-          ],
-          "evidence": [
-            "`evals/run.sh` validates that each golden-set line parses and carries label tp/fp, then prints `TODO: replay golden sets through triage-agent and score precision/recall (needs ANTHROPIC_API_KEY)` and exits 0; CI runs it as the `eval` job, so a green build says nothing about verdict quality.",
-            "The corpus is 13 alerts (`evals/golden_sets/triage_seed.jsonl`) and `evals/policy_tests.md` (34 lines) is a prose negative matrix that no test executes.",
-            "Nothing exercises `triage-agent`'s `process` (main.rs:393) end-to-end; its only entry point is `main()`, so prompt/verdict/threshold regressions are invisible until runtime."
-          ],
-          "suggestion": "Make `run.sh` replay the golden set through a testable `triage_agent::process` (extract it from `main`, drive it with `MockProvider` or recorded completions) and fail below a precision/recall threshold; convert the `policy_tests.md` rows into cases in `policy-engine/tests/policies.rs`, which already loads the shipped policy files.",
-          "reasoning": "",
-          "summary_hash": "f2149fcc"
-        }
-      },
-      {
-        "id": "review::.::holistic::test_strategy::dry_run_success_contract_untested",
-        "tier": 2,
-        "confidence": "medium",
-        "summary": "Unconfigured executors' dry-run success and its propagation to response-agent have no test",
-        "detail": {
-          "holistic": true,
-          "dimension": "test_strategy",
-          "related_files": [
-            "crates/tool-server/src/executors/mod.rs",
-            "crates/tool-server/src/main.rs",
-            "crates/response-agent/src/main.rs"
-          ],
-          "evidence": [
-            "`executors/mod.rs:35` `dry_run(args)` returns `{\"dry_run\": true}` as a *successful* result, used by the `DryRun` struct (lines 551-563, 12 allowlist entries) and by every connector-backed executor whose client is `None` (e.g. `OpensearchQuery::execute`, lines 66-70); `tool-server/src/main.rs:192-199` lifts that into `ToolResult.dry_run`.",
-            "`response-agent/src/main.rs:283` and `:300` skip the post-check and the rollback exactly when `dry_run` is set \u2014 the only guard that stops a credential-less fake success from being recorded as a real action \u2014 and neither side is asserted by a test.",
-            "`tool-server/src/main.rs:180` `run_tool` is DB-free, but only the happy `cvss.score` path is tested (main.rs:347-366)."
-          ],
-          "suggestion": "Add a tool-server test asserting `run_tool` returns ok=true + dry_run=true for a connector-less tool (e.g. `thehive.case.create` with `ConnectorConfig::default()`) and ok=false for an unregistered name; add a response-agent test that `rollback_for` is not attached for a dry-run result.",
-          "reasoning": "",
-          "summary_hash": "4f7a4222"
-        }
+  "scorecard_dimensions": [
+    {
+      "name": "File health",
+      "score": 93.4,
+      "strict": 92.4,
+      "checks": 74,
+      "failing": 7,
+      "tier": 3,
+      "subjective": false
+    },
+    {
+      "name": "AI generated debt",
+      "score": 79.0,
+      "strict": 79.0,
+      "checks": 10,
+      "failing": 3,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "ai_generated_debt"
+      ]
+    },
+    {
+      "name": "API coherence",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "api_surface_coherence"
+      ]
+    },
+    {
+      "name": "Abstraction fit",
+      "score": 81.0,
+      "strict": 81.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "abstraction_fitness"
+      ]
+    },
+    {
+      "name": "Auth consistency",
+      "score": 58.0,
+      "strict": 58.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "authorization_consistency"
+      ]
+    },
+    {
+      "name": "Code quality",
+      "score": 91.6,
+      "strict": 88.4,
+      "checks": 2228,
+      "failing": 270,
+      "tier": 3,
+      "subjective": false
+    },
+    {
+      "name": "Convention drift",
+      "score": 79.5,
+      "strict": 79.5,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "convention_outlier"
+      ]
+    },
+    {
+      "name": "Cross-module arch",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "cross_module_architecture"
+      ]
+    },
+    {
+      "name": "Dep health",
+      "score": 79.0,
+      "strict": 79.0,
+      "checks": 10,
+      "failing": 4,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "dependency_health"
+      ]
+    },
+    {
+      "name": "Design coherence",
+      "score": 73.0,
+      "strict": 73.0,
+      "checks": 10,
+      "failing": 3,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "design_coherence"
+      ]
+    },
+    {
+      "name": "Duplication",
+      "score": 97.8,
+      "strict": 95.4,
+      "checks": 693,
+      "failing": 25,
+      "tier": 3,
+      "subjective": false
+    },
+    {
+      "name": "Elegance",
+      "score": 77.3,
+      "strict": 77.3,
+      "checks": 30,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "high_level_elegance",
+        "low_level_elegance",
+        "mid_level_elegance"
+      ]
+    },
+    {
+      "name": "Error consistency",
+      "score": 83.0,
+      "strict": 83.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "error_consistency"
+      ]
+    },
+    {
+      "name": "Init coupling",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "initialization_coupling"
+      ]
+    },
+    {
+      "name": "Naming quality",
+      "score": 88.5,
+      "strict": 88.5,
+      "checks": 10,
+      "failing": 5,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "naming_quality"
+      ]
+    },
+    {
+      "name": "Security",
+      "score": 100.0,
+      "strict": 100.0,
+      "checks": 74,
+      "failing": 0,
+      "tier": 4,
+      "subjective": false
+    },
+    {
+      "name": "Stale migration",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "incomplete_migration"
+      ]
+    },
+    {
+      "name": "Structure nav",
+      "score": 78.0,
+      "strict": 78.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "package_organization"
+      ]
+    },
+    {
+      "name": "Test health",
+      "score": 77.9,
+      "strict": 52.0,
+      "checks": 1153,
+      "failing": 29,
+      "tier": 4,
+      "subjective": false
+    },
+    {
+      "name": "Test strategy",
+      "score": 64.0,
+      "strict": 64.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "test_strategy"
+      ]
+    }
+  ],
+  "subjective_measures": [
+    {
+      "name": "AI generated debt",
+      "score": 79.0,
+      "strict": 79.0,
+      "checks": 10,
+      "failing": 3,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "ai_generated_debt"
+      ]
+    },
+    {
+      "name": "API coherence",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "api_surface_coherence"
+      ]
+    },
+    {
+      "name": "Abstraction fit",
+      "score": 81.0,
+      "strict": 81.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "abstraction_fitness"
+      ]
+    },
+    {
+      "name": "Auth consistency",
+      "score": 58.0,
+      "strict": 58.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "authorization_consistency"
+      ]
+    },
+    {
+      "name": "Convention drift",
+      "score": 79.5,
+      "strict": 79.5,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "convention_outlier"
+      ]
+    },
+    {
+      "name": "Cross-module arch",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "cross_module_architecture"
+      ]
+    },
+    {
+      "name": "Dep health",
+      "score": 79.0,
+      "strict": 79.0,
+      "checks": 10,
+      "failing": 4,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "dependency_health"
+      ]
+    },
+    {
+      "name": "Design coherence",
+      "score": 73.0,
+      "strict": 73.0,
+      "checks": 10,
+      "failing": 3,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "design_coherence"
+      ]
+    },
+    {
+      "name": "Elegance",
+      "score": 77.3,
+      "strict": 77.3,
+      "checks": 30,
+      "failing": 8,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "high_level_elegance",
+        "low_level_elegance",
+        "mid_level_elegance"
+      ]
+    },
+    {
+      "name": "Error consistency",
+      "score": 83.0,
+      "strict": 83.0,
+      "checks": 10,
+      "failing": 0,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "error_consistency"
+      ]
+    },
+    {
+      "name": "Init coupling",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 2,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "initialization_coupling"
+      ]
+    },
+    {
+      "name": "Naming quality",
+      "score": 88.5,
+      "strict": 88.5,
+      "checks": 10,
+      "failing": 5,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "naming_quality"
+      ]
+    },
+    {
+      "name": "Stale migration",
+      "score": 74.0,
+      "strict": 74.0,
+      "checks": 10,
+      "failing": 1,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "incomplete_migration"
+      ]
+    },
+    {
+      "name": "Structure nav",
+      "score": 78.0,
+      "strict": 78.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "package_organization"
+      ]
+    },
+    {
+      "name": "Test strategy",
+      "score": 64.0,
+      "strict": 64.0,
+      "checks": 10,
+      "failing": 7,
+      "tier": 4,
+      "subjective": true,
+      "placeholder": false,
+      "cli_keys": [
+        "test_strategy"
+      ]
+    }
+  ],
+  "stats": {
+    "total": 727,
+    "auto_resolved": 154,
+    "deferred": 0,
+    "false_positive": 0,
+    "fixed": 183,
+    "open": 389,
+    "triaged_out": 0,
+    "wontfix": 1,
+    "by_tier": {
+      "1": {
+        "auto_resolved": 0,
+        "deferred": 0,
+        "false_positive": 0,
+        "fixed": 110,
+        "open": 21,
+        "triaged_out": 0,
+        "wontfix": 0
+      },
+      "2": {
+        "auto_resolved": 109,
+        "deferred": 0,
+        "false_positive": 0,
+        "fixed": 53,
+        "open": 238,
+        "triaged_out": 0,
+        "wontfix": 1
+      },
+      "3": {
+        "auto_resolved": 45,
+        "deferred": 0,
+        "false_positive": 0,
+        "fixed": 0,
+        "open": 130,
+        "triaged_out": 0,
+        "wontfix": 0
+      },
+      "4": {
+        "auto_resolved": 0,
+        "deferred": 0,
+        "false_positive": 0,
+        "fixed": 20,
+        "open": 0,
+        "triaged_out": 0,
+        "wontfix": 0
+      }
+    }
+  },
+  "scan_count": 6,
+  "last_scan": "2026-10-26T10:31:18+00:00",
+  "scan_metadata": {
+    "source": "scan"
+  },
+  "by_tier": {
+    "1": {
+      "auto_resolved": 0,
+      "deferred": 0,
+      "false_positive": 0,
+      "fixed": 110,
+      "open": 21,
+      "triaged_out": 0,
+      "wontfix": 0
+    },
+    "2": {
+      "auto_resolved": 109,
+      "deferred": 0,
+      "false_positive": 0,
+      "fixed": 53,
+      "open": 238,
+      "triaged_out": 0,
+      "wontfix": 1
+    },
+    "3": {
+      "auto_resolved": 45,
+      "deferred": 0,
+      "false_positive": 0,
+      "fixed": 0,
+      "open": 130,
+      "triaged_out": 0,
+      "wontfix": 0
+    },
+    "4": {
+      "auto_resolved": 0,
+      "deferred": 0,
+      "false_positive": 0,
+      "fixed": 20,
+      "open": 0,
+      "triaged_out": 0,
+      "wontfix": 0
+    }
+  },
+  "ignores": [],
+  "suppression": {
+    "last_ignored": 0,
+    "last_raw_issues": 1544,
+    "last_suppressed_pct": 0.0,
+    "last_ignore_patterns": 0,
+    "recent_scans": 5,
+    "recent_ignored": 0,
+    "recent_raw_issues": 3178,
+    "recent_suppressed_pct": 0.0
+  },
+  "potentials": {
+    "rust": {
+      "structural": 74,
+      "flat_dirs": 47,
+      "single_use": 33,
+      "cycles": 0,
+      "orphaned": 74,
+      "rust_import_hygiene": 74,
+      "rust_feature_hygiene": 74,
+      "rust_doctest": 74,
+      "rust_api_convention": 74,
+      "rust_error_boundary": 74,
+      "rust_future_proofing": 74,
+      "rust_thread_safety": 74,
+      "rust_async_locking": 74,
+      "rust_drop_safety": 74,
+      "rust_unsafe_api": 74,
+      "clippy_warning": 1409,
+      "rustdoc_warning": 1,
+      "signature": 5,
+      "test_coverage": 1004,
+      "smells": 73,
+      "security": 74,
+      "subjective_review": 20,
+      "boilerplate_duplication": 20,
+      "dupes": 673,
+      "stale_wontfix": 0
+    }
+  },
+  "codebase_metrics": {
+    "rust": {
+      "total_files": 75,
+      "total_loc": 17225,
+      "total_directories": 24
+    }
+  },
+  "open_scope": {
+    "in_scope": 389,
+    "out_of_scope": 0,
+    "global": 389
+  },
+  "score_breakdown": {
+    "overall_score": 80.6,
+    "mechanical_fraction": 0.25,
+    "subjective_fraction": 0.75,
+    "mechanical_avg": 90.85547445255474,
+    "subjective_avg": 77.1260162601626,
+    "entries": [
+      {
+        "name": "Code quality",
+        "pool": "mechanical",
+        "score": 91.6,
+        "checks": 2228.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.24330900243309,
+        "overall_per_point": 0.0608272506082725,
+        "overall_contribution": 5.571776155717761,
+        "overall_drag": 0.5109489051094893
+      },
+      {
+        "name": "Security",
+        "pool": "mechanical",
+        "score": 100.0,
+        "checks": 74.0,
+        "sample_factor": 0.37,
+        "configured_weight": 1.0,
+        "effective_weight": 0.37,
+        "pool_share": 0.0900243309002433,
+        "overall_per_point": 0.022506082725060824,
+        "overall_contribution": 2.2506082725060823,
+        "overall_drag": 0.0
+      },
+      {
+        "name": "File health",
+        "pool": "mechanical",
+        "score": 93.4,
+        "checks": 74.0,
+        "sample_factor": 0.37,
+        "configured_weight": 2.0,
+        "effective_weight": 0.74,
+        "pool_share": 0.1800486618004866,
+        "overall_per_point": 0.04501216545012165,
+        "overall_contribution": 4.204136253041362,
+        "overall_drag": 0.2970802919708026
+      },
+      {
+        "name": "Duplication",
+        "pool": "mechanical",
+        "score": 97.8,
+        "checks": 693.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.24330900243309,
+        "overall_per_point": 0.0608272506082725,
+        "overall_contribution": 5.948905109489051,
+        "overall_drag": 0.13381995133819968
+      },
+      {
+        "name": "Test health",
+        "pool": "mechanical",
+        "score": 77.9,
+        "checks": 1153.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.24330900243309,
+        "overall_per_point": 0.0608272506082725,
+        "overall_contribution": 4.738442822384428,
+        "overall_drag": 1.344282238442822
+      },
+      {
+        "name": "Abstraction fit",
+        "pool": "subjective",
+        "score": 81.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 8.0,
+        "effective_weight": 8.0,
+        "pool_share": 0.06504065040650407,
+        "overall_per_point": 0.04878048780487805,
+        "overall_contribution": 3.951219512195122,
+        "overall_drag": 0.926829268292683
+      },
+      {
+        "name": "AI generated debt",
+        "pool": "subjective",
+        "score": 79.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.008130081300813009,
+        "overall_per_point": 0.006097560975609756,
+        "overall_contribution": 0.48170731707317077,
+        "overall_drag": 0.12804878048780488
+      },
+      {
+        "name": "API coherence",
+        "pool": "subjective",
+        "score": 74.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.008130081300813009,
+        "overall_per_point": 0.006097560975609756,
+        "overall_contribution": 0.45121951219512196,
+        "overall_drag": 0.15853658536585366
+      },
+      {
+        "name": "Auth consistency",
+        "pool": "subjective",
+        "score": 58.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.008130081300813009,
+        "overall_per_point": 0.006097560975609756,
+        "overall_contribution": 0.3536585365853659,
+        "overall_drag": 0.25609756097560976
+      },
+      {
+        "name": "Contracts",
+        "pool": "subjective",
+        "score": 80.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 12.0,
+        "effective_weight": 12.0,
+        "pool_share": 0.0975609756097561,
+        "overall_per_point": 0.07317073170731708,
+        "overall_contribution": 5.853658536585367,
+        "overall_drag": 1.4634146341463417
+      },
+      {
+        "name": "Convention drift",
+        "pool": "subjective",
+        "score": 79.5,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.008130081300813009,
+        "overall_per_point": 0.006097560975609756,
+        "overall_contribution": 0.48475609756097565,
+        "overall_drag": 0.125
+      },
+      {
+        "name": "Cross-module arch",
+        "pool": "subjective",
+        "score": 74.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.008130081300813009,
+        "overall_per_point": 0.006097560975609756,
+        "overall_contribution": 0.45121951219512196,
+        "overall_drag": 0.15853658536585366
+      },
+      {
+        "name": "Dep health",
+        "pool": "subjective",
+        "score": 79.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.008130081300813009,
+        "overall_per_point": 0.006097560975609756,
+        "overall_contribution": 0.48170731707317077,
+        "overall_drag": 0.12804878048780488
+      },
+      {
+        "name": "Design coherence",
+        "pool": "subjective",
+        "score": 73.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 10.0,
+        "effective_weight": 10.0,
+        "pool_share": 0.08130081300813008,
+        "overall_per_point": 0.06097560975609756,
+        "overall_contribution": 4.451219512195122,
+        "overall_drag": 1.646341463414634
+      },
+      {
+        "name": "Error consistency",
+        "pool": "subjective",
+        "score": 83.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 3.0,
+        "effective_weight": 3.0,
+        "pool_share": 0.024390243902439025,
+        "overall_per_point": 0.01829268292682927,
+        "overall_contribution": 1.5182926829268295,
+        "overall_drag": 0.3109756097560976
+      },
+      {
+        "name": "High elegance",
+        "pool": "subjective",
+        "score": 78.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 22.0,
+        "effective_weight": 22.0,
+        "pool_share": 0.17886178861788618,
+        "overall_per_point": 0.13414634146341464,
+        "overall_contribution": 10.463414634146343,
+        "overall_drag": 2.951219512195122
+      },
+      {
+        "name": "Stale migration",
+        "pool": "subjective",
+        "score": 74.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.008130081300813009,
+        "overall_per_point": 0.006097560975609756,
+        "overall_contribution": 0.45121951219512196,
+        "overall_drag": 0.15853658536585366
+      },
+      {
+        "name": "Init coupling",
+        "pool": "subjective",
+        "score": 74.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.008130081300813009,
+        "overall_per_point": 0.006097560975609756,
+        "overall_contribution": 0.45121951219512196,
+        "overall_drag": 0.15853658536585366
+      },
+      {
+        "name": "Logic clarity",
+        "pool": "subjective",
+        "score": 79.5,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 6.0,
+        "effective_weight": 6.0,
+        "pool_share": 0.04878048780487805,
+        "overall_per_point": 0.03658536585365854,
+        "overall_contribution": 2.9085365853658542,
+        "overall_drag": 0.7500000000000001
+      },
+      {
+        "name": "Low elegance",
+        "pool": "subjective",
+        "score": 84.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 12.0,
+        "effective_weight": 12.0,
+        "pool_share": 0.0975609756097561,
+        "overall_per_point": 0.07317073170731708,
+        "overall_contribution": 6.146341463414635,
+        "overall_drag": 1.1707317073170733
+      },
+      {
+        "name": "Mid elegance",
+        "pool": "subjective",
+        "score": 70.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 22.0,
+        "effective_weight": 22.0,
+        "pool_share": 0.17886178861788618,
+        "overall_per_point": 0.13414634146341464,
+        "overall_contribution": 9.390243902439025,
+        "overall_drag": 4.024390243902439
+      },
+      {
+        "name": "Naming quality",
+        "pool": "subjective",
+        "score": 88.5,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 2.0,
+        "effective_weight": 2.0,
+        "pool_share": 0.016260162601626018,
+        "overall_per_point": 0.012195121951219513,
+        "overall_contribution": 1.079268292682927,
+        "overall_drag": 0.1402439024390244
+      },
+      {
+        "name": "Structure nav",
+        "pool": "subjective",
+        "score": 78.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 5.0,
+        "effective_weight": 5.0,
+        "pool_share": 0.04065040650406504,
+        "overall_per_point": 0.03048780487804878,
+        "overall_contribution": 2.3780487804878048,
+        "overall_drag": 0.6707317073170731
+      },
+      {
+        "name": "Test strategy",
+        "pool": "subjective",
+        "score": 64.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 1.0,
+        "effective_weight": 1.0,
+        "pool_share": 0.008130081300813009,
+        "overall_per_point": 0.006097560975609756,
+        "overall_contribution": 0.3902439024390244,
+        "overall_drag": 0.21951219512195122
+      },
+      {
+        "name": "Type safety",
+        "pool": "subjective",
+        "score": 78.0,
+        "checks": 0.0,
+        "sample_factor": 1.0,
+        "configured_weight": 12.0,
+        "effective_weight": 12.0,
+        "pool_share": 0.0975609756097561,
+        "overall_per_point": 0.07317073170731708,
+        "overall_contribution": 5.707317073170732,
+        "overall_drag": 1.6097560975609757
       }
     ]
   },
-  "total_matching": 80,
-  "noise_budget": 0,
-  "noise_global_budget": 0,
+  "next_command": "desloppify show structural --status open",
   "narrative": {
-    "phase": "early_momentum",
-    "headline": "Score 78.3/100 with 401 issues open. Keep the momentum going. (80 review work items \u2014 run `desloppify show review --status open`)",
+    "phase": "stagnation",
+    "headline": "Score plateaued at 78.6 for 3 scans. Test health (52.0%) is where the breakthrough is. 1 wontfix items may also be worth revisiting. (53 review work items \u2014 run `desloppify show review --status open`)",
     "dimensions": {
       "lowest_dimensions": [
         {
           "name": "Test health",
-          "strict": 47.4,
-          "failing": 41,
+          "strict": 52.0,
+          "failing": 29,
           "impact": 0.0
         },
         {
@@ -1909,7 +1560,7 @@
         {
           "name": "Test strategy",
           "strict": 64.0,
-          "failing": 9,
+          "failing": 7,
           "impact": 0.0,
           "subjective": true,
           "impact_description": "re-review to improve"
@@ -1918,16 +1569,23 @@
       "biggest_gap_dimensions": [
         {
           "name": "Test health",
-          "lenient": 55.0,
-          "strict": 47.4,
-          "gap": 7.6,
+          "lenient": 77.9,
+          "strict": 52.0,
+          "gap": 25.9,
           "wontfix_count": 0
         },
         {
           "name": "Code quality",
           "lenient": 91.6,
-          "strict": 90.2,
-          "gap": 1.4,
+          "strict": 88.4,
+          "gap": 3.2,
+          "wontfix_count": 0
+        },
+        {
+          "name": "Duplication",
+          "lenient": 97.8,
+          "strict": 95.4,
+          "gap": 2.4,
           "wontfix_count": 0
         }
       ],
@@ -1936,6 +1594,81 @@
           "name": "Security",
           "strict": 100.0,
           "stuck_scans": 5
+        },
+        {
+          "name": "AI generated debt",
+          "strict": 79.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "API coherence",
+          "strict": 74.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Auth consistency",
+          "strict": 58.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Contracts",
+          "strict": 80.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Convention drift",
+          "strict": 79.5,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Cross-module arch",
+          "strict": 74.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Design coherence",
+          "strict": 73.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Error consistency",
+          "strict": 83.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "High elegance",
+          "strict": 78.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Stale migration",
+          "strict": 74.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Init coupling",
+          "strict": 74.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Mid elegance",
+          "strict": 70.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Naming quality",
+          "strict": 88.5,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Structure nav",
+          "strict": 78.0,
+          "stuck_scans": 5
+        },
+        {
+          "name": "Type safety",
+          "strict": 78.0,
+          "stuck_scans": 5
         }
       ]
     },
@@ -1943,8 +1676,8 @@
       {
         "type": "refactor",
         "detector": "structural",
-        "count": 8,
-        "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable",
+        "count": 7,
+        "description": "7 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable",
         "command": "desloppify show structural --status open",
         "impact": 0.0,
         "dimension": "File health",
@@ -1954,8 +1687,8 @@
       {
         "type": "refactor",
         "detector": "dupes",
-        "count": 7,
-        "description": "7 dupes work items \u2014 extract shared utility or consolidate duplicates",
+        "count": 5,
+        "description": "5 dupes work items \u2014 extract shared utility or consolidate duplicates",
         "command": "desloppify show dupes --status open",
         "impact": 0.0,
         "dimension": "Duplication",
@@ -1965,19 +1698,25 @@
       {
         "type": "refactor",
         "detector": "test_coverage",
-        "count": 40,
-        "description": "40 test_coverage work items \u2014 review test coverage gaps \u2014 focus on critical modules with many importers first; defer test writing until code quality issues are resolved",
-        "command": "desloppify show test_coverage --status open",
+        "count": 28,
+        "description": "28 test_coverage issues in 3 cluster(s) \u2014 run `desloppify next`",
+        "command": "desloppify next",
         "impact": 0.0,
         "dimension": "Test health",
         "priority": 3,
+        "clusters": [
+          "auto/test_coverage-transitive_only",
+          "auto/test_coverage-untested_module",
+          "auto/test_coverage-untested_critical"
+        ],
+        "cluster_count": 3,
         "lane": "test_coverage"
       },
       {
         "type": "refactor",
         "detector": "signature",
-        "count": 1,
-        "description": "1 signature work items \u2014 consolidate inconsistent function signatures",
+        "count": 5,
+        "description": "5 signature work items \u2014 consolidate inconsistent function signatures",
         "command": "desloppify show signature --status open",
         "impact": 0.0,
         "dimension": "Unknown",
@@ -1987,8 +1726,8 @@
       {
         "type": "refactor",
         "detector": "boilerplate_duplication",
-        "count": 28,
-        "description": "28 boilerplate_duplication work items \u2014 extract shared boilerplate into reusable helpers or base classes",
+        "count": 20,
+        "description": "20 boilerplate_duplication work items \u2014 extract shared boilerplate into reusable helpers or base classes",
         "command": "desloppify show boilerplate_duplication --status open",
         "impact": 0.0,
         "dimension": "Duplication",
@@ -1998,8 +1737,8 @@
       {
         "type": "refactor",
         "detector": "review",
-        "count": 80,
-        "description": "80 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
+        "count": 53,
+        "description": "53 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
         "command": "desloppify show review --status open",
         "impact": 0.0,
         "dimension": "Unknown",
@@ -2009,8 +1748,8 @@
       {
         "type": "manual_fix",
         "detector": "smells",
-        "count": 2,
-        "description": "2 smells issues \u2014 inspect with `desloppify next` and fix manually",
+        "count": 6,
+        "description": "6 smells issues \u2014 inspect with `desloppify next` and fix manually",
         "command": "desloppify show smells --status open",
         "impact": 0.0,
         "dimension": "Code quality",
@@ -2020,12 +1759,16 @@
       {
         "type": "manual_fix",
         "detector": "clippy_warning",
-        "count": 176,
-        "description": "176 clippy_warning work items \u2014 fix Clippy diagnostics or justify narrow suppressions close to the code",
-        "command": "desloppify show clippy_warning --status open",
+        "count": 201,
+        "description": "201 clippy_warning issues in 1 cluster(s) \u2014 run `desloppify next`",
+        "command": "desloppify next",
         "impact": 0.0,
         "dimension": "Code quality",
         "priority": 8,
+        "clusters": [
+          "auto/clippy_warning"
+        ],
+        "cluster_count": 1,
         "lane": "refactor_0"
       },
       {
@@ -2037,14 +1780,14 @@
         "impact": 0.0,
         "dimension": "Test health",
         "priority": 9,
-        "lane": "refactor_2"
+        "lane": "refactor_0"
       },
       {
         "type": "manual_fix",
-        "detector": "rust_future_proofing",
-        "count": 54,
-        "description": "54 rust_future_proofing work items \u2014 review public structs and enums for brittle API shape and consider `#[non_exhaustive]` where appropriate",
-        "command": "desloppify show rust_future_proofing --status open",
+        "detector": "rust_error_boundary",
+        "count": 4,
+        "description": "4 rust_error_boundary work items \u2014 use meaningful public error types and avoid panic-style behavior on public APIs",
+        "command": "desloppify show rust_error_boundary --status open",
         "impact": 0.0,
         "dimension": "Code quality",
         "priority": 10,
@@ -2052,20 +1795,31 @@
       },
       {
         "type": "manual_fix",
-        "detector": "rust_async_locking",
-        "count": 4,
-        "description": "4 rust_async_locking work items \u2014 drop lock guards before awaiting and avoid blocking std::sync locks on async executor threads",
-        "command": "desloppify show rust_async_locking --status open",
+        "detector": "rust_future_proofing",
+        "count": 57,
+        "description": "57 rust_future_proofing work items \u2014 review public structs and enums for brittle API shape and consider `#[non_exhaustive]` where appropriate",
+        "command": "desloppify show rust_future_proofing --status open",
         "impact": 0.0,
         "dimension": "Code quality",
         "priority": 11,
+        "lane": "refactor_0"
+      },
+      {
+        "type": "manual_fix",
+        "detector": "rust_async_locking",
+        "count": 2,
+        "description": "2 rust_async_locking work items \u2014 drop lock guards before awaiting and avoid blocking std::sync locks on async executor threads",
+        "command": "desloppify show rust_async_locking --status open",
+        "impact": 0.0,
+        "dimension": "Code quality",
+        "priority": 12,
         "lane": "refactor_0"
       }
     ],
     "strategy": {
       "fixer_leverage": {
         "auto_fixable_count": 0,
-        "total_count": 561,
+        "total_count": 495,
         "coverage": 0.0,
         "impact_ratio": 0.0,
         "recommendation": "none"
@@ -2079,10 +1833,12 @@
             5,
             7,
             8,
+            9,
             10,
-            11
+            11,
+            12
           ],
-          "file_count": 40,
+          "file_count": 51,
           "total_impact": 0.0,
           "automation": "manual",
           "run_first": false
@@ -2096,27 +1852,18 @@
           "automation": "manual",
           "run_first": false
         },
-        "refactor_2": {
-          "actions": [
-            9
-          ],
-          "file_count": 1,
-          "total_impact": 0.0,
-          "automation": "manual",
-          "run_first": false
-        },
         "test_coverage": {
           "actions": [
             3
           ],
-          "file_count": 40,
+          "file_count": 28,
           "total_impact": 0.0,
           "automation": "manual",
           "run_first": false
         }
       },
       "can_parallelize": true,
-      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 80 issue(s) \u2014 `desloppify show review --status open`."
+      "hint": "3 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 53 issue(s) \u2014 `desloppify show review --status open`."
     },
     "tools": {
       "fixers": [],
@@ -2138,18 +1885,18 @@
       }
     },
     "debt": {
-      "overall_gap": 0.3,
+      "overall_gap": 1.3,
       "wontfix_count": 1,
       "worst_dimension": "Test health",
-      "worst_gap": 7.6,
+      "worst_gap": 25.9,
       "trend": "growing"
     },
     "milestone": null,
     "primary_action": {
       "command": "desloppify show structural --status open",
-      "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable"
+      "description": "7 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable"
     },
-    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 80 issue(s) \u2014 `desloppify show review --status open`.",
+    "why_now": "3 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 53 issue(s) \u2014 `desloppify show review --status open`.",
     "verification_step": {
       "command": "desloppify scan",
       "reason": "revalidate after changes"
@@ -2158,30 +1905,23 @@
       {
         "type": "wontfix_gap",
         "severity": "medium",
-        "message": "Strict/lenient gap is 0.3 pts with 1 wontfix issues"
+        "message": "Strict/lenient gap is 1.3 pts with 1 wontfix issues"
       }
     ],
     "strict_target": {
       "target": 85.0,
-      "current": 78.3,
-      "gap": 6.7,
+      "current": 78.6,
+      "gap": 6.4,
       "state": "below",
       "warning": null
     },
     "reminders": [
       {
         "type": "review_issues_pending",
-        "message": "80 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
+        "message": "53 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
         "command": "desloppify show review --status open",
         "priority": 1,
         "severity": "high"
-      },
-      {
-        "type": "stagnant_nudge",
-        "message": "Security has been at 100.0% for 5 scans. The remaining items may be worth marking as wontfix if they're intentional.",
-        "command": null,
-        "priority": 2,
-        "severity": "medium"
       },
       {
         "type": "wontfix_growing",
@@ -2189,15 +1929,30 @@
         "command": "desloppify show --status wontfix",
         "priority": 2,
         "severity": "medium"
+      },
+      {
+        "type": "zone_classification",
+        "message": "1 of 75 files classified as non-production (1 test). Override with `desloppify zone set <file> production` if any are misclassified.",
+        "command": "desloppify zone show",
+        "priority": 2,
+        "severity": "medium"
       }
     ],
     "reminder_history": {
-      "report_scores": 2,
-      "review_issues_pending": 2,
-      "stagnant_nudge": 2,
-      "wontfix_growing": 2,
-      "feedback_nudge": 1
+      "report_scores": 3,
+      "review_issues_pending": 3,
+      "stagnant_nudge": 17,
+      "wontfix_growing": 3,
+      "feedback_nudge": 2,
+      "zone_classification": 2
     }
+  },
+  "plan": {
+    "active": true,
+    "focus": null,
+    "total_ordered": 80,
+    "total_skipped": 1,
+    "plan_overrides_narrative": true
   },
   "config": {
     "target_strict_score": 85,
