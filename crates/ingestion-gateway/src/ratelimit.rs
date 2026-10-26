@@ -1,21 +1,18 @@
 //! Rate-limit wiring for the ingestion-gateway surface.
 //!
 //! All webhooks share the `ingest` tier (storm-tolerant: sustained 100/s,
-//! burst 500 per key). Keys are the peer IP until authentication lands.
+//! burst 500 per key). Keys are the authenticated actor when API keys are
+//! configured, else the peer IP.
 //! Numbers load from `$POLICIES_DIR/rate-limits.yml`.
 
-use std::{path::PathBuf, sync::Arc};
+use std::sync::Arc;
 
 use axum::extract::Request;
-use http_limits::{RateLimiter, RateLimits, Tier};
+use http_limits::{RateLimiter, Tier};
 
 /// Builds the shared limiter and starts the idle-key purge task.
 pub fn build() -> Arc<RateLimiter> {
-    let dir = std::env::var("POLICIES_DIR").unwrap_or_else(|_| "policies".to_string());
-    let limits = RateLimits::load(&PathBuf::from(dir).join("rate-limits.yml"));
-    let rl = Arc::new(RateLimiter::new(limits, classify));
-    rl.spawn_idle_purge();
-    rl
+    http_limits::build_limiter(classify)
 }
 
 /// `/health` is unmetered; everything else is an ingest POST.

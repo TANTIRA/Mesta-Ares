@@ -11,6 +11,7 @@ pub mod activity;
 pub mod audit;
 pub mod envelope;
 pub mod handoff;
+pub mod hex;
 pub mod kill;
 pub mod paths;
 pub mod severity;

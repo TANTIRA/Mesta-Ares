@@ -82,7 +82,7 @@ fn day_bucket(ts: DateTime<Utc>) -> String {
 mod hex {
     /// Encodes bytes as lowercase hex.
     pub fn encode(bytes: impl AsRef<[u8]>) -> String {
-        bytes.as_ref().iter().map(|b| format!("{b:02x}")).collect()
+        agent_protocol::hex::hex_lower(bytes.as_ref())
     }
 }
 

@@ -15,8 +15,6 @@ pub use anthropic::AnthropicProvider;
 pub use error::LlmError;
 pub use systemone::{SystemOneClient, DEFAULT_BASE_URL as DEFAULT_OLLAMA_URL};
 
-use std::sync::Arc;
-
 use serde::{Deserialize, Serialize};
 
 /// Default model for routine steps (`FAST_MODEL` overrides it).

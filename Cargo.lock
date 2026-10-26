@@ -54,6 +54,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
+ "sha2",
  "uuid",
 ]
 
@@ -1210,6 +1211,7 @@ dependencies = [
 name = "http-limits"
 version = "0.1.0"
 dependencies = [
+ "agent-protocol",
  "axum",
  "dashmap",
  "futures",

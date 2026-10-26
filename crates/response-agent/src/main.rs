@@ -370,9 +370,7 @@ async fn save_final_checkpoint(deps: &Deps, run_id: Uuid, text: String) {
 }
 
 /// Lowercase hex encoder for the idempotency key digest.
-fn hex(bytes: &[u8]) -> String {
-    bytes.iter().map(|b| format!("{b:02x}")).collect()
-}
+use agent_protocol::hex::hex_lower as hex;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

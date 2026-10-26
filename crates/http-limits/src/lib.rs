@@ -456,3 +456,13 @@ mod tests {
         assert!(rl.streams.is_empty());
     }
 }
+
+/// Builds a limiter for `classify` using `$POLICIES_DIR/rate-limits.yml` and
+/// starts its idle-key purge task. One implementation for every edge service.
+pub fn build_limiter(classify: fn(&Request) -> Tier) -> Arc<RateLimiter> {
+    let dir = agent_protocol::paths::dir_from_env("POLICIES_DIR", "policies");
+    let limits = RateLimits::load(&dir.join("rate-limits.yml"));
+    let limiter = Arc::new(RateLimiter::new(limits, classify));
+    limiter.spawn_idle_purge();
+    limiter
+}
