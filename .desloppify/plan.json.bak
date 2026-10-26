@@ -1,9 +1,9 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T10:00:52+00:00",
+  "updated": "2026-10-26T10:02:01+00:00",
   "queue_order": [
-    "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape",
+    "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification",
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
     "review::.::holistic::abstraction_fitness::model_router_never_routes",
     "review::.::holistic::ai_generated_debt::agent-core-unused-framework",
@@ -15,9 +15,7 @@
     "review::.::holistic::api_surface_coherence::audit_append_positional_sprawl",
     "review::.::holistic::api_surface_coherence::http_error_body_conventions",
     "review::.::holistic::api_surface_coherence::tool_args_two_sources_of_truth",
-    "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy",
     "review::.::holistic::authorization_consistency::audit-decision-label-hardcoded-deny",
-    "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification",
     "review::.::holistic::contract_coherence::acp_sync_mode_timeout",
     "review::.::holistic::contract_coherence::approvals_approved_means_executed",
     "review::.::holistic::contract_coherence::triage_severity_clamp_downgrade",
@@ -3344,7 +3342,7 @@
     }
   },
   "promoted_ids": [
-    "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape"
+    "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification"
   ],
   "plan_start_scores": {
     "strict": 77.7,
@@ -8675,6 +8673,75 @@
       "actor": "user",
       "note": "http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task.",
       "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T10:00:52+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:01:55+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:01:55+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T10:01:55+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:02:01+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
     }
   ],
   "epic_triage_meta": {},
@@ -8778,7 +8845,9 @@
     "review::.::holistic::authorization_consistency::kill-switch-unauthenticated-unaudited-disconnected",
     "review::.::holistic::authorization_consistency::approval-identity-self-asserted",
     "review::.::holistic::authorization_consistency::a2a-cards-advertise-unenforced-bearer",
-    "review::.::holistic::authorization_consistency::a2a-task-access-not-scoped-to-agent"
+    "review::.::holistic::authorization_consistency::a2a-task-access-not-scoped-to-agent",
+    "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape",
+    "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3

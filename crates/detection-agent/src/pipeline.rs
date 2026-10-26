@@ -291,3 +291,38 @@ fn slugify(title: &str) -> String {
         .collect::<Vec<_>>()
         .join("-")
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn validate_sigma_requires_the_three_keys() {
+        let missing = "title: x\ndetection:\n  selection: {a: b}\n";
+        assert!(validate_sigma(missing).is_err(), "logsource is required");
+
+        let ok = "title: x\nlogsource: {product: windows}\ndetection:\n  selection: {a: b}\n";
+        let doc = validate_sigma(ok).expect("valid rule");
+        assert_eq!(doc["title"], "x");
+    }
+
+    #[test]
+    fn naive_lucene_ands_scalar_terms() {
+        let doc = json!({"detection": {"selection": {"a": "1", "b": "2"}}});
+        let q = naive_lucene(&doc).expect("mapped");
+        assert!(q.contains("a:1") && q.contains("b:2") && q.contains(" AND "));
+    }
+
+    #[test]
+    fn naive_lucene_rejects_empty_selection() {
+        let doc = json!({"detection": {"selection": {}}});
+        assert!(naive_lucene(&doc).is_err());
+    }
+
+    #[test]
+    fn slugify_lowercases_and_hyphenates() {
+        assert_eq!(slugify("Suspicious PowerShell Encoded Command"), "suspicious-powershell-encoded-command");
+        assert_eq!(slugify("  Odd / Chars -- Here!  "), "odd-chars-here");
+    }
+}

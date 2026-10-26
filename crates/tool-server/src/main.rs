@@ -71,6 +71,7 @@ async fn invoke(
 
     let decision = {
         let mut ctx = state.eval_ctx.lock().await;
+        ctx.refresh_kill_switch();
         state.engine.evaluate(&call, &mut ctx)
     };
 
@@ -310,4 +311,59 @@ async fn main() -> Result<()> {
     info!(addr = %bind, "tool-server listening");
     axum::serve(listener, app).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn policies_dir() -> PathBuf {
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../policies")
+            .canonicalize()
+            .expect("policies dir")
+    }
+
+    fn state() -> Arc<AppState> {
+        let engine = PolicyEngine::load(&policies_dir()).expect("load policies");
+        let registry = executors::build_registry(&ConnectorConfig::default());
+        Arc::new(AppState {
+            engine,
+            registry,
+            audit: None,
+            idem: idempotency::Store::mem(),
+            approvals: approvals::Store::new(),
+            eval_ctx: Mutex::new(EvalCtx::new()),
+        })
+    }
+
+    #[test]
+    fn every_allowlisted_tool_has_an_executor() {
+        let engine = PolicyEngine::load(&policies_dir()).expect("load policies");
+        let registry = executors::build_registry(&ConnectorConfig::default());
+        let missing = executors::missing_executors(&registry, &engine.tool_names());
+        assert!(missing.is_empty(), "allowlisted tools without executor: {missing:?}");
+    }
+
+    #[tokio::test]
+    async fn claim_and_execute_runs_the_registered_tool() {
+        let s = state();
+        let call = ToolCall {
+            id: Uuid::new_v4(),
+            tool: "cvss.score".to_string(),
+            args: serde_json::json!({"vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"}),
+            actor: "test".to_string(),
+            idempotency_key: "invoke-path-test".to_string(),
+            correlation_id: Uuid::new_v4(),
+        };
+        let first = claim_and_execute(&s, &call).await;
+        assert!(first.ok, "{first:?}");
+        assert!(first.output.get("score").is_some(), "{:?}", first.output);
+
+        // Same key replays the stored result instead of re-running.
+        let replay = claim_and_execute(&s, &call).await;
+        assert!(replay.ok);
+        assert_eq!(replay.output, first.output);
+    }
 }

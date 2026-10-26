@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 119,
-    "open": 397,
+    "fixed": 121,
+    "open": 395,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 31,
-        "open": 221,
+        "fixed": 33,
+        "open": 219,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -11819,11 +11819,11 @@
         "reasoning": "",
         "summary_hash": "6a6c73e1"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:00:52+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11831,7 +11831,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:00:52+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points": {
       "id": "review::.::holistic::api_surface_coherence::enrich_duplicate_entry_points",
@@ -12168,11 +12174,11 @@
         "reasoning": "",
         "summary_hash": "7b575c43"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T10:01:55+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12180,7 +12186,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths. and I am not gaming the score.",
+        "attested_at": "2026-10-26T10:01:55+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::authorization_consistency::a2a-task-access-not-scoped-to-agent": {
       "id": "review::.::holistic::authorization_consistency::a2a-task-access-not-scoped-to-agent",
@@ -18000,7 +18012,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:47:42+00:00"
+      "stale_since": "2026-10-26T10:00:52+00:00"
     },
     "authorization_consistency": {
       "score": 58.0,
@@ -18008,7 +18020,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T10:00:51+00:00"
+      "stale_since": "2026-10-26T10:01:55+00:00"
     },
     "contract_coherence": {
       "score": 80.0,
@@ -22657,13 +22669,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 4,
+      "failing": 3,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 4,
+          "failing": 3,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22678,13 +22690,13 @@
       "strict": 58.0,
       "verified_strict_score": 58.0,
       "checks": 10,
-      "failing": 3,
+      "failing": 2,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.58,
-          "failing": 3,
+          "failing": 2,
           "weighted_failures": 4.2,
           "assessment_score": 58.0,
           "placeholder": false,

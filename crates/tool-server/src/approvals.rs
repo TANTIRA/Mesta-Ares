@@ -206,12 +206,10 @@ pub struct Outcome {
 pub async fn approve(
     State(s): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
-    actor: Option<axum::extract::Extension<http_limits::auth::Actor>>,
-    body: Option<Json<DecideBody>>,
+    axum::extract::Extension(actor): axum::extract::Extension<http_limits::auth::Actor>,
+    _body: Option<Json<DecideBody>>,
 ) -> Result<Json<Outcome>, (StatusCode, String)> {
-    let by = actor
-        .map(|a| a.0 .0.clone())
-        .unwrap_or_else(|| "anonymous".to_string());
+    let by = actor.0;
 
     let settled = s
         .approvals
@@ -270,12 +268,10 @@ pub async fn approve(
 pub async fn reject(
     State(s): State<Arc<AppState>>,
     Path(id): Path<Uuid>,
-    actor: Option<axum::extract::Extension<http_limits::auth::Actor>>,
+    axum::extract::Extension(actor): axum::extract::Extension<http_limits::auth::Actor>,
     body: Option<Json<DecideBody>>,
 ) -> Result<Json<Outcome>, (StatusCode, String)> {
-    let by = actor
-        .map(|a| a.0 .0.clone())
-        .unwrap_or_else(|| "anonymous".to_string());
+    let by = actor.0;
     let note = body.as_ref().and_then(|Json(b)| b.reason.clone());
 
     let settled = s

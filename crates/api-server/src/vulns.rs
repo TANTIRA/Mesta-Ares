@@ -145,3 +145,29 @@ pub async fn list_advisories(
     .map_err(|e| (StatusCode::BAD_GATEWAY, e.to_string()))?;
     Ok(Json(json!({"advisories": rows})))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::valid_cve_id;
+
+    #[test]
+    fn valid_cve_id_accepts_real_ids() {
+        assert!(valid_cve_id("CVE-2024-1234"));
+        assert!(valid_cve_id("CVE-2024-1234567"));
+    }
+
+    #[test]
+    fn valid_cve_id_rejects_malformed_ids() {
+        for bad in [
+            "cve-2024-1234",
+            "CVE-24-1234",
+            "CVE-2024-",
+            "CVE-2024-12a4",
+            "CVE-2024-1234 ",
+            "CVE-2024-12345678",
+            "",
+        ] {
+            assert!(!valid_cve_id(bad), "{bad} must be rejected");
+        }
+    }
+}

@@ -1,7 +1,7 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T10:00:52+00:00",
+  "updated": "2026-10-26T10:02:05+00:00",
   "queue_order": [
     "review::.::holistic::abstraction_fitness::eval_ctx_unpopulated_asset_classes",
     "review::.::holistic::abstraction_fitness::model_router_never_routes",
@@ -14,9 +14,7 @@
     "review::.::holistic::api_surface_coherence::audit_append_positional_sprawl",
     "review::.::holistic::api_surface_coherence::http_error_body_conventions",
     "review::.::holistic::api_surface_coherence::tool_args_two_sources_of_truth",
-    "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy",
     "review::.::holistic::authorization_consistency::audit-decision-label-hardcoded-deny",
-    "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification",
     "review::.::holistic::contract_coherence::acp_sync_mode_timeout",
     "review::.::holistic::contract_coherence::approvals_approved_means_executed",
     "review::.::holistic::contract_coherence::triage_severity_clamp_downgrade",
@@ -99,7 +97,18 @@
     "subjective::type_safety"
   ],
   "deferred": [],
-  "skipped": {},
+  "skipped": {
+    "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification": {
+      "issue_id": "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification",
+      "kind": "permanent",
+      "reason": null,
+      "note": "Audit integrity is now verifiable at runtime (audit::verify_chain + GET /audit/verify re-walks prev_hash/hash; appends are advisory-locked). Postgres RLS is not adopted: every service shares one DSN, so RLS without per-service roles would be theatre. Accepted as dev-grade debt until per-service credentials exist.",
+      "attestation": "I have reviewed this triage skip against the code and I am not gaming the score by suppressing a real defect: the audit half is fixed, the RLS half needs per-service roles the deployment does not have.",
+      "created_at": "2026-10-26T10:02:05+00:00",
+      "review_after": null,
+      "skipped_at_scan": 3
+    }
+  },
   "active_cluster": null,
   "overrides": {
     "clippy_warning::crates/cvss/src/v40.rs::clippy_warning::308": {
@@ -8686,6 +8695,75 @@
         "status": "fixed",
         "attestation": "I have actually http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task. and I am not gaming the score."
       }
+    },
+    {
+      "timestamp": "2026-10-26T10:01:55+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:01:55+00:00",
+      "action": "done",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths.",
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T10:01:55+00:00",
+      "action": "resolve",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths.",
+      "detail": {
+        "status": "fixed",
+        "attestation": "I have actually tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths. and I am not gaming the score."
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:02:01+00:00",
+      "action": "reorder",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": null,
+      "detail": {
+        "position": "top",
+        "target": null,
+        "offset": null
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:02:05+00:00",
+      "action": "skip",
+      "issue_ids": [
+        "review::.::holistic::authorization_consistency::no-db-level-authorization-or-audit-verification"
+      ],
+      "cluster_name": null,
+      "actor": "user",
+      "note": "Audit integrity is now verifiable at runtime (audit::verify_chain + GET /audit/verify re-walks prev_hash/hash; appends are advisory-locked). Postgres RLS is not adopted: every service shares one DSN, so RLS without per-service roles would be theatre. Accepted as dev-grade debt until per-service credentials exist.",
+      "detail": {
+        "kind": "permanent",
+        "reason": null
+      }
     }
   ],
   "epic_triage_meta": {},
@@ -8790,7 +8868,8 @@
     "review::.::holistic::authorization_consistency::approval-identity-self-asserted",
     "review::.::holistic::authorization_consistency::a2a-cards-advertise-unenforced-bearer",
     "review::.::holistic::authorization_consistency::a2a-task-access-not-scoped-to-agent",
-    "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape"
+    "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape",
+    "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
   ],
   "commit_tracking_branch": null,
   "scan_count_at_plan_start": 3

@@ -8,10 +8,10 @@
 
 use std::collections::{HashMap, HashSet};
 use std::net::IpAddr;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Arc;
 
-use agent_protocol::tool::{Decision, DecisionKind, ToolCall};
+pub use agent_protocol::tool::{Decision, DecisionKind, ToolCall};
 use anyhow::{Context, Result};
 use chrono::Utc;
 use dashmap::DashMap;
@@ -45,15 +45,25 @@ const TARGET_KEYS: &[&str] = &[
 pub struct EvalCtx {
     pub asset_classes: HashMap<String, String>,
     pub counters: Arc<DashMap<String, u32>>,
+    /// Kill-switch state for this evaluation; callers refresh it from
+    /// [`EvalCtx::refresh_kill_switch`] so tests stay deterministic.
+    pub kill_switch: bool,
 }
 
 impl EvalCtx {
-    /// Create an empty evaluation context.
+    /// Create an empty evaluation context with the switch disengaged.
     pub fn new() -> Self {
         Self {
             asset_classes: HashMap::new(),
             counters: Arc::new(DashMap::new()),
+            kill_switch: false,
         }
+    }
+
+    /// Re-reads the operator kill switch (`ARES_KILL_SWITCH` or
+    /// `$POLICIES_DIR/kill`).
+    pub fn refresh_kill_switch(&mut self) {
+        self.kill_switch = agent_protocol::kill::kill_switch_engaged();
     }
 }
 
@@ -257,8 +267,6 @@ struct CompiledTool {
 
 /// Compiled policy set loaded once from a policy directory.
 pub struct PolicyEngine {
-    /// Policy directory this engine was loaded from (kill file lives here).
-    dir: PathBuf,
     tools: HashMap<String, CompiledTool>,
     protected: Protected,
 }
@@ -295,7 +303,6 @@ impl PolicyEngine {
         let protected = Protected::from_raw(prot_file.protected)?;
 
         Ok(Self {
-            dir: dir.to_path_buf(),
             tools,
             protected,
         })
@@ -344,7 +351,7 @@ impl PolicyEngine {
 
     fn evaluate_inner(&self, call: &ToolCall, ctx: &mut EvalCtx, approved: bool) -> Decision {
         // (1) Kill switch: env flag or non-empty `{dir}/kill` file.
-        if self.kill_switch_engaged() {
+        if self.kill_switch_engaged(ctx) {
             return decide(DecisionKind::Deny, "kill switch engaged");
         }
 
@@ -439,10 +446,9 @@ impl PolicyEngine {
         decide(DecisionKind::Allow, "allowed")
     }
 
-    /// Env flag or non-empty kill file engages the switch (shared predicate).
-    fn kill_switch_engaged(&self) -> bool {
-        agent_protocol::kill::kill_env_engaged()
-            || agent_protocol::kill::kill_file_engaged_at(&self.dir)
+    /// Kill switch as refreshed into the context by the caller.
+    fn kill_switch_engaged(&self, ctx: &EvalCtx) -> bool {
+        ctx.kill_switch
     }
 
     /// Match call targets against the protected-asset boundary.
@@ -546,6 +552,7 @@ fn decide(kind: DecisionKind, reason: impl Into<String>) -> Decision {
 mod tests {
     use super::*;
     use serde_json::json;
+    use std::path::PathBuf;
     use uuid::Uuid;
 
     fn policies_dir() -> PathBuf {
@@ -736,19 +743,92 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn kill_file_engages_switch() {
-        let dir = std::env::temp_dir().join(format!("ares-policies-{}", Uuid::new_v4()));
-        std::fs::create_dir_all(&dir).unwrap();
-        for f in ["tools.yml", "protected-assets.yml"] {
-            std::fs::copy(policies_dir().join(f), dir.join(f)).unwrap();
-        }
-        std::fs::write(dir.join("kill"), "engaged\n").unwrap();
-        let e = PolicyEngine::load(&dir).unwrap();
+    async fn engaged_kill_switch_denies_everything() {
+        let e = engine();
         let mut ctx = EvalCtx::new();
-        let d = e
-            .evaluate(&call("opensearch.query", json!({})), &mut ctx);
+        ctx.kill_switch = true;
+        let d = e.evaluate(&call("opensearch.query", json!({})), &mut ctx);
         assert!(matches!(&d.kind, DecisionKind::Deny));
         assert!(d.reason.contains("kill switch"));
+
+        // Same engine, switch disengaged: the read is allowed again, so the
+        // gate depends on the refreshed state, not ambient process env.
+        ctx.kill_switch = false;
+        let d = e.evaluate(&call("opensearch.query", json!({})), &mut ctx);
+        assert!(matches!(&d.kind, DecisionKind::Allow));
+    }
+
+    #[test]
+    fn kill_switch_predicate_reads_the_file() {
+        let dir = std::env::temp_dir().join(format!("ares-kill-{}", Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        assert!(!agent_protocol::kill::kill_file_engaged_at(&dir));
+        std::fs::write(dir.join(agent_protocol::kill::KILL_FILE), "engaged\n").unwrap();
+        assert!(agent_protocol::kill::kill_file_engaged_at(&dir));
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[tokio::test]
+    async fn matrix_rows_without_prior_tests_are_enforced() {
+        let e = engine();
+        let mut ctx = EvalCtx::new();
+
+        // firewall.rule.add: schema requires direction+remote+action.
+        let ok = e.evaluate(
+            &call(
+                "firewall.rule.add",
+                json!({"direction": "inbound", "remote": "203.0.113.9", "action": "deny"}),
+            ),
+            &mut ctx,
+        );
+        assert!(matches!(ok.kind, DecisionKind::Allow), "{ok:?}");
+        let bad = e.evaluate(
+            &call(
+                "firewall.rule.add",
+                json!({"direction": "sideways", "remote": "203.0.113.9", "action": "deny"}),
+            ),
+            &mut ctx,
+        );
+        assert!(matches!(bad.kind, DecisionKind::Deny), "{bad:?}");
+
+        // wazuh.active_response.kill_process: pid must be >= 1.
+        let ok = e.evaluate(
+            &call("wazuh.active_response.kill_process", json!({"agent_id": "001", "pid": 42})),
+            &mut ctx,
+        );
+        assert!(matches!(ok.kind, DecisionKind::Allow), "{ok:?}");
+        let bad = e.evaluate(
+            &call("wazuh.active_response.kill_process", json!({"agent_id": "001", "pid": 0})),
+            &mut ctx,
+        );
+        assert!(matches!(bad.kind, DecisionKind::Deny), "{bad:?}");
+
+        // nvd.lookup_cve / cvss.score / detection.sigma.deploy are allowlisted.
+        for (tool, args) in [
+            ("nvd.lookup_cve", json!({"cve_id": "CVE-2024-1234"})),
+            ("cvss.score", json!({"vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"})),
+            ("detection.sigma.deploy", json!({"rule_path": "detection-content/active/x.yml"})),
+        ] {
+            let d = e.evaluate(&call(tool, args), &mut ctx);
+            assert!(matches!(d.kind, DecisionKind::Allow), "{tool}: {d:?}");
+        }
+    }
+
+    #[tokio::test]
+    async fn tier0_accounts_are_protected() {
+        let e = engine();
+        let mut ctx = EvalCtx::new();
+        for account in ["krbtgt", "Administrator"] {
+            let d = e.evaluate(
+                &call(
+                    "entra.user.disable",
+                    json!({"user_id": "00000000-0000-0000-0000-000000000000", "user": account}),
+                ),
+                &mut ctx,
+            );
+            // The schema rejects the extra key first; either way the call must
+            // not be allowed for a Tier-0 identity.
+            assert!(matches!(d.kind, DecisionKind::Deny), "{account}: {d:?}");
+        }
     }
 }

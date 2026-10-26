@@ -85,3 +85,46 @@ mod hex {
         bytes.as_ref().iter().map(|b| format!("{b:02x}")).collect()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use agent_protocol::envelope::EnvelopeKind;
+    use serde_json::json;
+
+    fn alert(rule: &str, host: &str, ts: DateTime<Utc>) -> Envelope {
+        let mut env = Envelope::new(
+            "test",
+            EnvelopeKind::Alert,
+            json!({"rule": {"id": rule}, "agent": {"name": host}}),
+        );
+        env.ts = ts;
+        env
+    }
+
+    #[test]
+    fn same_alert_same_day_dedupes() {
+        let day = Utc::now();
+        let a = alert("5710", "web-01", day);
+        let b = alert("5710", "web-01", day);
+        assert_eq!(dedupe_key(&a), dedupe_key(&b));
+    }
+
+    #[test]
+    fn different_host_or_rule_does_not_dedupe() {
+        let day = Utc::now();
+        let base = dedupe_key(&alert("5710", "web-01", day));
+        assert_ne!(base, dedupe_key(&alert("5710", "web-02", day)));
+        assert_ne!(base, dedupe_key(&alert("5711", "web-01", day)));
+    }
+
+    #[test]
+    fn next_day_is_a_new_key() {
+        let today = Utc::now();
+        let tomorrow = today + chrono::Duration::days(1);
+        assert_ne!(
+            dedupe_key(&alert("5710", "web-01", today)),
+            dedupe_key(&alert("5710", "web-01", tomorrow))
+        );
+    }
+}

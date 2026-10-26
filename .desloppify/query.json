@@ -1,11 +1,11 @@
 {
   "command": "resolve",
   "patterns": [
-    "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape"
+    "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
   ],
   "status": "fixed",
   "resolved": [
-    "review::.::holistic::api_surface_coherence::kill_switch_body_and_shape"
+    "review::.::holistic::authorization_consistency::actor-string-unverified-and-unused-by-policy"
   ],
   "count": 1,
   "next_command": "desloppify next",
@@ -17,10 +17,10 @@
   "prev_objective_score": 84.1,
   "prev_strict_score": 77.7,
   "prev_verified_strict_score": 84.1,
-  "attestation": "I have actually http-limits::auth adds bearer/X-API-Key authentication (ARES_API_KEYS key:actor pairs, dev mode when unset) on api-server, tool-server and ingestion-gateway, with /health exempt; the authenticated Actor drives rate-limit keys, approval identity (body approver removed) and kill-switch audit (api-server appends to audit_log with the actor). A2A cards advertise bearer only when auth is configured, and tasks/get|cancel are scoped to the addressed agent so /a2a/{agent} cannot read another agent's task. and I am not gaming the score.",
+  "attestation": "I have actually tool-server /invoke overwrites the body-supplied ToolCall.actor with the authenticated http_limits Actor before policy evaluation and audit, so the actor string is verified and now reaches the policy/audit paths. and I am not gaming the score.",
   "narrative": {
     "phase": "early_momentum",
-    "headline": "Score 77.7/100 with 396 issues open. Keep the momentum going. (75 review work items \u2014 run `desloppify show review --status open`)",
+    "headline": "Score 77.7/100 with 395 issues open. Keep the momentum going. (74 review work items \u2014 run `desloppify show review --status open`)",
     "dimensions": {
       "lowest_dimensions": [
         {
@@ -32,7 +32,7 @@
         {
           "name": "Auth consistency",
           "strict": 58.0,
-          "failing": 3,
+          "failing": 2,
           "impact": 0.0,
           "subjective": true,
           "impact_description": "re-review to improve"
@@ -129,8 +129,8 @@
       {
         "type": "refactor",
         "detector": "review",
-        "count": 75,
-        "description": "75 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
+        "count": 74,
+        "description": "74 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
         "command": "desloppify show review --status open",
         "impact": 0.0,
         "dimension": "Unknown",
@@ -196,7 +196,7 @@
     "strategy": {
       "fixer_leverage": {
         "auto_fixable_count": 0,
-        "total_count": 546,
+        "total_count": 543,
         "coverage": 0.0,
         "impact_ratio": 0.0,
         "recommendation": "none"
@@ -247,7 +247,7 @@
         }
       },
       "can_parallelize": true,
-      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 75 issue(s) \u2014 `desloppify show review --status open`."
+      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 74 issue(s) \u2014 `desloppify show review --status open`."
     },
     "tools": {
       "fixers": [],
@@ -280,7 +280,7 @@
       "command": "desloppify show structural --status open",
       "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable"
     },
-    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 75 issue(s) \u2014 `desloppify show review --status open`.",
+    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 74 issue(s) \u2014 `desloppify show review --status open`.",
     "verification_step": {
       "command": "desloppify scan",
       "reason": "revalidate after changes"
@@ -310,7 +310,7 @@
       },
       {
         "type": "review_issues_pending",
-        "message": "75 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
+        "message": "74 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
         "command": "desloppify show review --status open",
         "priority": 1,
         "severity": "high"

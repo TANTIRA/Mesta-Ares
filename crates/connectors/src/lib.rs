@@ -1213,3 +1213,28 @@ mod tests {
         assert!(warninglist_matches(&serde_json::json!([])).is_empty());
     }
 }
+
+#[cfg(test)]
+mod retry_tests {
+    use super::*;
+
+    #[test]
+    fn retry_sleep_stays_within_budget() {
+        for attempt in 0..6 {
+            for _ in 0..20 {
+                let sleep = retry_sleep(attempt, Duration::from_secs(15));
+                assert!(sleep <= RETRY_BACKOFF_CAP, "{sleep:?} exceeds the cap");
+                assert!(sleep <= Duration::from_secs(15));
+            }
+        }
+        // A tiny remaining budget clips the sleep to that budget.
+        for _ in 0..20 {
+            assert!(retry_sleep(5, Duration::from_millis(10)) <= Duration::from_millis(10));
+        }
+    }
+
+    #[test]
+    fn b64url_is_padding_free() {
+        assert_eq!(intel::b64url(b"https://a.b/?=>"), "aHR0cHM6Ly9hLmIvPz0-");
+    }
+}
