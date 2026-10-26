@@ -97,6 +97,7 @@ impl HttpToolGateway {
                         ok: false,
                         output: serde_json::Value::Null,
                         error: Some(format!("gateway returned {status}: {body}")),
+                        dry_run: false,
                     },
                     approval_id: None,
                 },

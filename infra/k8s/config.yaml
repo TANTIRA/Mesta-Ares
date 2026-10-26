@@ -7,7 +7,8 @@
 # you use (VIRUSTOTAL_API_KEY, SHODAN_API_KEY, ABUSEIPDB_API_KEY,
 # GREYNOISE_API_KEY, MISP_API_KEY, THEHIVE_API_KEY, WAZUH_API_USER,
 # WAZUH_API_PASS, SHUFFLE_API_KEY), plus POSTGRES_PASSWORD for the bundled
-# Postgres.
+# Postgres and GATEWAY_API_KEYS for the API gateway (comma-separated; without
+# it the gateway rejects everything).
 apiVersion: v1
 kind: ConfigMap
 metadata:

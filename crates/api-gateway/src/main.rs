@@ -54,7 +54,11 @@ struct Config {
     bind_addr: String,
 
     /// api-server upstreams (comma-separated, round-robin).
-    #[arg(long, env = "GATEWAY_API_UPSTREAMS", default_value = "http://localhost:8080")]
+    #[arg(
+        long,
+        env = "GATEWAY_API_UPSTREAMS",
+        default_value = "http://localhost:8080"
+    )]
     api_upstreams: String,
 
     /// ingestion-gateway upstreams.
@@ -118,8 +122,7 @@ fn classify(req: &Request) -> Tier {
     if path.starts_with("/tools") {
         return Tier::Expensive;
     }
-    if req.method() == Method::GET
-        && (path == "/api/stream/activity" || path.ends_with("/events"))
+    if req.method() == Method::GET && (path == "/api/stream/activity" || path.ends_with("/events"))
     {
         return Tier::Stream;
     }
@@ -223,7 +226,10 @@ mod tests {
         assert_eq!(classify(&req(Method::GET, "/health")), Tier::Exempt);
         assert_eq!(classify(&req(Method::GET, "/metrics")), Tier::Exempt);
         assert_eq!(classify(&req(Method::POST, "/ingest/wazuh")), Tier::Ingest);
-        assert_eq!(classify(&req(Method::POST, "/tools/invoke")), Tier::Expensive);
+        assert_eq!(
+            classify(&req(Method::POST, "/tools/invoke")),
+            Tier::Expensive
+        );
         assert_eq!(
             classify(&req(Method::GET, "/api/stream/activity")),
             Tier::Stream
@@ -233,7 +239,10 @@ mod tests {
             Tier::Stream
         );
         assert_eq!(classify(&req(Method::GET, "/api/alerts")), Tier::General);
-        assert_eq!(classify(&req(Method::GET, "/aggregate/dashboard")), Tier::General);
+        assert_eq!(
+            classify(&req(Method::GET, "/aggregate/dashboard")),
+            Tier::General
+        );
     }
 
     #[test]

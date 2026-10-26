@@ -12,8 +12,8 @@
     "auto_resolved": 50,
     "deferred": 0,
     "false_positive": 0,
-    "fixed": 72,
-    "open": 444,
+    "fixed": 84,
+    "open": 432,
     "triaged_out": 0,
     "wontfix": 0,
     "by_tier": {
@@ -21,8 +21,8 @@
         "auto_resolved": 0,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 43,
-        "open": 64,
+        "fixed": 51,
+        "open": 56,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -30,8 +30,8 @@
         "auto_resolved": 43,
         "deferred": 0,
         "false_positive": 0,
-        "fixed": 9,
-        "open": 243,
+        "fixed": 13,
+        "open": 239,
         "triaged_out": 0,
         "wontfix": 0
       },
@@ -8481,11 +8481,11 @@
         "reasoning": "",
         "summary_hash": "e4a5d030"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:23+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8493,7 +8493,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:23+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::high_level_elegance::kill_switch_two_implementations": {
       "id": "review::.::holistic::high_level_elegance::kill_switch_two_implementations",
@@ -8567,11 +8573,11 @@
         "reasoning": "",
         "summary_hash": "4a9b4725"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:33+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -8579,7 +8585,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:33+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::high_level_elegance::acp_subsystem_did_not_localize": {
       "id": "review::.::holistic::high_level_elegance::acp_subsystem_did_not_localize",
@@ -10246,11 +10258,11 @@
         "reasoning": "",
         "summary_hash": "3f70fba6"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:29:11+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -10258,7 +10270,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:29:11+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::low_level_elegance::acp_cancel_run_identical_branches": {
       "id": "review::.::holistic::low_level_elegance::acp_cancel_run_identical_branches",
@@ -11021,11 +11039,11 @@
         "reasoning": "",
         "summary_hash": "14cf61eb"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:31+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11033,7 +11051,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:31+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::test_strategy::tool_invoke_path_untested": {
       "id": "review::.::holistic::test_strategy::tool_invoke_path_untested",
@@ -11930,11 +11954,11 @@
         "reasoning": "",
         "summary_hash": "f39f5061"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:25+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -11942,7 +11966,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:25+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::authorization_consistency::approval-identity-self-asserted": {
       "id": "review::.::holistic::authorization_consistency::approval-identity-self-asserted",
@@ -12865,11 +12895,11 @@
         "reasoning": "",
         "summary_hash": "a4397682"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:38+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12877,7 +12907,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:38+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::incomplete_migration::stale_rate_limit_docs": {
       "id": "review::.::holistic::incomplete_migration::stale_rate_limit_docs",
@@ -12902,11 +12938,11 @@
         "reasoning": "",
         "summary_hash": "dfb63a04"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:34+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -12914,7 +12950,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:34+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::incomplete_migration::subject_constants_half_shared": {
       "id": "review::.::holistic::incomplete_migration::subject_constants_half_shared",
@@ -13504,11 +13546,11 @@
         "reasoning": "",
         "summary_hash": "9f298ced"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:32+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -13516,7 +13558,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:32+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::initialization_coupling::cwd_relative_path_constants": {
       "id": "review::.::holistic::initialization_coupling::cwd_relative_path_constants",
@@ -14117,11 +14165,11 @@
         "reasoning": "",
         "summary_hash": "d9314809"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:27+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14129,7 +14177,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:27+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::contract_coherence::a2a_terminal_step_marks_completed": {
       "id": "review::.::holistic::contract_coherence::a2a_terminal_step_marks_completed",
@@ -14268,11 +14322,11 @@
         "reasoning": "",
         "summary_hash": "0d52b8c0"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:39+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14280,7 +14334,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:39+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::contract_coherence::acp_sync_mode_timeout": {
       "id": "review::.::holistic::contract_coherence::acp_sync_mode_timeout",
@@ -14684,11 +14744,11 @@
         "reasoning": "",
         "summary_hash": "83cd3bb4"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:28+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14696,7 +14756,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:28+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::logic_clarity::vuln-min-severity-fail-open": {
       "id": "review::.::holistic::logic_clarity::vuln-min-severity-fail-open",
@@ -14834,11 +14900,11 @@
         "reasoning": "",
         "summary_hash": "bcd0b84d"
       },
-      "status": "open",
-      "note": null,
+      "status": "fixed",
+      "note": "Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor.",
       "first_seen": "2026-10-26T09:03:05+00:00",
       "last_seen": "2026-10-26T09:03:05+00:00",
-      "resolved_at": null,
+      "resolved_at": "2026-10-26T09:40:29+00:00",
       "reopen_count": 0,
       "work_item_kind": "review_defect",
       "issue_kind": "review_defect",
@@ -14846,7 +14912,13 @@
       "lang": "rust",
       "suppressed": false,
       "suppressed_at": null,
-      "suppression_pattern": null
+      "suppression_pattern": null,
+      "resolution_attestation": {
+        "kind": "manual",
+        "text": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
+        "attested_at": "2026-10-26T09:40:29+00:00",
+        "scan_verified": false
+      }
     },
     "review::.::holistic::type_safety::severity_vocabulary_untyped": {
       "id": "review::.::holistic::type_safety::severity_vocabulary_untyped",
@@ -17726,7 +17798,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:18:34+00:00"
+      "stale_since": "2026-10-26T09:40:25+00:00"
     },
     "contract_coherence": {
       "score": 80.0,
@@ -17734,7 +17806,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:23:39+00:00"
+      "stale_since": "2026-10-26T09:40:39+00:00"
     },
     "convention_outlier": {
       "score": 79.5,
@@ -17758,7 +17830,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:29:09+00:00"
+      "stale_since": "2026-10-26T09:29:11+00:00"
     },
     "design_coherence": {
       "score": 73.0,
@@ -17782,7 +17854,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:15:51+00:00"
+      "stale_since": "2026-10-26T09:40:33+00:00"
     },
     "incomplete_migration": {
       "score": 74.0,
@@ -17790,7 +17862,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:29:06+00:00"
+      "stale_since": "2026-10-26T09:40:38+00:00"
     },
     "initialization_coupling": {
       "score": 74.0,
@@ -17798,7 +17870,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:15:54+00:00"
+      "stale_since": "2026-10-26T09:40:32+00:00"
     },
     "logic_clarity": {
       "score": 82.5,
@@ -17806,7 +17878,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:23:50+00:00"
+      "stale_since": "2026-10-26T09:40:28+00:00"
     },
     "low_level_elegance": {
       "score": 80.0,
@@ -17822,7 +17894,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:21:43+00:00"
+      "stale_since": "2026-10-26T09:40:31+00:00"
     },
     "naming_quality": {
       "score": 88.5,
@@ -17848,7 +17920,7 @@
       "assessed_at": "2026-10-26T09:03:05+00:00",
       "needs_review_refresh": true,
       "refresh_reason": "review_issue_fixed",
-      "stale_since": "2026-10-26T09:23:52+00:00"
+      "stale_since": "2026-10-26T09:40:29+00:00"
     }
   },
   "scan_history": [
@@ -22393,13 +22465,13 @@
       "strict": 58.0,
       "verified_strict_score": 58.0,
       "checks": 10,
-      "failing": 9,
+      "failing": 8,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.58,
-          "failing": 9,
+          "failing": 8,
           "weighted_failures": 4.2,
           "assessment_score": 58.0,
           "placeholder": false,
@@ -22414,13 +22486,13 @@
       "strict": 80.0,
       "verified_strict_score": 80.0,
       "checks": 10,
-      "failing": 8,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.8,
-          "failing": 8,
+          "failing": 6,
           "weighted_failures": 2.0,
           "assessment_score": 80.0,
           "placeholder": false,
@@ -22477,13 +22549,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 1,
+      "failing": 0,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 1,
+          "failing": 0,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,
@@ -22540,13 +22612,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 5,
+      "failing": 3,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 5,
+          "failing": 3,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,
@@ -22561,13 +22633,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 6,
+      "failing": 4,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 6,
+          "failing": 4,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22582,13 +22654,13 @@
       "strict": 74.0,
       "verified_strict_score": 74.0,
       "checks": 10,
-      "failing": 6,
+      "failing": 5,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.74,
-          "failing": 6,
+          "failing": 5,
           "weighted_failures": 2.6,
           "assessment_score": 74.0,
           "placeholder": false,
@@ -22603,13 +22675,13 @@
       "strict": 82.5,
       "verified_strict_score": 82.5,
       "checks": 10,
-      "failing": 8,
+      "failing": 7,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.825,
-          "failing": 8,
+          "failing": 7,
           "weighted_failures": 1.75,
           "assessment_score": 82.5,
           "placeholder": false,
@@ -22645,13 +22717,13 @@
       "strict": 70.0,
       "verified_strict_score": 70.0,
       "checks": 10,
-      "failing": 6,
+      "failing": 5,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.7,
-          "failing": 6,
+          "failing": 5,
           "weighted_failures": 3.0,
           "assessment_score": 70.0,
           "placeholder": false,
@@ -22729,13 +22801,13 @@
       "strict": 78.0,
       "verified_strict_score": 78.0,
       "checks": 10,
-      "failing": 7,
+      "failing": 6,
       "tier": 4,
       "detectors": {
         "subjective_assessment": {
           "potential": 10,
           "pass_rate": 0.78,
-          "failing": 7,
+          "failing": 6,
           "weighted_failures": 2.2,
           "assessment_score": 78.0,
           "placeholder": false,

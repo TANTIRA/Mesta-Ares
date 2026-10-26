@@ -8,20 +8,14 @@ use std::collections::HashMap;
 
 use crate::{split_vector, CvssError, CvssScore};
 
-fn num<'a>(map: &'a HashMap<String, String>, key: &str) -> Result<&'a str, CvssError> {
+/// Required metric value, or `MissingMetric(key)` naming the absent metric.
+fn required_metric<'a>(
+    map: &'a HashMap<String, String>,
+    key: &'static str,
+) -> Result<&'a str, CvssError> {
     map.get(key)
         .map(String::as_str)
-        .ok_or(CvssError::MissingMetric(match key {
-            "AV" => "AV",
-            "AC" => "AC",
-            "PR" => "PR",
-            "UI" => "UI",
-            "S" => "S",
-            "C" => "C",
-            "I" => "I",
-            "A" => "A",
-            _ => "metric",
-        }))
+        .ok_or(CvssError::MissingMetric(key))
 }
 
 /// Missing optional metrics default to "X" (= base / no-op).
@@ -34,7 +28,7 @@ fn m<'a>(map: &'a HashMap<String, String>, key: &str) -> &'a str {
     let mk = format!("M{key}");
     match map.get(&mk).map(String::as_str) {
         Some(v) if v != "X" => v,
-        _ => num(map, key).unwrap_or("X"),
+        _ => map.get(key).map(String::as_str).unwrap_or("X"),
     }
 }
 
@@ -145,12 +139,12 @@ pub(crate) fn score(vector: &str, v30: bool) -> Result<CvssScore, CvssError> {
         }
     }
     for req in ["AV", "AC", "PR", "UI", "S", "C", "I", "A"] {
-        num(&map, req)?;
+        required_metric(&map, req)?;
     }
 
-    let scope_changed = num(&map, "S")? == "C";
+    let scope_changed = required_metric(&map, "S")? == "C";
     let isc_base =
-        (1.0 - cia(num(&map, "C")?)) * (1.0 - cia(num(&map, "I")?)) * (1.0 - cia(num(&map, "A")?));
+        (1.0 - cia(required_metric(&map, "C")?)) * (1.0 - cia(required_metric(&map, "I")?)) * (1.0 - cia(required_metric(&map, "A")?));
     let isc_base = 1.0 - isc_base;
     let impact = if scope_changed {
         7.52 * (isc_base - 0.029) - 3.25 * (isc_base - 0.02).powi(15)
@@ -158,10 +152,10 @@ pub(crate) fn score(vector: &str, v30: bool) -> Result<CvssScore, CvssError> {
         6.42 * isc_base
     };
     let expl = 8.22
-        * av(num(&map, "AV")?)
-        * ac(num(&map, "AC")?)
-        * pr(num(&map, "PR")?, scope_changed)
-        * ui(num(&map, "UI")?);
+        * av(required_metric(&map, "AV")?)
+        * ac(required_metric(&map, "AC")?)
+        * pr(required_metric(&map, "PR")?, scope_changed)
+        * ui(required_metric(&map, "UI")?);
     let base = if impact <= 0.0 {
         0.0
     } else if scope_changed {

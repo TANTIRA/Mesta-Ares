@@ -21,7 +21,7 @@ use std::time::Instant;
 use axum::{
     body::{Body, Bytes},
     extract::{Path, Request, State},
-    http::{header, HeaderMap, HeaderName, HeaderValue, StatusCode},
+    http::{header, HeaderName, StatusCode},
     response::{IntoResponse, Response},
     Json,
 };
@@ -128,6 +128,7 @@ pub fn aggregate_payload(sources: Vec<(&str, Result<Value, String>)>) -> Value {
 async fn forward(s: Arc<AppState>, route: Route, path: String, req: Request) -> Response {
     let started = Instant::now();
     let method = req.method().clone();
+    let full_path = req.uri().path().to_string();
     let query = req.uri().query().map(str::to_string);
     let headers = req.headers().clone();
     let body = match axum::body::to_bytes(req.into_body(), MAX_REQUEST_BODY).await {
@@ -156,13 +157,16 @@ async fn forward(s: Arc<AppState>, route: Route, path: String, req: Request) -> 
     let base = &bases[s.rr.next(route, bases.len())];
     let url = upstream_url(base, &path, query.as_deref());
 
-    // Cache lookup for cacheable GETs.
+    // Cache lookup for cacheable GETs. Match on the incoming path (`/api/...`),
+    // not the stripped upstream path, so prefixes are configured as clients see
+    // them.
     let cache_key = format!("{path}?{}", query.clone().unwrap_or_default());
-    let cacheable = s.cache.applies(method.as_str(), &format!("/{path}"));
+    let cacheable = s.cache.applies(method.as_str(), &full_path);
     if cacheable {
         if let Some(hit) = s.cache.get(&cache_key) {
             s.metrics.hit();
-            s.metrics.record(route.label(), hit.status, started.elapsed());
+            s.metrics
+                .record(route.label(), hit.status, started.elapsed());
             return cached_response(hit);
         }
     }
@@ -313,7 +317,7 @@ pub async fn aggregate(State(s): State<Arc<AppState>>) -> Response {
 
 /// Headers used by tests to assert hop-by-hop stripping.
 #[cfg(test)]
-fn stripped(headers: &HeaderMap) -> Vec<String> {
+fn stripped(headers: &axum::http::HeaderMap) -> Vec<String> {
     headers
         .keys()
         .filter(|k| is_hop_by_hop(k))
@@ -324,6 +328,7 @@ fn stripped(headers: &HeaderMap) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use axum::http::HeaderMap;
 
     #[test]
     fn upstream_url_joins_path_and_query() {
@@ -358,9 +363,12 @@ mod tests {
     #[test]
     fn hop_by_hop_headers_are_detected() {
         let mut h = HeaderMap::new();
-        h.insert(header::HOST, HeaderValue::from_static("gw"));
-        h.insert("connection", HeaderValue::from_static("keep-alive"));
-        h.insert("x-request-id", HeaderValue::from_static("1"));
+        h.insert(header::HOST, axum::http::HeaderValue::from_static("gw"));
+        h.insert(
+            "connection",
+            axum::http::HeaderValue::from_static("keep-alive"),
+        );
+        h.insert("x-request-id", axum::http::HeaderValue::from_static("1"));
         let mut names = stripped(&h);
         names.sort();
         assert_eq!(names, vec!["connection".to_string(), "host".to_string()]);

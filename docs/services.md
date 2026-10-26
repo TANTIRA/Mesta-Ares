@@ -12,6 +12,7 @@ service or contract changes — it is the consumer-facing view.
 | triage-agent | — | Enrichment fan-out, verdicts | llm, enrichment providers, tool-server (`thehive.case.create`), opensearch | sub `ares.triage`, pub `ares.respond`, `ares.activity` |
 | response-agent | — | Plan build + execution record (`response_actions`) | tool-server, thehive, wazuh | sub `ares.respond`, pub `ares.activity` |
 | tool-server | 8090 | Policy gate + all side-effect executors | policy files, postgres audit_log, cortex/misp/shuffle/wazuh/entra | — |
+| api-gateway | 8082 | Edge routing (`/api`, `/ingest`, `/tools`), API-key auth, rate limits, GET cache, metrics, `/aggregate/dashboard` | api-server, ingestion-gateway, tool-server, policy files | — |
 | detection-agent | — | Sigma draft→pending→active, monitor deploy | llm, opensearch, sigma CLI | sub `ares.detection`, pub `ares.activity` |
 | hunt-agent | — | Scheduled hunts, findings | opensearch, tool-server (`thehive.case.create`) | sub `ares.hunt`, pub `ares.activity` |
 | api-server | 8080 | Read model + control API for console, A2A (`a2a_tasks`) and ACP (`acp_runs`) protocol endpoints | opensearch, postgres, thehive | sub `ares.activity` (SSE relay), pub `ares.triage|respond|detection|hunt` (A2A tasks, ACP runs) |
@@ -38,6 +39,7 @@ and `agent_checkpoints` (api-server folds it into task/run status).
 - `GET /stream/activity` — SSE, event `{workflow_run_id, agent, step, detail, ts}`.
 - A2A interop: `GET /.well-known/agent.json` (platform card), `GET /a2a/agents`, `GET /a2a/{agent}/.well-known/agent.json`, `POST /a2a/{agent}` (JSON-RPC `tasks/send|get|cancel|sendSubscribe`), `GET /a2a/tasks/{id}/events` (per-task SSE). Agents: `triage-agent`, `response-agent`, `detection-agent`, `hunt-agent`. Task → `Envelope` (source `a2a:<task_id>`, correlation_id = task UUID) published on the agent's subject.
 - `POST ingestion-gateway:8091/webhook/wazuh` — Wazuh integratord JSON → `Envelope`. `202 Accepted` on publish, `503` if NATS down (caller retries; integratord does not, so monitor this).
+- `GET|POST api-gateway:8082/…` — single entry point: `/api/*`→api-server, `/ingest/*`→ingestion-gateway, `/tools/*`→tool-server (prefix stripped, method/headers/body forwarded, response streamed). Auth: `Authorization: Bearer <key>` or `X-API-Key` against `GATEWAY_API_KEYS`; `/health` and `/metrics` exempt; empty key list fails closed unless `GATEWAY_ALLOW_ANONYMOUS=1`. `GET /aggregate/dashboard` fans in metrics + alerts + advisories. `GET /metrics` is Prometheus text (`ares_gateway_requests_total{route,status}`, latency sums, cache hits). GETs under `GATEWAY_CACHE_PREFIXES` are cached for `GATEWAY_CACHE_TTL_SECONDS` and answer `x-gateway-cache: hit|miss`.
 
 Errors: JSON `{error: string}`; 4xx = caller fixable, 5xx = retryable. All
 handlers set explicit timeouts (see table).

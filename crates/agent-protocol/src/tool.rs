@@ -68,6 +68,10 @@ pub struct ToolResult {
     pub output: serde_json::Value,
     /// Error description when `ok` is `false`.
     pub error: Option<String>,
+    /// `true` when the executor ran without credentials and returned a
+    /// dry-run payload instead of performing the side effect.
+    #[serde(default)]
+    pub dry_run: bool,
 }
 
 /// `output` field name carrying the retryable flag. The tool server sets it
@@ -94,6 +98,7 @@ impl ToolResult {
             ok: false,
             output: serde_json::Value::Object(output),
             error: Some(error.into()),
+            dry_run: false,
         }
     }
 }

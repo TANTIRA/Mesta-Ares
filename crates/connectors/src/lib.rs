@@ -87,9 +87,9 @@ async fn send_with_retry(req: RequestBuilder) -> Result<reqwest::Response> {
     let deadline = Instant::now() + CALL_BUDGET;
     let mut attempt = 0u32;
     loop {
-        let Some(attempt_req) = req.try_clone() else {
-            return Err(anyhow::anyhow!("request body cannot be replayed"));
-        };
+        let attempt_req = req
+            .try_clone()
+            .expect("replayable body checked before the retry loop");
         match attempt_req.send().await {
             Ok(resp) => {
                 let code = resp.status().as_u16();
@@ -482,10 +482,10 @@ impl MispClient {
         let mut events = Vec::new();
         if let Some(rows) = raw.get("response").and_then(|r| r.as_array()) {
             for row in rows {
-                if let Some(ev) = row.get("Event") {
-                    if let Ok(e) = serde_json::from_value::<Event>(ev.clone()) {
-                        events.push(e);
-                    }
+                let Some(ev) = row.get("Event") else { continue };
+                match serde_json::from_value::<Event>(ev.clone()) {
+                    Ok(e) => events.push(e),
+                    Err(e) => tracing::warn!(error = %e, "misp event row skipped"),
                 }
             }
         }
@@ -525,7 +525,13 @@ impl MispClient {
             .and_then(Value::as_array)
             .map(|rows| {
                 rows.iter()
-                    .filter_map(|r| serde_json::from_value(r.clone()).ok())
+                    .filter_map(|r| match serde_json::from_value(r.clone()) {
+                        Ok(attr) => Some(attr),
+                        Err(e) => {
+                            tracing::warn!(error = %e, "misp attribute row skipped");
+                            None
+                        }
+                    })
                     .collect()
             })
             .unwrap_or_default())
@@ -974,9 +980,16 @@ impl NvdClient {
     /// no record (unknown, reserved-and-unpublished, or rejected IDs may 404
     /// or return an empty list).
     pub async fn get_cve(&self, cve_id: &str) -> Result<Option<CveRecord>> {
-        let raw = self
+        let raw = match self
             .get("/rest/json/cves/2.0", &[("cveId", cve_id.to_string())])
-            .await?;
+            .await
+        {
+            Ok(raw) => raw,
+            // NVD answers 404 for ids it does not know; that is a miss, not an
+            // outage, so callers can negative-cache it.
+            Err(e) if e.to_string().contains("404") => return Ok(None),
+            Err(e) => return Err(e),
+        };
         let Some(cve) = raw
             .get("vulnerabilities")
             .and_then(|v| v.as_array())
@@ -997,14 +1010,8 @@ impl NvdClient {
         start_index: u64,
         extra: &[(&str, String)],
     ) -> Result<CvePage> {
-        let mut q = vec![
-            ("pubStartDate", from.to_string()),
-            ("pubEndDate", to.to_string()),
-            ("startIndex", start_index.to_string()),
-            ("resultsPerPage", "2000".to_string()),
-        ];
-        q.extend(extra.iter().cloned());
-        Ok(parse_cve_page(self.get("/rest/json/cves/2.0", &q).await?))
+        self.list_window("pubStartDate", "pubEndDate", from, to, start_index, extra)
+            .await
     }
 
     /// `GET /rest/json/cves/2.0?lastModStartDate&lastModEndDate`.

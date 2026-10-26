@@ -229,16 +229,17 @@ pub async fn approve(
 
     let decision = {
         let mut ctx = s.eval_ctx.lock().await;
-        s.engine.evaluate_approved(&call, &mut ctx).await
+        s.engine.evaluate_approved(&call, &mut ctx)
     };
 
     let result = match &decision.kind {
-        DecisionKind::Allow => crate::execute(&s, &call).await,
+        DecisionKind::Allow => crate::claim_and_execute(&s, &call).await,
         _ => ToolResult {
             call_id: call.id,
             ok: false,
             output: serde_json::Value::Null,
             error: Some(format!("denied after approval: {}", decision.reason)),
+            dry_run: false,
         },
     };
     s.approvals.attach_result(&id, result.clone());
@@ -402,6 +403,7 @@ mod tests {
             ok: true,
             output: json!({"saved": true}),
             error: None,
+            dry_run: false,
         };
         store.attach_result(&id, res);
         assert!(store.get(&id).unwrap().result.unwrap().ok);

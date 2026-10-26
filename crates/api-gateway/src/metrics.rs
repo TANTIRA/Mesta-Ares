@@ -34,13 +34,15 @@ impl Metrics {
     }
 
     /// Total requests across routes (tests).
+    #[cfg(test)]
     pub fn total(&self) -> u64 {
         self.requests.iter().map(|e| *e.value()).sum()
     }
 
     /// Prometheus text exposition.
     pub fn render(&self) -> String {
-        let mut out = String::from("# HELP ares_gateway_requests_total Requests by route and status\n");
+        let mut out =
+            String::from("# HELP ares_gateway_requests_total Requests by route and status\n");
         out.push_str("# TYPE ares_gateway_requests_total counter\n");
         let mut rows: Vec<_> = self
             .requests

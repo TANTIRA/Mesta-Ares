@@ -46,6 +46,7 @@ subdirectory each one scans:
 | Binary | Reads | Mount |
 | - | - | - |
 | `tool-server` | `POLICIES_DIR=/policies` | `ares-policies` → `/policies` |
+| `api-gateway` | `POLICIES_DIR=/policies` (rate limits) | `ares-policies` → `/policies` |
 | `vuln-agent` | `VULN_WATCHLIST=/policies/vuln-watchlist.yml` | `ares-policies` → `/policies` |
 | `api-server` | `detection-content/active` | `ares-detection-active` → `/app/detection-content/active` |
 | `bas-runner` | `bas/scenarios` | `ares-bas-scenarios` → `/app/bas/scenarios` |

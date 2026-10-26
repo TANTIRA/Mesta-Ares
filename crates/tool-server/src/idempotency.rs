@@ -405,6 +405,7 @@ mod tests {
             ok,
             output: serde_json::json!({"echo": 1}),
             error: (!ok).then(|| "boom".to_string()),
+            dry_run: false,
         }
     }
 

@@ -359,6 +359,28 @@ services:
       <<: *depends-core
     restart: unless-stopped
 
+  # Single entry point for the console and integrations: auth, rate limits,
+  # cache, metrics, aggregation in front of api-server / ingestion-gateway /
+  # tool-server. Set GATEWAY_API_KEYS; the console talks to this, not :8080.
+  api-gateway:
+    build:
+      <<: *rust-build
+      args: {BIN: api-gateway}
+    environment:
+      <<: [*ares-env, *ares-secrets]
+      GATEWAY_BIND: 0.0.0.0:8082
+      GATEWAY_API_UPSTREAMS: http://api-server:8080
+      GATEWAY_INGEST_UPSTREAMS: http://ingestion-gateway:8091
+      GATEWAY_TOOLS_UPSTREAMS: http://tool-server:8090
+      GATEWAY_API_KEYS: ${GATEWAY_API_KEYS:-}
+      GATEWAY_ALLOW_ANONYMOUS: ${GATEWAY_ALLOW_ANONYMOUS:-1}
+    ports: ["8082:8082"]
+    depends_on:
+      api-server: {condition: service_started}
+      ingestion-gateway: {condition: service_started}
+      tool-server: {condition: service_started}
+    restart: unless-stopped
+
   orchestrator:
     build:
       <<: *rust-build

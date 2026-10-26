@@ -46,9 +46,7 @@ impl ResponseCache {
 
     /// `true` when this request may be cached and served from cache.
     pub fn applies(&self, method: &str, path: &str) -> bool {
-        !self.ttl.is_zero()
-            && method == "GET"
-            && self.prefixes.iter().any(|p| path.starts_with(p))
+        !self.ttl.is_zero() && method == "GET" && self.prefixes.iter().any(|p| path.starts_with(p))
     }
 
     /// Looks up a live entry.
@@ -80,7 +78,8 @@ impl ResponseCache {
         );
     }
 
-    /// Number of live entries (metrics/tests).
+    /// Number of live entries (tests).
+    #[cfg(test)]
     pub fn len(&self) -> usize {
         self.entries.len()
     }

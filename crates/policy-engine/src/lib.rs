@@ -312,7 +312,7 @@ impl PolicyEngine {
     /// Evaluate a tool call. Checks run in a fixed order:
     /// kill switch → allowlist → autonomy → args_schema → forbidden_args →
     /// protected assets → blast radius → allow.
-    pub async fn evaluate(&self, call: &ToolCall, ctx: &mut EvalCtx) -> Decision {
+    pub fn evaluate(&self, call: &ToolCall, ctx: &mut EvalCtx) -> Decision {
         let decision = self.evaluate_inner(call, ctx, false);
         info!(
             tool = %call.tool,
@@ -329,7 +329,7 @@ impl PolicyEngine {
     /// gate is satisfied, every other check (kill switch, allowlist,
     /// args_schema, forbidden_args, protected assets, blast radius) still
     /// applies.
-    pub async fn evaluate_approved(&self, call: &ToolCall, ctx: &mut EvalCtx) -> Decision {
+    pub fn evaluate_approved(&self, call: &ToolCall, ctx: &mut EvalCtx) -> Decision {
         let decision = self.evaluate_inner(call, ctx, true);
         info!(
             tool = %call.tool,
@@ -574,8 +574,7 @@ mod tests {
     async fn unknown_tool_is_denied() {
         let mut ctx = EvalCtx::new();
         let d = engine()
-            .evaluate(&call("nope.missing", json!({})), &mut ctx)
-            .await;
+            .evaluate(&call("nope.missing", json!({})), &mut ctx);
         assert!(matches!(&d.kind, DecisionKind::Deny));
         assert!(d.reason.contains("allowlist"));
     }
@@ -584,8 +583,7 @@ mod tests {
     async fn deny_listed_tool_is_denied() {
         let mut ctx = EvalCtx::new();
         let d = engine()
-            .evaluate(&call("host.shutdown", json!({})), &mut ctx)
-            .await;
+            .evaluate(&call("host.shutdown", json!({})), &mut ctx);
         assert!(matches!(&d.kind, DecisionKind::Deny));
     }
 
@@ -600,8 +598,7 @@ mod tests {
                     json!({"ip": "203.0.113.9", "duration_minutes": 99999}),
                 ),
                 &mut ctx,
-            )
-            .await;
+            );
         assert!(matches!(&d.kind, DecisionKind::Deny), "got {d:?}");
     }
 
@@ -612,8 +609,7 @@ mod tests {
             .evaluate(
                 &call("blocklist.ip.add", json!({"ip": "10.1.2.3"})),
                 &mut ctx,
-            )
-            .await;
+            );
         assert!(matches!(&d.kind, DecisionKind::Deny));
         assert!(d.reason.contains("forbidden"));
     }
@@ -625,8 +621,7 @@ mod tests {
             .evaluate(
                 &call("ad.user.disable", json!({"sam_account_name": "svc-agent"})),
                 &mut ctx,
-            )
-            .await;
+            );
         assert!(matches!(&d.kind, DecisionKind::Deny), "got {d:?}");
         assert!(d.reason.contains("protected"));
     }
@@ -643,8 +638,7 @@ mod tests {
                     json!({"agent_id": "001"}),
                 ),
                 &mut ctx,
-            )
-            .await;
+            );
         assert!(matches!(&d.kind, DecisionKind::Deny), "got {d:?}");
         assert!(d.reason.contains("protected"));
     }
@@ -662,8 +656,7 @@ mod tests {
                         json!({"agent_id": format!("{i:03}")}),
                     ),
                     &mut ctx,
-                )
-                .await;
+                );
             assert!(matches!(&d.kind, DecisionKind::Allow), "call {i}: {d:?}");
         }
         let d = e
@@ -673,8 +666,7 @@ mod tests {
                     json!({"agent_id": "099"}),
                 ),
                 &mut ctx,
-            )
-            .await;
+            );
         assert!(matches!(&d.kind, DecisionKind::Deny));
         assert!(d.reason.contains("blast radius"));
     }
@@ -688,12 +680,10 @@ mod tests {
             .evaluate(
                 &call("wazuh.active_response.isolate_host", args.clone()),
                 &mut ctx,
-            )
-            .await;
+            );
         assert!(matches!(&d1.kind, DecisionKind::Allow), "{d1:?}");
         let d2 = e
-            .evaluate(&call("wazuh.active_response.isolate_host", args), &mut ctx)
-            .await;
+            .evaluate(&call("wazuh.active_response.isolate_host", args), &mut ctx);
         assert!(matches!(&d2.kind, DecisionKind::Deny));
         assert!(d2.reason.contains("cooldown"));
     }
@@ -705,8 +695,7 @@ mod tests {
             .evaluate(
                 &call("opensearch.query", json!({"index": "alerts-*"})),
                 &mut ctx,
-            )
-            .await;
+            );
         assert!(matches!(&d.kind, DecisionKind::Allow), "got {d:?}");
     }
 
@@ -716,8 +705,7 @@ mod tests {
         for tool in ["misp.attribute.add", "misp.ioc.block", "misp.sighting.add"] {
             let mut ctx = EvalCtx::new();
             let d = engine()
-                .evaluate(&call(tool, json!({"event_id": "1"})), &mut ctx)
-                .await;
+                .evaluate(&call(tool, json!({"event_id": "1"})), &mut ctx);
             assert!(
                 matches!(&d.kind, DecisionKind::ApprovalRequired),
                 "{tool} should require approval, got {d:?}"
@@ -733,16 +721,14 @@ mod tests {
             .evaluate_approved(
                 &call("misp.sighting.add", json!({"value": "203.0.113.9"})),
                 &mut ctx,
-            )
-            .await;
+            );
         assert!(matches!(&ok.kind, DecisionKind::Allow), "got {ok:?}");
 
         let bad = engine()
             .evaluate_approved(
                 &call("misp.event.view", json!({"event_id": "not-a-number"})),
                 &mut ctx,
-            )
-            .await;
+            );
         assert!(
             matches!(&bad.kind, DecisionKind::Deny),
             "schema must still deny, got {bad:?}"
@@ -760,8 +746,7 @@ mod tests {
         let e = PolicyEngine::load(&dir).unwrap();
         let mut ctx = EvalCtx::new();
         let d = e
-            .evaluate(&call("opensearch.query", json!({})), &mut ctx)
-            .await;
+            .evaluate(&call("opensearch.query", json!({})), &mut ctx);
         assert!(matches!(&d.kind, DecisionKind::Deny));
         assert!(d.reason.contains("kill switch"));
         let _ = std::fs::remove_dir_all(&dir);

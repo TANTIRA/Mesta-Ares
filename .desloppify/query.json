@@ -1,11 +1,11 @@
 {
   "command": "resolve",
   "patterns": [
-    "review::.::holistic::dependency_health::no_dependency_policy_gate"
+    "review::.::holistic::cross_module_architecture::table_ownership_doc_drift"
   ],
   "status": "fixed",
   "resolved": [
-    "review::.::holistic::dependency_health::no_dependency_policy_gate"
+    "review::.::holistic::cross_module_architecture::table_ownership_doc_drift"
   ],
   "count": 1,
   "next_command": "desloppify next",
@@ -17,10 +17,10 @@
   "prev_objective_score": 84.1,
   "prev_strict_score": 77.7,
   "prev_verified_strict_score": 84.1,
-  "attestation": "I have actually Dependency health: reqwest uses rustls only (default-features=false; Dockerfile drops libssl-dev), tokio trimmed from 'full' to the used feature union, inline pins (async-trait/regex/fastrand/jsonschema) moved to workspace.dependencies, pgvector removed from the workspace, agent-core/audit now inherit the workspace sqlx spec (false comment deleted), 9 unused direct deps dropped, serde_yaml (deprecated) replaced with serde_yaml_ng 0.10, and CI now builds --locked with a rustsec/audit-check job. and I am not gaming the score.",
+  "attestation": "I have actually Every side effect now goes through tool-server: triage and hunt create cases/observables via agent-core HttpToolGateway::invoke_allowed (thehive.case.create / thehive.observable.add), so the policy gate, idempotency and audit chain see them. audit_log gets a real CREATE TABLE (audit::ensure_schema, called by tool-server), append serializes on an advisory lock (no chain fork), AuditEvent.decision is DecisionKind, and the never-called ship() mirror is gone. Docs/config: README side-effect + kill-switch claims corrected and crate inventory expanded; services.md rate-limit rows, ACP surface, vuln-agent row, resilience table and DDL ownership corrected; API_BIND -> BIND_ADDR in compose/helm; Cargo license matches Apache-2.0; tool-server refuses to start when an allowlisted tool has no executor. and I am not gaming the score.",
   "narrative": {
     "phase": "early_momentum",
-    "headline": "Score 77.7/100 with 443 issues open. Keep the momentum going. (122 review work items \u2014 run `desloppify show review --status open`)",
+    "headline": "Score 77.7/100 with 431 issues open. Keep the momentum going. (110 review work items \u2014 run `desloppify show review --status open`)",
     "dimensions": {
       "lowest_dimensions": [
         {
@@ -32,7 +32,7 @@
         {
           "name": "Auth consistency",
           "strict": 58.0,
-          "failing": 9,
+          "failing": 8,
           "impact": 0.0,
           "subjective": true,
           "impact_description": "re-review to improve"
@@ -129,8 +129,8 @@
       {
         "type": "refactor",
         "detector": "review",
-        "count": 122,
-        "description": "122 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
+        "count": 110,
+        "description": "110 review work items need investigation \u2014 run `desloppify show review --status open` to see them",
         "command": "desloppify show review --status open",
         "impact": 0.0,
         "dimension": "Unknown",
@@ -196,7 +196,7 @@
     "strategy": {
       "fixer_leverage": {
         "auto_fixable_count": 0,
-        "total_count": 687,
+        "total_count": 651,
         "coverage": 0.0,
         "impact_ratio": 0.0,
         "recommendation": "none"
@@ -247,7 +247,7 @@
         }
       },
       "can_parallelize": true,
-      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 122 issue(s) \u2014 `desloppify show review --status open`."
+      "hint": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 110 issue(s) \u2014 `desloppify show review --status open`."
     },
     "tools": {
       "fixers": [],
@@ -280,7 +280,7 @@
       "command": "desloppify show structural --status open",
       "description": "8 structural work items \u2014 review large files \u2014 split only when responsibilities are clearly separable"
     },
-    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 122 issue(s) \u2014 `desloppify show review --status open`.",
+    "why_now": "4 independent workstreams, safe to parallelize. Rescan after each phase to verify. Review: 110 issue(s) \u2014 `desloppify show review --status open`.",
     "verification_step": {
       "command": "desloppify scan",
       "reason": "revalidate after changes"
@@ -310,7 +310,7 @@
       },
       {
         "type": "review_issues_pending",
-        "message": "122 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
+        "message": "110 review work item(s) need investigation. Run `desloppify show review --status open` to see the work queue.",
         "command": "desloppify show review --status open",
         "priority": 1,
         "severity": "high"

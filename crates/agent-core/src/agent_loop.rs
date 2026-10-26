@@ -222,6 +222,7 @@ mod tests {
                 ok: true,
                 output: serde_json::json!({ "echo": call.args }),
                 error: None,
+                dry_run: false,
             })
         }
     }

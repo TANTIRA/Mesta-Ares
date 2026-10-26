@@ -279,8 +279,9 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
             .map(|d| d.kind == DecisionKind::Deny)
             .unwrap_or(false);
 
-        // 3. Post-check on success; record everything to response_actions.
-        let post = if result.ok {
+        // 3. Post-check on real success; a dry-run performed no side effect,
+        // so there is nothing to verify and nothing to roll back.
+        let post = if result.ok && !result.dry_run {
             post_check(&deps.wazuh, action).await
         } else {
             Value::Null
@@ -293,10 +294,11 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
             "decision_reason": decision.as_ref().map(|d| d.reason.clone()),
             "output": result.output,
             "error": result.error,
+            "dry_run": result.dry_run,
             "post_check": post,
             "rationale": action.rationale,
         });
-        let rollback = if result.ok {
+        let rollback = if result.ok && !result.dry_run {
             rollback_for(action)
         } else {
             None

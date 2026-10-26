@@ -160,6 +160,13 @@ pub async fn dispatch<B: TaskBackend + ?Sized>(
     req: JsonRpcRequest,
 ) -> JsonRpcResponse {
     let id = req.id;
+    if req.jsonrpc != "2.0" {
+        return JsonRpcResponse::err(
+            id,
+            INVALID_REQUEST,
+            format!("unsupported jsonrpc version: {}", req.jsonrpc),
+        );
+    }
     match req.method.as_str() {
         METHOD_SEND | METHOD_SEND_SUBSCRIBE => {
             let params: SendParams = match serde_json::from_value(req.params) {

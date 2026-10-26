@@ -134,7 +134,10 @@ mod tests {
     #[test]
     fn bearer_and_api_key_headers_are_read() {
         let mut h = HeaderMap::new();
-        h.insert(header::AUTHORIZATION, HeaderValue::from_static("Bearer abc123"));
+        h.insert(
+            header::AUTHORIZATION,
+            HeaderValue::from_static("Bearer abc123"),
+        );
         assert_eq!(presented_key(&h).as_deref(), Some("abc123"));
 
         let mut h = HeaderMap::new();

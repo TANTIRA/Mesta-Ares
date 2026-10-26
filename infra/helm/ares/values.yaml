@@ -12,7 +12,8 @@ global:
 # Expected keys: DATABASE_URL, ANTHROPIC_API_KEY, VIRUSTOTAL_API_KEY,
 # SHODAN_API_KEY, ABUSEIPDB_API_KEY, GREYNOISE_API_KEY, MISP_API_KEY,
 # THEHIVE_API_KEY, WAZUH_API_USER, WAZUH_API_PASS, SHUFFLE_API_KEY,
-# POSTGRES_PASSWORD (also consumed by the postgres manifest below).
+# POSTGRES_PASSWORD (also consumed by the postgres manifest below),
+# GATEWAY_API_KEYS (comma-separated; required by api-gateway).
 env:
   RUST_LOG: info
   NATS_URL: nats://ares-nats:4222
@@ -68,6 +69,19 @@ services:
         mountPath: /bas
         readOnly: true
         configMap: ares-bas-scenarios
+  api-gateway:
+    port: 8082
+    env:
+      GATEWAY_BIND: 0.0.0.0:8082
+      GATEWAY_API_UPSTREAMS: http://ares-api-server:8080
+      GATEWAY_INGEST_UPSTREAMS: http://ares-ingestion-gateway:8091
+      GATEWAY_TOOLS_UPSTREAMS: http://ares-tool-server:8090
+      POLICIES_DIR: /policies
+    configVolumes:
+      - name: policies
+        mountPath: /policies
+        readOnly: true
+        configMap: ares-policies
   console:
     port: 3000
     env: {NEXT_PUBLIC_API_URL: http://ares-api-server:8080}

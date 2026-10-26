@@ -7,6 +7,7 @@
 
 use axum::{extract::Path, http::StatusCode, Json};
 use serde_json::Value;
+use tracing::warn;
 
 /// Directory scanned for playbook YAML files.
 fn playbooks_dir() -> String {
@@ -66,15 +67,22 @@ fn load_playbooks() -> (Vec<Value>, Vec<String>) {
     (playbooks, errors)
 }
 
-/// `GET /playbooks` — all playbook documents.
+/// `GET /playbooks` — all playbook documents; unparsable files are logged
+/// instead of being dropped silently.
 pub async fn list_playbooks() -> Result<Json<Value>, (StatusCode, String)> {
-    let (playbooks, _errors) = load_playbooks();
+    let (playbooks, errors) = load_playbooks();
+    if !errors.is_empty() {
+        warn!(?errors, "playbook parse errors");
+    }
     Ok(Json(Value::Array(playbooks)))
 }
 
 /// `GET /playbooks/:name` — one playbook by `name` or filename stem.
 pub async fn get_playbook(Path(name): Path<String>) -> Result<Json<Value>, (StatusCode, String)> {
-    let (playbooks, _errors) = load_playbooks();
+    let (playbooks, errors) = load_playbooks();
+    if !errors.is_empty() {
+        warn!(?errors, "playbook parse errors");
+    }
     playbooks
         .into_iter()
         .find(|p| p["name"].as_str() == Some(name.as_str()))

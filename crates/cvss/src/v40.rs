@@ -224,10 +224,7 @@ pub(crate) fn score(vector: &str) -> Result<CvssScore, CvssError> {
     }
     for req in REQUIRED {
         if !sel.contains_key(*req) {
-            return Err(CvssError::MissingMetric(match *req {
-                "AV" => "AV",
-                _ => "base metric",
-            }));
+            return Err(CvssError::MissingMetric(req));
         }
     }
 

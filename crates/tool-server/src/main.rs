@@ -67,7 +67,7 @@ async fn invoke(
 
     let decision = {
         let mut ctx = state.eval_ctx.lock().await;
-        state.engine.evaluate(&call, &mut ctx).await
+        state.engine.evaluate(&call, &mut ctx)
     };
 
     // Every decision is audited; an audit failure degrades to a log line.
@@ -90,13 +90,14 @@ async fn invoke(
     }
 
     let (result, approval_id) = match &decision.kind {
-        DecisionKind::Allow => (execute(&state, &call).await, None),
+        DecisionKind::Allow => (claim_and_execute(&state, &call).await, None),
         DecisionKind::Deny => (
             ToolResult {
                 call_id: call.id.clone(),
                 ok: false,
                 output: Value::Null,
                 error: Some(format!("denied: {}", decision.reason)),
+                dry_run: false,
             },
             None,
         ),
@@ -112,6 +113,7 @@ async fn invoke(
                         "approval required: {} (approval id {id})",
                         decision.reason
                     )),
+                    dry_run: false,
                 },
                 Some(id),
             )
@@ -128,7 +130,7 @@ async fn invoke(
     )
 }
 
-pub(crate) async fn execute(state: &Arc<AppState>, call: &ToolCall) -> ToolResult {
+pub(crate) async fn claim_and_execute(state: &Arc<AppState>, call: &ToolCall) -> ToolResult {
     // No key: nothing to dedupe, run straight through.
     let Some(key) = idem_key(call) else {
         return run_tool(state, call).await;
@@ -155,6 +157,7 @@ pub(crate) async fn execute(state: &Arc<AppState>, call: &ToolCall) -> ToolResul
                 ok: false,
                 output: Value::Null,
                 error: Some(idempotency::ERR_MISMATCH.to_string()),
+                dry_run: false,
             }
         }
         Ok(idempotency::Claim::InFlight) => {
@@ -177,21 +180,31 @@ async fn run_tool(state: &Arc<AppState>, call: &ToolCall) -> ToolResult {
             ok: false,
             output: Value::Null,
             error: Some(format!("no executor registered for `{}`", call.tool)),
+            dry_run: false,
         };
     };
 
     match tool.execute(&call.args).await {
-        Ok(output) => ToolResult {
-            call_id: call.id,
-            ok: true,
-            output,
-            error: None,
-        },
+        Ok(output) => {
+            // Executors that lack credentials return a `dry_run` payload.
+            let dry_run = output
+                .get("dry_run")
+                .and_then(Value::as_bool)
+                .unwrap_or(false);
+            ToolResult {
+                call_id: call.id,
+                ok: true,
+                output,
+                error: None,
+                dry_run,
+            }
+        }
         Err(e) => ToolResult {
             call_id: call.id,
             ok: false,
             output: Value::Null,
             error: Some(format!("{e:#}")),
+            dry_run: false,
         },
     }
 }
