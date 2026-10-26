@@ -56,5 +56,8 @@ pub async fn get_playbook(Path(name): Path<String>) -> Result<Json<Value>, ApiEr
         .into_iter()
         .find(|p| p["name"].as_str() == Some(name.as_str()))
         .map(Json)
-        .ok_or(api_err(StatusCode::NOT_FOUND, format!("playbook {name} not found")))
+        .ok_or(api_err(
+            StatusCode::NOT_FOUND,
+            format!("playbook {name} not found"),
+        ))
 }

@@ -106,6 +106,10 @@ pub struct ToolPolicy {
     pub autonomy: Autonomy,
     #[serde(default)]
     pub args_schema: Option<serde_yaml_ng::Value>,
+    /// Accepted argument aliases (`alias: canonical`) applied before schema
+    /// validation, so callers may use either spelling.
+    #[serde(default)]
+    pub aliases: HashMap<String, String>,
     #[serde(default)]
     pub blast_radius: Option<BlastRadius>,
     #[serde(default)]
@@ -304,10 +308,31 @@ impl PolicyEngine {
             serde_yaml_ng::from_str(&prot_text).context("parse protected-assets.yml")?;
         let protected = Protected::from_raw(prot_file.protected)?;
 
-        Ok(Self {
-            tools,
-            protected,
-        })
+        Ok(Self { tools, protected })
+    }
+
+    /// Renames alias argument keys to their canonical spelling in `call.args`.
+    ///
+    /// Runs before validation, so `tools.yml` is the single source of truth for
+    /// both the schema and the accepted alternative key names.
+    pub fn canonicalize(&self, call: &mut ToolCall) {
+        let Some(tool) = self.tools.get(&call.tool) else {
+            return;
+        };
+        if tool.policy.aliases.is_empty() {
+            return;
+        }
+        let Some(args) = call.args.as_object_mut() else {
+            return;
+        };
+        for (alias, canonical) in &tool.policy.aliases {
+            if args.contains_key(canonical) {
+                continue;
+            }
+            if let Some(value) = args.remove(alias) {
+                args.insert(canonical.clone(), value);
+            }
+        }
     }
 
     /// Sorted names of every allowlisted tool (including `autonomy: deny`
@@ -436,10 +461,7 @@ impl PolicyEngine {
                     if now_min.saturating_sub(*prev) < *cd {
                         return decide(
                             DecisionKind::Deny,
-                            format!(
-                                "cooldown active for `{}` on `{ck}` ({cd}m)",
-                                call.tool
-                            ),
+                            format!("cooldown active for `{}` on `{ck}` ({cd}m)", call.tool),
                         );
                     }
                 }
@@ -584,8 +606,7 @@ mod tests {
     #[tokio::test]
     async fn unknown_tool_is_denied() {
         let mut ctx = EvalCtx::new();
-        let d = engine()
-            .evaluate(&call("nope.missing", json!({})), &mut ctx);
+        let d = engine().evaluate(&call("nope.missing", json!({})), &mut ctx);
         assert!(matches!(&d.kind, DecisionKind::Deny));
         assert!(d.reason.contains("allowlist"));
     }
@@ -593,8 +614,7 @@ mod tests {
     #[tokio::test]
     async fn deny_listed_tool_is_denied() {
         let mut ctx = EvalCtx::new();
-        let d = engine()
-            .evaluate(&call("host.shutdown", json!({})), &mut ctx);
+        let d = engine().evaluate(&call("host.shutdown", json!({})), &mut ctx);
         assert!(matches!(&d.kind, DecisionKind::Deny));
     }
 
@@ -602,25 +622,23 @@ mod tests {
     async fn schema_violation_is_denied() {
         let mut ctx = EvalCtx::new();
         // `duration_minutes` exceeds the schema maximum (10080).
-        let d = engine()
-            .evaluate(
-                &call(
-                    "blocklist.ip.add",
-                    json!({"ip": "203.0.113.9", "duration_minutes": 99999}),
-                ),
-                &mut ctx,
-            );
+        let d = engine().evaluate(
+            &call(
+                "blocklist.ip.add",
+                json!({"ip": "203.0.113.9", "duration_minutes": 99999}),
+            ),
+            &mut ctx,
+        );
         assert!(matches!(&d.kind, DecisionKind::Deny), "got {d:?}");
     }
 
     #[tokio::test]
     async fn rfc1918_ip_is_blocked() {
         let mut ctx = EvalCtx::new();
-        let d = engine()
-            .evaluate(
-                &call("blocklist.ip.add", json!({"ip": "10.1.2.3"})),
-                &mut ctx,
-            );
+        let d = engine().evaluate(
+            &call("blocklist.ip.add", json!({"ip": "10.1.2.3"})),
+            &mut ctx,
+        );
         assert!(matches!(&d.kind, DecisionKind::Deny));
         assert!(d.reason.contains("forbidden"));
     }
@@ -628,11 +646,10 @@ mod tests {
     #[tokio::test]
     async fn protected_user_is_denied() {
         let mut ctx = EvalCtx::new();
-        let d = engine()
-            .evaluate(
-                &call("ad.user.disable", json!({"sam_account_name": "svc-agent"})),
-                &mut ctx,
-            );
+        let d = engine().evaluate(
+            &call("ad.user.disable", json!({"sam_account_name": "svc-agent"})),
+            &mut ctx,
+        );
         assert!(matches!(&d.kind, DecisionKind::Deny), "got {d:?}");
         assert!(d.reason.contains("protected"));
     }
@@ -643,24 +660,22 @@ mod tests {
         let e = engine();
         // max_per_hour for isolate_host is 5; vary agent_id to dodge cooldown.
         for i in 1..=5u32 {
-            let d = e
-                .evaluate(
-                    &call(
-                        "wazuh.active_response.isolate_host",
-                        json!({"agent_id": format!("{i:03}")}),
-                    ),
-                    &mut ctx,
-                );
-            assert!(matches!(&d.kind, DecisionKind::Allow), "call {i}: {d:?}");
-        }
-        let d = e
-            .evaluate(
+            let d = e.evaluate(
                 &call(
                     "wazuh.active_response.isolate_host",
-                    json!({"agent_id": "099"}),
+                    json!({"agent_id": format!("{i:03}")}),
                 ),
                 &mut ctx,
             );
+            assert!(matches!(&d.kind, DecisionKind::Allow), "call {i}: {d:?}");
+        }
+        let d = e.evaluate(
+            &call(
+                "wazuh.active_response.isolate_host",
+                json!({"agent_id": "099"}),
+            ),
+            &mut ctx,
+        );
         assert!(matches!(&d.kind, DecisionKind::Deny));
         assert!(d.reason.contains("blast radius"));
     }
@@ -670,14 +685,12 @@ mod tests {
         let mut ctx = EvalCtx::new();
         let e = engine();
         let args = json!({"agent_id": "777"});
-        let d1 = e
-            .evaluate(
-                &call("wazuh.active_response.isolate_host", args.clone()),
-                &mut ctx,
-            );
+        let d1 = e.evaluate(
+            &call("wazuh.active_response.isolate_host", args.clone()),
+            &mut ctx,
+        );
         assert!(matches!(&d1.kind, DecisionKind::Allow), "{d1:?}");
-        let d2 = e
-            .evaluate(&call("wazuh.active_response.isolate_host", args), &mut ctx);
+        let d2 = e.evaluate(&call("wazuh.active_response.isolate_host", args), &mut ctx);
         assert!(matches!(&d2.kind, DecisionKind::Deny));
         assert!(d2.reason.contains("cooldown"));
     }
@@ -685,11 +698,10 @@ mod tests {
     #[tokio::test]
     async fn allowlisted_tool_is_allowed() {
         let mut ctx = EvalCtx::new();
-        let d = engine()
-            .evaluate(
-                &call("opensearch.query", json!({"index": "alerts-*"})),
-                &mut ctx,
-            );
+        let d = engine().evaluate(
+            &call("opensearch.query", json!({"index": "alerts-*"})),
+            &mut ctx,
+        );
         assert!(matches!(&d.kind, DecisionKind::Allow), "got {d:?}");
     }
 
@@ -698,8 +710,7 @@ mod tests {
     async fn misp_writes_require_approval() {
         for tool in ["misp.attribute.add", "misp.ioc.block", "misp.sighting.add"] {
             let mut ctx = EvalCtx::new();
-            let d = engine()
-                .evaluate(&call(tool, json!({"event_id": "1"})), &mut ctx);
+            let d = engine().evaluate(&call(tool, json!({"event_id": "1"})), &mut ctx);
             assert!(
                 matches!(&d.kind, DecisionKind::ApprovalRequired),
                 "{tool} should require approval, got {d:?}"
@@ -711,22 +722,42 @@ mod tests {
     #[tokio::test]
     async fn approved_call_skips_autonomy_but_keeps_schema() {
         let mut ctx = EvalCtx::new();
-        let ok = engine()
-            .evaluate_approved(
-                &call("misp.sighting.add", json!({"value": "203.0.113.9"})),
-                &mut ctx,
-            );
+        let ok = engine().evaluate_approved(
+            &call("misp.sighting.add", json!({"value": "203.0.113.9"})),
+            &mut ctx,
+        );
         assert!(matches!(&ok.kind, DecisionKind::Allow), "got {ok:?}");
 
-        let bad = engine()
-            .evaluate_approved(
-                &call("misp.event.view", json!({"event_id": "not-a-number"})),
-                &mut ctx,
-            );
+        let bad = engine().evaluate_approved(
+            &call("misp.event.view", json!({"event_id": "not-a-number"})),
+            &mut ctx,
+        );
         assert!(
             matches!(&bad.kind, DecisionKind::Deny),
             "schema must still deny, got {bad:?}"
         );
+    }
+
+    #[test]
+    fn canonicalize_renames_aliases() {
+        let e = engine();
+        let mut c = call("misp.attribute.search", json!({"ioc": "1.2.3.4"}));
+        e.canonicalize(&mut c);
+        assert_eq!(c.args["value"], "1.2.3.4");
+        assert!(c.args.get("ioc").is_none());
+
+        // Canonical spelling wins when both are present.
+        let mut c = call(
+            "misp.attribute.search",
+            json!({"ioc": "alias", "value": "canonical"}),
+        );
+        e.canonicalize(&mut c);
+        assert_eq!(c.args["value"], "canonical");
+
+        // Unknown tools and non-object args are left alone.
+        let mut c = call("no.such.tool", json!({"ioc": "x"}));
+        e.canonicalize(&mut c);
+        assert_eq!(c.args["ioc"], "x");
     }
 
     #[tokio::test]
@@ -780,12 +811,18 @@ mod tests {
 
         // wazuh.active_response.kill_process: pid must be >= 1.
         let ok = e.evaluate(
-            &call("wazuh.active_response.kill_process", json!({"agent_id": "001", "pid": 42})),
+            &call(
+                "wazuh.active_response.kill_process",
+                json!({"agent_id": "001", "pid": 42}),
+            ),
             &mut ctx,
         );
         assert!(matches!(ok.kind, DecisionKind::Allow), "{ok:?}");
         let bad = e.evaluate(
-            &call("wazuh.active_response.kill_process", json!({"agent_id": "001", "pid": 0})),
+            &call(
+                "wazuh.active_response.kill_process",
+                json!({"agent_id": "001", "pid": 0}),
+            ),
             &mut ctx,
         );
         assert!(matches!(bad.kind, DecisionKind::Deny), "{bad:?}");
@@ -793,8 +830,14 @@ mod tests {
         // nvd.lookup_cve / cvss.score / detection.sigma.deploy are allowlisted.
         for (tool, args) in [
             ("nvd.lookup_cve", json!({"cve_id": "CVE-2024-1234"})),
-            ("cvss.score", json!({"vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"})),
-            ("detection.sigma.deploy", json!({"rule_path": "detection-content/active/x.yml"})),
+            (
+                "cvss.score",
+                json!({"vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"}),
+            ),
+            (
+                "detection.sigma.deploy",
+                json!({"rule_path": "detection-content/active/x.yml"}),
+            ),
         ] {
             let d = e.evaluate(&call(tool, args), &mut ctx);
             assert!(matches!(d.kind, DecisionKind::Allow), "{tool}: {d:?}");

@@ -6,10 +6,10 @@ info:
     Read models and control API for the Ares console, plus the A2A and ACP
     agent-interop surfaces. Fronted by `api-gateway` under `/api/*`.
 
-    **Error bodies**: this service returns `text/plain` messages for its own
-    failures (`(StatusCode, String)` in axum). Only the rate limiter emits JSON
-    (`{"error": "rate_limit_exceeded"}`). See `docs/openapi/README.md` for the
-    planned migration to the structured error envelope.
+    **Error bodies**: failures use the shared envelope
+    `{"error": {"code", "message", "details"?}}` (see the `Error` schema). The
+    ACP endpoints are the one exception: their `{code, message, data}` shape is
+    mandated by the ACP specification itself.
   x-versioning: |
     Paths are unversioned today (no `/v1` prefix).
 servers:
@@ -375,8 +375,9 @@ paths:
         '404':
           description: No NVD record (unknown, reserved or rejected CVE id)
           content:
-            text/plain:
-              schema: { type: string }
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /vulns/{cve_id}/history:
     get:
@@ -713,23 +714,27 @@ components:
     BadRequest:
       description: Invalid input
       content:
-        text/plain:
-          schema: { type: string }
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     NotFound:
       description: Resource not found
       content:
-        text/plain:
-          schema: { type: string }
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     ServerError:
       description: Internal failure
       content:
-        text/plain:
-          schema: { type: string }
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     UpstreamError:
       description: Upstream dependency failed (OpenSearch, NVD, TheHive, Postgres)
       content:
-        text/plain:
-          schema: { type: string }
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     AcpError:
       description: Structured ACP error
       content:
@@ -738,6 +743,31 @@ components:
             $ref: '#/components/schemas/AcpError'
 
   schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Stable machine-readable class.
+              enum:
+                [BAD_REQUEST, VALIDATION_ERROR, UNAUTHORIZED, NOT_FOUND, CONFLICT,
+                 RATE_LIMITED, UPSTREAM_ERROR, INTERNAL_ERROR, SERVICE_UNAVAILABLE]
+            message:
+              type: string
+            details:
+              type: array
+              description: Field-scoped problems; omitted when empty.
+              items:
+                type: object
+                properties:
+                  field: { type: string }
+                  message: { type: string }
+
     AuditRow:
       type: object
       properties:

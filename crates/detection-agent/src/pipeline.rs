@@ -6,7 +6,7 @@ use std::process::Command;
 use agent_protocol::tool::ToolCall;
 use anyhow::Context;
 use connectors::OpensearchClient;
-use llm_client::{CompletionRequest, LlmProvider, Message, Role, strong_model};
+use llm_client::{strong_model, CompletionRequest, LlmProvider, Message, Role};
 use serde_json::{json, Value};
 use tracing::{info, warn};
 use uuid::Uuid;
@@ -314,7 +314,10 @@ mod tests {
 
     #[test]
     fn slugify_lowercases_and_hyphenates() {
-        assert_eq!(slugify("Suspicious PowerShell Encoded Command"), "suspicious-powershell-encoded-command");
+        assert_eq!(
+            slugify("Suspicious PowerShell Encoded Command"),
+            "suspicious-powershell-encoded-command"
+        );
         assert_eq!(slugify("  Odd / Chars -- Here!  "), "odd-chars-here");
     }
 }

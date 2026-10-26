@@ -11,12 +11,10 @@ mod hypotheses;
 use std::sync::Arc;
 use std::time::Duration;
 
-use agent_protocol::envelope::Envelope;
 use agent_protocol::SUBJECT_HUNT;
 use anyhow::Context;
 use clap::Parser;
 use connectors::{ConnectorConfig, NewCase, OpensearchClient};
-use futures::StreamExt;
 use serde_json::Value;
 use tracing::{error, info, warn, Instrument};
 use uuid::Uuid;
@@ -55,7 +53,6 @@ struct Deps {
     os: Arc<OpensearchClient>,
     gateway: Arc<HttpToolGateway>,
 }
-
 
 /// Scores a hunt result set: distinct-host hits weigh more than repeat noise.
 ///
@@ -124,7 +121,10 @@ async fn open_finding(
     };
     let created = gateway.invoke_allowed(&call).await?;
     info!(
-        case_id = created.get("id").and_then(serde_json::Value::as_str).unwrap_or("?"),
+        case_id = created
+            .get("id")
+            .and_then(serde_json::Value::as_str)
+            .unwrap_or("?"),
         hunt = h.id,
         "hunt finding case opened"
     );
@@ -215,13 +215,6 @@ async fn main() -> anyhow::Result<()> {
         gateway: Arc::new(HttpToolGateway::new(config.tool_server_url.clone())),
     });
 
-    let mut sub = nats.subscribe(SUBJECT_HUNT.to_string()).await?;
-    info!(
-        subject = SUBJECT_HUNT,
-        interval_s = config.hunt_interval_secs,
-        "hunt-agent started"
-    );
-
     let cron_deps = deps.clone();
     let interval_secs = config.hunt_interval_secs;
     tokio::spawn(async move {
@@ -237,32 +230,16 @@ async fn main() -> anyhow::Result<()> {
         }
     });
 
-    while let Some(msg) = sub.next().await {
+    // Findings go to TheHive + ares.activity only: publishing back onto
+    // SUBJECT_HUNT would self-trigger an endless sweep.
+    agent_core::run_worker(&nats, SUBJECT_HUNT, "hunt", move |envelope| {
         let deps = deps.clone();
-        tokio::spawn(async move {
-            let result: anyhow::Result<()> = async {
-                let envelope: Envelope =
-                    serde_json::from_slice(&msg.payload).context("parse envelope")?;
-                let span = tracing::info_span!(
-                    "hunt",
-                    workflow_run_id = %envelope.correlation_id,
-                    envelope_id = %envelope.id,
-                    kind = ?envelope.kind,
-                );
-                // NOTE: findings go to TheHive + ares.activity only. Publishing
-                // back onto SUBJECT_HUNT would self-trigger an endless sweep.
-                let _findings = run_sweep(&deps, envelope.correlation_id)
-                    .instrument(span)
-                    .await?;
-                Ok(())
-            }
-            .await;
-            if let Err(e) = result {
-                error!(error = %e, "triggered hunt failed");
-            }
-        });
-    }
-    Ok(())
+        async move {
+            run_sweep(&deps, envelope.correlation_id).await?;
+            Ok(())
+        }
+    })
+    .await
 }
 
 #[cfg(test)]
@@ -284,4 +261,3 @@ mod tests {
         assert_eq!(score_hits(&json!({})), 0);
     }
 }
-

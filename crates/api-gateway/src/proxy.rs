@@ -134,11 +134,12 @@ async fn forward(s: Arc<AppState>, route: Route, path: String, req: Request) -> 
     let body = match axum::body::to_bytes(req.into_body(), MAX_REQUEST_BODY).await {
         Ok(b) => b,
         Err(_) => {
-            return (
+            return http_limits::error::ApiError::new(
                 StatusCode::PAYLOAD_TOO_LARGE,
-                Json(json!({"error": "request_body_too_large"})),
+                http_limits::error::code::BAD_REQUEST,
+                "request body too large",
             )
-                .into_response()
+            .into_response()
         }
     };
 
@@ -148,10 +149,8 @@ async fn forward(s: Arc<AppState>, route: Route, path: String, req: Request) -> 
         Route::Tools => &s.tools_upstreams,
     };
     if bases.is_empty() {
-        return (
-            StatusCode::BAD_GATEWAY,
-            Json(json!({"error": "no upstream configured", "route": route.label()})),
-        )
+        return http_limits::error::ApiError::upstream("no upstream configured")
+            .with_detail("route", route.label())
             .into_response();
     }
     let base = &bases[s.rr.next(route, bases.len())];
@@ -189,10 +188,8 @@ async fn forward(s: Arc<AppState>, route: Route, path: String, req: Request) -> 
         Err(e) => {
             warn!(route = route.label(), upstream = %url, error = %e, "upstream request failed");
             s.metrics.record(route.label(), 502, started.elapsed());
-            return (
-                StatusCode::BAD_GATEWAY,
-                Json(json!({"error": "upstream_unavailable", "upstream": url})),
-            )
+            return http_limits::error::ApiError::upstream("upstream unavailable")
+                .with_detail("upstream", url)
                 .into_response();
         }
     };
@@ -279,10 +276,7 @@ pub async fn aggregate(State(s): State<Arc<AppState>>) -> Response {
     let base = match s.api_upstreams.first() {
         Some(b) => b.trim_end_matches('/').to_string(),
         None => {
-            return (
-                StatusCode::BAD_GATEWAY,
-                Json(json!({"error": "no api upstream configured"})),
-            )
+            return http_limits::error::ApiError::upstream("no api upstream configured")
                 .into_response()
         }
     };

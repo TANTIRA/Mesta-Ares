@@ -1,8 +1,28 @@
 {
   "version": 8,
   "created": "2026-10-26T08:16:14+00:00",
-  "updated": "2026-10-26T10:30:21+00:00",
+  "updated": "2026-10-26T10:31:18+00:00",
   "queue_order": [
+    "subjective::abstraction_fitness",
+    "subjective::ai_generated_debt",
+    "subjective::api_surface_coherence",
+    "subjective::authorization_consistency",
+    "subjective::contract_coherence",
+    "subjective::convention_outlier",
+    "subjective::cross_module_architecture",
+    "subjective::dependency_health",
+    "subjective::design_coherence",
+    "subjective::error_consistency",
+    "subjective::high_level_elegance",
+    "subjective::incomplete_migration",
+    "subjective::initialization_coupling",
+    "subjective::logic_clarity",
+    "subjective::low_level_elegance",
+    "subjective::mid_level_elegance",
+    "subjective::naming_quality",
+    "subjective::package_organization",
+    "subjective::test_strategy",
+    "subjective::type_safety",
     "review::.::holistic::ai_generated_debt::agent-core-unused-framework",
     "review::.::holistic::ai_generated_debt::restating-field-docs",
     "review::.::holistic::ai_generated_debt::unwrap-or-default-on-infallible-serde",
@@ -39,20 +59,6 @@
     "review::.::holistic::type_safety::cvss_metric_fields_default_not_option",
     "review::.::holistic::type_safety::persisted_state_bypasses_enums",
     "review::.::holistic::type_safety::policy_forbidden_class_strings",
-    "subjective::ai_generated_debt",
-    "subjective::api_surface_coherence",
-    "subjective::authorization_consistency",
-    "subjective::contract_coherence",
-    "subjective::convention_outlier",
-    "subjective::cross_module_architecture",
-    "subjective::design_coherence",
-    "subjective::error_consistency",
-    "subjective::high_level_elegance",
-    "subjective::incomplete_migration",
-    "subjective::initialization_coupling",
-    "subjective::mid_level_elegance",
-    "subjective::package_organization",
-    "subjective::type_safety",
     "review::.::holistic::abstraction_fitness::nats_sink_bypassed_by_producers",
     "review::.::holistic::abstraction_fitness::tool_gateway_bypassed_for_thehive_writes",
     "review::.::holistic::dependency_health::compose_latest_tags",
@@ -69,7 +75,14 @@
     "review::.::holistic::test_strategy::dry_run_success_contract_untested",
     "review::.::holistic::test_strategy::eval_harness_is_stub",
     "review::.::holistic::test_strategy::no_db_integration_harness",
-    "review::.::holistic::test_strategy::shared_run_stream_db_coupled"
+    "review::.::holistic::test_strategy::shared_run_stream_db_coupled",
+    "triage::strategize",
+    "triage::observe",
+    "triage::reflect",
+    "triage::organize",
+    "triage::enrich",
+    "triage::sense-check",
+    "triage::commit"
   ],
   "deferred": [],
   "skipped": {
@@ -3293,15 +3306,15 @@
   },
   "promoted_ids": [],
   "plan_start_scores": {
-    "strict": 77.7,
-    "overall": 78.3,
-    "objective": 84.1,
-    "verified": 84.1
+    "strict": 78.6,
+    "overall": 80.6,
+    "objective": 90.9,
+    "verified": 90.9
   },
   "refresh_state": {
     "_subjective_migration_pruned": true,
     "lifecycle_phase": "plan",
-    "postflight_scan_completed_at_scan_count": 3,
+    "postflight_scan_completed_at_scan_count": 6,
     "subjective_review_completed_at_scan_count": 5
   },
   "execution_log": [
@@ -11382,6 +11395,48 @@
         "status": "fixed",
         "attestation": "I have actually Fixed in the follow-up pass: ActivityEvent is Deserialize with one typed filter in run_stream; terminal_step/aborted_step moved to agent-protocol (hunt now emits a done step so its SSE closes); duplicate paths module, duplicate SUBJECT_ACTIVITY and the a2a publish pass-through removed; audit hashes microsecond precision and shares canonical_string; bas execute lost its unreachable dry param; gateway returns AgentError::Gateway for non-2xx instead of fabricating a Deny; NVD 404 is a typed NvdStatusError; the unreachable MAX_DELIVERIES guard is gone; blast-radius counters only increment on allow; a kill-switch halt no longer writes a Final checkpoint; response-agent drops the always-Some Option; /vulns returns 502 on NVD outage; api-gateway uses http_limits::build_limiter with auth outermost; dedupe hex passthrough and orphan doc comments removed; audit's dead reqwest variant, unused deps and jsonschema default features dropped; tests cover auth middleware branches and the activity terminal-step contract. and I am not gaming the score."
       }
+    },
+    {
+      "timestamp": "2026-10-26T10:31:18+00:00",
+      "action": "sync_subjective",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:31:18+00:00",
+      "action": "sync_triage",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "injected": true
+      }
+    },
+    {
+      "timestamp": "2026-10-26T10:31:18+00:00",
+      "action": "seed_start_scores",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-10-26T10:31:18+00:00",
+      "action": "complete_postflight_scan",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "scan_count": 6
+      }
     }
   ],
   "epic_triage_meta": {},
@@ -11550,5 +11605,11 @@
     "review::.::holistic::test_strategy::auth_middleware_decision_untested"
   ],
   "commit_tracking_branch": null,
-  "scan_count_at_plan_start": 3
+  "scan_count_at_plan_start": 6,
+  "previous_plan_start_scores": {
+    "strict": 77.7,
+    "overall": 78.3,
+    "objective": 84.1,
+    "verified": 84.1
+  }
 }

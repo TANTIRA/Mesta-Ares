@@ -71,12 +71,7 @@ mod tests {
 
     #[test]
     fn parse_and_rank_agree() {
-        for (text, rank) in [
-            ("low", 1),
-            ("Medium", 2),
-            (" high ", 3),
-            ("CRITICAL", 4),
-        ] {
+        for (text, rank) in [("low", 1), ("Medium", 2), (" high ", 3), ("CRITICAL", 4)] {
             let sev = Severity::parse(text).expect(text);
             assert_eq!(sev.rank(), rank);
         }

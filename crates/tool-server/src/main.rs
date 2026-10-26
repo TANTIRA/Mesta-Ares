@@ -65,6 +65,9 @@ async fn invoke(
     // The body's actor is advisory; the authenticated identity wins so policy
     // and audit see a verified caller.
     call.actor = actor.0;
+    // Rename alias argument keys to their canonical spelling (policies/tools.yml
+    // owns the mapping) before the schema check sees them.
+    state.engine.canonicalize(&mut call);
     info!(tool = %call.tool, actor = %call.actor, "invoke received");
 
     let decision = {
@@ -96,7 +99,7 @@ async fn invoke(
         DecisionKind::Allow => (claim_and_execute(&state, &call).await, None),
         DecisionKind::Deny => (
             ToolResult {
-                call_id: call.id.clone(),
+                call_id: call.id,
                 ok: false,
                 output: Value::Null,
                 error: Some(format!("denied: {}", decision.reason)),
@@ -109,7 +112,7 @@ async fn invoke(
             let id = state.approvals.insert(&call, &decision.reason);
             (
                 ToolResult {
-                    call_id: call.id.clone(),
+                    call_id: call.id,
                     ok: false,
                     output: Value::Null,
                     error: Some(format!(
@@ -237,9 +240,7 @@ async fn main() -> Result<()> {
     let registry = executors::build_registry(&cfg);
     let missing = executors::missing_executors(&registry, &engine.tool_names());
     if !missing.is_empty() {
-        anyhow::bail!(
-            "allowlisted tools have no executor: {missing:?}; refusing to start"
-        );
+        anyhow::bail!("allowlisted tools have no executor: {missing:?}; refusing to start");
     }
 
     let pg = match std::env::var("DATABASE_URL") {
@@ -341,7 +342,10 @@ mod tests {
         let engine = PolicyEngine::load(&policies_dir()).expect("load policies");
         let registry = executors::build_registry(&ConnectorConfig::default());
         let missing = executors::missing_executors(&registry, &engine.tool_names());
-        assert!(missing.is_empty(), "allowlisted tools without executor: {missing:?}");
+        assert!(
+            missing.is_empty(),
+            "allowlisted tools without executor: {missing:?}"
+        );
     }
 
     #[tokio::test]

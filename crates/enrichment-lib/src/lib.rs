@@ -265,7 +265,11 @@ impl Enricher {
             .map(|k| stats[k].as_u64().unwrap_or(0))
             .sum();
         let score = if total > 0 {
-            ((malicious * 100) / total).min(100) as u8
+            (malicious
+                .checked_mul(100)
+                .and_then(|n| n.checked_div(total))
+                .unwrap_or(0))
+            .min(100) as u8
         } else {
             0
         };
@@ -492,5 +496,4 @@ mod tests {
             100
         );
     }
-
 }

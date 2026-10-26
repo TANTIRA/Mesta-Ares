@@ -17,6 +17,7 @@
 //! `Retry-After: <seconds>` and `{"error":"rate_limit_exceeded"}`.
 
 pub mod auth;
+pub mod error;
 
 use std::{
     io::ErrorKind,
@@ -29,15 +30,13 @@ use std::{
 use axum::{
     body::Body,
     extract::{ConnectInfo, Request, State},
-    http::{header, HeaderMap, HeaderValue, StatusCode},
+    http::{header, HeaderMap, HeaderValue},
     middleware::Next,
     response::{IntoResponse, Response},
-    Json,
 };
 use dashmap::DashMap;
 use futures::StreamExt;
 use serde::Deserialize;
-use serde_json::json;
 use tokio::sync::Semaphore;
 use tracing::warn;
 
@@ -87,10 +86,22 @@ pub struct RateLimits {
 impl Default for RateLimits {
     fn default() -> Self {
         Self {
-            general: TierSpec { per_second: 60, burst: 120 },
-            expensive: TierSpec { per_second: 10, burst: 20 },
-            kill_switch: TierSpec { per_second: 1, burst: 5 },
-            ingest: TierSpec { per_second: 100, burst: 500 },
+            general: TierSpec {
+                per_second: 60,
+                burst: 120,
+            },
+            expensive: TierSpec {
+                per_second: 10,
+                burst: 20,
+            },
+            kill_switch: TierSpec {
+                per_second: 1,
+                burst: 5,
+            },
+            ingest: TierSpec {
+                per_second: 100,
+                burst: 500,
+            },
             sse_max_concurrent: 20,
         }
     }
@@ -126,7 +137,10 @@ impl RateLimits {
             Tier::KillSwitch => self.kill_switch,
             Tier::Ingest => self.ingest,
             // Exempt/Stream never reach this; return a deny-nothing spec.
-            _ => TierSpec { per_second: u32::MAX, burst: u32::MAX },
+            _ => TierSpec {
+                per_second: u32::MAX,
+                burst: u32::MAX,
+            },
         }
     }
 }
@@ -209,8 +223,8 @@ impl RateLimiter {
         });
         let rate = spec.per_second as f64;
         let cap = spec.burst as f64;
-        entry.tokens = (entry.tokens + now.duration_since(entry.last_seen).as_secs_f64() * rate)
-            .min(cap);
+        entry.tokens =
+            (entry.tokens + now.duration_since(entry.last_seen).as_secs_f64() * rate).min(cap);
         entry.last_seen = now;
         let epoch_now = epoch_secs();
         // `as u64` saturates on inf/NaN (rate or cap zero) — defined behavior.
@@ -245,12 +259,10 @@ fn set_headers(headers: &mut HeaderMap, limit: u32, remaining: u32, reset: u64) 
     headers.insert("x-ratelimit-reset", HeaderValue::from(reset));
 }
 
-/// Builds the 429 response: `Retry-After` delay-seconds plus the JSON error.
+/// Builds the 429 response: `Retry-After` delay-seconds plus the error envelope.
 fn limited_response(limit: u32, retry_after: u64, reset: u64) -> Response {
-    let mut res = (
-        StatusCode::TOO_MANY_REQUESTS,
-        Json(json!({"error": "rate_limit_exceeded", "retry_after": retry_after})),
-    )
+    let mut res = crate::error::ApiError::rate_limited("rate limit exceeded")
+        .with_detail("retry_after", retry_after.to_string())
         .into_response();
     let headers = res.headers_mut();
     headers.insert(header::RETRY_AFTER, HeaderValue::from(retry_after));
@@ -266,11 +278,7 @@ fn limited_response(limit: u32, retry_after: u64, reset: u64) -> Response {
 ///
 /// and serve with `into_make_service_with_connect_info::<SocketAddr>()` so
 /// peer IPs are available.
-pub async fn middleware(
-    State(rl): State<Arc<RateLimiter>>,
-    req: Request,
-    next: Next,
-) -> Response {
+pub async fn middleware(State(rl): State<Arc<RateLimiter>>, req: Request, next: Next) -> Response {
     let tier = (rl.classify)(&req);
     if tier == Tier::Exempt {
         return next.run(req).await;
@@ -298,9 +306,10 @@ pub async fn middleware(
         // when the stream ends or the connection drops — a `Semaphore` held
         // by the middleware alone would release when the handler returns.
         let (parts, body) = res.into_parts();
-        let guarded = futures::stream::unfold((body.into_data_stream(), permit), |(mut s, p)| {
-            async move { s.next().await.map(|item| (item, (s, p))) }
-        });
+        let guarded =
+            futures::stream::unfold((body.into_data_stream(), permit), |(mut s, p)| async move {
+                s.next().await.map(|item| (item, (s, p)))
+            });
         let mut res = Response::from_parts(parts, Body::from_stream(guarded));
         set_headers(
             res.headers_mut(),
@@ -318,27 +327,35 @@ pub async fn middleware(
             set_headers(res.headers_mut(), spec.burst, remaining, reset);
             res
         }
-        Outcome::Limited { retry_after, reset } => {
-            limited_response(spec.burst, retry_after, reset)
-        }
+        Outcome::Limited { retry_after, reset } => limited_response(spec.burst, retry_after, reset),
     }
+}
+
+/// Builds a limiter for `classify` using `$POLICIES_DIR/rate-limits.yml` and
+/// starts its idle-key purge task. One implementation for every edge service.
+pub fn build_limiter(classify: fn(&Request) -> Tier) -> Arc<RateLimiter> {
+    let dir = agent_protocol::paths::dir_from_env("POLICIES_DIR", "policies");
+    let limits = RateLimits::load(&dir.join("rate-limits.yml"));
+    let limiter = Arc::new(RateLimiter::new(limits, classify));
+    limiter.spawn_idle_purge();
+    limiter
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use axum::http::StatusCode;
     use axum::{body::to_bytes, routing::get, Router};
     use std::net::{Ipv4Addr, SocketAddrV4};
     use tower::ServiceExt;
 
     fn peer_req(uri: &str) -> Request {
-        let mut r = Request::builder()
-            .uri(uri)
-            .body(Body::empty())
-            .unwrap();
-        r.extensions_mut().insert(ConnectInfo(SocketAddr::V4(
-            SocketAddrV4::new(Ipv4Addr::LOCALHOST, 4321),
-        )));
+        let mut r = Request::builder().uri(uri).body(Body::empty()).unwrap();
+        r.extensions_mut()
+            .insert(ConnectInfo(SocketAddr::V4(SocketAddrV4::new(
+                Ipv4Addr::LOCALHOST,
+                4321,
+            ))));
         r
     }
 
@@ -351,7 +368,10 @@ mod tests {
     #[test]
     fn bucket_allows_burst_then_limits() {
         let rl = RateLimiter::new(RateLimits::default(), |_| Tier::General);
-        let spec = TierSpec { per_second: 1, burst: 2 };
+        let spec = TierSpec {
+            per_second: 1,
+            burst: 2,
+        };
         let key = IpAddr::V4(Ipv4Addr::LOCALHOST);
         let now = Instant::now();
         assert!(matches!(
@@ -376,7 +396,10 @@ mod tests {
     #[test]
     fn bucket_refills_over_time() {
         let rl = RateLimiter::new(RateLimits::default(), |_| Tier::General);
-        let spec = TierSpec { per_second: 10, burst: 1 };
+        let spec = TierSpec {
+            per_second: 10,
+            burst: 1,
+        };
         let key = IpAddr::V4(Ipv4Addr::LOCALHOST);
         let t0 = Instant::now();
         assert!(matches!(
@@ -392,8 +415,13 @@ mod tests {
 
     #[tokio::test]
     async fn middleware_allows_then_429s_with_headers() {
-        let mut limits = RateLimits::default();
-        limits.general = TierSpec { per_second: 1, burst: 2 };
+        let limits = RateLimits {
+            general: TierSpec {
+                per_second: 1,
+                burst: 2,
+            },
+            ..RateLimits::default()
+        };
         let app = app(Arc::new(RateLimiter::new(limits, |_| Tier::General)));
 
         for _ in 0..2 {
@@ -408,15 +436,22 @@ mod tests {
         assert!(res.headers().get(header::RETRY_AFTER).is_some());
         let body = to_bytes(res.into_body(), usize::MAX).await.unwrap();
         let v: serde_json::Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(v["error"], "rate_limit_exceeded");
-        assert!(v["retry_after"].as_u64().unwrap() >= 1);
+        assert_eq!(v["error"]["code"], "RATE_LIMITED");
+        let retry = v["error"]["details"][0]["message"].as_str().unwrap();
+        assert!(
+            retry.parse::<u64>().unwrap() >= 1,
+            "retry_after detail: {retry}"
+        );
     }
 
     #[tokio::test]
     async fn exempt_tier_passes_through_unmetered() {
         let rl = Arc::new(RateLimiter::new(
             RateLimits {
-                general: TierSpec { per_second: 0, burst: 0 },
+                general: TierSpec {
+                    per_second: 0,
+                    burst: 0,
+                },
                 ..RateLimits::default()
             },
             |req| {
@@ -437,8 +472,10 @@ mod tests {
 
     #[tokio::test]
     async fn stream_tier_caps_concurrency() {
-        let mut limits = RateLimits::default();
-        limits.sse_max_concurrent = 2;
+        let limits = RateLimits {
+            sse_max_concurrent: 2,
+            ..RateLimits::default()
+        };
         let rl = RateLimiter::new(limits, |_| Tier::Stream);
         let key = IpAddr::V4(Ipv4Addr::LOCALHOST);
         let sem = rl
@@ -455,14 +492,4 @@ mod tests {
         rl.purge_idle(Duration::ZERO);
         assert!(rl.streams.is_empty());
     }
-}
-
-/// Builds a limiter for `classify` using `$POLICIES_DIR/rate-limits.yml` and
-/// starts its idle-key purge task. One implementation for every edge service.
-pub fn build_limiter(classify: fn(&Request) -> Tier) -> Arc<RateLimiter> {
-    let dir = agent_protocol::paths::dir_from_env("POLICIES_DIR", "policies");
-    let limits = RateLimits::load(&dir.join("rate-limits.yml"));
-    let limiter = Arc::new(RateLimiter::new(limits, classify));
-    limiter.spawn_idle_purge();
-    limiter
 }

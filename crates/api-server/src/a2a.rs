@@ -21,9 +21,9 @@ use std::sync::Arc;
 use a2a::card::{AgentCard, Authentication, Capabilities, Skill};
 use a2a::rpc::{self, BackendError, JsonRpcResponse, TaskBackend};
 use a2a::task::{Message, Part, Role, SendParams, Task, TaskState, TaskStatus};
-use agent_protocol::envelope::{Envelope, EnvelopeKind};
+use agent_protocol::envelope::Envelope;
 use agent_protocol::handoff::HandoffPayload;
-use agent_protocol::{SUBJECT_DETECTION, SUBJECT_HUNT, SUBJECT_RESPOND, SUBJECT_TRIAGE};
+use agent_protocol::SUBJECT_RESPOND;
 use axum::{
     body::Bytes,
     extract::{Path, State},
@@ -38,90 +38,9 @@ use serde_json::{json, Value};
 use sqlx::PgPool;
 use uuid::Uuid;
 
+use crate::agents::{find_agent, AgentDef, AGENTS};
 use crate::run_stream::{self, CheckpointProgress, RunRecord};
 use crate::AppState;
-
-/// Static definition of one A2A-addressable Ares agent.
-pub(crate) struct AgentDef {
-    /// Card name and `/a2a/{name}` path segment.
-    pub(crate) name: &'static str,
-    /// Card description.
-    pub(crate) description: &'static str,
-    /// NATS subject the agent consumes.
-    pub(crate) subject: &'static str,
-    /// Envelope kind that the orchestrator routes to `subject`.
-    pub(crate) kind: EnvelopeKind,
-    /// Value agents put in `ActivityEvent.agent` for this agent.
-    pub(crate) activity_name: &'static str,
-    /// `(id, name, description, tags, examples)` rows for the card's skills.
-    pub(crate) skills: &'static [SkillDef],
-}
-
-/// One skill tuple in an [`AgentDef`].
-type SkillDef = (
-    &'static str,
-    &'static str,
-    &'static str,
-    &'static [&'static str],
-    &'static [&'static str],
-);
-
-/// The four invocable Ares agents.
-pub(crate) const AGENTS: &[AgentDef] = &[
-    AgentDef {
-        name: "triage-agent",
-        description: "Alert triage: IOC extraction, threat-intel enrichment and an LLM verdict (tp/fp/suspicious).",
-        subject: SUBJECT_TRIAGE,
-        kind: EnvelopeKind::Alert,
-        activity_name: "triage",
-        skills: &[
-            ("ioc-extraction", "IOC extraction", "Extract IPs, domains, URLs, hashes and emails from alert JSON.", &["ioc", "parsing"], &["Extract indicators from this alert"]),
-            ("enrichment", "IOC enrichment", "Enrich IOCs against threat-intel providers and compute a composite score.", &["enrichment", "threat-intel"], &["Score the indicators in this alert"]),
-            ("verdict", "Alert verdict", "Issue a tp/fp/suspicious verdict with severity and rationale.", &["verdict", "llm"], &["Triage this Wazuh alert"]),
-        ],
-    },
-    AgentDef {
-        name: "response-agent",
-        description: "Autonomous incident response: plans and executes tool-driven actions for a case.",
-        subject: SUBJECT_RESPOND,
-        kind: EnvelopeKind::Command,
-        activity_name: "response",
-        skills: &[
-            ("containment", "Containment", "Plan and run containment actions (host isolation, blocklists, account disable).", &["response", "containment"], &["Contain the compromised host"]),
-            ("eradication", "Eradication", "Plan and run eradication/recovery actions for an incident.", &["response", "eradication"], &["Remove the persistence mechanism"]),
-            ("planning", "Response planning", "Build an ordered, policy-checked action plan for a case.", &["planning"], &["Draft a response plan for this case"]),
-        ],
-    },
-    AgentDef {
-        name: "detection-agent",
-        description: "Detection-as-code: drafts, validates, backtests and deploys Sigma content.",
-        subject: SUBJECT_DETECTION,
-        kind: EnvelopeKind::Intel,
-        activity_name: "detection",
-        skills: &[
-            ("sigma", "Sigma authoring", "Draft Sigma rules for uncovered threat patterns.", &["sigma", "rules"], &["Write a rule for lateral movement via SMB"]),
-            ("detection-engineering", "Detection engineering", "Validate and promote detection content through the pipeline.", &["pipeline"], &["Turn this threat-intel report into a detection"]),
-            ("backtesting", "Rule backtesting", "Backtest candidate rules over the last 7 days of alerts.", &["backtest", "lucene"], &["Backtest this Sigma rule"]),
-        ],
-    },
-    AgentDef {
-        name: "hunt-agent",
-        description: "Threat hunting: runs ATT&CK-mapped hypotheses over alert data and opens findings.",
-        subject: SUBJECT_HUNT,
-        kind: EnvelopeKind::HuntFinding,
-        activity_name: "hunt",
-        skills: &[
-            ("hypothesis", "Hunt hypotheses", "Execute the ATT&CK-mapped hypothesis set.", &["hunt", "hypothesis"], &["Hunt for persistence mechanisms"]),
-            ("attack-mapping", "ATT&CK mapping", "Map hunt coverage and findings to MITRE ATT&CK techniques.", &["attack", "mitre"], &["Map recent activity to ATT&CK"]),
-            ("querying", "Log querying", "Query the alert store for hunt evidence.", &["opensearch", "lucene"], &["Find beaconing in the last 24h"]),
-        ],
-    },
-];
-
-/// Looks up an agent definition by its `/a2a/{name}` segment.
-pub(crate) fn find_agent(name: &str) -> Option<&'static AgentDef> {
-    AGENTS.iter().find(|a| a.name == name)
-}
 
 /// Authentication schemes advertised on cards: bearer only when inbound
 /// authentication is actually configured.
@@ -349,13 +268,14 @@ impl TaskBackend for PgBackend<'_> {
 
         let inserted = sqlx::query(
             "INSERT INTO a2a_tasks (id, agent, session_id, state, message, created_at, updated_at)
-             VALUES ($1, $2, $3, 'working', $4, now(), now())
+             VALUES ($1, $2, $3, $5, $4, now(), now())
              ON CONFLICT (id) DO NOTHING",
         )
         .bind(&task_id)
         .bind(def.name)
         .bind(&params.session_id)
         .bind(sqlx::types::Json(&params.message))
+        .bind(TaskState::Working.as_str())
         .execute(&self.s.pool)
         .await
         .map_err(|e| BackendError::Internal(e.to_string()))?;
@@ -372,12 +292,12 @@ impl TaskBackend for PgBackend<'_> {
         );
         env.correlation_id = task_uuid(&task_id);
         if let Err(e) = self.s.sink.publish(def.subject, &env).await {
-            if let Err(werr) = sqlx::query(
-                "UPDATE a2a_tasks SET state = 'failed', updated_at = now() WHERE id = $1",
-            )
-            .bind(&task_id)
-            .execute(&self.s.pool)
-            .await
+            if let Err(werr) =
+                sqlx::query("UPDATE a2a_tasks SET state = $2, updated_at = now() WHERE id = $1")
+                    .bind(&task_id)
+                    .bind(TaskState::Failed.as_str())
+                    .execute(&self.s.pool)
+                    .await
             {
                 tracing::error!(task_id = %task_id, error = %werr, "failed-state write failed");
             }
@@ -423,12 +343,15 @@ impl TaskBackend for PgBackend<'_> {
         // Only marks the row; in-flight agents do not observe the flag.
         // (known gap: agents never poll a cancellation table.)
         sqlx::query(
-            "UPDATE a2a_tasks SET state = 'canceled', updated_at = now()
-             WHERE id = $1 AND agent = $2
-               AND state NOT IN ('completed', 'failed', 'canceled')",
+            "UPDATE a2a_tasks SET state = $3, updated_at = now()
+             WHERE id = $1 AND agent = $2 AND state NOT IN ($4, $5, $6)",
         )
         .bind(task_id)
         .bind(agent)
+        .bind(TaskState::Canceled.as_str())
+        .bind(TaskState::Completed.as_str())
+        .bind(TaskState::Failed.as_str())
+        .bind(TaskState::Canceled.as_str())
         .execute(&self.s.pool)
         .await
         .map_err(|e| BackendError::Internal(e.to_string()))?;
@@ -492,7 +415,9 @@ impl RunRecord for Task {
     }
 
     fn activity_event(activity: Value) -> Event {
-        Event::default().event("activity").data(activity.to_string())
+        Event::default()
+            .event("activity")
+            .data(activity.to_string())
     }
 
     async fn load(pool: &PgPool, id: &str) -> Result<Option<Self>, String> {
@@ -503,11 +428,15 @@ impl RunRecord for Task {
     }
 
     async fn mark_terminal(pool: &PgPool, id: &str, aborted: bool) {
-        let state = if aborted { "failed" } else { "completed" };
+        let state = if aborted {
+            TaskState::Failed
+        } else {
+            TaskState::Completed
+        };
         if let Err(e) =
             sqlx::query("UPDATE a2a_tasks SET state = $2, updated_at = now() WHERE id = $1")
                 .bind(id)
-                .bind(state)
+                .bind(state.as_str())
                 .execute(pool)
                 .await
         {

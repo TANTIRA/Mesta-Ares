@@ -10,12 +10,9 @@ use std::sync::{Arc, OnceLock};
 
 use axum::{
     extract::{Request, State},
-    http::StatusCode,
     middleware::Next,
     response::{IntoResponse, Response},
-    Json,
 };
-use serde_json::json;
 use tracing::warn;
 
 /// Authenticated caller identity, inserted into request extensions.
@@ -70,26 +67,31 @@ impl ApiKeys {
 }
 
 /// Extracts the presented token from `Authorization: Bearer` or `X-API-Key`.
-fn presented_token(req: &Request) -> Option<String> {
-    if let Some(value) = req.headers().get("x-api-key") {
+///
+/// Public so every edge service reads credentials the same way.
+pub fn presented_token(headers: &axum::http::HeaderMap) -> Option<String> {
+    if let Some(value) = headers.get("x-api-key") {
         if let Ok(token) = value.to_str() {
-            return Some(token.trim().to_string());
+            let token = token.trim();
+            if !token.is_empty() {
+                return Some(token.to_string());
+            }
         }
     }
-    req.headers()
+    headers
         .get(axum::http::header::AUTHORIZATION)
         .and_then(|v| v.to_str().ok())
-        .and_then(|v| v.strip_prefix("Bearer ").or_else(|| v.strip_prefix("bearer ")))
+        .and_then(|v| {
+            v.strip_prefix("Bearer ")
+                .or_else(|| v.strip_prefix("bearer "))
+        })
         .map(|t| t.trim().to_string())
+        .filter(|t| !t.is_empty())
 }
 
 /// Rejects unauthenticated requests when keys are configured, and records the
 /// caller's [`Actor`] for downstream handlers.
-pub async fn require_auth(
-    State(keys): State<ApiKeys>,
-    mut req: Request,
-    next: Next,
-) -> Response {
+pub async fn require_auth(State(keys): State<ApiKeys>, mut req: Request, next: Next) -> Response {
     if !keys.is_enabled() {
         static WARNED: OnceLock<()> = OnceLock::new();
         WARNED.get_or_init(|| {
@@ -98,22 +100,19 @@ pub async fn require_auth(
         req.extensions_mut().insert(Actor("anonymous".to_string()));
         return next.run(req).await;
     }
-    let Some(token) = presented_token(&req) else {
+    let Some(token) = presented_token(req.headers()) else {
         return unauthorized("missing credentials");
     };
     let Some(actor) = keys.actor_for(&token) else {
         return unauthorized("invalid credentials");
     };
-    req.extensions_mut()
-        .insert(Actor(actor.to_string()));
+    req.extensions_mut().insert(Actor(actor.to_string()));
     next.run(req).await
 }
 
 fn unauthorized(reason: &str) -> Response {
-    (
-        StatusCode::UNAUTHORIZED,
-        Json(json!({"error": "unauthorized", "reason": reason})),
-    )
+    crate::error::ApiError::unauthorized("unauthorized")
+        .with_message(reason)
         .into_response()
 }
 
@@ -142,6 +141,7 @@ mod tests {
 mod middleware_tests {
     use super::*;
     use axum::body::Body;
+    use axum::http::StatusCode;
     use axum::middleware;
     use axum::routing::get;
     use axum::Router;

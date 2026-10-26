@@ -93,11 +93,13 @@ impl HttpToolGateway {
             });
         }
 
-        let parsed = resp.json::<InvokeResponse>().await.map_err(AgentError::Http)?;
+        let parsed = resp
+            .json::<InvokeResponse>()
+            .await
+            .map_err(AgentError::Http)?;
         // Only allow verdicts may carry a retry hint; deny/approval verdicts
         // and mismatch errors are terminal by definition.
-        let retryable =
-            parsed.decision.kind == DecisionKind::Allow && parsed.result.is_retryable();
+        let retryable = parsed.decision.kind == DecisionKind::Allow && parsed.result.is_retryable();
         Ok((parsed, retryable))
     }
 }
@@ -132,7 +134,10 @@ impl HttpToolGateway {
                     if !retryable || attempt >= MAX_RETRIES {
                         return Ok(response);
                     }
-                    format!("server flagged result retryable: {:?}", response.result.error)
+                    format!(
+                        "server flagged result retryable: {:?}",
+                        response.result.error
+                    )
                 }
                 Err(e) => {
                     let transient = matches!(

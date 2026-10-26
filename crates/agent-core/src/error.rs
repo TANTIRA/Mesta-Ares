@@ -1,12 +1,8 @@
-//! Error type shared by the agent loop, checkpointers and gateways.
+//! Error type shared by the checkpointers and gateways.
 
 /// Errors agent-core components can return.
 #[derive(Debug, thiserror::Error)]
 pub enum AgentError {
-    /// Failure of the underlying LLM provider.
-    #[error("llm error: {0}")]
-    Llm(#[from] llm_client::LlmError),
-
     /// HTTP failure talking to the tool gateway.
     #[error("http error: {0}")]
     Http(#[from] reqwest::Error),

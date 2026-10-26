@@ -12,12 +12,10 @@ use std::sync::Arc;
 
 use axum::{
     extract::{Request, State},
-    http::{header, HeaderMap, StatusCode},
+    http::header,
     middleware::Next,
     response::{IntoResponse, Response},
-    Json,
 };
-use serde_json::json;
 use tracing::warn;
 
 /// Parsed gateway credentials plus the anonymous escape hatch.
@@ -63,23 +61,6 @@ pub fn is_exempt(path: &str) -> bool {
     path == "/health" || path == "/metrics"
 }
 
-/// Extracts the presented credential from either supported header.
-pub fn presented_key(headers: &HeaderMap) -> Option<String> {
-    if let Some(v) = headers.get("x-api-key").and_then(|v| v.to_str().ok()) {
-        let v = v.trim();
-        if !v.is_empty() {
-            return Some(v.to_string());
-        }
-    }
-    let auth = headers.get(header::AUTHORIZATION)?.to_str().ok()?.trim();
-    let (scheme, token) = auth.split_once(' ')?;
-    if scheme.eq_ignore_ascii_case("bearer") && !token.trim().is_empty() {
-        Some(token.trim().to_string())
-    } else {
-        None
-    }
-}
-
 impl AuthState {
     /// `true` when `key` is one of the configured credentials.
     pub fn accepts(&self, key: &str) -> bool {
@@ -97,32 +78,31 @@ pub async fn middleware(State(auth): State<AuthState>, req: Request, next: Next)
     if is_exempt(req.uri().path()) {
         return next.run(req).await;
     }
-    match presented_key(req.headers()) {
+    match http_limits::auth::presented_token(req.headers()) {
         Some(key) if auth.accepts(&key) => next.run(req).await,
         Some(_) => unauthorized("invalid api key"),
         None if auth.keys.is_empty() && auth.allow_anonymous => next.run(req).await,
-        None if auth.keys.is_empty() => (
-            StatusCode::SERVICE_UNAVAILABLE,
-            Json(json!({"error": "gateway_auth_not_configured"})),
+        None if auth.keys.is_empty() => http_limits::error::ApiError::unavailable(
+            "gateway auth not configured (set GATEWAY_API_KEYS)",
         )
-            .into_response(),
+        .into_response(),
         None => unauthorized("missing api key"),
     }
 }
 
 fn unauthorized(message: &str) -> Response {
-    (
-        StatusCode::UNAUTHORIZED,
-        [(header::WWW_AUTHENTICATE, "Bearer")],
-        Json(json!({"error": message})),
-    )
-        .into_response()
+    let mut res = http_limits::error::ApiError::unauthorized(message).into_response();
+    res.headers_mut().insert(
+        header::WWW_AUTHENTICATE,
+        axum::http::HeaderValue::from_static("Bearer"),
+    );
+    res
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use axum::http::HeaderValue;
+    use axum::http::{HeaderMap, HeaderValue};
 
     fn state(keys: &[&str], allow_anonymous: bool) -> AuthState {
         AuthState {
@@ -131,23 +111,30 @@ mod tests {
         }
     }
 
+    /// The header extractor is shared with every other edge service.
     #[test]
-    fn bearer_and_api_key_headers_are_read() {
+    fn credentials_are_read_by_the_shared_extractor() {
         let mut h = HeaderMap::new();
         h.insert(
             header::AUTHORIZATION,
             HeaderValue::from_static("Bearer abc123"),
         );
-        assert_eq!(presented_key(&h).as_deref(), Some("abc123"));
+        assert_eq!(
+            http_limits::auth::presented_token(&h).as_deref(),
+            Some("abc123")
+        );
 
         let mut h = HeaderMap::new();
         h.insert("x-api-key", HeaderValue::from_static("def456"));
-        assert_eq!(presented_key(&h).as_deref(), Some("def456"));
+        assert_eq!(
+            http_limits::auth::presented_token(&h).as_deref(),
+            Some("def456")
+        );
 
         let mut h = HeaderMap::new();
         h.insert(header::AUTHORIZATION, HeaderValue::from_static("Basic zzz"));
-        assert_eq!(presented_key(&h), None);
-        assert_eq!(presented_key(&HeaderMap::new()), None);
+        assert_eq!(http_limits::auth::presented_token(&h), None);
+        assert_eq!(http_limits::auth::presented_token(&HeaderMap::new()), None);
     }
 
     #[test]

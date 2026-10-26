@@ -28,8 +28,6 @@ use sqlx::PgPool;
 use tracing::{error, info, warn};
 use uuid::Uuid;
 
-
-
 /// vuln-agent service configuration.
 #[derive(Debug, Parser)]
 #[command(name = "vuln-agent", about = "Ares NVD vulnerability watcher")]
@@ -85,8 +83,6 @@ fn load_watchlist(path: &str) -> Watchlist {
     }
 }
 
-
-
 /// Highest base score across all reported CVSS metric versions.
 fn best_cvss(rec: &CveRecord) -> Option<(f64, Severity)> {
     rec.metrics
@@ -112,7 +108,6 @@ fn watchlist_match(rec: &CveRecord, wl: &Watchlist) -> Option<String> {
         .find(|k| desc.contains(&k.to_lowercase()))
         .cloned()
 }
-
 
 /// Create the advisory table when absent.
 async fn ensure_schema(pool: &PgPool) -> anyhow::Result<()> {
@@ -183,12 +178,7 @@ async fn poll_once(
     // marker on the record itself — `hasKev` on the query is the marker, so
     // records returned here are KEV by definition.
     let kev = nvd
-        .list_modified(
-            &fmt(from),
-            &fmt(to),
-            0,
-            &[("hasKev", String::new())],
-        )
+        .list_modified(&fmt(from), &fmt(to), 0, &[("hasKev", String::new())])
         .await
         .map(|p| p.cves)
         .unwrap_or_default();
@@ -318,7 +308,9 @@ async fn main() -> anyhow::Result<()> {
     let mut interval = tokio::time::interval(Duration::from_secs(cfg.poll_interval_secs));
     loop {
         interval.tick().await;
-        if let Err(e) = poll_once(&nvd, &pool, &nats, hive.as_ref(), &wl, &cfg, Uuid::new_v4()).await {
+        if let Err(e) =
+            poll_once(&nvd, &pool, &nats, hive.as_ref(), &wl, &cfg, Uuid::new_v4()).await
+        {
             error!(error = %e, "vuln poll failed");
         }
     }

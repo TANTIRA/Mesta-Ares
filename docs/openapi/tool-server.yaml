@@ -65,7 +65,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/InvokeResponse'
         '422':
-          description: Malformed `ToolCall` (axum deserialization failure)
+          description: |
+            Malformed `ToolCall`. This body comes from axum's built-in `Json`
+            rejection, so it is plain text rather than the shared envelope.
           content:
             text/plain:
               schema: { type: string }
@@ -79,7 +81,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [pending, approved, rejected, expired]
+            enum: [pending, approved, execution_failed, rejected, expired]
       responses:
         '200':
           description: Approvals
@@ -118,8 +120,9 @@ paths:
         '409':
           description: Already approved, rejected or expired
           content:
-            text/plain:
-              schema: { type: string }
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /approvals/{id}/reject:
     post:
@@ -145,8 +148,9 @@ paths:
         '409':
           description: Already decided
           content:
-            text/plain:
-              schema: { type: string }
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   parameters:
@@ -158,12 +162,38 @@ components:
 
   responses:
     PlainError:
-      description: Error message
+      description: Error envelope
       content:
-        text/plain:
-          schema: { type: string }
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
 
   schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Stable machine-readable class.
+              enum:
+                [BAD_REQUEST, VALIDATION_ERROR, UNAUTHORIZED, NOT_FOUND, CONFLICT,
+                 RATE_LIMITED, UPSTREAM_ERROR, INTERNAL_ERROR, SERVICE_UNAVAILABLE]
+            message:
+              type: string
+            details:
+              type: array
+              description: Field-scoped problems; omitted when empty.
+              items:
+                type: object
+                properties:
+                  field: { type: string }
+                  message: { type: string }
+
     ToolCall:
       type: object
       required: [id, tool, args, actor, idempotency_key, correlation_id]
@@ -172,7 +202,10 @@ components:
         tool: { type: string, example: misp.sighting.add }
         args:
           type: object
-          description: Validated against the tool's `args_schema` in `policies/tools.yml`.
+          description: |
+            Validated against the tool's `args_schema` in `policies/tools.yml`.
+            Alias keys declared there (`aliases: {ioc: value}`) are renamed to
+            their canonical spelling before validation, so either spelling works.
         actor: { type: string, example: response-agent }
         idempotency_key:
           type: string
@@ -228,7 +261,10 @@ components:
         reason: { type: string }
         status:
           type: string
-          enum: [pending, approved, rejected, expired]
+          description: |
+            `approved` means the call was approved *and* executed successfully;
+            a failed execution lands on `execution_failed` with `result.error`.
+          enum: [pending, approved, execution_failed, rejected, expired]
         created_at: { type: string, format: date-time }
         decided_at: { type: string, format: date-time, nullable: true }
         decided_by: { type: string, nullable: true }

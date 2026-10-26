@@ -43,11 +43,15 @@ is a behaviour change, not a documentation gap:
 
 | Gap | Current state | Cost to fix |
 | - | - | - |
-| Structured error envelope | api-server, tool-server and ingestion-gateway return `text/plain` bodies for their own errors (axum `(StatusCode, String)`); only the gateway returns JSON `{"error": "<string>"}`; the rate limiter returns `{"error": "rate_limit_exceeded"}`. | Every handler signature in api-server (~30 sites) plus the console's error rendering; medium. |
 | API versioning | No `/v1` prefix anywhere. | Breaking for the console and any integration; needs a dual-mount window. |
 | Response envelopes | Mixed: some endpoints return bare arrays (`/a2a/agents`, `/vulns/advisories`, `/approvals`), others wrappers. | Low per endpoint, but changes client parsing. |
 
-The target error shape, once the migration happens:
+Resolved: **structured error envelope**. All HTTP services now answer failures
+as `{"error": {"code", "message", "details"?}}` through
+`http_limits::error::ApiError`. The ACP routes keep their protocol-mandated
+`{code, message, data}` shape.
+
+The envelope every non-ACP service now emits:
 
 ```json
 {
