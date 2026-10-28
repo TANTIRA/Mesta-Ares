@@ -1,4 +1,5 @@
 # BAS — breach & attack simulation
+> **Note:** `bas-004` (HTTP beacon, T1071.001) is expected-red: no network-traffic telemetry exists yet (no Suricata/Zeek source). It stays as a tracking canary for the NTA gap.
 
 `bas-runner` replays Atomic Red Team-style scenarios against sacrificial lab
 endpoints and scores whether the pipeline *detected* the behavior. It closes

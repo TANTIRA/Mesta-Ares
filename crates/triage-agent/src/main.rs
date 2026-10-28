@@ -439,7 +439,14 @@ async fn process(deps: &Deps, envelope: &Envelope) -> anyhow::Result<()> {
         "cves": cve_recs,
         "composite_score": score,
     });
-    let verdict = verdict(deps, &context).await?;
+    let mut verdict = verdict(deps, &context).await?;
+    // Reputation is a detection signal, not just context: a provider that
+    // says malicious floors severity at high regardless of the model verdict.
+    if results.iter().any(|r| r.malicious) && verdict.severity < Severity::High {
+        verdict.severity = Severity::High;
+        verdict.rationale =
+            format!("reputation verdict: malicious IOC. {}", verdict.rationale);
+    }
     publish_activity(
         &deps.nats,
         &ActivityEvent::new(

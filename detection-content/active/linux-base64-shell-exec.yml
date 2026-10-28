@@ -1,0 +1,37 @@
+title: Base64-Decoded Piped to Shell (Linux)
+id: 9a2e4c17-6b3f-4d8a-9c1e-5f7a2b8d3e60
+status: stable
+description: >-
+  Detects a base64-decoded payload piped straight into a shell — the classic
+  obfuscated stager shape (echo <b64> | base64 -d | sh). Covers BAS-005.
+author: Mesta-Ares
+date: 2026/10/29
+logsource:
+  product: linux
+  category: process_creation
+detection:
+  selection_img:
+    Image|endswith:
+      - '/sh'
+      - '/bash'
+      - '/dash'
+      - '/zsh'
+  selection_pipe:
+    CommandLine|contains:
+      - 'base64 -d'
+      - 'base64 --decode'
+      - 'base64 -D'
+      - 'openssl enc -d'
+      - 'base64 -di'
+  filter_decode_only:
+    CommandLine|contains:
+      - 'base64 -d |'
+      - 'base64 --decode |'
+      - 'openssl enc -d |'
+  condition: selection_img and selection_pipe and not filter_decode_only
+falsepositives:
+  - Installer scripts decoding embedded blobs (filter per parent image)
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1027
