@@ -52,7 +52,8 @@ const ALLOWED_COMMANDS: &[&str] = &["bash", "sshpass", "python3", "echo"];
 /// Substrings that must not appear in any argument — the sandbox is a second
 /// line of defense, but nothing here should reach a shell that can chain,
 /// pipe, or substitute commands.
-const FORBIDDEN_SUBSTRINGS: &[&str] = &[";", "&&", "|", "`", "$("];
+const FORBIDDEN_SUBSTRINGS: &[&str] =
+    &[";", "&&", "|", "`", "$(", ">", "<", "\n", "\r", "*", "{", "}"];
 
 /// `exec.sandbox` (and `exec.bas.run`, when allowlisted) — runs `{command,
 /// args}` inside an OpenShell sandbox.
@@ -127,7 +128,7 @@ impl Tool for OpenShellExec {
         let bin = super::env("OPENSHELL_BIN").unwrap_or_else(|| "openshell".to_string());
         let argv = validated_argv(args)?;
         let full = openshell_argv(super::env("OPENSHELL_SANDBOX").as_deref(), &argv);
-        info!(tool = self.name, bin = %bin, argv = ?full, "exec via openshell");
+        info!(tool = self.name, bin = %bin, argc = full.len(), "exec via openshell");
 
         let mut cmd = Command::new(&bin);
         cmd.args(&full)

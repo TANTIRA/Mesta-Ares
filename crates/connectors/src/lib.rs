@@ -24,7 +24,7 @@ mod wazuh;
 
 pub use config::ConnectorConfig;
 pub use cortex::CortexClient;
-pub use http::Auth;
+pub use http::{segment, Auth};
 pub use misp::{Event, MispAttribute, MispClient, MispTag, NewAttribute};
 pub use nvd::{CvePage, CveRecord, CveReference, CvssMetric, NvdClient, NvdStatusError};
 pub use opensearch::OpensearchClient;

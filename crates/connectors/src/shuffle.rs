@@ -5,7 +5,7 @@ use reqwest::Client;
 
 use serde_json::Value;
 
-use crate::http::{join, json_ok, send_with_retry, Auth};
+use crate::http::{join, json_ok, segment, send_with_retry, Auth};
 
 // ---------------------------------------------------------------------------
 // Shuffle (SOAR workflows)
@@ -30,6 +30,7 @@ impl ShuffleClient {
 
     /// `POST /api/v1/workflows/{workflow_id}/execute` — body passed through.
     pub async fn run_workflow(&self, workflow_id: &str, body: Value) -> Result<Value> {
+        let workflow_id = segment(workflow_id, "workflow_id")?;
         let req = self
             .auth
             .apply(self.http.post(join(

@@ -493,7 +493,7 @@ services:
     command: []          # empty: let gateway.toml own bind/port (upstream note)
     user: "0"            # docker.sock access + writes under /var/lib/openshell
     # Host ports optional — handy for driving the CLI from the dev host too.
-    ports: ["8180:8080", "8181:8081"]
+    ports: ["127.0.0.1:8180:8080", "127.0.0.1:8181:8081"]   # loopback only: gateway is unauthenticated dev posture
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/lib/openshell:/var/lib/openshell

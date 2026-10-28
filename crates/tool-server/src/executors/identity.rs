@@ -22,6 +22,7 @@ impl Tool for EntraUser {
             return dry_run(args);
         };
         let user_id = arg_str(args, &["user_id"]).context("missing user_id")?;
+        let user_id = connectors::segment(user_id, "user_id")?;
         let req = match self.name {
             "entra.user.disable" => http()
                 .patch(format!("https://graph.microsoft.com/v1.0/users/{user_id}"))

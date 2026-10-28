@@ -115,9 +115,9 @@ impl ThreatIntelClient {
                         ))
                         .header("x-apikey", key)
                         .send()
-                        .await
+                        .await.map_err(crate::http::without_url)
                         .context("virustotal request")?
-                        .error_for_status()
+                        .error_for_status().map_err(crate::http::without_url)
                         .context("virustotal HTTP error")?
                         .json::<Value>()
                         .await?,
@@ -134,15 +134,16 @@ impl ThreatIntelClient {
                         .header("Accept", "application/json")
                         .query(&[("ipAddress", ioc), ("maxAgeInDays", "90")])
                         .send()
-                        .await
+                        .await.map_err(crate::http::without_url)
                         .context("abuseipdb request")?
-                        .error_for_status()
+                        .error_for_status().map_err(crate::http::without_url)
                         .context("abuseipdb HTTP error")?
                         .json::<Value>()
                         .await?,
                 ))
             }
             "shodan.host" => {
+                let ioc = crate::http::segment(ioc, "ioc")?;
                 let Some(key) = self.keys.shodan.as_deref() else {
                     return Ok(None);
                 };
@@ -151,15 +152,16 @@ impl ThreatIntelClient {
                         .get(format!("https://api.shodan.io/shodan/host/{ioc}"))
                         .query(&[("key", key)])
                         .send()
-                        .await
+                        .await.map_err(crate::http::without_url)
                         .context("shodan request")?
-                        .error_for_status()
+                        .error_for_status().map_err(crate::http::without_url)
                         .context("shodan HTTP error")?
                         .json::<Value>()
                         .await?,
                 ))
             }
             "greynoise.ip" => {
+                let ioc = crate::http::segment(ioc, "ioc")?;
                 let Some(key) = self.keys.greynoise.as_deref() else {
                     return Ok(None);
                 };
@@ -168,9 +170,9 @@ impl ThreatIntelClient {
                         .get(format!("https://api.greynoise.io/v3/community/{ioc}"))
                         .header("key", key)
                         .send()
-                        .await
+                        .await.map_err(crate::http::without_url)
                         .context("greynoise request")?
-                        .error_for_status()
+                        .error_for_status().map_err(crate::http::without_url)
                         .context("greynoise HTTP error")?
                         .json::<Value>()
                         .await?,
@@ -186,9 +188,9 @@ impl ThreatIntelClient {
                         .header("API-Key", key)
                         .json(&json!({ "url": ioc, "visibility": "private" }))
                         .send()
-                        .await
+                        .await.map_err(crate::http::without_url)
                         .context("urlscan request")?
-                        .error_for_status()
+                        .error_for_status().map_err(crate::http::without_url)
                         .context("urlscan HTTP error")?
                         .json::<Value>()
                         .await?,
@@ -208,7 +210,7 @@ fn virustotal_path(ioc: &str) -> String {
     } else if ioc.len() == 64 || ioc.len() == 32 {
         format!("files/{ioc}")
     } else {
-        format!("domains/{ioc}")
+        format!("domains/{}", ioc.split(['/', '?', '#']).next().unwrap_or(ioc))
     }
 }
 
