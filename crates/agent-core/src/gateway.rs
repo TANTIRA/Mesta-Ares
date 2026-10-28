@@ -52,10 +52,14 @@ pub trait ToolGateway: Send + Sync {
 pub struct HttpToolGateway {
     client: reqwest::Client,
     base_url: String,
+    api_key: Option<String>,
 }
 
 impl HttpToolGateway {
     /// Create a gateway targeting `base_url` (e.g. `http://tool-server:8080`).
+    ///
+    /// `ARES_TOOL_KEY` is attached as a bearer credential when set — required
+    /// once the tool-server enforces `ARES_API_KEYS` auth.
     pub fn new(base_url: impl Into<String>) -> Self {
         Self {
             client: reqwest::Client::builder()
@@ -63,6 +67,10 @@ impl HttpToolGateway {
                 .build()
                 .expect("reqwest client builder"),
             base_url: base_url.into(),
+            api_key: std::env::var("ARES_TOOL_KEY")
+                .ok()
+                .map(|k| k.trim().to_string())
+                .filter(|k| !k.is_empty()),
         }
     }
 
@@ -74,13 +82,11 @@ impl HttpToolGateway {
         url: &str,
         call: &ToolCall,
     ) -> Result<(InvokeResponse, bool), AgentError> {
-        let resp = self
-            .client
-            .post(url)
-            .json(call)
-            .send()
-            .await
-            .map_err(AgentError::Http)?;
+        let mut req = self.client.post(url).json(call);
+        if let Some(key) = &self.api_key {
+            req = req.bearer_auth(key);
+        }
+        let resp = req.send().await.map_err(AgentError::Http)?;
 
         if !resp.status().is_success() {
             // No verdict was rendered; callers must treat this as an outage,

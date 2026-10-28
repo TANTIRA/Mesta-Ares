@@ -11,9 +11,9 @@ COPY apps/console/package.json ./
 RUN pnpm install --frozen-lockfile=false
 COPY apps/console ./
 
-# NEXT_PUBLIC_* is inlined at build time for the client bundle.
-ARG NEXT_PUBLIC_API_URL=http://localhost:8080
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+# API access is same-origin via app/api/proxy: ARES_API_URL points the
+# server-side proxy at the upstream, ARES_CONSOLE_KEY is the injected key.
+ENV ARES_API_URL=http://api-gateway:8082
 
 EXPOSE 3000
 CMD ["pnpm", "dev"]

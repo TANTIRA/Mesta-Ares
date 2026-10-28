@@ -115,6 +115,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApprovalOutcome'
+        '403':
+          description: >-
+            Caller lacks the `approver` key role, or is the actor that
+            requested the call (separation of duty).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           $ref: '#/components/responses/PlainError'
         '409':
@@ -143,6 +151,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApprovalOutcome'
+        '403':
+          description: >-
+            Caller lacks the `approver` key role, or is the actor that
+            requested the call (separation of duty).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           $ref: '#/components/responses/PlainError'
         '409':

@@ -76,7 +76,7 @@ pub async fn set_state(
             Err(e) => Err(e),
         }
     };
-    let actor = actor.0;
+    let actor = actor.name;
     match result {
         Ok(state) => {
             if let Some(writer) = &s.audit {

@@ -58,6 +58,7 @@ the policy gate, idempotency store and audit chain see them.
 
 ```sh
 cp .env.example .env            # fill in API keys
+sh infra/gen-dev-keys.sh        # generates ARES_*/GATEWAY_* dev keys
 docker compose -f infra/docker-compose.yml up -d
 ```
 
@@ -72,6 +73,7 @@ Then:
 | Shuffle | http://localhost:3001 |
 | MISP | https://localhost:8443 |
 | Wazuh dashboard | http://localhost:5601 (`--profile wazuh-ui`) |
+| Keycloak | http://localhost:8180 (see `docs/keycloak.md`) |
 | OpenSearch | http://localhost:9200 |
 
 To receive Wazuh alerts, add the block in `infra/wazuh/integratord.xml` to

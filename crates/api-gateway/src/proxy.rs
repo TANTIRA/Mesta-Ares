@@ -175,11 +175,16 @@ async fn forward(s: Arc<AppState>, route: Route, path: String, req: Request) -> 
         if is_hop_by_hop(name) {
             continue;
         }
-        // Never forward the gateway credential to a backend.
-        if name == "x-api-key" {
+        // Never forward any client credential upstream — the edge token
+        // does not propagate inward.
+        if name == "x-api-key" || name == header::AUTHORIZATION {
             continue;
         }
         rb = rb.header(name, value);
+    }
+    // Upstream services see the gateway's service identity instead.
+    if let Some(key) = &s.upstream_key {
+        rb = rb.bearer_auth(key);
     }
     let sent = rb.body(body.to_vec()).send().await;
 

@@ -97,9 +97,10 @@ SIEM alert itself.
 
 ## Rate limits
 
-Per-key token buckets on the two HTTP edge services (`crates/http-limits`).
-**Key = peer IP** (`ConnectInfo`) until authentication lands; API-key tiers
-replace it then. Numbers load from `policies/rate-limits.yml` (defaults
+Per-key token buckets on the edge services (`crates/http-limits`).
+**Key = authenticated actor** when a valid key is presented, else a hash of
+the presented token, else peer IP (`ConnectInfo`). Numbers load from
+`policies/rate-limits.yml` (defaults
 below when the file is absent); metering is request count, burst = bucket
 capacity, sustained = refill rate.
 
@@ -127,37 +128,38 @@ independently).
 ## API Security Assessment
 
 OWASP API Security Top 10 (2023), static review of `api-server` (:8080),
-`ingestion-gateway` (:8091) and `tool-server` (:8090). No endpoint in any of
-the three services performs authentication or authorization today; every
-verdict below assumes the port is reachable (all three are published to the
-host by `infra/docker-compose.yml`). Probe script: `scripts/api-security-check.sh`.
+`ingestion-gateway` (:8091) and `tool-server` (:8090). **Authn now exists**:
+every route except `/health` requires `ARES_API_KEYS`
+(`key:actor[:role],...`, `Authorization: Bearer` or `X-API-Key`) and the
+authenticated actor is what policy and audit see. Empty key set still runs
+open (dev) unless `ARES_REQUIRE_AUTH=1` refuses the boot; role `approver`
+is required for `/approvals/*` decisions and self-approval is denied.
+Probe script: `scripts/api-security-check.sh`.
 
 | # | Category | Verdict | Detail |
 |---|---|---|---|
-| API1 | Broken Object Level Authorization | VULNERABLE | Every path-param lookup is a direct fetch with no object-level check: `/alerts/{id}`, `/cases/{id}`, `/plans/{case_id}`, `/playbooks/{name}`, `/vulns/{cve_id}` (`main.rs:281-305`), `tasks/get`/`tasks/cancel` (`a2a.rs:469-485`), `/a2a/tasks/{id}/events` (`a2a.rs:528`). Re-test when authn lands — nothing to hang an ownership check on yet. |
-| API2 | Broken Authentication | VULNERABLE | Zero authn on all three HTTP services; no middleware, token, or mTLS anywhere. A2A agent cards even advertise `authentication.schemes:["bearer"]` that is never enforced (`a2a.rs:158-160,189-191`). |
+| API1 | Broken Object Level Authorization | PARTIAL | Authn landed, but there is no per-actor object scoping: any valid key reads `/alerts/{id}`, `/cases/{id}`, `/plans/{case_id}`, `/audit`, any task. Single-tenant assumption — revisit if a `viewer` role ever ships. |
+| API2 | Broken Authentication | RESOLVED (default caveat) | `require_auth` on all edge routes; keys are server-side lookups, never body-claimed. Caveats: fail-open when `ARES_API_KEYS` is unset (set `ARES_REQUIRE_AUTH=1`), keys <32 chars rejected under that flag, rotation = secret edit + restart. |
 | API3 | Broken Object Property Level Authorization | VULNERABLE | `SendParams` accepts arbitrary `parts`, `metadata`, `sessionId` (a2a `task.rs:196-208`) → `build_payload` → `Envelope` → agent LLM context and, for response-agent, the planner `goal` (`a2a.rs:366-384`); no property-level validation beyond serde shape. `/webhook/generic` accepts arbitrary JSON incl. attacker-chosen `source` (`ingestion-gateway/main.rs:79-89`). |
 | API4 | Unrestricted Resource Consumption | PARTIAL | Router-level token buckets are in place on both edge services (see *Rate limits*); what remains is the 2 MiB `DefaultBodyLimit` body cap, unbounded SSE fan-out per key (capped at 20 concurrent), and per-request filesystem scans in `/playbooks` + `/coverage`. `/vulns*` serialize on the ≥6 s NVD client mutex (`connectors/lib.rs:695-740`) → trivial connection-queue exhaustion; NVD fetches `resultsPerPage=2000` (`lib.rs:773`); `/playbooks` + `/coverage` rescan/parse the filesystem per request; SSE streams are unbounded per client. |
-| API5 | Broken Function Level Authorization | VULNERABLE | `POST /controls/kill-switch` toggles the global safety control for any client (`kill.rs:39`); `POST /a2a/response-agent` `tasks/send` is an unauthenticated command path into the response planner (`a2a.rs:394-467`); `tasks/cancel` mutates anyone's task (`a2a.rs:473-485`); `/a2a/tasks/{id}/events` is a GET that writes `state='completed'` (`a2a.rs:607-613`). |
-| API6 | Unrestricted Access to Sensitive Business Flows | VULNERABLE | Anyone can inject unlimited "alerts" via `POST /webhook/{wazuh,generic}` → each one consumes LLM tokens, can open TheHive cases and trigger response handoffs (`triage-agent/main.rs:296-353`). |
+| API5 | Broken Function Level Authorization | PARTIAL | All mutating routes now require a valid key; `/approvals/*` decisions additionally require the `approver` role + non-requester identity. Remaining: no per-function role tiers beyond approvals (kill-switch is any-operator). |
+| API6 | Unrestricted Access to Sensitive Business Flows | PARTIAL | Webhooks now require a key; a valid key can still flood triage with junk alerts (LLM cost) — per-key rate limits bound it but there's no per-source quota yet (tracked as threat-model T-12). |
 | API7 | Server-Side Request Forgery | VULNERABLE (limited) | Connector base URLs are env-pinned — no arbitrary-origin SSRF found. But tool args steer internal requests: `opensearch.query` takes caller `index` + Lucene `q` + DSL `body` with no schema (`executors/mod.rs:88-99` — read any index); `thehive.case.update` joins raw `case_id` into the URL path (`connectors/lib.rs:182-191`). Reachable unauthenticated via `:8090/invoke`. |
-| API8 | Security Misconfiguration | VULNERABLE | `CorsLayer::permissive()` (`main.rs:339`) + kill-switch/A2A accept any content-type → CSRF-able cross-origin POSTs; no security headers on any service or the console (`next.config.ts`); upstream/DB error strings echoed in bodies (`main.rs:119,154,191` etc.); compose defaults — `WAZUH_API_PASS:-`, `THEHIVE_APPLICATION_SECRET=dev-only-secret-change-me`, `MISP_ADMIN_PASSWORD=admin`, `DISABLE_SECURITY_PLUGIN=true`, `postgres ares/ares`, tool-server `:8090` published; `API_BIND` env is dead (code reads `BIND_ADDR`, `main.rs:61`). |
+| API8 | Security Misconfiguration | PARTIAL | CORS is now restrictive-by-default (`CORS_ALLOW_ORIGIN` opt-in; the console is same-origin through its BFF proxy). Remaining: permissive compose secrets (`WAZUH_API_PASS:-`, `postgres ares/ares` dev default, MISP admin default), no security headers, tool-server `:8090` still host-published in compose, upstream/DB error strings echoed in bodies. |
 | API9 | Improper Inventory Management | PARTIAL | Route inventory is now documented in *HTTP contracts* (including `/playbooks*`, `/vulns*`, `/cvss/score`, `/acp/*`, `/webhook/generic`); remaining drift: console calls a nonexistent `POST /hunt` (`apps/console/lib/api.ts:373`). The `503`-vs-`502` drift is resolved (code returns `502`, doc now agrees) and the HTTP surface is specified in `docs/openapi/`. |
 | API10 | Unsafe Consumption of APIs | VULNERABLE | Attacker-controlled JSON (webhook payloads, A2A `message`) flows verbatim into LLM prompts — triage context (`triage-agent/main.rs:297-304`) and response planner (`response-agent/main.rs:247-248`) — so prompt injection becomes planned tool calls; `exec.sandbox` permits `bash -c` and `FORBIDDEN_SUBSTRINGS` misses `\n`, `>`, `&`, `<(` (`executors/openshell.rs:50-55,92-96`); `/stream/activity` relays raw NATS payloads to browsers (`stream.rs:48-68`). |
 
 ### Findings (ordered)
 
-1. **Unauthenticated end-to-end command path.** `POST /a2a/response-agent`
-   `tasks/send` → `ares.respond` → Strong-tier plan → `tool-server/invoke`
-   (`a2a.rs:394-467`, `response-agent/main.rs:235-341`); `tool-server` itself is
-   published on `:8090` with no auth (`infra/docker-compose.yml:330`,
-   `tool-server/main.rs:202-206`), so the policy engine is the *only* gate
-   between any network client and `wazuh.active_response.*`, `entra.user.*`,
-   `exec.sandbox`. *Fix:* bearer-token middleware on all three routers
-   (tower `from_fn` vs env token) + stop publishing `:8090`/`:8091` to the host
-   (compose `ports:` → internal `expose:`) until auth lands.
-2. **Kill-switch is an unauthenticated, CSRF-able, and currently broken
-   control.** `POST /controls/kill-switch` needs no auth and takes a raw
+1. ~~**Unauthenticated end-to-end command path.**~~ **Resolved:** every edge
+   route except `/health` requires `ARES_API_KEYS`; agents call tool-server
+   with `ARES_TOOL_KEY`; the gateway strips client credentials and injects
+   its own service key upstream. Remaining posture: keys are static and
+   env-resident (rotation = restart).
+2. **Kill-switch has no dedicated role.** `POST /controls/kill-switch` is
+   authenticated but any operator key toggles the global safety control —
+   consider a `kill-switch` role tag like `approver` if key-based RBAC
+   grows. It also takes a raw
    `Bytes` body (any content-type → simple-request CSRF under permissive CORS);
    engaging = fleet-wide tool-exec DoS, disengaging = re-arms a safety
    boundary (`kill.rs:39-46`). Separately it is non-functional in compose:

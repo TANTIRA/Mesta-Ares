@@ -105,6 +105,9 @@ struct AppState {
     api_upstreams: Vec<String>,
     ingest_upstreams: Vec<String>,
     tools_upstreams: Vec<String>,
+    /// Service key injected on upstream calls (`ARES_TOOL_KEY`); the edge
+    /// credential never propagates inward.
+    upstream_key: Option<String>,
     rr: proxy::RoundRobin,
     cache: cache::ResponseCache,
     metrics: metrics::Metrics,
@@ -189,6 +192,10 @@ async fn main() -> Result<()> {
         api_upstreams: split_list(&cfg.api_upstreams),
         ingest_upstreams: split_list(&cfg.ingest_upstreams),
         tools_upstreams: split_list(&cfg.tools_upstreams),
+        upstream_key: std::env::var("ARES_TOOL_KEY")
+            .ok()
+            .map(|k| k.trim().to_string())
+            .filter(|k| !k.is_empty()),
         rr: proxy::RoundRobin::default(),
         cache: cache::ResponseCache::new(
             Duration::from_secs(cfg.cache_ttl_seconds),
@@ -264,6 +271,7 @@ mod tests {
             api_upstreams: vec!["http://localhost:8080".into()],
             ingest_upstreams: vec!["http://localhost:8091".into()],
             tools_upstreams: vec!["http://localhost:8090".into()],
+            upstream_key: None,
             rr: proxy::RoundRobin::default(),
             cache: cache::ResponseCache::new(Duration::ZERO, vec![]),
             metrics: metrics::Metrics::default(),

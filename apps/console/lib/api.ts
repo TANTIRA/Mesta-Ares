@@ -1,7 +1,9 @@
 import { z } from "zod";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+// All API access flows through the same-origin BFF proxy
+// (app/api/proxy/[...path]/route.ts), which injects the service API key
+// server-side — no credential ever reaches the browser.
+const API_URL = "/api/proxy";
 
 /* ── Schemas ─────────────────────────────────────────────────────────── */
 
