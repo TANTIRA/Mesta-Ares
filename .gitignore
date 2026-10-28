@@ -17,3 +17,8 @@ dist/
 # OS / editors
 .DS_Store
 *.swp
+
+# Keycloak provider build artifacts (regen via infra/keycloak/build-providers.sh)
+infra/keycloak/.provider-build/
+infra/keycloak/.provider-build-parallel/
+infra/keycloak/providers/
