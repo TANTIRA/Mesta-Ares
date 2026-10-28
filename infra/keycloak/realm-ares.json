@@ -1,0 +1,64 @@
+{
+  "realm": "ares",
+  "enabled": true,
+  "displayName": "Mesta-Ares",
+  "loginTheme": "ares",
+  "accountTheme": "ares",
+  "adminTheme": "ares",
+  "emailTheme": "ares",
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "bruteForceProtected": true,
+  "defaultRoles": ["default-roles-ares"],
+  "roles": {
+    "realm": [
+      { "name": "default-roles-ares", "description": "Default Ares realm roles" },
+      { "name": "ares-admin", "description": "Full console access" },
+      { "name": "ares-analyst", "description": "Read + triage" },
+      { "name": "ares-viewer", "description": "Read-only" }
+    ]
+  },
+  "users": [
+    {
+      "username": "ares-admin",
+      "enabled": true,
+      "realmRoles": ["ares-admin", "default-roles-ares"],
+      "credentials": [
+        { "type": "password", "value": "ares-admin", "temporary": true }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "ares-console",
+      "name": "Ares Console",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:8082/*"
+      ],
+      "webOrigins": ["http://localhost:3000", "http://localhost:8082"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      }
+    },
+    {
+      "clientId": "ares-service",
+      "name": "Ares Service (machine-to-machine)",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "secret": "ares-service-secret"
+    }
+  ],
+  "scopeMappings": [
+    { "client": "ares-console", "roles": ["ares-admin", "ares-analyst", "ares-viewer"] }
+  ]
+}

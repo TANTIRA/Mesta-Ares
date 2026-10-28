@@ -199,11 +199,21 @@ services:
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
       KC_PROXY_HEADERS: xforwarded
-      # Optional provider config — uncomment after reading docs/keycloak.md:
-      # GEOAWARE_DB_PATH: /geoip/GeoLite2-City.mmdb   # drop a MaxMind mmdb into infra/keycloak/geoip/
-      # VAULT_ADDR: ${VAULT_ADDR:-}                    # secrets-vault provider
-      # VAULT_TOKEN: ${VAULT_TOKEN:-}
-      # KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_SUCCESS_LEVEL: info
+      # Providers that demand config at boot stay installed but disabled
+      # until configured — see docs/keycloak.md.
+      KC_SPI_VAULT_SECRETS_PROVIDER_ENABLED: "false"
+      KC_SPI_ADMIN_REALM_RESTAPI_EXTENSION_SECRETS_MANAGER_ENABLED: "false"
+      # GeoAware: SPI id is "geoaware-geoip". Use the mock geoip provider
+      # (no-op lookups) + dummy MaxMind creds — its autodownload init task
+      # NPEs on a null account id even when another provider is selected.
+      KC_SPI_GEOAWARE_GEOIP_PROVIDER: mock
+      KC_SPI_GEOAWARE_GEOIP_MAXMIND_FILE_AUTODOWNLOAD_ACCOUNT_ID: "1"
+      KC_SPI_GEOAWARE_GEOIP_MAXMIND_FILE_AUTODOWNLOAD_LICENSE_KEY: dummy
+      # Metatavu SCIM server requires an auth mode or 500s on every call.
+      SCIM_AUTHENTICATION_MODE: ${SCIM_AUTHENTICATION_MODE:-KEYCLOAK}
+      # To enable vault: set VAULT_ADDR/VAULT_TOKEN + flip both SPI flags.
+      # To enable GeoAware lookups: drop a MaxMind mmdb into
+      # infra/keycloak/geoip/ and switch geoip provider to maxmind-file.
     ports: ["8180:8080"]
     volumes:
       - ./keycloak/realm-ares.json:/opt/keycloak/data/import/realm-ares.json:ro
