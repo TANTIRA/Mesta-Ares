@@ -88,6 +88,22 @@ pub(crate) struct AppState {
     pub(crate) hive: Option<connectors::ThehiveClient>,
 }
 
+/// Restrictive-by-default CORS: `CORS_ALLOW_ORIGIN` (exact origin) opts a
+/// browser origin back in; absent, no cross-origin reads are allowed.
+fn cors_layer() -> CorsLayer {
+    match std::env::var("CORS_ALLOW_ORIGIN") {
+        Ok(origin) => CorsLayer::new()
+            .allow_origin(
+                origin
+                    .parse::<axum::http::HeaderValue>()
+                    .expect("CORS_ALLOW_ORIGIN must be a valid origin, e.g. http://localhost:3000"),
+            )
+            .allow_methods(tower_http::cors::Any)
+            .allow_headers(tower_http::cors::Any),
+        Err(_) => CorsLayer::new(),
+    }
+}
+
 /// The complete route table (axum 0.8 `{param}` syntax).
 fn api_router() -> Router<Arc<AppState>> {
     // `/health` stays open so probes work without credentials; every other
@@ -95,7 +111,7 @@ fn api_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/health", get(handlers::health))
         .merge(protected_router().layer(middleware::from_fn_with_state(
-            http_limits::auth::ApiKeys::from_env(),
+            http_limits::auth::ApiKeys::from_env().enforced(),
             http_limits::auth::require_auth,
         )))
 }
@@ -171,7 +187,9 @@ async fn main() -> anyhow::Result<()> {
         enricher: enrichment_lib::Enricher::new(),
         activity_tx,
         sink,
-        auth_enabled: http_limits::auth::ApiKeys::from_env().is_enabled(),
+        auth_enabled: http_limits::auth::ApiKeys::from_env()
+            .enforced()
+            .is_enabled(),
         audit,
         hive: conn_cfg.build_thehive_client(),
     });
@@ -184,7 +202,10 @@ async fn main() -> anyhow::Result<()> {
             rate_limiter,
             http_limits::middleware,
         ))
-        .layer(CorsLayer::permissive())
+        // The console reaches us same-origin through its BFF proxy, so CORS
+        // is locked down by default; CORS_ALLOW_ORIGIN re-enables one origin
+        // for tooling that calls the API straight from a browser.
+        .layer(cors_layer())
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind(&config.bind_addr).await?;

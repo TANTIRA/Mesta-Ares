@@ -33,6 +33,8 @@ pub mod code {
     pub const VALIDATION_ERROR: &str = "VALIDATION_ERROR";
     /// Missing or invalid credentials.
     pub const UNAUTHORIZED: &str = "UNAUTHORIZED";
+    /// Authenticated but not allowed (role, separation of duty, ...).
+    pub const FORBIDDEN: &str = "FORBIDDEN";
     /// Resource does not exist.
     pub const NOT_FOUND: &str = "NOT_FOUND";
     /// State transition not allowed (already decided, wrong status, ...).
@@ -99,6 +101,12 @@ impl ApiError {
     /// `400 VALIDATION_ERROR`.
     pub fn validation(message: impl Into<String>) -> Self {
         Self::new(StatusCode::BAD_REQUEST, code::VALIDATION_ERROR, message)
+    }
+
+    /// `403 FORBIDDEN` — caller authenticated but lacks the role or is
+    /// blocked by separation of duty.
+    pub fn forbidden(message: impl Into<String>) -> Self {
+        Self::new(StatusCode::FORBIDDEN, code::FORBIDDEN, message)
     }
 
     /// `401 UNAUTHORIZED`.
@@ -169,7 +177,8 @@ impl ApiError {
     pub fn from_status(status: StatusCode, message: impl Into<String>) -> Self {
         let code = match status {
             StatusCode::BAD_REQUEST => code::BAD_REQUEST,
-            StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN => code::UNAUTHORIZED,
+            StatusCode::UNAUTHORIZED => code::UNAUTHORIZED,
+            StatusCode::FORBIDDEN => code::FORBIDDEN,
             StatusCode::NOT_FOUND => code::NOT_FOUND,
             StatusCode::CONFLICT => code::CONFLICT,
             StatusCode::TOO_MANY_REQUESTS => code::RATE_LIMITED,

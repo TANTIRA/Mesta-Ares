@@ -21,7 +21,7 @@ pub mod error;
 
 use std::{
     io::ErrorKind,
-    net::{IpAddr, Ipv4Addr, SocketAddr},
+    net::SocketAddr,
     path::Path,
     sync::Arc,
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
@@ -176,8 +176,8 @@ enum Outcome {
 pub struct RateLimiter {
     limits: RateLimits,
     classify: fn(&Request) -> Tier,
-    buckets: DashMap<(Tier, IpAddr), Bucket>,
-    streams: DashMap<IpAddr, Arc<Semaphore>>,
+    buckets: DashMap<(Tier, String), Bucket>,
+    streams: DashMap<String, Arc<Semaphore>>,
 }
 
 impl RateLimiter {
@@ -216,11 +216,14 @@ impl RateLimiter {
     }
 
     /// Consumes one token from `key`'s bucket in `tier`.
-    fn check(&self, tier: Tier, key: IpAddr, spec: TierSpec, now: Instant) -> Outcome {
-        let mut entry = self.buckets.entry((tier, key)).or_insert(Bucket {
-            tokens: spec.burst as f64,
-            last_seen: now,
-        });
+    fn check(&self, tier: Tier, key: &str, spec: TierSpec, now: Instant) -> Outcome {
+        let mut entry = self
+            .buckets
+            .entry((tier, key.to_string()))
+            .or_insert(Bucket {
+                tokens: spec.burst as f64,
+                last_seen: now,
+            });
         let rate = spec.per_second as f64;
         let cap = spec.burst as f64;
         entry.tokens =
@@ -283,12 +286,26 @@ pub async fn middleware(State(rl): State<Arc<RateLimiter>>, req: Request, next: 
     if tier == Tier::Exempt {
         return next.run(req).await;
     }
+    // Authenticated actors get their own bucket; an unvalidated presented
+    // token still gets one (flood control survives credential stuffing);
+    // only requests with neither fall back to peer IP.
     let key = req
         .extensions()
-        .get::<ConnectInfo<SocketAddr>>()
-        .map(|c| c.0.ip())
+        .get::<crate::auth::Actor>()
+        .map(|a| format!("actor:{}", a.name))
+        .or_else(|| {
+            crate::auth::presented_token(req.headers()).map(|t| {
+                let h = agent_protocol::hex::sha256_hex(t.as_bytes());
+                format!("tok:{}", &h[..16])
+            })
+        })
+        .or_else(|| {
+            req.extensions()
+                .get::<ConnectInfo<SocketAddr>>()
+                .map(|c| format!("ip:{}", c.0.ip()))
+        })
         // No connect info (tests, unix sockets): one shared fallback bucket.
-        .unwrap_or(IpAddr::V4(Ipv4Addr::UNSPECIFIED));
+        .unwrap_or_else(|| "unknown".to_string());
 
     if tier == Tier::Stream {
         let max = rl.limits.sse_max_concurrent as usize;
@@ -321,7 +338,7 @@ pub async fn middleware(State(rl): State<Arc<RateLimiter>>, req: Request, next: 
     }
 
     let spec = rl.limits.spec(tier);
-    match rl.check(tier, key, spec, Instant::now()) {
+    match rl.check(tier, &key, spec, Instant::now()) {
         Outcome::Allowed { remaining, reset } => {
             let mut res = next.run(req).await;
             set_headers(res.headers_mut(), spec.burst, remaining, reset);
@@ -372,23 +389,23 @@ mod tests {
             per_second: 1,
             burst: 2,
         };
-        let key = IpAddr::V4(Ipv4Addr::LOCALHOST);
+        let key = "test".to_string();
         let now = Instant::now();
         assert!(matches!(
-            rl.check(Tier::General, key, spec, now),
+            rl.check(Tier::General, &key, spec, now),
             Outcome::Allowed { remaining: 1, .. }
         ));
         assert!(matches!(
-            rl.check(Tier::General, key, spec, now),
+            rl.check(Tier::General, &key, spec, now),
             Outcome::Allowed { remaining: 0, .. }
         ));
-        match rl.check(Tier::General, key, spec, now) {
+        match rl.check(Tier::General, &key, spec, now) {
             Outcome::Limited { retry_after, .. } => assert!(retry_after >= 1),
             Outcome::Allowed { .. } => panic!("third request should be limited"),
         }
         // A different tier gets its own bucket.
         assert!(matches!(
-            rl.check(Tier::Expensive, key, spec, now),
+            rl.check(Tier::Expensive, &key, spec, now),
             Outcome::Allowed { .. }
         ));
     }
@@ -400,15 +417,15 @@ mod tests {
             per_second: 10,
             burst: 1,
         };
-        let key = IpAddr::V4(Ipv4Addr::LOCALHOST);
+        let key = "test".to_string();
         let t0 = Instant::now();
         assert!(matches!(
-            rl.check(Tier::General, key, spec, t0),
+            rl.check(Tier::General, &key, spec, t0),
             Outcome::Allowed { .. }
         ));
         // 200ms later: 2 tokens refilled, capped at burst=1.
         assert!(matches!(
-            rl.check(Tier::General, key, spec, t0 + Duration::from_millis(200)),
+            rl.check(Tier::General, &key, spec, t0 + Duration::from_millis(200)),
             Outcome::Allowed { remaining: 0, .. }
         ));
     }
@@ -477,7 +494,7 @@ mod tests {
             ..RateLimits::default()
         };
         let rl = RateLimiter::new(limits, |_| Tier::Stream);
-        let key = IpAddr::V4(Ipv4Addr::LOCALHOST);
+        let key = "test".to_string();
         let sem = rl
             .streams
             .entry(key)

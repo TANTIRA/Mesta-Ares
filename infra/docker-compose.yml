@@ -31,6 +31,11 @@ x-ares-env: &ares-env
 # Secrets are interpolated from the .env file next to the repo root
 # (compose auto-loads ../.env relative to this file). Never hardcode here.
 x-ares-secrets: &ares-secrets
+  # Service-to-service auth: `key:actor[:role],...` — generate dev keys with
+  # infra/gen-dev-keys.sh. ARES_REQUIRE_AUTH=1 refuses to boot without keys.
+  ARES_API_KEYS: ${ARES_API_KEYS:-}
+  ARES_REQUIRE_AUTH: ${ARES_REQUIRE_AUTH:-}
+  ARES_TOOL_KEY: ${ARES_TOOL_KEY:-}
   ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
   VIRUSTOTAL_API_KEY: ${VIRUSTOTAL_API_KEY:-}
   SHODAN_API_KEY: ${SHODAN_API_KEY:-}
@@ -146,6 +151,55 @@ services:
     depends_on:
       - opensearch
       - wazuh-manager
+    restart: unless-stopped
+
+  # ---- identity: Keycloak + third-party providers ---------------------------
+  # Built image: infra/keycloak/Dockerfile compiles and installs:
+  #   adaptive-authn, cap-captcha, GeoAware, secrets-vault, scim-server,
+  #   pow, multi-tenancy (provider jars) + keycloakify "ares" theme.
+  keycloak-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: ${KC_DB_USER:-keycloak}
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD:-keycloak}
+    volumes: [keycloak-db-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KC_DB_USER:-keycloak} -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  keycloak:
+    # Jars are prebuilt on the host: ./infra/keycloak/build-providers.sh
+    build:
+      context: ./keycloak
+      dockerfile: Dockerfile
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: ${KC_DB_USER:-keycloak}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD:-keycloak}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HOSTNAME: ${KC_HOSTNAME:-http://localhost:8180}
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      # Optional provider config — uncomment after reading docs/keycloak.md:
+      # GEOAWARE_DB_PATH: /geoip/GeoLite2-City.mmdb   # drop a MaxMind mmdb into infra/keycloak/geoip/
+      # VAULT_ADDR: ${VAULT_ADDR:-}                    # secrets-vault provider
+      # VAULT_TOKEN: ${VAULT_TOKEN:-}
+      # KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_SUCCESS_LEVEL: info
+    ports: ["8180:8080"]
+    volumes:
+      - ./keycloak/realm-ares.json:/opt/keycloak/data/import/realm-ares.json:ro
+      - ./keycloak/geoip:/geoip
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
     restart: unless-stopped
 
   # ---- SOAR ------------------------------------------------------------------
@@ -373,7 +427,9 @@ services:
       GATEWAY_INGEST_UPSTREAMS: http://ingestion-gateway:8091
       GATEWAY_TOOLS_UPSTREAMS: http://tool-server:8090
       GATEWAY_API_KEYS: ${GATEWAY_API_KEYS:-}
-      GATEWAY_ALLOW_ANONYMOUS: ${GATEWAY_ALLOW_ANONYMOUS:-1}
+      # Dev-only escape hatch; unset means fail closed. Set =1 only if you
+      # skipped infra/gen-dev-keys.sh.
+      GATEWAY_ALLOW_ANONYMOUS: ${GATEWAY_ALLOW_ANONYMOUS:-}
     ports: ["8082:8082"]
     depends_on:
       api-server: {condition: service_started}
@@ -513,13 +569,12 @@ services:
     build:
       context: ..
       dockerfile: infra/Dockerfile.console
-      args:
-        # Baked into the client bundle — must be reachable from the browser.
-        NEXT_PUBLIC_API_URL: http://localhost:8080
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8080
+      # Server-side proxy injects ARES_CONSOLE_KEY; never reaches the browser.
+      ARES_API_URL: http://api-gateway:8082
+      ARES_CONSOLE_KEY: ${ARES_CONSOLE_KEY:-}
     ports: ["3000:3000"]
-    depends_on: [api-server]
+    depends_on: [api-gateway]
     restart: unless-stopped
 
 volumes:
@@ -528,6 +583,7 @@ volumes:
   redis-data:
   opensearch-data:
   wazuh-data:
+  keycloak-db-data:
   cassandra-data:
   thehive-data:
   cortex-data:

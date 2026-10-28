@@ -222,12 +222,16 @@ spec:
           ports:
             - name: http
               containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: ares-env
+            - secretRef:
+                name: ares-secrets
           env:
-            # NEXT_PUBLIC_* is baked into the client bundle at BUILD time, so
-            # the image must be built with the browser-reachable API URL. This
-            # env only affects server-side rendering.
-            - name: NEXT_PUBLIC_API_URL
-              value: http://ares-api-server:8080
+            # Server-side BFF proxy upstream + injected key (ARES_CONSOLE_KEY
+            # comes from ares-secrets); nothing secret reaches the browser.
+            - name: ARES_API_URL
+              value: http://ares-api-gateway:8082
           readinessProbe:
             httpGet: {path: /, port: http}
             initialDelaySeconds: 5

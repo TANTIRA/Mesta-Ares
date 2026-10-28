@@ -145,7 +145,7 @@ async fn main() -> anyhow::Result<()> {
                 .route("/webhook/wazuh", post(wazuh_webhook))
                 .route("/webhook/generic", post(generic_webhook))
                 .layer(middleware::from_fn_with_state(
-                    http_limits::auth::ApiKeys::from_env(),
+                    http_limits::auth::ApiKeys::from_env().enforced(),
                     http_limits::auth::require_auth,
                 )),
         )

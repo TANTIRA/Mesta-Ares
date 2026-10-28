@@ -194,6 +194,29 @@ pub struct ListQuery {
     status: Option<Status>,
 }
 
+/// Separation-of-duty gate for approve/reject: the decider must hold the
+/// `approver` role and must not be the actor that requested the call. Runs
+/// before [`Store::settle`] so a failed check leaves the record pending.
+fn check_decider(
+    approvals: &Store,
+    id: &Uuid,
+    actor: &http_limits::auth::Actor,
+) -> Result<(), http_limits::error::ApiError> {
+    if actor.role != "approver" {
+        return Err(http_limits::error::ApiError::forbidden(
+            "approver role required",
+        ));
+    }
+    if let Some(rec) = approvals.get(id) {
+        if rec.call.actor == actor.name {
+            return Err(http_limits::error::ApiError::forbidden(
+                "cannot decide your own request",
+            ));
+        }
+    }
+    Ok(())
+}
+
 /// `GET /approvals` — queue contents, newest first.
 pub async fn list(
     State(s): State<Arc<AppState>>,
@@ -232,7 +255,8 @@ pub async fn approve(
     axum::extract::Extension(actor): axum::extract::Extension<http_limits::auth::Actor>,
     _body: Option<Json<DecideBody>>,
 ) -> Result<Json<Outcome>, http_limits::error::ApiError> {
-    let by = actor.0;
+    check_decider(&s.approvals, &id, &actor)?;
+    let by = actor.name;
 
     let settled = s
         .approvals
@@ -301,7 +325,8 @@ pub async fn reject(
     axum::extract::Extension(actor): axum::extract::Extension<http_limits::auth::Actor>,
     body: Option<Json<DecideBody>>,
 ) -> Result<Json<Outcome>, http_limits::error::ApiError> {
-    let by = actor.0;
+    check_decider(&s.approvals, &id, &actor)?;
+    let by = actor.name;
     let note = body.as_ref().and_then(|Json(b)| b.reason.clone());
 
     let settled = s
@@ -349,6 +374,7 @@ pub async fn reject(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use axum::http::StatusCode;
     use serde_json::json;
 
     fn call() -> ToolCall {
@@ -404,6 +430,39 @@ mod tests {
             store.settle(&id, Status::Approved, "bob").unwrap_err(),
             SettleError::AlreadyDecided(Status::Rejected)
         );
+    }
+
+    fn actor(name: &str, role: &str) -> http_limits::auth::Actor {
+        http_limits::auth::Actor {
+            name: name.to_string(),
+            role: role.to_string(),
+        }
+    }
+
+    #[test]
+    fn non_approver_cannot_decide() {
+        let store = Store::new();
+        let id = store.insert(&call(), "needs approval");
+        let err = check_decider(&store, &id, &actor("alice", "operator")).unwrap_err();
+        assert_eq!(err.status, StatusCode::FORBIDDEN);
+        assert_eq!(store.get(&id).unwrap().status, Status::Pending);
+    }
+
+    #[test]
+    fn requester_cannot_self_approve() {
+        let store = Store::new();
+        let id = store.insert(&call(), "needs approval");
+        // call() requests as "response-agent".
+        let err = check_decider(&store, &id, &actor("response-agent", "approver")).unwrap_err();
+        assert_eq!(err.status, StatusCode::FORBIDDEN);
+        assert_eq!(store.get(&id).unwrap().status, Status::Pending);
+    }
+
+    #[test]
+    fn approver_other_than_requester_passes() {
+        let store = Store::new();
+        let id = store.insert(&call(), "needs approval");
+        assert!(check_decider(&store, &id, &actor("alice", "approver")).is_ok());
     }
 
     #[test]

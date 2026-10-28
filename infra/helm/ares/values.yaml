@@ -13,9 +13,13 @@ global:
 # SHODAN_API_KEY, ABUSEIPDB_API_KEY, GREYNOISE_API_KEY, MISP_API_KEY,
 # THEHIVE_API_KEY, WAZUH_API_USER, WAZUH_API_PASS, SHUFFLE_API_KEY,
 # POSTGRES_PASSWORD (also consumed by the postgres manifest below),
-# GATEWAY_API_KEYS (comma-separated; required by api-gateway).
+# GATEWAY_API_KEYS (comma-separated; required by api-gateway),
+# ARES_API_KEYS (`key:actor[:role],...`; role `approver` decides approvals),
+# ARES_TOOL_KEY (agents → tool-server), ARES_CONSOLE_KEY (console proxy).
 env:
   RUST_LOG: info
+  # Fail closed: edge services exit rather than serve unauthenticated.
+  ARES_REQUIRE_AUTH: "1"
   NATS_URL: nats://ares-nats:4222
   REDIS_URL: redis://ares-redis:6379
   # DATABASE_URL lives in ares-secrets (contains the password).
@@ -84,7 +88,8 @@ services:
         configMap: ares-policies
   console:
     port: 3000
-    env: {NEXT_PUBLIC_API_URL: http://ares-api-server:8080}
+    # Server-side proxy upstream; ARES_CONSOLE_KEY comes from ares-secrets.
+    env: {ARES_API_URL: http://ares-api-gateway:8082}
 
 # In-cluster datastores (prod should point at managed equivalents instead).
 postgres:

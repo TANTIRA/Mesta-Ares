@@ -64,7 +64,7 @@ async fn invoke(
 ) -> (StatusCode, Json<InvokeResponse>) {
     // The body's actor is advisory; the authenticated identity wins so policy
     // and audit see a verified caller.
-    call.actor = actor.0;
+    call.actor = actor.name;
     // Rename alias argument keys to their canonical spelling (policies/tools.yml
     // owns the mapping) before the schema check sees them.
     state.engine.canonicalize(&mut call);
@@ -296,7 +296,7 @@ async fn main() -> Result<()> {
                 .route("/approvals/{id}/approve", post(approvals::approve))
                 .route("/approvals/{id}/reject", post(approvals::reject))
                 .layer(axum::middleware::from_fn_with_state(
-                    http_limits::auth::ApiKeys::from_env(),
+                    http_limits::auth::ApiKeys::from_env().enforced(),
                     http_limits::auth::require_auth,
                 )),
         )

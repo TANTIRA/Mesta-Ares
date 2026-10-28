@@ -7,8 +7,10 @@
 # you use (VIRUSTOTAL_API_KEY, SHODAN_API_KEY, ABUSEIPDB_API_KEY,
 # GREYNOISE_API_KEY, MISP_API_KEY, THEHIVE_API_KEY, WAZUH_API_USER,
 # WAZUH_API_PASS, SHUFFLE_API_KEY), plus POSTGRES_PASSWORD for the bundled
-# Postgres and GATEWAY_API_KEYS for the API gateway (comma-separated; without
-# it the gateway rejects everything).
+# Postgres, GATEWAY_API_KEYS for the API gateway (comma-separated; without
+# it the gateway rejects everything), ARES_API_KEYS (`key:actor[:role],...`;
+# role `approver` decides tool-server approvals), ARES_TOOL_KEY (agents →
+# tool-server) and ARES_CONSOLE_KEY (console BFF proxy).
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -17,6 +19,8 @@ metadata:
     app.kubernetes.io/part-of: ares
 data:
   RUST_LOG: "info"
+  # Fail closed: every edge service exits rather than serve unauthenticated.
+  ARES_REQUIRE_AUTH: "1"
   NATS_URL: "nats://ares-nats:4222"
   REDIS_URL: "redis://ares-redis:6379"
   TOOL_SERVER_URL: "http://ares-tool-server:8090"
