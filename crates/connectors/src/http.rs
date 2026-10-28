@@ -42,8 +42,33 @@ pub(crate) fn join(base: &str, path: &str) -> String {
     format!("{}{}", base.trim_end_matches('/'), path)
 }
 
+/// Validates an untrusted identifier before it is interpolated into an
+/// upstream URL path. Accepts `[A-Za-z0-9._~-]{1,128}` only — `/`, `?`, `#`,
+/// `&`, `=` and `..`-traversal via separators are all rejected, so a tool
+/// arg can never escape the intended endpoint or smuggle query params.
+pub fn segment<'a>(id: &'a str, what: &str) -> Result<&'a str> {
+    let ok = !id.is_empty()
+        && id.len() <= 128
+        && !id.starts_with('.')
+        && id
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '~' | '-'));
+    anyhow::ensure!(ok, "invalid {what}: `{id}`");
+    Ok(id)
+}
+
+/// `reqwest::Error` Display embeds the full request URL — query string and
+/// all — which would leak credentials such as Shodan's `?key=` into logs
+/// and tool results. Always surface errors through this.
+pub(crate) fn without_url(e: reqwest::Error) -> reqwest::Error {
+    e.without_url()
+}
+
 pub(crate) async fn json_ok<T: DeserializeOwned>(resp: reqwest::Response) -> Result<T> {
-    let resp = resp.error_for_status().context("upstream HTTP error")?;
+    let resp = resp
+        .error_for_status()
+        .map_err(without_url)
+        .context("upstream HTTP error")?;
     resp.json::<T>().await.context("decode upstream JSON")
 }
 
@@ -84,6 +109,7 @@ pub(crate) async fn send_with_retry(req: RequestBuilder) -> Result<reqwest::Resp
             .expect("replayable body checked before the retry loop");
         match attempt_req.send().await {
             Ok(resp) => {
+
                 let code = resp.status().as_u16();
                 let transient = code == 429 || matches!(code, 502..=504);
                 if !transient || attempt >= MAX_TRANSIENT_RETRIES {
@@ -103,13 +129,13 @@ pub(crate) async fn send_with_retry(req: RequestBuilder) -> Result<reqwest::Resp
             Err(e) => {
                 let transient = e.is_connect() || e.is_timeout();
                 if !transient || attempt >= MAX_TRANSIENT_RETRIES {
-                    return Err(e).context("upstream request failed");
+                    return Err(without_url(e)).context("upstream request failed");
                 }
                 let remaining = deadline.saturating_duration_since(Instant::now());
                 if remaining.is_zero() {
-                    return Err(e).context("upstream request failed");
+                    return Err(without_url(e)).context("upstream request failed");
                 }
-                tracing::warn!(error = %e, attempt, "transient transport error; retrying");
+                tracing::warn!(error = %e.without_url(), attempt, "transient transport error; retrying");
                 sleep(retry_sleep(attempt, remaining)).await;
             }
         }

@@ -5,7 +5,7 @@ use reqwest::Client;
 
 use serde_json::Value;
 
-use crate::http::{join, json_ok, send_with_retry, Auth};
+use crate::http::{join, json_ok, segment, send_with_retry, Auth};
 
 // ---------------------------------------------------------------------------
 // Cortex
@@ -35,6 +35,7 @@ impl CortexClient {
         data_type: &str,
         data: &str,
     ) -> Result<Value> {
+        let analyzer_id = segment(analyzer_id, "analyzer_id")?;
         let body = serde_json::json!({
             "data": data,
             "dataType": data_type,

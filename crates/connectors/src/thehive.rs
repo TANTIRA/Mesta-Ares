@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use serde_json::Value;
 
-use crate::http::{join, json_ok, send_with_retry, Auth};
+use crate::http::{join, json_ok, segment, send_with_retry, Auth};
 
 // ---------------------------------------------------------------------------
 // TheHive
@@ -105,6 +105,7 @@ impl ThehiveClient {
         case_id: &str,
         observable: &NewObservable,
     ) -> Result<Observable> {
+        let case_id = segment(case_id, "case_id")?;
         let req = self
             .auth
             .apply(self.http.post(join(
@@ -122,6 +123,7 @@ impl ThehiveClient {
 
     /// `PATCH /api/v1/case/{case_id}` with an arbitrary JSON patch body.
     pub async fn update_case(&self, case_id: &str, patch: &Value) -> Result<Case> {
+        let case_id = segment(case_id, "case_id")?;
         let req = self
             .auth
             .apply(

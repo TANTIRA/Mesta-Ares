@@ -378,8 +378,21 @@ tools:
   # when absent. Non-exec tools are unaffected.
   exec.sandbox:
     impact: high
-    autonomy: auto
+    # Sandbox is the boundary, but exec goes through human approval —
+    # bash/python3 in the allowlist make it arbitrary code by design.
+    autonomy: approval
     blast_radius: { max_per_hour: 20, cooldown_minutes: 1 }
+    args_schema:
+      type: object
+      properties:
+        command: { type: string, enum: [bash, sshpass, python3, echo] }
+        args:
+          type: array
+          items: { type: string, maxLength: 1024 }
+
+  exec.bas.run:
+    impact: high
+    autonomy: approval
     args_schema:
       type: object
       properties:

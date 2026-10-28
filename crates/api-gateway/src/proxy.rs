@@ -158,8 +158,17 @@ async fn forward(s: Arc<AppState>, route: Route, path: String, req: Request) -> 
 
     // Cache lookup for cacheable GETs. Match on the incoming path (`/api/...`),
     // not the stripped upstream path, so prefixes are configured as clients see
-    // them.
-    let cache_key = format!("{path}?{}", query.clone().unwrap_or_default());
+    // them. The caller's key hash scopes entries so one key never sees
+    // another key's cached response.
+    let caller = http_limits::auth::presented_token(&headers)
+        .map(|t| {
+            use std::hash::{Hash, Hasher};
+            let mut h = std::collections::hash_map::DefaultHasher::new();
+            t.hash(&mut h);
+            format!("{:x}", h.finish())
+        })
+        .unwrap_or_else(|| "anon".to_string());
+    let cache_key = format!("{caller}|{path}?{}", query.clone().unwrap_or_default());
     let cacheable = s.cache.applies(method.as_str(), &full_path);
     if cacheable {
         if let Some(hit) = s.cache.get(&cache_key) {

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 use serde_json::Value;
 
-use crate::http::{join, json_ok, send_with_retry, Auth};
+use crate::http::{join, json_ok, segment, send_with_retry, Auth};
 
 // ---------------------------------------------------------------------------
 // MISP
@@ -178,6 +178,7 @@ impl MispClient {
 
     /// `POST /attributes/add/{event_id}`.
     pub async fn add_attribute(&self, event_id: &str, attr: &NewAttribute) -> Result<Value> {
+        let event_id = segment(event_id, "event_id")?;
         let req = self
             .authed(
                 self.http
@@ -224,6 +225,7 @@ impl MispClient {
     /// `GET /events/view/{event_id}` — full event with attributes, objects,
     /// tags and galaxies.
     pub async fn event(&self, event_id: &str) -> Result<Value> {
+        let event_id = segment(event_id, "event_id")?;
         let req = self.authed(
             self.http
                 .get(join(&self.base, &format!("/events/view/{event_id}"))),

@@ -92,10 +92,16 @@ fn execute(scenario: &Scenario) -> anyhow::Result<()> {
     let target = std::env::var(env_var).ok();
     let Some(target) = target else {
         info!(scenario = %scenario.id, platform = %scenario.executor.platform,
-              cmd = %scenario.executor.command, "no {env_var}; attack not launched");
+              "no {env_var}; attack not launched");
         return Ok(());
     };
+    anyhow::ensure!(
+        !target.starts_with('-'),
+        "{env_var} looks like a flag: `{target}`"
+    );
     let mut full_args = args;
+    // `--` keeps the target from ever being parsed as an ssh/winrm option.
+    full_args.push("--".to_string());
     full_args.push(target.clone());
     full_args.push(scenario.executor.command.clone());
     let status = Command::new(program)
