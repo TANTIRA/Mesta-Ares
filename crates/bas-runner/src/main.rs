@@ -186,7 +186,8 @@ async fn publish(nats: &async_nats::Client, subject: &str, kind: EnvelopeKind, p
     let env = Envelope::new("bas-runner", kind, payload);
     match serde_json::to_vec(&env) {
         Ok(bytes) => {
-            if let Err(e) = nats.publish(subject.to_string(), bytes.into()).await {
+            let sink = agent_core::NatsSink::from_client(nats.clone()).await;
+            if let Err(e) = sink.publish_bytes(subject, bytes).await {
                 warn!(error = %e, subject, "publish failed");
             }
         }

@@ -1,5 +1,6 @@
 //! Wazuh manager API client (agents, active response).
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 use tokio::sync::Mutex;
 
 use anyhow::{Context, Result};
@@ -14,14 +15,31 @@ use crate::http::{join, json_ok, send_with_retry, Auth};
 // Wazuh
 // ---------------------------------------------------------------------------
 
+/// Cached JWT plus when it was fetched.
+struct CachedToken {
+    value: String,
+    fetched: Instant,
+}
+
+/// Token lifetime floor: Wazuh issues JWTs at `auth_token_exp_timeout`
+/// (default 900s); refresh well inside that. `WAZUH_TOKEN_TTL_SECS` overrides.
+fn token_ttl() -> Duration {
+    Duration::from_secs(
+        crate::http::env("WAZUH_TOKEN_TTL_SECS")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(700),
+    )
+}
+
 /// Wazuh manager API client. Authenticates lazily against
-/// `POST /security/user/authenticate` and caches the JWT.
+/// `POST /security/user/authenticate`; the cached JWT is refreshed when it
+/// ages past the TTL or when a request comes back 401.
 #[derive(Clone)]
 pub struct WazuhClient {
     base: String,
     http: Client,
     auth: Auth,
-    token: Arc<Mutex<Option<String>>>,
+    token: Arc<Mutex<Option<CachedToken>>>,
 }
 
 impl WazuhClient {
@@ -34,11 +52,13 @@ impl WazuhClient {
         }
     }
 
-    /// Fetch (once) and cache a JWT.
+    /// Fetch a token when none is cached or the cached one is stale.
     async fn token(&self) -> Result<String> {
         let mut guard = self.token.lock().await;
         if let Some(t) = guard.as_ref() {
-            return Ok(t.clone());
+            if t.fetched.elapsed() < token_ttl() {
+                return Ok(t.value.clone());
+            }
         }
         let req = self.auth.apply(
             self.http
@@ -52,21 +72,41 @@ impl WazuhClient {
             .and_then(|t| t.as_str())
             .context("wazuh auth response missing token")?
             .to_string();
-        *guard = Some(token.clone());
+        *guard = Some(CachedToken {
+            value: token.clone(),
+            fetched: Instant::now(),
+        });
         Ok(token)
     }
 
-    async fn authed(&self, req_builder: impl FnOnce() -> RequestBuilder) -> Result<RequestBuilder> {
-        let token = self.token().await?;
-        Ok(req_builder().bearer_auth(token))
+    /// Drop the cached token so the next call re-authenticates.
+    async fn invalidate(&self) {
+        *self.token.lock().await = None;
+    }
+
+    /// Build `req` with a fresh bearer; on a 401 re-authenticates and retries
+    /// exactly once.
+    async fn request(&self, req_builder: impl Fn() -> RequestBuilder) -> Result<reqwest::Response> {
+        for attempt in 0..2 {
+            let token = self.token().await?;
+            let resp = send_with_retry(req_builder().bearer_auth(token))
+                .await
+                .context("wazuh request")?;
+            if resp.status() != reqwest::StatusCode::UNAUTHORIZED || attempt == 1 {
+                return Ok(resp);
+            }
+            self.invalidate().await;
+        }
+        unreachable!()
     }
 
     /// `GET /agents` — raw response value (`data.affected_items` inside).
     pub async fn list_agents(&self) -> Result<Value> {
-        let req = self
-            .authed(|| self.http.get(join(&self.base, "/agents")))
-            .await?;
-        json_ok(send_with_retry(req).await.context("wazuh list_agents")?).await
+        let resp = self
+            .request(|| self.http.get(join(&self.base, "/agents")))
+            .await
+            .context("wazuh list_agents")?;
+        json_ok(resp).await
     }
 
     /// `PUT /active-response?agents_list={agent_id}` — run an AR command.
@@ -82,19 +122,15 @@ impl WazuhClient {
             "custom": true,
             "alert": {},
         });
-        let req = self
-            .authed(|| {
+        let resp = self
+            .request(|| {
                 self.http
                     .put(join(&self.base, "/active-response"))
                     .query(&[("agents_list", agent_id)])
+                    .json(&body)
             })
-            .await?
-            .json(&body);
-        json_ok(
-            send_with_retry(req)
-                .await
-                .context("wazuh active_response")?,
-        )
-        .await
+            .await
+            .context("wazuh active_response")?;
+        json_ok(resp).await
     }
 }

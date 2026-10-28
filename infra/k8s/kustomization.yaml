@@ -14,3 +14,4 @@ resources:
   - config.yaml
   - datastores.yaml
   - apps.yaml
+  - networkpolicy.yaml

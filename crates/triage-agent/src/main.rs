@@ -364,10 +364,8 @@ async fn handoff_respond(
         serde_json::to_value(&handoff)?,
     );
     env.correlation_id = envelope.correlation_id;
-    let bytes = serde_json::to_vec(&env)?;
-    client
-        .publish(SUBJECT_RESPOND.to_string(), bytes.into())
-        .await?;
+    let sink = agent_core::NatsSink::from_client(client.clone()).await;
+    sink.publish(SUBJECT_RESPOND, &env).await?;
     Ok(())
 }
 
