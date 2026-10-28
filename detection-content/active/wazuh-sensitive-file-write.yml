@@ -1,0 +1,34 @@
+title: Sensitive System File Modified (FIM)
+id: 4b7d1e9a-3c5f-4a2b-8e6d-0f1a3c5e7b92
+status: stable
+description: >-
+  Detects writes to account/identity configuration via Wazuh syscheck —
+  /etc/passwd, /etc/shadow, /etc/sudoers, sshd_config. Covers T1003.008 and
+  T1098-class account manipulation.
+author: Mesta-Ares
+date: 2026/10/29
+logsource:
+  product: wazuh
+  service: syscheck
+detection:
+  selection:
+    syscheck.path:
+      - '/etc/passwd'
+      - '/etc/shadow'
+      - '/etc/sudoers'
+      - '/etc/ssh/sshd_config'
+      - '/etc/pam.d/sshd'
+    syscheck.event|contains:
+      - 'modified'
+      - 'added'
+  filter_pkg:
+    rule.groups|contains: 'policy_violation'
+  condition: selection and not filter_pkg
+falsepositives:
+  - Package/user management and config-management runs
+level: high
+tags:
+  - attack.credential_access
+  - attack.persistence
+  - attack.t1003.008
+  - attack.t1098

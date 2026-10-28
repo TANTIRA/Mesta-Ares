@@ -176,6 +176,24 @@ impl ThreatIntelClient {
                         .await?,
                 ))
             }
+            "urlscan.search" => {
+                let Some(key) = self.keys.urlscan.as_deref() else {
+                    return Ok(None);
+                };
+                Ok(Some(
+                    self.http
+                        .get("https://urlscan.io/api/v1/search/")
+                        .header("API-Key", key)
+                        .query(&[("q", format!("page.url:\"{ioc}\""))])
+                        .send()
+                        .await
+                        .context("urlscan search")?
+                        .error_for_status()
+                        .context("urlscan HTTP error")?
+                        .json::<Value>()
+                        .await?,
+                ))
+            }
             "urlscan.submit" => {
                 let Some(key) = self.keys.urlscan.as_deref() else {
                     return Ok(None);

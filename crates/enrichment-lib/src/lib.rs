@@ -123,6 +123,50 @@ pub fn extract_iocs(text: &str) -> IocSet {
 }
 
 /// Coarse IoC classification used to pick provider endpoints.
+/// Heuristic flags for a domain IOC — DGA-shaped entropy, oversized
+/// labels, digit-heavy names, sketchy TLDs. Pure function: no lookup, no
+/// claim of badness, just "worth a second look" signals.
+pub fn domain_flags(domain: &str) -> Vec<&'static str> {
+    let mut flags = Vec::new();
+    let labels: Vec<&str> = domain.split('.').collect();
+    let tld = labels.last().copied().unwrap_or("");
+    const SKETCHY_TLDS: &[&str] = &[
+        "zip", "mov", "top", "xyz", "click", "work", "loan", "gq", "tk", "ml", "cf", "ga",
+    ];
+    if SKETCHY_TLDS.contains(&tld) {
+        flags.push("suspicious_tld");
+    }
+    let sld = labels.get(labels.len().saturating_sub(2)).copied().unwrap_or(domain);
+    if sld.len() > 20 {
+        flags.push("long_label");
+    }
+    let digits = sld.chars().filter(|c| c.is_ascii_digit()).count();
+    if sld.len() >= 6 && digits * 3 > sld.len() {
+        flags.push("digit_heavy");
+    }
+    // Shannon entropy over the second-level label; >3.8 is typical of
+    // generated names, not human-typed ones.
+    let mut counts = [0u32; 128];
+    for c in sld.bytes() {
+        if c < 128 {
+            counts[c as usize] += 1;
+        }
+    }
+    let n = sld.len() as f64;
+    let entropy: f64 = counts
+        .iter()
+        .filter(|&&c| c > 0)
+        .map(|&c| {
+            let p = c as f64 / n;
+            -p * p.log2()
+        })
+        .sum();
+    if sld.len() >= 8 && entropy > 3.8 {
+        flags.push("high_entropy");
+    }
+    flags
+}
+
 pub fn ioc_type(ioc: &str) -> &'static str {
     if ioc.parse::<IpAddr>().is_ok() {
         "ip"
