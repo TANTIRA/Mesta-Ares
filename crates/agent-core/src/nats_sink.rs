@@ -10,6 +10,10 @@ use tracing::{info, warn};
 
 /// Name of the JetStream stream capturing all `ares.>` subjects.
 pub const STREAM_NAME: &str = "ARES";
+/// Bounded stream over `ares.dlq` — dead letters never grow unbounded.
+pub const DLQ_STREAM_NAME: &str = "ARES_DLQ";
+/// Max retained dead letters before oldest are discarded.
+pub const DLQ_MAX_MESSAGES: i64 = 100_000;
 
 /// Publishes serialized [`Envelope`]s to NATS.
 ///
@@ -78,6 +82,21 @@ impl NatsSink {
                     .context("create ARES JetStream stream")?;
                 info!(stream = %stream.cached_info().config.name, "created JetStream stream");
             }
+        }
+        // Dead letters are bounded: the DLQ must never grow into a storage
+        // exhaustion vector. Oldest entries are discarded past the cap.
+        if js.get_stream(DLQ_STREAM_NAME).await.is_err() {
+            let stream = js
+                .create_stream(jetstream::stream::Config {
+                    name: DLQ_STREAM_NAME.to_string(),
+                    subjects: vec![agent_protocol::SUBJECT_DLQ.to_string()],
+                    max_messages: DLQ_MAX_MESSAGES,
+                    discard: jetstream::stream::DiscardPolicy::Old,
+                    ..Default::default()
+                })
+                .await
+                .context("create ARES_DLQ JetStream stream")?;
+            info!(stream = %stream.cached_info().config.name, "created bounded DLQ stream");
         }
         Ok(js)
     }

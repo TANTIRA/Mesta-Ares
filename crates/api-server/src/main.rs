@@ -178,6 +178,38 @@ async fn main() -> anyhow::Result<()> {
     let _ = kill_switch_engaged(); // warm the check path at boot
     let audit = Some(Arc::new(audit::AuditWriter::new(pool.clone())));
 
+    // Anchor the audit chain tail outside Postgres every minute: a DB writer
+    // can rewrite and rehash audit_log, but not this file.
+    {
+        let pool = pool.clone();
+        let path =
+            std::env::var("AUDIT_ANCHOR_PATH").unwrap_or_else(|_| "audit-anchor.log".into());
+        tokio::spawn(async move {
+            let mut tick = tokio::time::interval(std::time::Duration::from_secs(60));
+            loop {
+                tick.tick().await;
+                let row: anyhow::Result<Option<(i64, String)>> = sqlx::query_as(
+                    "SELECT seq, hash FROM audit_log ORDER BY seq DESC LIMIT 1",
+                )
+                .fetch_optional(&pool)
+                .await
+                .map_err(Into::into);
+                if let Ok(Some((seq, hash))) = row {
+                    use std::io::Write;
+                    let line = format!("{seq},{hash}\n");
+                    match std::fs::OpenOptions::new().create(true).append(true).open(&path) {
+                        Ok(mut f) => {
+                            if let Err(e) = f.write_all(line.as_bytes()) {
+                                tracing::warn!(error = %e, "audit anchor write failed");
+                            }
+                        }
+                        Err(e) => tracing::warn!(error = %e, "audit anchor open failed"),
+                    }
+                }
+            }
+        });
+    }
+
     let state = Arc::new(AppState {
         os: conn_cfg
             .build_opensearch_client()

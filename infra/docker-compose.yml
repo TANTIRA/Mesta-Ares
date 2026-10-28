@@ -16,9 +16,9 @@ x-rust-build: &rust-build
   dockerfile: infra/Dockerfile.rust-service
 
 x-ares-env: &ares-env
-  NATS_URL: nats://nats:4222
-  REDIS_URL: redis://redis:6379
-  DATABASE_URL: postgres://ares:ares@postgres:5432/ares
+  # NATS_URL is per-service now (see infra/nats/nats.conf accounts).
+  REDIS_URL: redis://:${REDIS_PASSWORD:-ares}@redis:6379
+  DATABASE_URL: postgres://ares:${POSTGRES_PASSWORD:-ares}@postgres:5432/ares
   TOOL_SERVER_URL: http://tool-server:8090
   OPENSEARCH_URL: http://opensearch:9200
   THEHIVE_URL: http://thehive:9000
@@ -64,9 +64,9 @@ services:
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: ares
-      POSTGRES_PASSWORD: ares
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ares}
       POSTGRES_DB: ares
-    ports: ["5432:5432"]
+    ports: ["127.0.0.1:5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ares -d ares"]
@@ -77,9 +77,19 @@ services:
 
   nats:
     image: nats:2.11-alpine
-    command: ["-js", "-sd", "/data", "-m", "8222"]
-    ports: ["4222:4222", "8222:8222"]   # 8222 = http monitor
-    volumes: [nats-data:/data]
+    command: ["-c", "/etc/nats/nats.conf", "-js", "-sd", "/data", "-m", "8222"]
+    environment:
+      NATS_PASS_INGEST: ${NATS_PASS_INGEST:-ingest}
+      NATS_PASS_ORCH: ${NATS_PASS_ORCH:-orch}
+      NATS_PASS_API: ${NATS_PASS_API:-api}
+      NATS_PASS_TRIAGE: ${NATS_PASS_TRIAGE:-triage}
+      NATS_PASS_RESPONSE: ${NATS_PASS_RESPONSE:-response}
+      NATS_PASS_DETECTION: ${NATS_PASS_DETECTION:-detection}
+      NATS_PASS_HUNT: ${NATS_PASS_HUNT:-hunt}
+      NATS_PASS_VULN: ${NATS_PASS_VULN:-vuln}
+      NATS_PASS_BAS: ${NATS_PASS_BAS:-bas}
+    volumes: ["./nats/nats.conf:/etc/nats/nats.conf:ro", "nats-data:/data"]
+    ports: ["127.0.0.1:4222:4222", "127.0.0.1:8222:8222"]   # 8222 = http monitor
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O- http://127.0.0.1:8222/healthz || exit 1"]
       interval: 5s
@@ -89,7 +99,8 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports: ["6379:6379"]
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-ares}"]
+    ports: ["127.0.0.1:6379:6379"]
     volumes: [redis-data:/data]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -111,7 +122,7 @@ services:
     ulimits:
       memlock: {soft: -1, hard: -1}
       nofile: {soft: 65536, hard: 65536}
-    ports: ["9200:9200"]
+    ports: ["127.0.0.1:9200:9200"]
     volumes: [opensearch-data:/usr/share/opensearch/data]
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:9200/_cluster/health || exit 1"]
@@ -381,7 +392,7 @@ services:
       # --no-keep` per call (slower, self-cleaning).
       OPENSHELL_SANDBOX: ${OPENSHELL_SANDBOX:-}
       HOME: /tmp
-    ports: ["8090:8090"]
+    ports: ["127.0.0.1:8090:8090"]   # internal: callers inside the net use service name; external go through api-gateway :8082
     volumes: ["../policies:/policies:ro"]
     depends_on:
       <<: *depends-core
@@ -394,8 +405,9 @@ services:
       args: {BIN: api-server}
     environment:
       <<: [*ares-env, *ares-secrets]
+      NATS_URL: nats://api:${NATS_PASS_API:-api}@nats:4222
       BIND_ADDR: 0.0.0.0:8080
-    ports: ["8080:8080"]
+    ports: ["127.0.0.1:8080:8080"]   # internal: external callers go through api-gateway :8082
     depends_on:
       <<: *depends-core
       tool-server: {condition: service_started}
@@ -407,8 +419,9 @@ services:
       args: {BIN: ingestion-gateway}
     environment:
       <<: [*ares-env, *ares-secrets]
+      NATS_URL: nats://ingest:${NATS_PASS_INGEST:-ingest}@nats:4222
       BIND_ADDR: 0.0.0.0:8091
-    ports: ["8091:8091"]
+    ports: ["127.0.0.1:8091:8091"]   # internal: external callers go through api-gateway :8082
     depends_on:
       <<: *depends-core
     restart: unless-stopped
@@ -443,6 +456,7 @@ services:
       args: {BIN: orchestrator}
     environment:
       <<: [*ares-env, *ares-secrets]
+      NATS_URL: nats://orchestrator:${NATS_PASS_ORCH:-orch}@nats:4222
     depends_on:
       <<: *depends-core
       tool-server: {condition: service_started}
@@ -454,6 +468,7 @@ services:
       args: {BIN: triage-agent}
     environment:
       <<: [*ares-env, *ares-secrets]
+      NATS_URL: nats://triage:${NATS_PASS_TRIAGE:-triage}@nats:4222
     depends_on:
       <<: *depends-core
       orchestrator: {condition: service_started}
@@ -465,6 +480,7 @@ services:
       args: {BIN: response-agent}
     environment:
       <<: [*ares-env, *ares-secrets]
+      NATS_URL: nats://response:${NATS_PASS_RESPONSE:-response}@nats:4222
     depends_on:
       <<: *depends-core
       tool-server: {condition: service_started}
@@ -476,6 +492,7 @@ services:
       args: {BIN: vuln-agent}
     environment:
       <<: [*ares-env, *ares-secrets]
+      NATS_URL: nats://vuln:${NATS_PASS_VULN:-vuln}@nats:4222
       VULN_WATCHLIST: /policies/vuln-watchlist.yml
     volumes:
       - ../policies:/policies:ro
@@ -490,6 +507,7 @@ services:
       args: {BIN: detection-agent}
     environment:
       <<: [*ares-env, *ares-secrets]
+      NATS_URL: nats://detection:${NATS_PASS_DETECTION:-detection}@nats:4222
     # crate resolves ./detection-content relative to CWD (/); rw because the
     # agent writes drafts into pending/ and promotes into active/
     volumes: ["../detection-content:/detection-content"]
@@ -505,6 +523,7 @@ services:
       args: {BIN: hunt-agent}
     environment:
       <<: [*ares-env, *ares-secrets]
+      NATS_URL: nats://hunt:${NATS_PASS_HUNT:-hunt}@nats:4222
     depends_on:
       <<: *depends-core
       tool-server: {condition: service_started}
@@ -517,6 +536,7 @@ services:
       args: {BIN: bas-runner}
     environment:
       <<: [*ares-env, *ares-secrets]
+      NATS_URL: nats://bas:${NATS_PASS_BAS:-bas}@nats:4222
       BAS_SCENARIOS_DIR: /bas
     volumes: ["../bas:/bas:ro"]
     depends_on:

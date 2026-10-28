@@ -228,7 +228,8 @@ async fn poll_once(
         envelope.correlation_id = run_id;
         match serde_json::to_vec(&envelope) {
             Ok(bytes) => {
-                if let Err(e) = nats.publish(SUBJECT_VULNS.to_string(), bytes.into()).await {
+                let sink = agent_core::NatsSink::from_client(nats.clone()).await;
+                if let Err(e) = sink.publish_bytes(SUBJECT_VULNS, bytes).await {
                     warn!(error = %e, "vulns publish failed");
                 }
             }

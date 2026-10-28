@@ -103,14 +103,41 @@ pub(crate) struct AuditQuery {
     limit: Option<i64>,
 }
 
-/// `GET /audit/verify` — re-walks the hash chain and reports the first break.
+/// `GET /audit/verify` — re-walks the hash chain, reports the first break,
+/// and cross-checks the tail against the out-of-DB anchor file.
 pub(crate) async fn verify_audit(
     State(s): State<Arc<AppState>>,
-) -> Result<Json<audit::ChainReport>, ApiError> {
-    audit::AuditWriter::verify_chain(&s.pool)
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let report = audit::AuditWriter::verify_chain(&s.pool)
         .await
-        .map(Json)
-        .map_err(|e| api_err(StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+        .map_err(|e| api_err(StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let anchored = audit_anchor_check(&s.pool).await;
+    Ok(Json(serde_json::json!({
+        "rows": report.rows,
+        "verified": report.verified,
+        "broken_at": report.broken_at,
+        "reason": report.reason,
+        "anchored": anchored,
+    })))
+}
+
+/// `true` when the newest anchor line matches the current chain tail.
+/// `None` when no anchor file exists (feature off).
+async fn audit_anchor_check(pool: &sqlx::PgPool) -> Option<bool> {
+    let path =
+        std::env::var("AUDIT_ANCHOR_PATH").unwrap_or_else(|_| "audit-anchor.log".into());
+    let last = std::fs::read_to_string(&path)
+        .ok()?
+        .lines()
+        .last()?
+        .to_string();
+    let (seq, hash) = last.split_once(',')?;
+    let (seq_db, hash_db): (i64, String) =
+        sqlx::query_as("SELECT seq, hash FROM audit_log ORDER BY seq DESC LIMIT 1")
+            .fetch_optional(pool)
+            .await
+            .ok()??;
+    Some(seq_db.to_string() == seq && hash_db == hash)
 }
 
 /// `GET /audit` — newest `audit_log` rows.

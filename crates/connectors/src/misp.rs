@@ -134,9 +134,19 @@ pub struct MispClient {
 
 impl MispClient {
     pub fn new(base_url: impl Into<String>, auth: Auth) -> Self {
+        // TLS verifies by default; MISP_TLS_INSECURE=1 is an explicit
+        // dev opt-in for self-signed compose MISP.
+        let http = if crate::http::env("MISP_TLS_INSECURE").as_deref() == Some("1") {
+            Client::builder()
+                .danger_accept_invalid_certs(true)
+                .build()
+                .unwrap_or_else(|_| Client::new())
+        } else {
+            Client::new()
+        };
         Self {
             base: base_url.into().trim_end_matches('/').to_string(),
-            http: Client::new(),
+            http,
             auth,
         }
     }
