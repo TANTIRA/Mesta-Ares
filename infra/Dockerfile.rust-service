@@ -15,10 +15,15 @@ RUN cargo build --release --locked --bin "${BIN}" \
 
 FROM debian:bookworm-slim
 ARG BIN
+# Kill-switch control surface: the named volume is initialised from /control,
+# so it inherits ownership by the non-root service user (only api-server writes
+# there; the gate and agents mount it read-only).
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates curl \
  && rm -rf /var/lib/apt/lists/* \
- && useradd --system --uid 10001 --no-create-home ares
+ && useradd --system --uid 10001 --no-create-home ares \
+ && mkdir -p /control \
+ && chown -R ares:ares /control
 # exec.* tools shell out to the OpenShell CLI — a static musl binary published
 # per release (no deb needed; RPMs/debs also exist). The CLI needs a
 # registered gateway (docker-compose `sandbox` profile); without the binary or

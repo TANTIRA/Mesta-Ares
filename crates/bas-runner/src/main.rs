@@ -205,6 +205,12 @@ async fn run_scenario(deps: &Deps, scenario: &Scenario) -> anyhow::Result<()> {
         info!(scenario = %scenario.id, "dry run: skipping metrics and publish");
         return Ok(());
     }
+    // A BAS run launches a real attack: honour the operator kill switch that
+    // every other agent and the policy gate obey.
+    if agent_core::kill_switch_engaged() {
+        warn!(scenario = %scenario.id, "kill switch engaged; attack not launched");
+        return Ok(());
+    }
     execute(scenario)?;
     let since = chrono::Utc::now();
     let started = Instant::now();

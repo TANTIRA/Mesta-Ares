@@ -248,19 +248,25 @@ paths:
       summary: Current kill-switch state
       responses:
         '200':
-          description: State
+          description: State and the source driving it
           content:
             application/json:
               schema:
                 type: object
-                required: [engaged]
+                required: [engaged, source]
                 properties:
                   engaged: { type: boolean }
+                  source:
+                    type: string
+                    enum: [env, file, off]
     post:
       tags: [Control]
       summary: Engage or disengage the kill switch
       description: |
-        Writes or removes `$POLICIES_DIR/kill`. An empty body engages the switch.
+        Writes or removes `$ARES_CONTROL_DIR/kill` (default
+        `$POLICIES_DIR/kill`). An empty body engages the switch. The write is
+        verified against the file the policy gate reads; a write that does not
+        take effect returns `500` instead of reporting success.
       requestBody:
         required: false
         content:
@@ -279,7 +285,10 @@ paths:
               schema:
                 type: object
                 properties:
+                  state: { type: string, enum: [engaged, disengaged] }
                   engaged: { type: boolean }
+                  source: { type: string, enum: [env, file, off] }
+                  file: { type: string }
         '500':
           $ref: '#/components/responses/ServerError'
 

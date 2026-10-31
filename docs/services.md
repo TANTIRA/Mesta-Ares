@@ -38,7 +38,10 @@ and `agent_checkpoints` (api-server folds it into task/run status).
   Statuses: `pending → approved` (approved *and* executed), `execution_failed`
   (approved but the tool failed; `result.error` says why), `rejected`, `expired`.
 - `GET api-server:8080/…` — `/health /alerts /alerts/:id /cases /cases/:id /audit /metrics /coverage /plans/:case_id`.
-- `POST /controls/kill-switch` — engages/disengages `$POLICIES_DIR/kill`; `GET` reads state. Fail-closed reads.
+- `POST /controls/kill-switch` — writes/removes `$ARES_CONTROL_DIR/kill`
+  (shared RW volume into api-server, RO into tool-server and every agent),
+  verifies the gate's view, and returns 500 when the write did not take effect;
+  `GET` returns `{engaged, source}`. Fail-closed reads.
 - `GET /stream/activity` — SSE, event `{workflow_run_id, agent, step, detail, ts}`.
 - A2A interop: `GET /.well-known/agent.json` (platform card), `GET /a2a/agents`, `GET /a2a/{agent}/.well-known/agent.json`, `POST /a2a/{agent}` (JSON-RPC `tasks/send|get|cancel|sendSubscribe`), `GET /a2a/tasks/{id}/events` (per-task SSE). Agents: `triage-agent`, `response-agent`, `detection-agent`, `hunt-agent`. Task → `Envelope` (source `a2a:<task_id>`, correlation_id = task UUID) published on the agent's subject.
 - `POST ingestion-gateway:8091/webhook/wazuh` — Wazuh integratord JSON → `Envelope`. `202 Accepted` on publish, `502` if the publish fails (caller retries; integratord does not, so monitor this).

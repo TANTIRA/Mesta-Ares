@@ -27,6 +27,23 @@ operator-facing control sheet.
 - Rotation = edit the secret + restart (`kubectl rollout restart` /
   `docker compose up -d`). Keys are env-resident by design today.
 
+## Kill switch
+
+`agent_protocol::kill` is the single predicate used by api-server, tool-server,
+`bas-runner`, and every agent. State comes from the first source that applies:
+
+1. `ARES_KILL_SWITCH` (boot-time override; a restart is required to change it),
+2. `ARES_KILL_FILE` (explicit kill-file path),
+3. `$ARES_CONTROL_DIR/kill` — the shipped control surface (default
+   `$POLICIES_DIR/kill` when no control dir is configured).
+
+Compose, k8s, and Helm mount one control volume: read-write into api-server
+(the only writer) and read-only into tool-server and the agents, so the state
+an operator writes is the state the policy gate reads. `POST
+/controls/kill-switch` writes the file, re-reads it, and returns 500 if the
+gate's view did not change (a write that only lands in api-server's container
+is a broken kill switch, not a success). `GET` reports `{engaged, source}`.
+
 ## Audit integrity
 
 `audit_log` is a hash chain (`/audit/verify` re-walks it). Additionally,

@@ -1,6 +1,23 @@
 # In-cluster datastores — dev-grade, single replica, same shape as the Helm
 # chart's postgres/nats/redis templates. For production point DATABASE_URL at
 # a managed Postgres and run the official NATS chart/operator instead.
+#
+# `ares-control` is the kill-switch control surface: api-server mounts it
+# read-write (the only writer) and tool-server/all agents mount it read-only.
+# Access mode is ReadWriteOnce so this works on a single-node/dev cluster. On a
+# multi-node cluster, back it with RWX storage (or replace the file with a
+# DB/NATS-backed control plane) — a RWO volume cannot be mounted by pods on
+# different nodes.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ares-control
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 10Mi
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

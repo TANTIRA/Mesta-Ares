@@ -53,10 +53,17 @@ spec:
             - name: policies
               mountPath: /policies
               readOnly: true
+            # Kill-switch state (read-only; api-server is the only writer).
+            - name: control
+              mountPath: /control
+              readOnly: true
       volumes:
         - name: policies
           configMap:
             name: ares-policies
+        - name: control
+          persistentVolumeClaim:
+            claimName: ares-control
 ---
 apiVersion: v1
 kind: Service
@@ -88,6 +95,11 @@ spec:
         app.kubernetes.io/name: api-server
         app.kubernetes.io/part-of: ares
     spec:
+      # The api-server runs as uid 10001; fsGroup makes the control PVC
+      # group-writable so the kill-switch file can be written. Only this pod
+      # mounts the volume read-write.
+      securityContext:
+        fsGroup: 10001
       containers:
         - name: api-server
           image: ghcr.io/your-org/ares-api-server:0.1.0
@@ -121,12 +133,18 @@ spec:
             - name: detection-active
               mountPath: /app/detection-content/active
               readOnly: true
+            # Kill-switch control surface: this is the only writer.
+            - name: control
+              mountPath: /control
       volumes:
         # Read-only copy: coverage reflects the committed rule set, not rules
         # the detection agent promoted into its PVC at runtime.
         - name: detection-active
           configMap:
             name: ares-detection-active
+        - name: control
+          persistentVolumeClaim:
+            claimName: ares-control
 ---
 apiVersion: v1
 kind: Service
@@ -314,6 +332,14 @@ spec:
           resources:
             requests: {cpu: 100m, memory: 128Mi}
             limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - name: control
+              mountPath: /control
+              readOnly: true
+      volumes:
+        - name: control
+          persistentVolumeClaim:
+            claimName: ares-control
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -345,6 +371,14 @@ spec:
           resources:
             requests: {cpu: 100m, memory: 128Mi}
             limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - name: control
+              mountPath: /control
+              readOnly: true
+      volumes:
+        - name: control
+          persistentVolumeClaim:
+            claimName: ares-control
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -376,6 +410,14 @@ spec:
           resources:
             requests: {cpu: 100m, memory: 128Mi}
             limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - name: control
+              mountPath: /control
+              readOnly: true
+      volumes:
+        - name: control
+          persistentVolumeClaim:
+            claimName: ares-control
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -414,10 +456,16 @@ spec:
             - name: policies
               mountPath: /policies
               readOnly: true
+            - name: control
+              mountPath: /control
+              readOnly: true
       volumes:
         - name: policies
           configMap:
             name: ares-policies
+        - name: control
+          persistentVolumeClaim:
+            claimName: ares-control
 ---
 # detection-agent writes into detection-content/{pending,active}, so it gets a
 # writable PVC seeded once from the ConfigMap (ConfigMap mounts are read-only).
@@ -482,6 +530,9 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /app/detection-content
+            - name: control
+              mountPath: /control
+              readOnly: true
       volumes:
         - name: seed-active
           configMap:
@@ -492,6 +543,9 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: ares-detection-content
+        - name: control
+          persistentVolumeClaim:
+            claimName: ares-control
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -529,10 +583,16 @@ spec:
             - name: bas-scenarios
               mountPath: /app/bas/scenarios
               readOnly: true
+            - name: control
+              mountPath: /control
+              readOnly: true
       volumes:
         - name: bas-scenarios
           configMap:
             name: ares-bas-scenarios
+        - name: control
+          persistentVolumeClaim:
+            claimName: ares-control
 ---
 # Single entry point in front of api-server / ingestion-gateway / tool-server.
 # GATEWAY_API_KEYS comes from ares-secrets; without it the gateway fails closed.

@@ -19,6 +19,12 @@ spec:
         app.kubernetes.io/name: {{ $name }}
         {{- include "ares.labels" $ | nindent 8 }}
     spec:
+      {{- if $svc.controlWrite }}
+      # The service user is uid 10001; fsGroup makes the control PVC
+      # group-writable for the single read-write (api-server) mount.
+      securityContext:
+        fsGroup: 10001
+      {{- end }}
       containers:
         - name: {{ $name }}
           image: {{ include "ares.image" (dict "root" $ "name" $name "svc" $svc) }}
@@ -42,20 +48,32 @@ spec:
           {{- end }}
           resources:
             {{- toYaml ($svc.resources | default $.Values.resources) | nindent 12 }}
-          {{- if $svc.configVolumes }}
+          {{- if or $svc.configVolumes $svc.control }}
           volumeMounts:
             {{- range $svc.configVolumes }}
             - name: {{ .name }}
               mountPath: {{ .mountPath }}
               readOnly: {{ .readOnly | default true }}
             {{- end }}
+            {{- if $svc.control }}
+            # Kill-switch state: read-only for the gate and agents, the
+            # api-server entry opts into read-write as the only writer.
+            - name: control
+              mountPath: /control
+              readOnly: {{ hasKey $svc.control "readOnly" | ternary $svc.control.readOnly true }}
+            {{- end }}
           {{- end }}
-      {{- if $svc.configVolumes }}
+      {{- if or $svc.configVolumes $svc.control }}
       volumes:
         {{- range $svc.configVolumes }}
         - name: {{ .name }}
           configMap:
             name: {{ .configMap }}
+        {{- end }}
+        {{- if $svc.control }}
+        - name: control
+          persistentVolumeClaim:
+            claimName: {{ include "ares.fullname" $ }}-control
         {{- end }}
       {{- end }}
 {{- if $svc.port }}
