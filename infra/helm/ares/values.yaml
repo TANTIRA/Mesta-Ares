@@ -9,6 +9,8 @@ global:
 # Secrets (API keys, DB creds, tokens) come from a Secret named
 # `ares-secrets` — create it out-of-band:
 #   kubectl create secret generic ares-secrets --from-env-file=.env
+# Kill-switch emergency override: add `ARES_KILL_SWITCH: "1"` to this map (or
+# to ares-secrets) to start with the switch engaged; prefer the control API.
 # Expected keys: DATABASE_URL, ANTHROPIC_API_KEY, VIRUSTOTAL_API_KEY,
 # SHODAN_API_KEY, ABUSEIPDB_API_KEY, GREYNOISE_API_KEY, MISP_API_KEY,
 # THEHIVE_API_KEY, WAZUH_API_USER, WAZUH_API_PASS, SHUFFLE_API_KEY,
@@ -20,6 +22,10 @@ env:
   RUST_LOG: info
   # Fail closed: edge services exit rather than serve unauthenticated.
   ARES_REQUIRE_AUTH: "1"
+  # Kill-switch control surface. api-server mounts the `control` PVC
+  # read-write; tool-server and the agents mount it read-only. `POST
+  # /controls/kill-switch` writes /control/kill, which the policy gate reads.
+  ARES_CONTROL_DIR: /control
   NATS_URL: nats://ares-nats:4222
   REDIS_URL: redis://ares-redis:6379
   # DATABASE_URL lives in ares-secrets (contains the password).
@@ -31,12 +37,21 @@ env:
   WAZUH_API_URL: https://wazuh-manager.example:55000
   SHUFFLE_URL: http://shuffle-backend.example:5001
 
+# Shared kill-switch state, as a single PVC mounted RW into api-server and RO
+# into tool-server + agents. ReadWriteOnce works on a single-node cluster; on a
+# multi-node cluster use RWX storage or replace the file with a DB/NATS-backed
+# control plane.
+control:
+  storage: 10Mi
+  accessMode: ReadWriteOnce
+
 # The 9 Rust binaries + console. `port` also creates a Service; omit for
 # workers that only consume NATS.
 services:
   tool-server:
     port: 8090
     env: {POLICIES_DIR: /policies, BIND_ADDR: 0.0.0.0:8090}
+    control: {readOnly: true}
     configVolumes:
       - name: policies
         mountPath: /policies
@@ -45,29 +60,37 @@ services:
   api-server:
     port: 8080
     env: {BIND_ADDR: 0.0.0.0:8080}
+    control: {readOnly: false}   # the only writer
+    controlWrite: true           # pod fsGroup=10001 so uid 10001 can write the PVC
   ingestion-gateway:
     port: 8091
     env: {BIND_ADDR: 0.0.0.0:8091}
   orchestrator: {}
-  triage-agent: {}
+  triage-agent:
+    control: {readOnly: true}
   vuln-agent:
     env: {VULN_WATCHLIST: /policies/vuln-watchlist.yml}
+    control: {readOnly: true}
     configVolumes:
       - name: policies
         mountPath: /policies
         readOnly: true
         configMap: ares-policies
-  response-agent: {}
+  response-agent:
+    control: {readOnly: true}
   detection-agent:
     env: {DETECTION_CONTENT_DIR: /detection-content}
+    control: {readOnly: true}
     configVolumes:
       - name: detection-content
         mountPath: /detection-content
         readOnly: true
         configMap: ares-detection-content
-  hunt-agent: {}
+  hunt-agent:
+    control: {readOnly: true}
   bas-runner:
     env: {BAS_SCENARIOS_DIR: /bas}
+    control: {readOnly: true}
     configVolumes:
       - name: bas
         mountPath: /bas

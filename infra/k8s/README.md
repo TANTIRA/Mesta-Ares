@@ -51,6 +51,15 @@ subdirectory each one scans:
 | `api-server` | `detection-content/active` | `ares-detection-active` → `/app/detection-content/active` |
 | `bas-runner` | `bas/scenarios` | `ares-bas-scenarios` → `/app/bas/scenarios` |
 
+`ares-control` is the kill-switch control surface (`ARES_CONTROL_DIR=/control`).
+It is mounted read-write into `api-server` (the only writer) and read-only into
+`tool-server` and every agent, so `POST /controls/kill-switch` stops the fleet
+instead of only writing a file inside one container. The api-server pod sets
+`fsGroup: 10001` so the non-root service user can write the PVC (use storage
+that honours fsGroup, or add a run-as-root init container that chowns
+`/control`). The PVC is `ReadWriteOnce`; on a multi-node cluster use RWX storage
+or replace the file with a DB/NATS-backed control plane.
+
 `detection-agent` **writes** `detection-content/{pending,active}`, and
 ConfigMap mounts are read-only. It therefore gets a PVC seeded once by an
 init container (`cp -rn`, so promoted rules are never overwritten).

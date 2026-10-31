@@ -21,6 +21,12 @@ data:
   RUST_LOG: "info"
   # Fail closed: every edge service exits rather than serve unauthenticated.
   ARES_REQUIRE_AUTH: "1"
+  # Kill-switch control surface. api-server mounts it read-write; tool-server
+  # and every agent mount it read-only. `POST /controls/kill-switch` writes
+  # /control/kill, which is the file the policy gate reads.
+  ARES_CONTROL_DIR: "/control"
+  # Emergency boot-time override: add ARES_KILL_SWITCH: "1" here (or in
+  # ares-secrets) to start with the switch engaged; prefer the control API.
   NATS_URL: "nats://ares-nats:4222"
   REDIS_URL: "redis://ares-redis:6379"
   TOOL_SERVER_URL: "http://ares-tool-server:8090"

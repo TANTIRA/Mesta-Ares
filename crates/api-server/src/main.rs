@@ -41,7 +41,6 @@ mod yaml_dir;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
-use agent_core::kill_switch_engaged;
 use anyhow::Context;
 use axum::{
     middleware,
@@ -175,7 +174,18 @@ async fn main() -> anyhow::Result<()> {
     let nats = async_nats::connect(&config.nats_url).await?;
     let sink = agent_core::NatsSink::from_client(nats.clone()).await;
     let activity_tx = stream::spawn_activity_relay(nats.clone()).await?;
-    let _ = kill_switch_engaged(); // warm the check path at boot
+    // Surface the effective kill-switch state and where it is read from at
+    // boot, so a control directory the gate cannot see shows up in the logs
+    // instead of only when an operator pulls the brake.
+    {
+        let source = agent_protocol::kill::kill_switch_source();
+        tracing::info!(
+            engaged = source != agent_protocol::kill::KillSource::Off,
+            source = source.as_str(),
+            file = %agent_protocol::kill::kill_file().display(),
+            "kill switch state"
+        );
+    }
     let audit = Some(Arc::new(audit::AuditWriter::new(pool.clone())));
 
     // Anchor the audit chain tail outside Postgres every minute: a DB writer

@@ -27,6 +27,17 @@ x-ares-env: &ares-env
   WAZUH_API_URL: https://wazuh-manager:55000
   SHUFFLE_URL: http://shuffle-backend:5001
   RUST_LOG: ${RUST_LOG:-info}
+  # Kill switch / control plane: one directory, mounted read-write into
+  # api-server (the only writer) and read-only into tool-server and every
+  # agent. The gate reads the kill file at $ARES_CONTROL_DIR/kill, so
+  # `POST /controls/kill-switch` actually stops the fleet.
+  ARES_CONTROL_DIR: /control
+  # Boot-time override (engage immediately, survives until the file is
+  # removed): 1/true/yes/on. Normally empty — use the control endpoint.
+  ARES_KILL_SWITCH: ${ARES_KILL_SWITCH:-}
+  # Optional absolute override for the kill file (defaults to
+  # $ARES_CONTROL_DIR/kill). Leave empty unless a host path is preferred.
+  ARES_KILL_FILE: ${ARES_KILL_FILE:-}
 
 # Secrets are interpolated from the .env file next to the repo root
 # (compose auto-loads ../.env relative to this file). Never hardcode here.
@@ -403,7 +414,7 @@ services:
       OPENSHELL_SANDBOX: ${OPENSHELL_SANDBOX:-}
       HOME: /tmp
     ports: ["127.0.0.1:8090:8090"]   # internal: callers inside the net use service name; external go through api-gateway :8082
-    volumes: ["../policies:/policies:ro"]
+    volumes: ["../policies:/policies:ro", "ares-control:/control:ro"]
     depends_on:
       <<: *depends-core
       opensearch: {condition: service_started}
@@ -418,6 +429,7 @@ services:
       NATS_URL: nats://api:${NATS_PASS_API:-api}@nats:4222
       BIND_ADDR: 0.0.0.0:8080
     ports: ["127.0.0.1:8080:8080"]   # internal: external callers go through api-gateway :8082
+    volumes: ["ares-control:/control"]   # the only writer of $ARES_CONTROL_DIR/kill
     depends_on:
       <<: *depends-core
       tool-server: {condition: service_started}
@@ -479,6 +491,7 @@ services:
     environment:
       <<: [*ares-env, *ares-secrets]
       NATS_URL: nats://triage:${NATS_PASS_TRIAGE:-triage}@nats:4222
+    volumes: ["ares-control:/control:ro"]
     depends_on:
       <<: *depends-core
       orchestrator: {condition: service_started}
@@ -491,6 +504,7 @@ services:
     environment:
       <<: [*ares-env, *ares-secrets]
       NATS_URL: nats://response:${NATS_PASS_RESPONSE:-response}@nats:4222
+    volumes: ["ares-control:/control:ro"]
     depends_on:
       <<: *depends-core
       tool-server: {condition: service_started}
@@ -506,6 +520,7 @@ services:
       VULN_WATCHLIST: /policies/vuln-watchlist.yml
     volumes:
       - ../policies:/policies:ro
+      - ares-control:/control:ro
     depends_on:
       <<: *depends-core
       tool-server: {condition: service_started}
@@ -520,7 +535,7 @@ services:
       NATS_URL: nats://detection:${NATS_PASS_DETECTION:-detection}@nats:4222
     # crate resolves ./detection-content relative to CWD (/); rw because the
     # agent writes drafts into pending/ and promotes into active/
-    volumes: ["../detection-content:/detection-content"]
+    volumes: ["../detection-content:/detection-content", "ares-control:/control:ro"]
     depends_on:
       <<: *depends-core
       tool-server: {condition: service_started}
@@ -534,6 +549,7 @@ services:
     environment:
       <<: [*ares-env, *ares-secrets]
       NATS_URL: nats://hunt:${NATS_PASS_HUNT:-hunt}@nats:4222
+    volumes: ["ares-control:/control:ro"]
     depends_on:
       <<: *depends-core
       tool-server: {condition: service_started}
@@ -548,7 +564,7 @@ services:
       <<: [*ares-env, *ares-secrets]
       NATS_URL: nats://bas:${NATS_PASS_BAS:-bas}@nats:4222
       BAS_SCENARIOS_DIR: /bas
-    volumes: ["../bas:/bas:ro"]
+    volumes: ["../bas:/bas:ro", "ares-control:/control:ro"]
     depends_on:
       <<: *depends-core
       opensearch: {condition: service_started}
@@ -608,6 +624,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  ares-control:   # kill-switch state shared by api-server (RW) and the gate/agents (RO)
   pgdata:
   nats-data:
   redis-data:

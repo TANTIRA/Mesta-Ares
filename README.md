@@ -45,9 +45,13 @@ the policy gate, idempotency store and audit chain see them.
   controllers, Tier-0 accounts, RFC1918 ranges, the control plane itself)
   that can never be the target of a write/high-impact call — not
   runtime-overridable; changes require a commit.
-- **Kill switch.** `ARES_KILL_SWITCH=1` or a non-empty `$POLICIES_DIR/kill`
-  file halts every agent and the policy gate (one shared predicate in
-  `agent-protocol::kill`); `POST /controls/kill-switch` writes that file.
+- **Kill switch.** `ARES_KILL_SWITCH=1` or a non-empty kill file at
+  `$ARES_CONTROL_DIR/kill` halts every agent, `bas-runner`, and the policy gate
+  (one shared predicate in `agent-protocol::kill`). Every shipped manifest
+  mounts one writable control volume: api-server read-write (the only writer),
+  tool-server and the agents read-only. `POST /controls/kill-switch` writes
+  that file, then verifies the gate's view and returns 500 if the write did not
+  reach the shared volume.
 - **Detection-as-code.** Rules live in `detection-content/`, are drafted by
   the agent into `pending/`, backtested, and promoted to `active/` only by
   commit — then deployed as OpenSearch monitors.

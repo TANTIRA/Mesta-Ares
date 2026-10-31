@@ -1,0 +1,15 @@
+# Kill-switch control surface: one PVC per release, mounted read-write into
+# api-server (the only writer) and read-only into tool-server + agents by
+# templates/services.yaml. ARES_CONTROL_DIR points at /control.
+{{- $control := .Values.control | default dict }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "ares.fullname" . }}-control
+  labels:
+    {{- include "ares.labels" . | nindent 4 }}
+spec:
+  accessModes: [{{ $control.accessMode | default "ReadWriteOnce" }}]
+  resources:
+    requests:
+      storage: {{ $control.storage | default "10Mi" }}
